@@ -1,0 +1,619 @@
+/**
+ * @license
+ * File: tests.js
+ *
+ * Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
+ * Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
+ * (at your option) any later version. This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
+ * GNU Lesser General Public License along with this library.
+ */
+
+var fixture = document.getElementById("qunit-fixture");
+
+QUnit.module('m', {
+    setup: function() {
+    },
+    teardown: function() {
+    }
+});
+
+test('m sec2tod test', function() {
+	/* Test #1 */
+	var secs = 43200;
+	equal(m.sec2tod(secs),"12:00:00:00");
+	/* Test #2 */
+	var secs = 86399;
+	equal(m.sec2tod(secs),"23:59:59:00");
+	/* Test #3 */
+	var secs = 86400;
+	equal(m.sec2tod(secs),"1::00:00:00:00");
+	/* Test #4 */
+	var secs = 86401;
+	equal(m.sec2tod(secs),"1::00:00:01:00");
+	/* Test #5 */
+	var secs = 86400+43200;
+	equal(m.sec2tod(secs),"1::12:00:00:00");
+	/* Test #6 */
+	var secs = 31535999;
+	equal(m.sec2tod(secs),"364::23:59:59:00");
+	/* Test #7 */
+	var secs = 31536000;
+	equal(m.sec2tod(secs),"1951:00:01::00:00:00:00");
+	/* Test #8 */
+	var secs = -31535999;
+	equal(m.sec2tod(secs),"-364::23:59:59:00");
+	/* Test #9 */
+	var secs = -31536000;
+	equal(m.sec2tod(secs),"1949:00:01::00:00:00:00");
+	/* Test #10 */
+	var secs = -31536001;
+	equal(m.sec2tod(secs),"1948:11:31::23:59:59:00");
+
+});
+
+QUnit.module('mx', {
+    setup: function() {
+    },
+    teardown: function() {
+    }
+});
+
+test('mx real_to_pixel test', function() {
+    var Mx = {
+        origin: 1,
+        x: 0,
+        y: 0,
+        level: 0,
+        stk: [{
+          xmin: -1,
+          xmax: 1,
+          ymin: -1,
+          ymax: 1,
+          xscl: 1/100,
+          yscl: 1/100,
+          x1: 0,
+          y1: 0,
+          x2: 200,
+          y2: 200,
+              
+        }]
+    };
+    
+    var result = mx.real_to_pixel(Mx, 0, 0);
+    equal( result.x, 100 );
+    equal( result.y, 100 );
+    equal( result.clipped, false );
+    
+    var result = mx.real_to_pixel(Mx, 1, 1);
+    equal( result.x, 200 );
+    equal( result.y, 0 );
+    equal( result.clipped, false );
+    
+    var result = mx.real_to_pixel(Mx, -1, -1);
+    equal( result.x, 0 );
+    equal( result.y, 200 );
+    equal( result.clipped, false );
+    
+    var result = mx.real_to_pixel(Mx, 1.5, 1);
+    equal( result.x, 250 );
+    equal( result.y, 0 );
+    equal( result.clipped, true );
+    
+    var result = mx.real_to_pixel(Mx, -1, -1.5);
+    equal( result.x, 0 );
+    equal( result.y, 250 );
+    equal( result.clipped, true );
+    
+    var result = mx.real_to_pixel(Mx, 1.5, 1, true);
+    equal( result.x, 200 );
+    equal( result.y, 0 );
+    equal( result.clipped, true );
+    
+    var result = mx.real_to_pixel(Mx, -1, -1.5, true);
+    equal( result.x, 0 );
+    equal( result.y, 200 );
+    equal( result.clipped, true );
+
+});
+
+QUnit.module('bluefile', {
+    setup: function() {
+    },
+    teardown: function() {
+    }
+});
+
+asyncTest('int data', function() {
+	var bfr = new BlueFileReader();
+	bfr.read_http("dat/ramp.tmp", function (hdr) {
+		//equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+		equal( hdr.buf.byteLength, 2560, "buf correct size");
+
+		//equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
+		equal( hdr.dview.length, 1024, "dview correct size");
+
+		strictEqual( hdr.file_name, "ramp.tmp", "correct file name");
+
+		strictEqual( hdr.version, "BLUE", "correct version");
+		strictEqual( hdr.headrep, "EEEI", "correct header rep");
+		strictEqual( hdr.datarep, "EEEI", "correct data rep");
+
+		strictEqual( hdr.timecode, 0, "correct timecode");
+
+		strictEqual( hdr.type, 1000, "correct type");
+		strictEqual( hdr.class, 1, "correct class");
+		strictEqual( hdr.format, "SI", "correct format");
+
+		strictEqual( hdr.spa, 1, "correct spa");
+		strictEqual( hdr.bps, 2, "correct bps");
+		strictEqual( hdr.bpa, 2, "correct bpa");
+		strictEqual( hdr.ape, 1, "correct ape");
+		strictEqual( hdr.bpe, 2, "correct bpe");
+
+		strictEqual( hdr.size, 1024, "correct size");
+
+		strictEqual( hdr.xstart, 0.0, "correct xstart");
+		strictEqual( hdr.xdelta, 1.0, "correct xdelta");
+		strictEqual( hdr.xunits, 1, "correct xunits");
+		strictEqual( hdr.subsize, 1, "correct subsize");
+
+		equal( hdr.ystart, undefined);
+		equal( hdr.yelta, undefined);
+		equal( hdr.yunits, undefined);
+
+
+		strictEqual( hdr.data_start, 512.0, "correct data_start");
+		strictEqual( hdr.data_size, 2048, "correct data_size");
+
+		equal( hdr.dview[0], 0);
+
+		equal( hdr.dview[1], 1);
+		equal( hdr.dview[2], 2);
+		equal( hdr.dview[1021], 1021);
+		equal( hdr.dview[1022], 1022);
+		equal( hdr.dview[1023], 1023);
+
+		start();
+	});
+});
+
+asyncTest('double data', function() {
+	var bfr = new BlueFileReader();
+	bfr.read_http("dat/sin.tmp", function (hdr) {
+		//equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+		equal( hdr.buf.byteLength, 33280, "buf correct size");
+
+		//equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
+		equal( hdr.dview.length, 4096, "dview correct size");
+
+		strictEqual( hdr.file_name, "sin.tmp", "correct file name");
+
+		strictEqual( hdr.version, "BLUE", "correct version");
+		strictEqual( hdr.headrep, "EEEI", "correct header rep");
+		strictEqual( hdr.datarep, "EEEI", "correct data rep");
+
+		strictEqual( hdr.timecode, 0, "correct timecode");
+
+		strictEqual( hdr.type, 1000, "correct type");
+		strictEqual( hdr.class, 1, "correct class");
+		strictEqual( hdr.format, "SD", "correct format");
+
+		strictEqual( hdr.spa, 1, "correct spa");
+		strictEqual( hdr.bps, 8, "correct bps");
+		strictEqual( hdr.bpa, 8, "correct bpa");
+		strictEqual( hdr.ape, 1, "correct ape");
+		strictEqual( hdr.bpe, 8, "correct bpe");
+
+		strictEqual( hdr.size, 4096, "correct size");
+
+		strictEqual( hdr.xstart, 0.0, "correct xstart");
+		strictEqual( hdr.xdelta, 1.0, "correct xdelta");
+		strictEqual( hdr.xunits, 0, "correct xunits");
+		strictEqual( hdr.subsize, 1, "correct subsize");
+
+		equal( hdr.ystart, undefined);
+		equal( hdr.yelta, undefined);
+		equal( hdr.yunits, undefined);
+
+
+		strictEqual( hdr.data_start, 512.0, "correct data_start");
+		strictEqual( hdr.data_size, 32768, "correct data_size");
+
+		equal( hdr.dview[0], 1);
+		equal( hdr.dview[1], 0.9980267284282716);
+		equal( hdr.dview[2], 0.9921147013144778);
+		equal( hdr.dview[4093], 0.9048270524660175);
+		equal( hdr.dview[4094], 0.9297764858882493);
+		equal( hdr.dview[4095], 0.9510565162951516);
+
+		start();
+	});
+});
+
+asyncTest('complex float data', function() {
+	var bfr = new BlueFileReader();
+	bfr.read_http("dat/pulse_cx.tmp", function (hdr) {
+		//equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+		equal( hdr.buf.byteLength, 131584, "buf correct size");
+
+		//equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
+		equal( hdr.dview.length, 400, "dview correct size");
+
+		strictEqual( hdr.file_name, "pulse_cx.tmp", "correct file name");
+
+		strictEqual( hdr.version, "BLUE", "correct version");
+		strictEqual( hdr.headrep, "EEEI", "correct header rep");
+		strictEqual( hdr.datarep, "EEEI", "correct data rep");
+
+		strictEqual( hdr.timecode, 0, "correct timecode");
+
+		strictEqual( hdr.type, 1000, "correct type");
+		strictEqual( hdr.class, 1, "correct class");
+		strictEqual( hdr.format, "CF", "correct format");
+
+		strictEqual( hdr.spa, 2, "correct spa");
+		strictEqual( hdr.bps, 4, "correct bps");
+		strictEqual( hdr.bpa, 8, "correct bpa");
+		strictEqual( hdr.ape, 1, "correct ape");
+		strictEqual( hdr.bpe, 8, "correct bpe");
+
+		strictEqual( hdr.size, 200, "correct size");
+
+		strictEqual( hdr.xstart, 0.0, "correct xstart");
+		strictEqual( hdr.xdelta, 1.0, "correct xdelta");
+		strictEqual( hdr.xunits, 1, "correct xunits");
+		strictEqual( hdr.subsize, 1, "correct subsize");
+
+		equal( hdr.ystart, undefined);
+		equal( hdr.yelta, undefined);
+		equal( hdr.yunits, undefined);
+
+
+		strictEqual( hdr.data_start, 512.0, "correct data_start");
+		strictEqual( hdr.data_size, 1600, "correct data_size");
+
+		start();
+	});
+});
+
+test('create type1000', function() {
+	//var hcb = m.initialize([1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0], {file_name :"newFile"});
+	var rdbuf = new ArrayBuffer(64);
+	var rdview = new Float32Array(rdbuf);
+	var hcb = m.initialize(rdview, {file_name :"newFile"});
+	notEqual(hcb.pipe, true);		//#1
+	equal(hcb.file_name, "newFile");	//#2
+	equal(hcb.format, "SF");		//#3
+	equal(hcb.type, 1000);			//#4
+	equal(hcb.dview.BYTES_PER_ELEMENT, 4);	//#5
+	equal(hcb.dview.length, 16);		//#6
+	hcb.dview=[1,2,3];
+	//m.filad(hcb, rdview);
+	//equal(hcb.data_free, 0);		//#7
+	equal(hcb.dview[0], 1.0);		//#8
+	equal(hcb.dview[1], 2.0);		//#8
+	equal(hcb.dview[2], 3.0);		//#8
+});
+
+test('bluefile pipe basics', function() {
+	var hcb = m.initialize([], {pipe: true, pipesize: 16});
+	equal( hcb.pipe, true);
+	equal( hcb.in_byte, 0);
+	equal( hcb.out_byte, 0);
+	equal( hcb.format, "SF");
+	equal( hcb.type, 1000);
+	equal( hcb.dview.BYTES_PER_ELEMENT, 4);
+
+	notEqual( hcb.buf, undefined);
+	notEqual( hcb.dview, undefined);
+	equal( hcb.buf.byteLength, 16);
+
+	var rdbuf = new ArrayBuffer(8);
+	var rdview = new Float32Array(rdbuf);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 0);
+	equal( hcb.out_byte, 0);
+	equal( hcb.data_free, 4);
+
+	m.filad(hcb, [1.0, 2.0]);
+	equal( hcb.in_byte, 8);
+	equal( hcb.out_byte, 0);
+	equal( hcb.dview[0], 1.0);
+	equal( hcb.dview[1], 2.0);
+	equal( hcb.data_free, 2);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 2);
+	equal( hcb.out_byte, 8);
+	equal( rdview[0], 1.0);
+	equal( rdview[1], 2.0);
+	equal( hcb.data_free, 4);
+
+	m.filad(hcb, [3.0, 4.0]);
+	equal( hcb.in_byte, 0);
+	equal( hcb.dview[2], 3.0);
+	equal( hcb.dview[3], 4.0);
+	equal( hcb.data_free, 2);
+
+	m.filad(hcb, [5.0, 6.0]);
+	equal( hcb.in_byte, 8);
+	equal( hcb.dview[0], 5.0);
+	equal( hcb.dview[1], 6.0);
+	equal( hcb.data_free, 0);
+
+	rdbuf = new ArrayBuffer(16);
+	rdview = new Float32Array(rdbuf);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 4);
+	equal( hcb.out_byte, 8);
+	equal( rdview[0], 3.0);
+	equal( rdview[1], 4.0);
+	equal( rdview[2], 5.0);
+	equal( rdview[3], 6.0);
+	equal( hcb.data_free, 4);
+
+	m.filad(hcb, [7.0, 8.0, 9.0, 10.0]);
+	equal( hcb.in_byte, 8);
+	equal( hcb.dview[0], 9.0);
+	equal( hcb.dview[1], 10.0);
+	equal( hcb.dview[2], 7.0);
+	equal( hcb.dview[3], 8.0);
+
+	throws( function() { m.filad(hcb, [11.0, 12.0]) }, "pipe full" );
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 4);
+	equal( hcb.out_byte, 8);
+	equal( rdview[0], 7.0);
+	equal( rdview[1], 8.0);
+	equal( rdview[2], 9.0);
+	equal( rdview[3], 10.0);
+	equal( hcb.data_free, 4);
+
+
+
+});
+
+test('bluefile pipe CF type 2000', function() {
+	var hcb = m.initialize([], {pipe: true, format: "CF", type: 2000, subsize: 4, pipesize: 64});
+	equal( hcb.pipe, true);
+	equal( hcb.in_byte, 0);
+	equal( hcb.out_byte, 0);
+	equal( hcb.format, "CF");
+	equal( hcb.type, 2000);
+	equal( hcb.dview.BYTES_PER_ELEMENT, 4);
+	equal( hcb.spa, 2);
+	equal( hcb.bps, 4);
+	equal( hcb.bpa, 8);
+	equal( hcb.bpe, 32);
+	equal( hcb.out_byte, 0);
+	equal( hcb.data_free, 16); // number of scalars available
+
+	var rdbuf = new ArrayBuffer(32);
+	var rdview = new Float32Array(rdbuf);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 0);
+	equal( hcb.out_byte, 0);
+	equal( hcb.data_free, 16);
+
+	m.filad(hcb, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
+	equal( hcb.in_byte, 32);
+	equal( hcb.out_byte, 0);
+	equal( hcb.dview[0], 1.0);
+	equal( hcb.dview[1], 2.0);
+	equal( hcb.dview[2], 3.0);
+	equal( hcb.dview[3], 4.0);
+	equal( hcb.dview[6], 7.0);
+	equal( hcb.dview[7], 8.0);
+	equal( hcb.data_free, 8);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 8);
+	equal( hcb.in_byte, 32);
+	equal( hcb.out_byte, 32);
+	equal( rdview.length, 8);
+	equal( rdview[0], 1.0);
+	equal( rdview[1], 2.0);
+	equal( rdview[2], 3.0);
+	equal( rdview[3], 4.0);
+	equal( rdview[6], 7.0);
+	equal( rdview[7], 8.0);
+	equal( hcb.data_free, 16);
+
+	m.filad(hcb, [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]);
+	equal( hcb.in_byte, 0);
+	equal( hcb.out_byte, 32);
+	equal( hcb.dview[0], 1.0);
+	equal( hcb.dview[1], 2.0);
+	equal( hcb.dview[2], 3.0);
+	equal( hcb.dview[3], 4.0);
+	equal( hcb.dview[6], 7.0);
+	equal( hcb.dview[7], 8.0);
+	equal( hcb.dview[8], 8.0);
+	equal( hcb.dview[9], 7.0);
+	equal( hcb.dview[10], 6.0);
+	equal( hcb.dview[11], 5.0);
+	equal( hcb.dview[14], 2.0);
+	equal( hcb.dview[15], 1.0);
+	equal( hcb.data_free, 8);
+
+	m.filad(hcb, [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
+	equal( hcb.in_byte, 32);
+	equal( hcb.out_byte, 32);
+	equal( hcb.dview[0], 0.0);
+	equal( hcb.dview[1], 1.0);
+	equal( hcb.dview[2], 0.0);
+	equal( hcb.dview[3], 1.0);
+	equal( hcb.dview[6], 0.0);
+	equal( hcb.dview[7], 1.0);
+	equal( hcb.dview[8], 8.0);
+	equal( hcb.dview[9], 7.0);
+	equal( hcb.dview[10], 6.0);
+	equal( hcb.dview[11], 5.0);
+	equal( hcb.dview[14], 2.0);
+	equal( hcb.dview[15], 1.0);
+	equal( hcb.data_free, 0);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 8);
+	equal( hcb.in_byte, 32);
+	equal( hcb.out_byte, 0);
+	equal( rdview.length, 8);
+	equal( rdview[0], 8.0);
+	equal( rdview[1], 7.0);
+	equal( rdview[2], 6.0);
+	equal( rdview[3], 5.0);
+	equal( rdview[6], 2.0);
+	equal( rdview[7], 1.0);
+	equal( hcb.data_free, 8);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 8);
+	equal( hcb.in_byte, 32);
+	equal( hcb.out_byte, 32);
+	equal( rdview.length, 8);
+	equal( rdview[0], 0.0);
+	equal( rdview[1], 1.0);
+	equal( rdview[2], 0.0);
+	equal( rdview[3], 1.0);
+	equal( rdview[6], 0.0);
+	equal( rdview[7], 1.0);
+	equal( hcb.data_free, 16);
+});
+
+test('bluefile pipe CF type 2000 misaligned', function() {
+	var hcb = m.initialize([], {pipe: true, format: "CF", type: 2000, subsize: 4, pipesize: 80});
+	equal( hcb.pipe, true);
+	equal( hcb.in_byte, 0);
+	equal( hcb.out_byte, 0);
+	equal( hcb.format, "CF");
+	equal( hcb.type, 2000);
+	equal( hcb.dview.BYTES_PER_ELEMENT, 4);
+	equal( hcb.spa, 2);
+	equal( hcb.bps, 4);
+	equal( hcb.bpa, 8);
+	equal( hcb.bpe, 32);
+	equal( hcb.out_byte, 0);
+	equal( hcb.data_free, 20); // number of scalars available
+
+	var rdbuf = new ArrayBuffer(32);
+	var rdview = new Float32Array(rdbuf);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 0);
+	equal( hcb.out_byte, 0);
+	equal( hcb.data_free, 20);
+
+	m.filad(hcb, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
+	equal( hcb.in_byte, 32);
+	equal( hcb.out_byte, 0);
+	equal( hcb.dview[0], 1.0);
+	equal( hcb.dview[1], 2.0);
+	equal( hcb.dview[2], 3.0);
+	equal( hcb.dview[3], 4.0);
+	equal( hcb.dview[6], 7.0);
+	equal( hcb.dview[7], 8.0);
+	equal( hcb.data_free, 12);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 8);
+	equal( hcb.in_byte, 32);
+	equal( hcb.out_byte, 32);
+	equal( rdview.length, 8);
+	equal( rdview[0], 1.0);
+	equal( rdview[1], 2.0);
+	equal( rdview[2], 3.0);
+	equal( rdview[3], 4.0);
+	equal( rdview[6], 7.0);
+	equal( rdview[7], 8.0);
+	equal( hcb.data_free, 20);
+
+	m.filad(hcb, [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]);
+	equal( hcb.in_byte, 64);
+	equal( hcb.out_byte, 32);
+	equal( hcb.dview[0], 1.0);
+	equal( hcb.dview[1], 2.0);
+	equal( hcb.dview[2], 3.0);
+	equal( hcb.dview[3], 4.0);
+	equal( hcb.dview[6], 7.0);
+	equal( hcb.dview[7], 8.0);
+	equal( hcb.dview[8], 8.0);
+	equal( hcb.dview[9], 7.0);
+	equal( hcb.dview[10], 6.0);
+	equal( hcb.dview[11], 5.0);
+	equal( hcb.dview[14], 2.0);
+	equal( hcb.dview[15], 1.0);
+	equal( hcb.data_free, 12);
+
+	m.filad(hcb, [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
+	equal( hcb.in_byte, 16);
+	equal( hcb.out_byte, 32);
+	equal( hcb.dview[0], 0.0);
+	equal( hcb.dview[1], 1.0);
+	equal( hcb.dview[2], 0.0);
+	equal( hcb.dview[3], 1.0);
+	equal( hcb.dview[6], 7.0);
+	equal( hcb.dview[7], 8.0);
+	equal( hcb.dview[8], 8.0);
+	equal( hcb.dview[9], 7.0);
+	equal( hcb.dview[10], 6.0);
+	equal( hcb.dview[11], 5.0);
+	equal( hcb.dview[14], 2.0);
+	equal( hcb.dview[15], 1.0);
+	equal( hcb.dview[16], 0.0);
+	equal( hcb.dview[17], 1.0);
+	equal( hcb.dview[18], 0.0);
+	equal( hcb.dview[19], 1.0);
+	equal( hcb.data_free, 4);
+});
+
+//test('bluefile pipe', function() {
+	// make a largeish pipe (i.e. 1MB)
+	// write X elements at a time
+	// read Y elements at a time
+//});
+
+QUnit.module('sigplot', {
+    setup: function() {
+    	var plotdiv = document.createElement("div");
+    	plotdiv.id = "plot";
+    	plotdiv.style.position = "absolute";
+    	plotdiv.style.width = "600px";
+    	plotdiv.style.height = "400px";
+
+    	fixture.appendChild(plotdiv);
+    },
+    teardown: function() {
+    }
+});
+
+test('sigplot construction', function() {
+	var container = document.getElementById('plot');
+	equal( container.childNodes.length, 0);
+	equal( fixture.childNodes.length, 1); //mmm
+
+	var plot = new sigplot.Plot(container, {});
+	notEqual( plot, null);
+	equal( container.childNodes.length, 1);
+	equal( container.childNodes[0], plot._Mx.parent);
+
+	equal( plot._Mx.parent.childNodes.length, 2);
+	equal( plot._Mx.parent.childNodes[0], plot._Mx.canvas);
+	equal( plot._Mx.parent.childNodes[1], plot._Mx.wid_canvas);
+
+	equal( plot._Mx.canvas.width, 600);
+	equal( plot._Mx.canvas.height, 400);
+	equal( plot._Mx.canvas.style.position, "absolute");
+
+	equal( plot._Mx.wid_canvas.width, 600);
+	equal( plot._Mx.wid_canvas.height, 400);
+	equal( plot._Mx.wid_canvas.style.position, "absolute");
+});
