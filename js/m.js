@@ -511,31 +511,34 @@ var m = window.m || {};
      */
     // WARNING - nget is number of scalars...which differs from the normal API
     m.grabx = function(hcb, dview, nget, offset) {
-        var navail = hcb.dview.length - hcb.data_free;
-        if (!nget) {
-            nget = Math.min(dview.length, navail);
-        }
-        if (nget > navail) {
-            return 0;
-        }
+	var navail = hcb.dview.length - hcb.data_free;
+	if (offset === undefined) {
+		offset = 0;
+	}
+	if (!nget) {
+		nget = Math.min(dview.length-offset, navail);
+	} else if (nget > dview.length-offset) {
+		throw "m.grabx : nget larger then available buffer space";
+	}
+	if (nget < 0) {
+		throw "m.grabx : nget cannot be negative";
+	}
+	if (nget > navail) {
+		return 0;
+	}
 
-        if (offset === undefined) {
-            offset = 0;
-        }
-        if (nget > 0) {
-            var sidx = hcb.out_byte / hcb.dview.BYTES_PER_ELEMENT;
-            var eidx = (sidx + nget);
-            if (eidx >= hcb.dview.length) {
-                var head = hcb.dview.length - sidx;
-                eidx = eidx - hcb.dview.length;
-                dview.set(hcb.dview.subarray(sidx, hcb.dview.length), offset);
-                dview.set(hcb.dview.subarray(0, eidx), offset + head);
-            } else {
-                dview.set(hcb.dview.subarray(sidx, eidx), offset);
-            }
-            hcb.out_byte = (eidx * hcb.dview.BYTES_PER_ELEMENT) % hcb.buf.byteLength;
-        }
-        hcb.data_free += nget;
+	var sidx = hcb.out_byte / hcb.dview.BYTES_PER_ELEMENT;
+	var eidx = (sidx + nget);
+	if (eidx >= hcb.dview.length) {
+		var head = hcb.dview.length - sidx;
+		eidx = eidx - hcb.dview.length;
+		dview.set(hcb.dview.subarray(sidx, hcb.dview.length), offset);
+		dview.set(hcb.dview.subarray(0, eidx), offset+head);
+	} else {
+		dview.set(hcb.dview.subarray(sidx, eidx), offset);
+	}
+	hcb.out_byte = (eidx * hcb.dview.BYTES_PER_ELEMENT) % hcb.buf.byteLength;
+	hcb.data_free += nget;
         var ngot = nget;
         return ngot;
     };
