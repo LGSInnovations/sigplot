@@ -487,7 +487,7 @@ var m = window.m || {};
         hcb.data_free -= data.length;
         if (hcb.onwritelisteners) {
             for (var i = 0; i < hcb.onwritelisteners.length; i++) {
-                hcb.onwritelisteners[i]();
+                window.setTimeout(hcb.onwritelisteners[i], 0);
             }
         }
     };
