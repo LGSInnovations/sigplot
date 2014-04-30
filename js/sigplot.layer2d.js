@@ -175,7 +175,9 @@
                     mx.shift_image_rows(Mx, this.img, -1);
                 }
             } else if (this.drawmode === "scrolling") {
-                // Nothing to do
+                if (this.frame >= this.lps) { // if lps got resized make sure we don't go out of bounds
+                    this.frame = 0;
+                }
             } else {
                 throw "Invalid draw mode";
             }
@@ -421,6 +423,9 @@
                     this.buf = new_buf;
                     this.zbuf = new_zbuf;
                     this.lps = lps;
+		    if (this.frame >= this.lps) { // if lps got resized make sure we don't go out of bounds
+			this.frame = 0;
+		    }
                     var d = HCB.ystart + HCB.ydelta * (this.lps - 1.0);
                     this.ymin = Math.min(HCB.ystart, d);
                     this.ymax = Math.max(HCB.ystart, d);
