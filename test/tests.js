@@ -617,3 +617,98 @@ test('sigplot construction', function() {
 	equal( plot._Mx.wid_canvas.height, 400);
 	equal( plot._Mx.wid_canvas.style.position, "absolute");
 });
+
+test('sigplot layer1d noautoscale', function() {
+	var container = document.getElementById('plot');
+	equal( container.childNodes.length, 0);
+	equal( fixture.childNodes.length, 1);
+
+	var plot = new sigplot.Plot(container, {});
+	notEqual( plot, null);
+
+	var pulse = [];
+	for (var i = 0; i <= 1000; i += 1) {
+		pulse.push(0.0);
+	}
+
+	plot.overlay_array(pulse);
+	equal( plot._Gx.panymin, -1.0);
+	equal( plot._Gx.panymax, 1.0);
+
+	pulse[0] = 1.0;
+	plot.reload(0, pulse);
+	equal( plot._Gx.panymin, -0.02);
+	equal( plot._Gx.panymax, 1.02);
+
+	for (var i = 1; i <= 1000; i += 1) {
+		pulse[i-1] = 0;
+		pulse[i] = 1;	
+		equal( plot._Gx.panymin, -0.02);
+		equal( plot._Gx.panymax, 1.02);
+        }
+});
+
+test('sigplot layer1d autoscale', function() {
+	var container = document.getElementById('plot');
+	equal( container.childNodes.length, 0);
+	equal( fixture.childNodes.length, 1);
+
+	var plot = new sigplot.Plot(container, {autol: 2});
+	notEqual( plot, null);
+
+	var pulse = [];
+	for (var i = 0; i <= 1000; i += 1) {
+		pulse.push(0.0);
+	}
+
+	plot.overlay_array(pulse);
+	equal( plot._Gx.panymin, -1.0);
+	equal( plot._Gx.panymax, 1.0);
+
+	pulse[0] = 1.0;
+	plot.reload(0, pulse);
+	var expected_ymin = (-0.02 * .5) + (-1 * .5);
+	var expected_ymax = (1.02 * .5) + (1 * .5);
+	equal( plot._Gx.panymin, expected_ymin);
+	equal( plot._Gx.panymax, expected_ymax);
+
+	for (var i = 1; i <= 1000; i += 1) {
+		pulse[i-1] = 0;
+		pulse[i] = 1;	
+		expected_ymin = (expected_ymin * .5) + (expected_ymin * .5);
+		expected_ymax = (expected_ymax * .5) + (expected_ymax * .5);
+		equal( plot._Gx.panymin, expected_ymin);
+		equal( plot._Gx.panymax, expected_ymax);
+        }
+});
+
+test('sigplot layer1d autoscale negative', function() {
+	var container = document.getElementById('plot');
+	equal( container.childNodes.length, 0);
+	equal( fixture.childNodes.length, 1);
+
+	var plot = new sigplot.Plot(container, {autol: 2});
+	notEqual( plot, null);
+
+	var pulse = [];
+	for (var i = 0; i <= 1000; i += 1) {
+		pulse.push(-60.0);
+	}
+
+	pulse[0] = -10.0;
+	plot.overlay_array(pulse);
+
+	var expected_ymin = (-61.0 * .5) + (-1 * .5);
+	var expected_ymax = (-9.0 * .5) + (1 * .5);
+	equal( plot._Gx.panymin, expected_ymin);
+	equal( plot._Gx.panymax, expected_ymax);
+
+	for (var i = 1; i <= 1000; i += 1) {
+		pulse[i-1] = -60;
+		pulse[i] = -10;	
+		expected_ymin = (expected_ymin * .5) + (expected_ymin * .5);
+		expected_ymax = (expected_ymax * .5) + (expected_ymax * .5);
+		equal( plot._Gx.panymin, expected_ymin);
+		equal( plot._Gx.panymax, expected_ymax);
+        }
+});
