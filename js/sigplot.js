@@ -2428,7 +2428,9 @@ var sigplot = window.sigplot || {};
 
             draw_accessories(this, 4);
 
-            Gx.plotData = ctx.getImageData(Mx.l - 1, Mx.t - 1, (Mx.r - Mx.l) + 2, (Mx.b - Mx.t) + 2);
+            if ((Mx.r > Mx.l) && (Mx.b > Mx.t)) {
+              Gx.plotData = ctx.getImageData(Mx.l - 1, Mx.t - 1, (Mx.r - Mx.l) + 2, (Mx.b - Mx.t) + 2);
+            }
 
             draw_plugins(this);
 
