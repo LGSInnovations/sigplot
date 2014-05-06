@@ -743,24 +743,32 @@ var m = window.m || {};
      */
     // ~= M$VMXMN
     m.vmxmn = function(vec, size) {
-        var mxmn = {
-            smax: vec[0],
-            smin: vec[0],
-            imax: 0,
-            imin: 0
-        };
+        // Originally this code used an object to hold the values
+        // but Chrome 34.0.1847.131 seemed to have a bug where
+        // these values would somehow get messed up...oddly
+        // putting printouts or breakpoints prevented the
+        // problem from showing up.
+        var smax = vec[0];
+        var smin = vec[0];
+        var imax = 0;
+        var imin = 0;
         size = Math.min(size, vec.length);
         for (var i = 0; i < size; i++) {
-            if (vec[i] > mxmn.smax) {
-                mxmn.smax = vec[i];
-                mxmn.imax = i;
+            if (vec[i] > smax) {
+                smax = vec[i];
+                imax = i;
             }
-            if (vec[i] < mxmn.smin) {
-                mxmn.smin = vec[i];
-                mxmn.imin = i;
+            if (vec[i] < smin) {
+                smin = vec[i];
+                imin = i;
             }
         }
-        return mxmn;
+        return {
+            smax: smax,
+            smin: smin,
+            imax: imax,
+            imin: imin
+        };
     };
 
     /**
