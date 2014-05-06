@@ -249,7 +249,7 @@
 
             if (npts === 0) return;
 
-            if (npts * 8 > Gx.pointbufsize) {
+            if (npts * sigplot.PointArray.BYTES_PER_ELEMENT > Gx.pointbufsize) {
                 Gx.pointbufsize = npts * sigplot.PointArray.BYTES_PER_ELEMENT;
                 Gx.xptr = new ArrayBuffer(Gx.pointbufsize);
                 Gx.yptr = new ArrayBuffer(Gx.pointbufsize);
