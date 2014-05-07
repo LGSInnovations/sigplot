@@ -4488,7 +4488,10 @@ var mx = window.mx || {};
         var imgctx = img.getContext('2d');
         var imgd = imgctx.getImageData(0, row, img.width, 1);
 
-        var fscale = Mx.pixel.length / (zmax - zmin); // number of colors spread across the zrange
+        var fscale = 1;
+        if (zmax != zmin) {
+            fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
+        }
         for (var i = 0; i < data.length; i++) {
 
             var cidx = Math.floor((data[i] - zmin) * fscale);
@@ -4532,7 +4535,10 @@ var mx = window.mx || {};
         img.height = h;
         var imgctx = img.getContext('2d');
 
-        var fscale = Mx.pixel.length / (zmax - zmin); // number of colors spread across the zrange
+        var fscale = 1;
+        if (zmax != zmin) {
+            fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
+        }
 
         var imgd = ctx.createImageData(w, h);
         for (var i = 0; i < data.length; i++) {
