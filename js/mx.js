@@ -232,6 +232,9 @@ var mx = window.mx || {};
 
         // Colormap
         this.pixel = [];
+
+	// Render Canvas
+	this._renderCanvas = document.createElement("canvas");
     };
 
     /**
@@ -4456,23 +4459,232 @@ var mx = window.mx || {};
     };
 
     /**
+     * Render image buffer to canvas.
+     *
+     * If we don't have access to Uint8ClampedArray (i.e. Firefox 3.6)
+     * use a slower approach that only supports rasters up to the size
+     * limit of the canvas
+     * @private
+     *
+     * @param ctx
+     *   {context} a canvas 2d context
+     * @param buf
+     *   {ArrayBuffer} a buffer of 32-bit image data 
+     * @param opacity
+     *   the opacity to render the image with
+     * @param smoothing
+     *   if image smoothing should be enabled
+     * @param sx
+     *   source x position
+     * @param sy
+     *   source y position
+     * @param sw
+     *   source width
+     * @param sh
+     *   source height
+     * @param x 
+     *   optional x canvas dest
+     * @param y 
+     *   optional y canvas dest
+     * @param w 
+     *   optional width
+     * @param h 
+     *   optional height
+     */
+    function renderImageNoTypedArrays(Mx, ctx, buf, opacity, smoothing, x, y, w, h, sx, sy, sw, sh) {
+	if (sx === undefined) { sx = 0; }
+	if (sy === undefined) { sy = 0; }
+	if (sw === undefined) { sw = buf.width - sx; }
+	if (sh === undefined) { sh = buf.height - sy; }
+
+	// If the source buffer is small enough to be directly rendered, do that
+	Mx._renderCanvas.width = buf.width;
+	Mx._renderCanvas.height = buf.height;
+
+	var imgctx = Mx._renderCanvas.getContext("2d");
+	var imgd = imgctx.createImageData(Mx._renderCanvas.width, Mx._renderCanvas.height);
+        var buf8 = new Uint8Array(buf);
+	for (var yy=0; yy<buf.height; ++yy) {
+	    for (var xx=0; xx<buf.width; ++xx) {
+		var index = ((yy*buf.width) + xx) * 4;
+		imgd.data[index  ] = buf8[index  ]; // red
+		imgd.data[index+1] = buf8[index+1]; // green
+		imgd.data[index+2] = buf8[index+2]; // blue
+		imgd.data[index+3] = 255; // alpha
+	    }
+	}
+	imgctx.putImageData(imgd, 0, 0);
+
+	// Render the image to the destination
+	ctx.save();
+	ctx.globalAlpha = opacity;
+	if (!smoothing) {
+	    ctx.imageSmoothingEnabled = false;
+	    ctx.mozImageSmoothingEnabled = false;
+	    ctx.webkitImageSmoothingEnabled = false;
+	}
+	ctx.drawImage(Mx._renderCanvas, sx, sy, sw, sh, x, y, w, h);
+	ctx.restore();
+    };
+
+    /**
+     * @private
+     *
+     * @param ctx
+     *   {context} a canvas 2d context
+     * @param buf
+     *   {ArrayBuffer} a buffer of 32-bit image data 
+     * @param opacity
+     *   the opacity to render the image with
+     * @param smoothing
+     *   if image smoothing should be enabled
+     * @param sx
+     *   source x position
+     * @param sy
+     *   source y position
+     * @param sw
+     *   source width
+     * @param sh
+     *   source height
+     * @param x 
+     *   optional x canvas dest
+     * @param y 
+     *   optional y canvas dest
+     * @param w 
+     *   optional width
+     * @param h 
+     *   optional height
+     */
+    function renderImageTypedArrays(Mx, ctx, buf, opacity, smoothing, x, y, w, h, sx, sy, sw, sh) {
+	if (sx === undefined) { sx = 0; }
+	if (sy === undefined) { sy = 0; }
+	if (sw === undefined) { sw = buf.width - sx; }
+	if (sh === undefined) { sh = buf.height - sy; }
+
+        if ((buf.width < 32768) && (buf.height < 32768)) {
+            // If the source buffer is small enough to be directly rendered, do that
+	    Mx._renderCanvas.width = buf.width;
+	    Mx._renderCanvas.height = buf.height;
+
+	    var imgctx = Mx._renderCanvas.getContext("2d");
+	    var imgd = imgctx.createImageData(Mx._renderCanvas.width, Mx._renderCanvas.height);
+
+            // TODO - This may not be portable to all browsers, if not
+	    // we need to choose between this approach and the traditional
+	    // for-loop based approach
+            var buf8 = new Uint8ClampedArray(buf);
+	    imgd.data.set(buf8);
+	    imgctx.putImageData(imgd, 0, 0);
+        } else {
+            if ((sw < 32768) && (sh < 32768)) {
+	        // The clipped image is small enough to directly render
+		Mx._renderCanvas.width = sw;
+		Mx._renderCanvas.height = sh;
+		scaleImage(Mx._renderCanvas, buf, sx, sy, sw, sh);
+	    } else {
+		// Downscale to twice the destination size
+		Mx._renderCanvas.width = Math.min(w*2, buf.width);
+		Mx._renderCanvas.height = Math.min(h*2, buf.height);
+		scaleImage(Mx._renderCanvas, buf, sx, sy, sw, sh);
+		sw = Mx._renderCanvas.width;
+		sh = Mx._renderCanvas.height;
+	    }
+	    sx = 0;
+	    sy = 0;
+        }
+
+	// Render the image to the destination
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        if (!smoothing) {
+            ctx.imageSmoothingEnabled = false;
+            ctx.mozImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = false;
+        }
+        ctx.drawImage(Mx._renderCanvas, sx, sy, sw, sh, x, y, w, h);
+        ctx.restore();
+    };
+
+    /**
+     * Scale the image data (represented by buf) into the destination canvas
+     * using nearest neighbor.  In genearl, you should just use the scaling
+     * provided by drawImage...but if the buf is greater than 32767 pixels in
+     * either dimension that won't work and you have to use this.
+     *
+     * @param img
+     *   A canvas object
+     * @param buf
+     *   An ArrayBuf with .width and .height elements
+     *
+     * @private
+     */
+    function scaleImage(img, buf, sx, sy, sw, sh) {
+	// Source buffer, expected to have .width and .height elements
+	var src = new Uint32Array(buf);
+
+	if (!sw) {
+	    sw = buf.width;
+	}
+	if (!sh) {
+	    sh = buf.height;
+	}
+	if (!sx) {
+	    sx = 0;    
+	}
+	if (!sy) {
+	    sy = 0;    
+	}
+
+	// Cache to avoid get width calls in tight loop
+	var w = img.width;
+	var h = img.height;
+
+	// Destination element
+	var imgctx = img.getContext("2d");
+	var imgd = imgctx.createImageData(w, h);
+	var ibuf = new ArrayBuffer(imgd.data.length);
+	var buf8 = new Uint8ClampedArray(ibuf);
+	var dest = new Uint32Array(ibuf);
+
+	// Scaling factor
+	var width_scaling = sw / w;
+	var height_scaling = sh / h;
+
+        // Perform the scaling	
+	var xx = 0;
+	var yy = 0;
+	var jj = 0;
+	for (var i=0; i<dest.length; i++) {
+	    xx = Math.round(Math.floor(i % w) * width_scaling) + sx;
+	    yy = Math.round(Math.floor(i / w) * height_scaling) + sy;
+	    jj = Math.floor((yy*buf.width) + xx);
+	    dest[i] = src[jj];
+	}
+
+	// Set the data
+	imgd.data.set(buf8);
+	imgctx.putImageData(imgd, 0, 0);
+    };
+
+    var renderImage = (typeof Uint8ClampedArray === 'undefined') ? renderImageNoTypedArrays : renderImageTypedArrays;
+
+    /**
      * @param Mx
      * @param img
      * @param shift
      * @private
      */
-    mx.shift_image_rows = function(Mx, img, shift) {
-        var imgctx = img.getContext('2d');
+    mx.shift_image_rows = function(Mx, buf, shift) {
+        var imgd = new Uint32Array(buf);
         if (shift > 0) { // shift down
-            var imgd = imgctx.getImageData(0, 0, img.width, img.height - shift);
-            imgctx.putImageData(imgd, 0, shift);
+            shift = shift*buf.width;
+            imgd.set(imgd.subarray(0, imgd.length-shift) , shift);
         } else if (shift < 0) { // shift up
-            shift = Math.abs(shift);
-            var imgd = imgctx.getImageData(0, shift, img.width, img.height - shift);
-            imgctx.putImageData(imgd, 0, 0);
+            shift = Math.abs(shift)*buf.width;
+            imgd.set(imgd.subarray(shift));
         }
 
-        return img;
+        return buf;
     };
 
     /**
@@ -4484,10 +4696,9 @@ var mx = window.mx || {};
      * @param zmax
      * @private
      */
-    mx.update_image_row = function(Mx, img, data, row, zmin, zmax) {
-        var imgctx = img.getContext('2d');
-        var imgd = imgctx.getImageData(0, row, img.width, 1);
-
+    mx.update_image_row = function(Mx, buf, data, row, zmin, zmax) {
+        var imgd = new Uint32Array(buf, row*buf.width*4, buf.width);
+        
         var fscale = 1;
         if (zmax != zmin) {
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
@@ -4499,17 +4710,14 @@ var mx = window.mx || {};
 
             var color = Mx.pixel[cidx];
             if (color) {
-                imgd.data[(i * 4) + 0] = color.red;
-                imgd.data[(i * 4) + 1] = color.green;
-                imgd.data[(i * 4) + 2] = color.blue;
-                imgd.data[(i * 4) + 3] = 255;
-                //imgd.data[(i*4)+3] = (opacity === undefined) ? 255 : opacity;
+                imgd[i] = (255         << 24) | // alpha
+                          (color.blue  << 16) | // blue
+                          (color.green <<  8) | // green
+                          (color.red        );  // red
             }
         }
 
-        imgctx.putImageData(imgd, 0, row);
-
-        return img;
+        return buf;
     };
 
     /**
@@ -4530,18 +4738,17 @@ var mx = window.mx || {};
             mx.colormap(Mx, m.Mc.colormap[1], 16);
         }
 
-        var img = document.createElement('canvas');
-        img.width = w;
-        img.height = h;
-        var imgctx = img.getContext('2d');
-
         var fscale = 1;
         if (zmax != zmin) {
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
         }
 
-        var imgd = ctx.createImageData(w, h);
-        for (var i = 0; i < data.length; i++) {
+        var buf = new ArrayBuffer(w*h*4);
+        buf.width = w;
+        buf.height = h;
+
+        var imgd = new Uint32Array(buf);
+        for (var i = 0; i < imgd.length; i++) {
             var ix;
             var iy;
             if ((Mx.origin === 1) || (Mx.origin === 4)) {
@@ -4561,17 +4768,15 @@ var mx = window.mx || {};
 
             var color = Mx.pixel[cidx];
             if (color) {
-                imgd.data[(i * 4) + 0] = color.red;
-                imgd.data[(i * 4) + 1] = color.green;
-                imgd.data[(i * 4) + 2] = color.blue;
-                imgd.data[(i * 4) + 3] = 255;
-                //imgd.data[(i*4)+3] = (opacity === undefined) ? 255 : opacity;
+                imgd[i] = (255         << 24) | // alpha
+                          (color.blue  << 16) | // blue
+                          (color.green <<  8) | // green
+                          (color.red        );  // red
             }
         }
-        imgctx.putImageData(imgd, 0, 0);
 
         // Return the image in case the caller wishes to cache it
-        return img;
+        return buf;
     };
 
     /**
@@ -4607,45 +4812,34 @@ var mx = window.mx || {};
         w = Math.floor(w);
         h = Math.floor(ny * ney);
 
-        var img = document.createElement('canvas');
-        img.width = nx;
-        img.height = ny;
-        var imgctx = img.getContext('2d');
+        var buf = new ArrayBuffer(w*h*4);
+        buf.width = w;
+        buf.height = h;
 
-        var imgd = ctx.createImageData(nx, ny);
-        for (var i = 0; i < data.length; i++) {
+        var imgd = new Uint32Array(buf);
+        for (var i = 0; i < img.length; i++) {
             var cidx = Math.max(0, data[i]);
             cidx = Math.min(Mx.pixel.length - 1, cidx);
 
             var color = Mx.pixel[cidx];
             if (color) {
-                imgd.data[(i * 4) + 0] = color.red;
-                imgd.data[(i * 4) + 1] = color.green;
-                imgd.data[(i * 4) + 2] = color.blue;
-                imgd.data[(i * 4) + 3] = 255;
-                //imgd.data[(i*4)+3] = (opacity === undefined) ? 255 : opacity;
+                imgd[i] = (255         << 24) | // alpha
+                          (color.blue  << 16) | // blue
+                          (color.green <<  8) | // green
+                          (color.red        );  // red
             }
         }
-        imgctx.putImageData(imgd, 0, 0);
 
         //render the buffered canvas onto the original canvas element
-        ctx.save();
-        ctx.globalAlpha = opacity;
-        if (!smoothing) {
-            ctx.imageSmoothingEnabled = false;
-            ctx.mozImageSmoothingEnabled = false;
-            ctx.webkitImageSmoothingEnabled = false;
-        }
-        ctx.drawImage(img, xd, yd, w, h);
-        ctx.restore();
+        renderImage(Mx, ctx, buf, opacity, smoothing, xd, yd, w, h);
 
         // Return the image in case the caller wishes to cache it
-        return img;
+        return buf;
     };
 
     /**
      * @param Mx
-     * @param img
+     * @param buf
      * @param xmin
      * @param ymin
      * @param xmax
@@ -4654,20 +4848,20 @@ var mx = window.mx || {};
      * @param smoothing
      * @private
      */
-    mx.draw_image = function(Mx, img, xmin, ymin, xmax, ymax, opacity, smoothing) {
+    mx.draw_image = function(Mx, buf, xmin, ymin, xmax, ymax, opacity, smoothing) {
         var view_xmin = Math.max(xmin, Mx.stk[Mx.level].xmin);
         var view_xmax = Math.min(xmax, Mx.stk[Mx.level].xmax);
         var view_ymin = Math.max(ymin, Mx.stk[Mx.level].ymin);
         var view_ymax = Math.min(ymax, Mx.stk[Mx.level].ymax);
 
 
-        var rx = (img.width - 1) / (xmax - xmin);
+        var rx = (buf.width - 1) / (xmax - xmin);
         var sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
-        var sw = Math.min(img.width, img.width - Math.floor((xmax - view_xmax) * rx) - sx);
+        var sw = Math.min(buf.width, buf.width - Math.floor((xmax - view_xmax) * rx) - sx);
 
-        var ry = (img.height - 1) / (ymax - ymin);
+        var ry = (buf.height - 1) / (ymax - ymin);
         var sy = Math.max(0, Math.floor((view_ymin - ymin) * ry));
-        var sh = Math.min(img.height, img.height - Math.floor((ymax - view_ymax) * ry) - sy);
+        var sh = Math.min(buf.height, buf.height - Math.floor((ymax - view_ymax) * ry) - sy);
 
         var ul;
         var lr;
@@ -4694,15 +4888,7 @@ var mx = window.mx || {};
 
         //render the buffered canvas onto the original canvas element
         var ctx = Mx.active_canvas.getContext("2d");
-        ctx.save();
-        ctx.globalAlpha = opacity;
-        if (!smoothing) {
-            ctx.imageSmoothingEnabled = false;
-            ctx.mozImageSmoothingEnabled = false;
-            ctx.webkitImageSmoothingEnabled = false;
-        }
-        ctx.drawImage(img, sx, sy, sw, sh, ul.x, ul.y, iw, ih);
-        ctx.restore();
+        renderImage(Mx, ctx, buf, opacity, smoothing, ul.x, ul.y, iw, ih, sx, sy, sw, sh);
     };
 
 }(window.mx, window.m));
