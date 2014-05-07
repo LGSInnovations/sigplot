@@ -3711,7 +3711,7 @@ var mx = window.mx || {};
      * @private
      */
     function pc2px(perc) {
-        return Math.round(255 * (perc / 100));
+        return Math.floor(Math.round(255 * (perc / 100)));
     };
 
     /**
