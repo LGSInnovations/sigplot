@@ -2140,10 +2140,19 @@ var sigplot = window.sigplot || {};
             var Mx = this._Mx;
             var ctx = Mx.canvas.getContext("2d");
 
-            if (!Gx.plotData) {
+            if (!Gx.plotData.valid) {
                 this.refresh();
             } else {
-                ctx.putImageData(Gx.plotData, Mx.l - 1, Mx.t - 1);
+		ctx.drawImage(Gx.plotData,
+			      Mx.l - 1,
+			      Mx.t - 1,
+			      (Mx.r - Mx.l) + 2,
+			      (Mx.b - Mx.t) + 2,
+			      Mx.l - 1,
+			      Mx.t - 1,
+			      (Mx.r - Mx.l) + 2,
+			      (Mx.b - Mx.t) + 2
+			     );
 
                 draw_plugins(this);
 
@@ -2303,7 +2312,7 @@ var sigplot = window.sigplot || {};
 
             if (Gx.panning === 0 || Gx.panning !== 0) { // TODO Gx.panning !==
                 // 0?? Does this work?
-                Gx.plotData = undefined;
+                Gx.plotData.valid = false;
                 mx.clear_window(Mx);
             } //else if (!Gx.specs) {
             // TODO
@@ -2429,7 +2438,11 @@ var sigplot = window.sigplot || {};
             draw_accessories(this, 4);
 
             if ((Mx.r > Mx.l) && (Mx.b > Mx.t)) {
-              Gx.plotData = ctx.getImageData(Mx.l - 1, Mx.t - 1, (Mx.r - Mx.l) + 2, (Mx.b - Mx.t) + 2);
+	      // Resize
+              Gx.plotData.width = Mx.canvas.width;
+              Gx.plotData.height = Mx.canvas.height;
+	      Gx.plotData.getContext("2d").drawImage(Mx.canvas, 0, 0);
+	      Gx.plotData.valid = true;
             }
 
             draw_plugins(this);
@@ -2639,6 +2652,9 @@ var sigplot = window.sigplot || {};
         this.lyr = [];
         this.HCB = [];
         this.plugins = [];
+                
+        this.plotData = document.createElement("canvas");
+	this.plotData.valid = false;
     }
 
     /**
