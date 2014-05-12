@@ -1899,6 +1899,7 @@ var mx = window.mx || {};
         ctx.moveTo(x, y);
 
         for (var i = 0; i < npts; i++) {
+	    if ((x == pixx[i]) && (y == pixy[i])) continue;
             x = pixx[i];
             y = pixy[i];
 
