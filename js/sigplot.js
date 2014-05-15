@@ -2972,7 +2972,7 @@ var sigplot = window.sigplot || {};
                     text: "Full Auto",
                     checked: (Gx.autoy === 3),
                     handler: function() {
-                        Gx.autoy = 1;
+                        Gx.autoy = 3;
                     }
                 }, {
                     text: "X Axis",
