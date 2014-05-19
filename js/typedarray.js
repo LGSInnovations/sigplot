@@ -23,6 +23,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * $/LicenseInfo$
+ *
+ * Copyright (c) 2013, Michael Ihde - Added big-endian/little-endian support
  */
 
 /*global document*/
