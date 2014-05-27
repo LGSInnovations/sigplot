@@ -1776,7 +1776,7 @@ var mx = window.mx || {};
         var ctx = Mx.active_canvas.getContext("2d");
         draw_line(ctx, x1, y1, x2, y2, {
             mode: "xor"
-        }, undefined, 1);
+        }, "white", 1);
     };
 
     /**
@@ -2469,50 +2469,63 @@ var mx = window.mx || {};
             ctx.strokeStyle = color;
             ctx.strokeRect(x, y, w, h);
         } else {
-            x = Math.floor(x);
-            y = Math.floor(y);
-            w = Math.floor(w);
-            h = Math.floor(h);
+            if (typeof Uint8ClampedArray === 'undefined') {
+                // we don't have typed arrays, so canvas getImageData operations
+		// will be very slow, so use Mx.fg instead
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = Mx.fg;
+		ctx.strokeRect(x, y, w, h);
+	    } else {
+		// TODO switch to using TypedArrays
+		x = Math.floor(x);
+		y = Math.floor(y);
+		w = Math.floor(w);
+		h = Math.floor(h);
 
-            // For now assume xor always uses the base canvas
-            // even if it draws on another canvas
-            var dctx = Mx.canvas.getContext("2d");
+		// For now assume xor always uses the base canvas
+		// even if it draws on another canvas
+		var dctx = Mx.canvas.getContext("2d");
 
-            var imgd = dctx.getImageData(x, y, w, 1);
-            var pix = imgd.data;
-            for (var c = 0; c < imgd.data.length; c++) {
-                pix[c * 4] = 255 - pix[c * 4]; // red
-                pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
-                pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
-            }
-            ctx.putImageData(imgd, x, y);
+		var imgd = dctx.getImageData(x, y, w, 1);
+		var pix = imgd.data;
+		for (var c = 0; c < imgd.data.length; c++) {
+		    pix[c * 4] = 255 - pix[c * 4]; // red
+		    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
+		    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
+		    pix[c * 4 + 3] = 255; // opacity
+		}
+		ctx.putImageData(imgd, x, y);
 
-            imgd = dctx.getImageData(x, y + h, w, 1);
-            pix = imgd.data;
-            for (var c = 0; c < imgd.data.length; c++) {
-                pix[c * 4] = 255 - pix[c * 4]; // red
-                pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
-                pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
-            }
-            ctx.putImageData(imgd, x, y + h);
+		imgd = dctx.getImageData(x, y + h, w, 1);
+		pix = imgd.data;
+		for (var c = 0; c < imgd.data.length; c++) {
+		    pix[c * 4] = 255 - pix[c * 4]; // red
+		    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
+		    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
+		    pix[c * 4 + 3] = 255; // opacity
+		}
+		ctx.putImageData(imgd, x, y + h);
 
-            var imgd = dctx.getImageData(x, y, 1, h);
-            var pix = imgd.data;
-            for (var c = 0; c < h; c++) {
-                pix[c * 4] = 255 - pix[c * 4]; // red
-                pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
-                pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
-            }
-            ctx.putImageData(imgd, x, y);
+		var imgd = dctx.getImageData(x, y, 1, h);
+		var pix = imgd.data;
+		for (var c = 0; c < h; c++) {
+		    pix[c * 4] = 255 - pix[c * 4]; // red
+		    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
+		    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
+		    pix[c * 4 + 3] = 255; // opacity
+		}
+		ctx.putImageData(imgd, x, y);
 
-            imgd = dctx.getImageData(x + w, y, 1, h);
-            pix = imgd.data;
-            for (var c = 0; c < h; c++) {
-                pix[c * 4] = 255 - pix[c * 4]; // red
-                pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
-                pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
-            }
-            ctx.putImageData(imgd, x + w, y);
+		imgd = dctx.getImageData(x + w, y, 1, h);
+		pix = imgd.data;
+		for (var c = 0; c < h; c++) {
+		    pix[c * 4] = 255 - pix[c * 4]; // red
+		    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
+		    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
+		    pix[c * 4 + 3] = 255; // opacity
+		}
+		ctx.putImageData(imgd, x + w, y);
+	    }
         }
 
         if ((fill_opacity !== undefined) && (fill_opacity > 0)) {
@@ -3527,38 +3540,48 @@ var mx = window.mx || {};
                 ctx.beginPath();
             }
         } else if (style.mode === "xor") {
-            // currently xor-style is only supported for horizontal or vertical lines
-            var w = 0;
-            var h = 0;
-            if (y1 === y2) {
-                w = Math.abs(x2 - x1);
-                h = width;
-                x1 = Math.min(x1, x2);
-            } else if (x1 === x2) {
-                w = width;
-                h = Math.abs(y2 - y1);
-                y1 = Math.min(y1, y2);
-            } else {
-                throw "Only horizontal and vertical lines can be drawn with XOR";
-            }
+            if (typeof Uint8ClampedArray === 'undefined') {
+                // we don't have typed arrays, so canvas getImageData operations
+		// will be very slow, so use color instead
+		ctx.beginPath();
+		ctx.moveTo(x1, y1);
+		ctx.lineTo(x2, y2);
+		ctx.stroke();
+		ctx.beginPath();
+	    } else {
+		// currently xor-style is only supported for horizontal or vertical lines
+		var w = 0;
+		var h = 0;
+		if (y1 === y2) {
+		    w = Math.abs(x2 - x1);
+		    h = width;
+		    x1 = Math.min(x1, x2);
+		} else if (x1 === x2) {
+		    w = width;
+		    h = Math.abs(y2 - y1);
+		    y1 = Math.min(y1, y2);
+		} else {
+		    throw "Only horizontal and vertical lines can be drawn with XOR";
+		}
 
-            if ((w === 0) || (h === 0)) {
-                return;
-            }
+		if ((w === 0) || (h === 0)) {
+		    return;
+		}
 
-            x1 = Math.floor(x1);
-            y1 = Math.floor(y1);
-            var imgd = ctx.getImageData(x1, y1, w, h);
-            var pix = imgd.data;
-            // Loop over each pixel and invert the color.
-            for (var i = 0, n = pix.length; i < n; i += 4) {
-                pix[i] = 255 - pix[i]; // red
-                pix[i + 1] = 255 - pix[i + 1]; // green
-                pix[i + 2] = 255 - pix[i + 2]; // blue
-                // i+3 is alpha (the fourth element)
-            }
-            ctx.putImageData(imgd, x1, y1);
-            ctx.clearRect(0, 0, 1, 1);
+		x1 = Math.floor(x1);
+		y1 = Math.floor(y1);
+		var imgd = ctx.getImageData(x1, y1, w, h);
+		var pix = imgd.data;
+		// Loop over each pixel and invert the color.
+		for (var i = 0, n = pix.length; i < n; i += 4) {
+		    pix[i] = 255 - pix[i]; // red
+		    pix[i + 1] = 255 - pix[i + 1]; // green
+		    pix[i + 2] = 255 - pix[i + 2]; // blue
+		    pix[i + 3] = 255; // opacity
+		}
+		ctx.putImageData(imgd, x1, y1);
+		ctx.clearRect(0, 0, 1, 1);
+	    }
         }
     };
 
