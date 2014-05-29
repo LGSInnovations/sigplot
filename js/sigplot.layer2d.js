@@ -29,6 +29,8 @@
         this.offset = 0.0;
         this.xstart = 0.0;
         this.xdelta = 0.0;
+        this.ystart = 0.0;
+        this.ydelta = 0.0;
         this.imin = 0;
         this.xmin = 0.0;
         this.xmax = 0.0;
@@ -475,7 +477,7 @@
             }
 
             if (this.frame) {
-                var pnt = mx.real_to_pixel(Mx, 0, this.frame);
+                var pnt = mx.real_to_pixel(Mx, 0, this.frame*this.ydelta);
                 if ((pnt.y > Mx.t) && (pnt.y < Mx.b)) {
                     mx.draw_line(Mx, "white", Mx.l, pnt.y, Mx.r, pnt.y);
                 }
