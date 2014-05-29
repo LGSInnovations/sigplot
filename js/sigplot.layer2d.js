@@ -202,11 +202,11 @@
                         m.cvphad(dbuf, zpoint, zpoint.length);
                     }
                 } else if (Gx.cmode === 3) {
-                    m.vmov(dbuf, skip, zpoint, 1, zpoint.length);
+                    m.vmov(dbuf, this.skip, zpoint, 1, zpoint.length);
                 } else if (Gx.cmode >= 6) {
                     m.cvmag2(dbuf, zpoint, zpoint.length);
                 } else if (Gx.cmode >= 4) {
-                    m.vmov(dbuf.subarray(1), skip, zpoint, 1, zpoint.length);
+                    m.vmov(dbuf.subarray(1), this.skip, zpoint, 1, zpoint.length);
                 }
             } else {
                 zpoint = this.zbuf.subarray(this.frame * this.hcb.subsize, (this.frame + 1) * this.hcb.subsize);
