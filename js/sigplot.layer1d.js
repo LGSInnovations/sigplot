@@ -522,7 +522,7 @@
             }
 
             if ((this.position) && (this.drawmode === "scrolling")) {
-                var pnt = mx.real_to_pixel(Mx, this.position, 0);
+                var pnt = mx.real_to_pixel(Mx, this.position*this.xdelta, 0);
                 if ((pnt.x > Mx.l) && (pnt.x < Mx.r)) {
                     mx.draw_line(Mx, "white", pnt.x, Mx.t, pnt.x, Mx.b);
                 }
