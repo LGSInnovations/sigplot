@@ -477,8 +477,13 @@ var m = window.m || {};
         if (eidx > hcb.dview.length) {
             var head = hcb.dview.length - sidx;
             var tail = data.length - head;
-            hcb.dview.set(data.slice(0, head), sidx);
-            hcb.dview.set(data.slice(head, data.length), 0);
+	    if (data.subarray) {
+              hcb.dview.set(data.subarray(0, head), sidx);
+              hcb.dview.set(data.subarray(head, data.length), 0);
+	    } else {
+              hcb.dview.set(data.slice(0, head), sidx);
+              hcb.dview.set(data.slice(head, data.length), 0);
+	    }
             hcb.in_byte = (tail * hcb.dview.BYTES_PER_ELEMENT);
         } else {
             hcb.dview.set(data, sidx);

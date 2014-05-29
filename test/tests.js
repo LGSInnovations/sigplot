@@ -381,6 +381,107 @@ test('bluefile pipe basics', function() {
 
 });
 
+test('bluefile pipe basics (typed array)', function() {
+	var hcb = m.initialize([], {pipe: true, pipesize: 16});
+	equal( hcb.pipe, true);
+	equal( hcb.in_byte, 0);
+	equal( hcb.out_byte, 0);
+	equal( hcb.format, "SF");
+	equal( hcb.type, 1000);
+	equal( hcb.dview.BYTES_PER_ELEMENT, 4);
+
+	notEqual( hcb.buf, undefined);
+	notEqual( hcb.dview, undefined);
+	equal( hcb.buf.byteLength, 16);
+
+	var rdbuf = new ArrayBuffer(8);
+	var rdview = new Float32Array(rdbuf);
+
+	var wrbuf = new ArrayBuffer(8);
+	var wrview = new Float32Array(wrbuf);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 0);
+	equal( hcb.out_byte, 0);
+	equal( hcb.data_free, 4);
+
+	wrview[0] = 1.0;
+	wrview[1] = 2.0;
+	m.filad(hcb, wrview);
+	equal( hcb.in_byte, 8);
+	equal( hcb.out_byte, 0);
+	equal( hcb.dview[0], 1.0);
+	equal( hcb.dview[1], 2.0);
+	equal( hcb.data_free, 2);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 2);
+	equal( hcb.out_byte, 8);
+	equal( rdview[0], 1.0);
+	equal( rdview[1], 2.0);
+	equal( hcb.data_free, 4);
+
+	wrview[0] = 3.0;
+	wrview[1] = 4.0;
+	m.filad(hcb, wrview);
+	equal( hcb.in_byte, 0);
+	equal( hcb.dview[2], 3.0);
+	equal( hcb.dview[3], 4.0);
+	equal( hcb.data_free, 2);
+
+	wrview[0] = 5.0;
+	wrview[1] = 6.0;
+	m.filad(hcb, wrview);
+	equal( hcb.in_byte, 8);
+	equal( hcb.dview[0], 5.0);
+	equal( hcb.dview[1], 6.0);
+	equal( hcb.data_free, 0);
+
+	rdbuf = new ArrayBuffer(16);
+	rdview = new Float32Array(rdbuf);
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 4);
+	equal( hcb.out_byte, 8);
+	equal( rdview[0], 3.0);
+	equal( rdview[1], 4.0);
+	equal( rdview[2], 5.0);
+	equal( rdview[3], 6.0);
+	equal( hcb.data_free, 4);
+
+	var wrbuf = new ArrayBuffer(16);
+	var wrview = new Float32Array(wrbuf);
+
+	wrview[0] = 7.0;
+	wrview[1] = 8.0;
+	wrview[2] = 9.0;
+	wrview[3] = 10.0;
+
+	m.filad(hcb, wrview);
+	equal( hcb.in_byte, 8);
+	equal( hcb.dview[0], 9.0);
+	equal( hcb.dview[1], 10.0);
+	equal( hcb.dview[2], 7.0);
+	equal( hcb.dview[3], 8.0);
+
+	var wrbuf = new ArrayBuffer(8);
+	var wrview = new Float32Array(wrbuf);
+	wrview[0] = 11.0;
+	wrview[1] = 12.0;
+	throws( function() { m.filad(hcb, wrview) }, "pipe full" );
+
+	var ngot = m.grabx(hcb, rdview);
+	equal( ngot, 4);
+	equal( hcb.out_byte, 8);
+	equal( rdview[0], 7.0);
+	equal( rdview[1], 8.0);
+	equal( rdview[2], 9.0);
+	equal( rdview[3], 10.0);
+	equal( hcb.data_free, 4);
+
+
+});
+
 test('bluefile pipe CF type 2000', function() {
 	var hcb = m.initialize([], {pipe: true, format: "CF", type: 2000, subsize: 4, pipesize: 64});
 	equal( hcb.pipe, true);
