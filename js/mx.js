@@ -25,7 +25,6 @@
  *
  * @namespace
  */
-var debug_global = 1;
 var mx = window.mx || {};
 
 (function(mx, m, undefined) {
@@ -1457,12 +1456,12 @@ var mx = window.mx || {};
         }
 
         if (npts <= 0) {
-            console.log("No trace");
+            m.log.warn("No points to draw");
             return;
         }
 
         if ((line === 0) && (symb === 0)) {
-            console.log("No line or symbol to draw");
+            m.log.warn("No line or symbol to draw");
             return;
         }
 
@@ -1749,7 +1748,7 @@ var mx = window.mx || {};
         // Look up the color in Mx.pixels
         if (typeof color === "number") {
             if (!Mx.pixel || Mx.pixel.length === 0) {
-                console.log("COLORMAP not initialized, defaulting to foreground");
+                m.log.warn("COLORMAP not initialized, defaulting to foreground");
                 colors = Mx.fg;
             } else {
                 var cidx = Math.max(0, Math.min(Mx.pixel.length, color));
@@ -1867,7 +1866,7 @@ var mx = window.mx || {};
         if ((style) && (style.mode === "dashed")) {
             var dash_supported = dashOn(ctx, style.on, style.off);
             if (!dash_supported) {
-                console.log("WARNING: Dashed lines aren't supported on your browser");
+                m.log.warn("WARNING: Dashed lines aren't supported on your browser");
             }
         }
 
@@ -2734,9 +2733,6 @@ var mx = window.mx || {};
 
         // form nice tickmarks
         if (xlab == 1) { //time-based tics
-            //console.log("XLABEL = "+xlab);
-            //console.log("YLABEL = "+ylab);
-            //console.log("XDIV = "+xdiv);
             var xtimecode = true;
         } else {
             var xtimecode = false;
@@ -2757,8 +2753,6 @@ var mx = window.mx || {};
             xTIC.dtic1 = stk1.xmin;
             xTIC.dtic = (stk1.xmin - stk1.xmax) / xdiv;
         } else if (xtimecode) {
-            // TODO
-            if (debug_global > 0) console.log("XMIN = " + stk1.xmin + ", XMAX = " + stk1.xmax + ", XDIV = " + xdiv);
             xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv);
         } else {
             xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv);
@@ -4758,7 +4752,7 @@ var mx = window.mx || {};
         var ctx = Mx.active_canvas.getContext("2d");
 
         if (!Mx.pixel || Mx.pixel.length === 0) {
-            console.log("COLORMAP not initialized, defaulting to foreground");
+            m.log.warn("COLORMAP not initialized, defaulting to foreground");
             mx.colormap(Mx, m.Mc.colormap[1], 16);
         }
 
@@ -4821,7 +4815,7 @@ var mx = window.mx || {};
         var ctx = Mx.active_canvas.getContext("2d");
 
         if (!Mx.pixel || Mx.pixel.length === 0) {
-            console.log("COLORMAP not initialized, defaulting to foreground");
+            m.log.warn("COLORMAP not initialized, defaulting to foreground");
             mx.colormap(Mx, m.Mc.colormap[1], 16);
         }
 

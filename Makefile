@@ -1,6 +1,7 @@
 .PHONY: all clean
 
 BLUEFILE_SOURCES = js/license.js \
+		   js/loglevel.js \
 		   js/typedarray.js \
 		   js/common.js \
 		   js/bluefile.js

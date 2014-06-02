@@ -22,7 +22,6 @@
 /**
  * @namespace
  */
-var debug_global = -1;
 var m = window.m || {};
 
 (function(m, undefined) {
@@ -395,10 +394,6 @@ var m = window.m || {};
             hcb[field] = overrides[field];
         }
         hcb["class"] = hcb.type / 1000;
-
-        if (hcb.file_name != "") {
-            if (debug_global > 0) console.log("<m.js:m.initialize> Input Filename: " + hcb.file_name);
-        }
 
         if (!overrides.pipe) {
             hcb.setData(data);
@@ -1013,37 +1008,21 @@ var m = window.m || {};
         var diffDaySecs = (midnightTomorrow - midnightToday) / 1000; //    86400 secs = 24*60*60
         var diffYearSecs = (midnightDec - midnightJan) / 1000; // 31536000 secs = 365*24*60*60
         var negDiffYearSecs = -1 * diffYearSecs; //-31536000 secs
-        if (debug_global > 0) {
-            console.log("<m.js:m.sec2tod> *****Input seconds:" + sec + "*********");
-            console.log("<m.js:m.sec2tod> MidnightToday    :" + midnightToday);
-            console.log("<m.js:m.sec2tod> MidnightTomorrow :" + midnightTomorrow);
-            console.log("<m.js:m.sec2tod> MidnightJanuary  :" + midnightJan);
-            console.log("<m.js:m.sec2tod> MidnightDecembr  :" + midnightDec);
-            console.log("<m.js:m.sec2tod> Diff daySecs     :" + diffDaySecs);
-            console.log("<m.js:m.sec2tod> Diff yearSecs    :" + diffYearSecs);
-            console.log("<m.js:m.sec2tod> j1950Secs        :" + j1950 / 1000);
-            console.log("<m.js:m.sec2tod> j1949Secs        :" + j1949 / 1000);
-            console.log("<m.js:m.sec2tod> j1950Date        :" + j1950Date.toUTCString());
-            console.log("<m.js:m.sec2tod> j1949Date        :" + j1949Date.toUTCString());
-        }
 
         if (sec >= 0) {
             if (sec < diffDaySecs) {
                 // hh:mm:ss
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Less than 1 day");
                 var millisecs = midnightToday.getTime() + (sec * 1000);
                 var d = new Date(millisecs);
                 tod = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
             } else if (sec < diffYearSecs) {
                 // ddd:hh:mm:ss
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Less than 365 days");
                 var days = sec / diffDaySecs;
                 days = [days > 0 ? Math.floor(days) : Math.ceil(days)];
                 var d = new Date((sec * 1000) + midnightToday.getTime());
                 tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
             } else {
                 // convert to j1950
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Greater than or equal to 365 days");
                 var secMilli = sec * 1000 + j1950;
                 d = new Date(secMilli);
                 tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth()) + ":" + pad2(d.getUTCDate()) + "::" +
@@ -1052,14 +1031,12 @@ var m = window.m || {};
         } else {
             if (sec > negDiffYearSecs) {
                 // -ddd:hh:mm:ss
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Greater than -365 days");
                 var days = sec / diffDaySecs;
                 days = [days <= 0 ? Math.ceil(days) : Math.floor(days)];
                 var d = new Date(Math.abs(sec * 1000) + midnightToday.getTime());
                 tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
             } else {
                 // convert to j1950
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Less than or equal to -365 days");
                 var secMilli = sec * 1000 + j1950;
                 d = new Date(secMilli);
                 tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth()) + ":" + pad2(d.getUTCDate()) + "::" +
@@ -1082,7 +1059,6 @@ var m = window.m || {};
 
     m.sec2tod_j1970 = function(sec) {
         var tod = "";
-        if (debug_global > 0) console.log("<m.js:m.sec2tod_j1970> *****Input seconds:" + sec + "*********");
         if ((sec >= 0) && (sec < 86400)) {
             // hh:mm:ss
             var d = new Date(sec * 1000);

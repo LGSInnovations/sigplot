@@ -21,7 +21,6 @@
  *
  * @namespace sigplot
  */
-var debug_global = -1;
 var sigplot = window.sigplot || {};
 
 //Uses Immediately-invoked Function Expressions (IIFE)s for namespaces
@@ -1547,11 +1546,13 @@ var sigplot = window.sigplot || {};
          * @param layerType
          */
         overlay_array: function(data, overrides, layerOptions) {
+	    m.log.debug("Overlay array")
             var hcb = m.initialize(data, overrides);
             return this.overlay_bluefile(hcb, layerOptions);
         },
 
         overlay_pipe: function(overrides, layerOptions) {
+	    m.log.debug("Overlay pipe")
             if (!overrides) {
                 overrides = {};
             }
@@ -1562,6 +1563,7 @@ var sigplot = window.sigplot || {};
         },
 
         overlay_websocket: function(wsurl, overrides, layerOptions) {
+	    m.log.debug("Overlay websocket: " + wsurl);
             var ws = new WebSocket(wsurl, "plot-data");
             ws.binaryType = "arraybuffer";
 
@@ -1604,6 +1606,7 @@ var sigplot = window.sigplot || {};
          *            callback to be called when the file has been loaded
          */
         overlay_href: function(href, onload, layerOptions) {
+	    m.log.debug("Overlay href: " + href);
             try {
                 this.show_spinner();
 
@@ -1678,7 +1681,7 @@ var sigplot = window.sigplot || {};
          * @returns the index of the new layer
          */
         overlay_bluefile: function(hcb, layerOptions) {
-            if (debug_global > 0) console.log("<sigplot.js:overlay_bluefile> Inpt Filename: " + hcb.file_name);
+	    m.log.debug("Overlay bluefile: " + hcb.file_name);
             var Mx = this._Mx;
             var Gx = this._Gx;
             var size = 0;
@@ -1697,10 +1700,8 @@ var sigplot = window.sigplot || {};
 
             if (layerOptions.layerType === undefined) {
                 if (hcb["class"] === 1) {
-                    if (debug_global > 0) console.log("<sigplot.js> new Layer1D overlay");
                     sigplot.Layer1D.overlay(this, hcb, layerOptions);
                 } else if (hcb["class"] === 2) {
-                    if (debug_global > 0) console.log("<sigplot.js> new Layer2D overlay");
                     sigplot.Layer2D.overlay(this, hcb, layerOptions);
                 }
             } else {
@@ -1720,14 +1721,10 @@ var sigplot = window.sigplot || {};
             changemode(this, Gx.cmode);
 
             if (!basefiles) {
-                if (debug_global > 0) console.log("<sigplot.js> No Basefiles");
                 for (var n = newlayer; n < Gx.lyr.length; n++) {
                     draw_layer(this, n);
                 }
             } else {
-                if (debug_global > 0) console.log("<sigplot.js> Gx xmin/xmax: " + Gx.xmin + "/" + Gx.xmax);
-                if (debug_global > 0) console.log("<sigplot.js> Gx ymin/ymax: " + Gx.ymin + "/" + Gx.ymax);
-                if (debug_global > 0) console.log("<sigplot.js> Gx autox/autoy: " + Gx.autox + "/" + Gx.autoy);
                 if (Gx.HCB.length === 0) { // TODO dead code that cannot be reached
                     basefile(this, false);
                 } else {
@@ -1740,32 +1737,22 @@ var sigplot = window.sigplot || {};
                     if ((Gx.autox && 2) === 0) {
                         xmax = Gx.xmin;
                     }
-                    if (debug_global > 0) console.log("<sigplot.js> --Gx xmin/xmax: " + Gx.xmin + "/" + Gx.xmax);
-                    if (debug_global > 0) console.log("<sigplot.js> --Gx ymin/ymax: " + Gx.ymin + "/" + Gx.ymax);
                     scale_base(this, {
                         get_data: true
                     }, xmin, xmax);
-                    if (debug_global > 0) console.log("<sigplot.js> --Gx xmin/xmax: " + Gx.xmin + "/" + Gx.xmax);
-                    if (debug_global > 0) console.log("<sigplot.js> --Gx ymin/ymax: " + Gx.ymin + "/" + Gx.ymax);
                     Mx.level = 0;
                     if ((Gx.autox && 1) !== 0) {
-                        if (debug_global > 0) console.log("<sigplot.js> --A");
                         Gx.xmin = Mx.stk[0].xmin;
                     }
                     if ((Gx.autox && 2) !== 0) {
-                        if (debug_global > 0) console.log("<sigplot.js> --B");
                         Gx.xmax = Mx.stk[0].xmax;
                     }
                     if ((Gx.autoy && 1) !== 0) {
-                        if (debug_global > 0) console.log("<sigplot.js> --C");
                         Gx.ymin = Mx.stk[0].ymin;
                     }
                     if ((Gx.autoy && 2) !== 0) {
-                        if (debug_global > 0) console.log("<sigplot.js> --D");
                         Gx.ymax = Mx.stk[0].ymax;
                     }
-                    if (debug_global > 0) console.log("<sigplot.js> --Gx xmin/xmax: " + Gx.xmin + "/" + Gx.xmax);
-                    if (debug_global > 0) console.log("<sigplot.js> --Gx ymin/ymax: " + Gx.ymin + "/" + Gx.ymax);
                     Mx.resize = true;
                     if (Gx.lyr[0].preferred_origin) {
                         Mx.origin = Gx.lyr[0].preferred_origin;
@@ -1773,9 +1760,6 @@ var sigplot = window.sigplot || {};
                         Mx.origin = 1;
                     }
                 }
-                if (debug_global > 0) console.log("<sigplot.js> AFTER Gx xmin/xmax: " + Gx.xmin + "/" + Gx.xmax);
-                if (debug_global > 0) console.log("<sigplot.js> AFTER Gx ymin/ymax: " + Gx.ymin + "/" + Gx.ymax);
-                if (debug_global > 0) console.log("<sigplot.js> AFTER Gx autox/autoy: " + Gx.autox + "/" + Gx.autoy);
             }
             form_plotnote(this);
             this.refresh();
@@ -2686,12 +2670,9 @@ var sigplot = window.sigplot || {};
         var Gx = plot._Gx;
         var Mx = plot._Mx;
 
-        if (debug_global > 0) console.log("<sigplot.js:sigplot_show_timecode> Gx Layer Count = " + Gx.lyr.length);
         if (Gx.lyr.length > 0) {
             //var hcb = Gx.HCB[Gx.lyr[0].hcb];
             var hcb = Gx.lyr[0].hcb; // mmm-TODO-needs investigation
-            if (debug_global > 0) console.log("<sigplot.js:sigplot_show_timecode: filename = " + hcb.file_name);
-            if (debug_global > 0) console.log("<sigplot.js:sigplot_show_timecode: xunits = " + hcb.xunits);
             if (hcb.xunits === 1) {
                 mx.message(Mx, "Time = " + m.sec2tod(hcb.timecode + Gx.retx));
             } else {
@@ -4765,7 +4746,6 @@ var sigplot = window.sigplot || {};
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 
-        if (debug_global > 0) console.log("<sigplot.js:changemode> NewMode/OldMode: " + newmode + "/" + Gx.cmode);
         Gx.xdata = false;
         for (var n = 0; n < Gx.lyr.length; n++) {
             if (newmode == 5) {
@@ -5390,7 +5370,6 @@ var sigplot = window.sigplot || {};
      * @private
      */
     function scale_base(plot, mode, xxmin, xxmax, xlab, ylab) {
-        if (debug_global > 0) console.log("<sigplot.js:scale_base> Entering...");
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 

@@ -65,7 +65,6 @@
  *
  * @namespace bluefile
  */
-var debug_global = 1;
 (function(global) {
     'use strict';
 
@@ -309,8 +308,7 @@ var debug_global = 1;
         createArray: function(buf, offset, length) {
             var typedArray = _XM_TO_TYPEDARRAY[this.format[1]]
             if (typedArray === undefined) {
-                console.log(" unknown format", this.format[1], _XM_TO_TYPEDARRAY);
-                return undefined;
+                throw ("unknown format " + this.format[1]);
             }
             // backwards compatibility with some implementations of typed array
             // requires this
@@ -482,12 +480,10 @@ var debug_global = 1;
             oReq.responseType = "arraybuffer";
             oReq.overrideMimeType('text\/plain; charset=x-user-defined');
             oReq.onload = function(oEvent) {
-                if (debug_global > 0) console.log("<bluefile.js:read_http> readyState/status: " + oReq.readyState + "/" + oReq.status);
                 if (oReq.readyState === 4) {
                     if ((oReq.status === 200) || (oReq.status === 0)) { // status = 0 is necessary for file URL
                         var arrayBuffer = null; // Note: not oReq.responseText
                         if (oReq.response) {
-                            if (debug_global > 0) console.log("<bluefile.js:read_http> binary file");
                             arrayBuffer = oReq.response;
                             var hdr = new BlueHeader(arrayBuffer);
                             parseURL(href);
@@ -495,7 +491,6 @@ var debug_global = 1;
                             hdr.file_name = fileUrl.file;
                             onload(hdr);
                         } else if (oReq.responseText) {
-                            if (debug_global > 0) console.log("<bluefile.js:read_http> text file");
                             text2buffer(oReq.responseText, function(arrayBuffer) {
                                 var hdr = new BlueHeader(arrayBuffer);
                                 parseURL(href);
@@ -507,12 +502,10 @@ var debug_global = 1;
                         return;
                     }
                 }
-                console.log("<bluefile.js:read_http> " + href + " failed: State " + oReq.readyState + ", Status " + oReq.status);
                 onload(null);
             };
 
             oReq.onerror = function(oEvent) {
-                console.log("read_http error", oEvent);
                 onload(null);
             }
 

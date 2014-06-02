@@ -15,6 +15,8 @@
 
 var fixture = document.getElementById("qunit-fixture");
 
+m.log.setLevel("trace");
+
 QUnit.module('m', {
     setup: function() {
     },

@@ -15,6 +15,7 @@
    
  * Portions of SigPlot may utilize the following open-source software:
  *
+ *   loglevel.js          - MIT License; Copyright (c) 2014, Tim Perry
  *   typedarray.js        - MIT License; Copyright (c) 2010, Linden Research, Inc.
  *   tinycolor.js         - MIT License; Copyright (c) 2013, Brian Grinstead
  *   CanvasInput.js       - MIT License; Copyright (c) 2013, James Simpson of GoldFire Studios
