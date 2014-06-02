@@ -56,6 +56,7 @@ doc: doc/index.html
 clean:
 	rm -f sigplot-minimized.js bluefile-minimized.js sigplot.plugins-minimized.js
 	rm -f sigplot-debug.js bluefile-debug.js sigplot.plugins-debug.js
+	rm -f js/*-debug.js
 
 cleandoc:
 	rm -rf doc/*
