@@ -2193,8 +2193,8 @@ var sigplot = window.sigplot || {};
         },
 
         checkresize: function() {
-            if (mx.checkresize(plot._Mx)) {
-                plot.refresh();
+            if (mx.checkresize(this._Mx)) {
+                this.refresh();
             }
         },
 
