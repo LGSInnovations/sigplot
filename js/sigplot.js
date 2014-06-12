@@ -79,8 +79,10 @@ var sigplot = window.sigplot || {};
      * @private
      */
     var iOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false);
-    if (iOS) {
-        // Some iOS browsers (maybe all) don't support Float64Array's
+    if ((iOS)                                    // iOS doesn't support Float64
+	|| (typeof Float64Array === 'undefined') // If it's undefined it's obviously not supported
+	|| (Float64Array.emulated)              // If it's emulated, don't waste time on extra precision
+	|| (!Float64Array.BYTES_PER_ELEMENT)) {  // If bytes per element isn't defined, it's a buggy implementation (i.e. PhantomJS)
         sigplot.PointArray = Float32Array;
     } else {
         sigplot.PointArray = Float64Array;

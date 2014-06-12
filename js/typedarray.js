@@ -564,6 +564,7 @@ var DataView;
 
                 ctor.prototype = new ArrayBufferView();
                 ctor.prototype.BYTES_PER_ELEMENT = bytesPerElement;
+                ctor.prototype.emulated = true;
                 ctor.prototype._pack = pack;
                 ctor.prototype._unpack = unpack;
                 ctor.BYTES_PER_ELEMENT = bytesPerElement;
