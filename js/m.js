@@ -417,7 +417,7 @@ var m = window.m || {};
      * @param	{header}	hcb		Bluefile header control block
      */
     m.force1000 = function(hcb) {
-        if (hcb["class"] == 2) {
+        if (hcb["class"] === 2) {
             hcb.size = hcb.subsize * hcb.size;
             hcb.bpe = hcb.bpe / hcb.subsize;
             hcb.ape = 1;
@@ -433,7 +433,7 @@ var m = window.m || {};
      * @return	{number}	ngot		Number of received data
      */
     m.grab = function(hcb, bufview, start, nget) {
-        if (!hcb.dview) return 0;
+        if (!hcb.dview) { return 0; }
 
         // TODO reformat
         if (hcb.format[0] === 'C') {
@@ -576,10 +576,10 @@ var m = window.m || {};
      */
     m.trim_name = function(pathfilename) {
         var i = pathfilename.indexOf(']');
-        if (i == -1) {
+        if (i === -1) {
             i = pathfilename.indexOf('/');
         }
-        if (i == -1) {
+        if (i === -1) {
             i = pathfilename.indexOf(':');
         }
         var j = pathfilename.substr(i + 1, pathfilename.length).indexOf('.');
@@ -1044,7 +1044,7 @@ var m = window.m || {};
             }
         }
 
-        if ((sec % 1) != 0) {
+        if ((sec % 1) !== 0) {
             tod += "." + (sec % 1).toPrecision(6).slice(2, 8);
         }
 
@@ -1059,15 +1059,16 @@ var m = window.m || {};
 
     m.sec2tod_j1970 = function(sec) {
         var tod = "";
+	var d;
         if ((sec >= 0) && (sec < 86400)) {
             // hh:mm:ss
-            var d = new Date(sec * 1000);
+            d = new Date(sec * 1000);
             tod = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
 
         } else if ((sec < 0) && (sec > -31536000)) {
             // -ddd:hh:mm:ss
             var days = -1 * (sec / (24 * 60 * 60));
-            var d = new Date(sec * 1000);
+            d = new Date(sec * 1000);
             tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
         } else {
             // convert to j1950
@@ -1076,7 +1077,7 @@ var m = window.m || {};
             tod = d.getFullYear() + ":" + pad2(d.getMonth()) + ":" + pad2(d.getDate()) + "::" +
                 pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
         }
-        if ((sec % 1) != 0) {
+        if ((sec % 1) !== 0) {
             tod += "." + (sec % 1).toPrecision(6).slice(2, 8);
         }
         return tod;

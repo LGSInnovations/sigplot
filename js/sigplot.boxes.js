@@ -15,6 +15,8 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
+/* global mx */
+/* global m */
 (function( sigplot, mx, m, undefined ) {
 	
 	/**
@@ -25,10 +27,10 @@
 	sigplot.BoxesPlugin = function(options) {
 		this.options = (options === undefined) ? {} : options;
 		
-		if (this.options.display === undefined)  this.options.display = true;
+		if (this.options.display === undefined) { this.options.display = true; }
 		
 		this.boxes = [];
-	}
+	};
 	
 	sigplot.BoxesPlugin.prototype = {
 			init: function(plot) {
@@ -75,11 +77,15 @@
 			},
 			
 			refresh: function(canvas) {
-				if (!this.options.display) return;
+				if (!this.options.display) { return; }
 				var Gx = this.plot._Gx;
 				var Mx = this.plot._Mx;
 				
 				var ctx = canvas.getContext("2d");
+				var box,pxl;
+				var x,y,w,h;
+				var ul,lr;
+
 				
 				ctx.save();
 				ctx.beginPath();
@@ -87,13 +93,7 @@
 				ctx.clip();
 				
 				for (var i=0; i<this.boxes.length; i++) {
-					var box = this.boxes[i];
-					
-					var x;
-					var y;
-					var w;
-					var h;
-					
+					box = this.boxes[i];
 					if (box.absolute_placement === true) {
 						x = box.x + Mx.l;
 						y = box.y + Mx.t;
@@ -152,6 +152,6 @@
 				this.plot = undefined;
 				this.boxes = undefined;
 			}
-	}
+	};
 	
 }( window.sigplot = window.sigplot || {}, mx, m));

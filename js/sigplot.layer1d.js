@@ -14,6 +14,8 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
+/* global mx */
+/* global m */
 (function(sigplot, mx, m, undefined) {
 
 
@@ -84,7 +86,7 @@
             this.ybufn = 0;
 
             if (!this.hcb.pipe) {
-		if (hcb["class"] == 2) {
+		if (hcb["class"] === 2) {
                     m.force1000(hcb);
                     this.size = hcb.subsize;
                 } else {
@@ -185,8 +187,9 @@
             imax = Math.min(size, imax);
 
             var npts = Math.max(0.0, Math.min(imax - imin + 1, Gx.bufmax));
-            if (HCB.xdelta < 0)
+            if (HCB.xdelta < 0) {
                 imin = imax - npts + 1;
+	    }
 
             if ((imin >= this.imin) && (imin + npts <= this.imin + this.size) && (this.ybuf !== undefined)) {
                 // data already in buffers
@@ -247,7 +250,7 @@
 
             var skip = this.skip;
 
-            if (npts === 0) return;
+            if (npts === 0) { return; }
 
             if (npts * sigplot.PointArray.BYTES_PER_ELEMENT > Gx.pointbufsize) {
                 Gx.pointbufsize = npts * sigplot.PointArray.BYTES_PER_ELEMENT;
@@ -303,7 +306,7 @@
 
                 npts = n2 - n1 + 1;
                 if (npts < 0) {
-                    console.log("Nothing to plot");
+		    m.log.debug("Nothing to plot");
                     npts = 0;
                 }
                 dbuf = new sigplot.PointArray(this.ybuf).subarray(n1 * skip);
@@ -326,7 +329,7 @@
             }
 
             if (npts <= 0) {
-                console.log("Nothing to plot");
+                m.log.debug("Nothing to plot");
                 return;
             }
             var ypoint = new sigplot.PointArray(Gx.yptr);
@@ -366,7 +369,7 @@
             if (Gx.cmode >= 6) {
                 m.vlog10(ypoint, Gx.dbmin, ypoint);
                 var dbscale = 10.0;
-                if (Gx.cmode == 7) {
+                if (Gx.cmode === 7) {
                     dbscale = 20.0;
                 }
                 if ((Gx.lyr.length > 0) && (Gx.lyr[0].cx)) {
@@ -391,8 +394,8 @@
                 qmin = qmin - 1.0;
                 qmax = qmax + 1.0;
             } else {
-                qmin = qmin - .02 * yran;
-                qmax = qmax + .02 * yran;
+                qmin = qmin - 0.02 * yran;
+                qmax = qmax + 0.02 * yran;
             }
 
             if (Mx.level === 0) {
@@ -443,10 +446,12 @@
                     line = Math.abs(this.thick);
                     traceoptions.dashed = true;
                 }
-                if (this.line === 1)
+                if (this.line === 1) {
                     traceoptions.vertsym = true;
-                if (this.line === 2)
+		}
+                if (this.line === 2) {
                     traceoptions.horzsym = true;
+		}
             }
 
             var segment = (Gx.segment) && (Gx.cmode !== 5) && (this.xsub > 0) && (mask === 0);
@@ -619,7 +624,7 @@
         var Gx = plot._Gx;
         var Mx = plot._Mx;
 
-        if (hcb["class"] == 2) {
+        if (hcb["class"] === 2) {
             m.force1000(hcb);
         }
         hcb.buf_type = "D";
@@ -628,7 +633,7 @@
         // it's own layer
         var n1 = 0;
         var n2 = 1;
-        if (hcb["class"] == 2) {
+        if (hcb["class"] === 2) {
             var num_rows = hcb.size / hcb.subsize;
             n2 = Math.min(num_rows, 16 - Gx.lyr.length);
         }

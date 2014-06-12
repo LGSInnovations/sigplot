@@ -28,6 +28,11 @@ var sigplot = window.sigplot || {};
 //http://addyosmani.com/blog/essential-js-namespacing/ for details.
 //http://www.ethangardner.com/articles/javascript-namespace-strategy-for-large-applications/
 (function(sigplot, mx, m) {
+    /* global setKeypressHandler */
+    /* global getKeyCode */
+    /* global BlueFileReader */
+    /* global Spinner */
+
     /**
      * Text of the keypress help dialog.
      *
@@ -79,10 +84,10 @@ var sigplot = window.sigplot || {};
      * @private
      */
     var iOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false);
-    if ((iOS)                                    // iOS doesn't support Float64
-	|| (typeof Float64Array === 'undefined') // If it's undefined it's obviously not supported
-	|| (Float64Array.emulated)              // If it's emulated, don't waste time on extra precision
-	|| (!Float64Array.BYTES_PER_ELEMENT)) {  // If bytes per element isn't defined, it's a buggy implementation (i.e. PhantomJS)
+    if ((iOS) ||                                   // iOS doesn't support Float64
+	(typeof Float64Array === 'undefined') ||   // If it's undefined it's obviously not supported
+	(Float64Array.emulated) ||                 // If it's emulated, don't waste time on extra precision
+	(!Float64Array.BYTES_PER_ELEMENT)) {       // If bytes per element isn't defined, it's a buggy implementation (i.e. PhantomJS)
         sigplot.PointArray = Float32Array;
     } else {
         sigplot.PointArray = Float64Array;
@@ -724,7 +729,7 @@ var sigplot = window.sigplot || {};
                     // region
                     event.preventDefault();
                     if (inPan.command !== ' ') {
-                        var scrollbar = undefined;
+                        var scrollbar;
                         if (inPan.command === "XPAN") {
                             scrollbar = Mx.scrollbar_x;
                         } else if (inPan.command === "YPAN") {
@@ -811,7 +816,7 @@ var sigplot = window.sigplot || {};
                 // panning
                 // region
 
-                var scrollbar = undefined;
+                var scrollbar;
                 if (inPan.command === "XPAN") {
                     scrollbar = Mx.scrollbar_x;
                 } else if (inPan.command === "YPAN") {
@@ -840,7 +845,7 @@ var sigplot = window.sigplot || {};
             });
 
             var throttledZoom = m.throttle(100, function() {
-                var zoomperc = Gx.wheelZoomPercent || .2;
+                var zoomperc = Gx.wheelZoomPercent || 0.2;
                 if (Gx.wheelscroll_mode_natural) {
                     if (event.deltaY > 0) {
                         zoomperc = -1 * zoomperc;
@@ -908,7 +913,7 @@ var sigplot = window.sigplot || {};
                         // Only respond to keypresses if the mouse is
                         // in the plot area....
                         var keyCode = getKeyCode(event);
-                        if (keyCode == 97) { // 'a'
+                        if (keyCode === 97) { // 'a'
                             Gx.iabsc = (Gx.iabsc + 1) % 4;
                             // It's kinda up in the air if changing the 'specs'
                             // area should also change the plotting mode itself...
@@ -922,15 +927,15 @@ var sigplot = window.sigplot || {};
                             //	index : Gx.iabsc === 1
                             //});
                             display_specs(plot);
-                        } else if (keyCode == 108) { // 'l'
+                        } else if (keyCode === 108) { // 'l'
                             plot.change_settings({
                                 legend: !Gx.legend
                             }); // toggle the legend
-                        } else if (keyCode == 103) { // 'g'
+                        } else if (keyCode === 103) { // 'g'
                             plot.change_settings({
                                 grid: !Gx.grid
                             }); // toggle the legend
-                        } else if ((keyCode == 98) || (keyCode == 2)) { // 'b' and CTRL-'b'
+                        } else if ((keyCode === 98) || (keyCode === 2)) { // 'b' and CTRL-'b'
                             if (Mx.warpbox) {
                                 if (Mx.warpbox.mode === "box") {
                                     Mx.warpbox.mode = "horizontal";
@@ -941,34 +946,34 @@ var sigplot = window.sigplot || {};
                                 }
                                 mx.redraw_warpbox(Mx);
                             }
-                        } else if (keyCode == 99) { // 'c'
+                        } else if (keyCode === 99) { // 'c'
                             plot.change_settings({
                                 xcnt: -1 * Gx.cntrls
                             });
-                        } else if (keyCode == 114) { // 'r'
+                        } else if (keyCode === 114) { // 'r'
                             plot.change_settings({
                                 show_readout: !Gx.show_readout
                             });
-                        } else if (keyCode == 115) { // 's'
+                        } else if (keyCode === 115) { // 's'
                             plot.change_settings({
                                 specs: !Gx.specs
                             });
-                        } else if (keyCode == 120) { // 'x'
+                        } else if (keyCode === 120) { // 'x'
                             sigplot_show_x(plot);
-                        } else if (keyCode == 121) { // 'y'
+                        } else if (keyCode === 121) { // 'y'
                             sigplot_show_y(plot);
-                        } else if (keyCode == 122) { // 'z'
+                        } else if (keyCode === 122) { // 'z'
                             sigplot_show_z(plot);
-                        } else if (keyCode == 116) { // 't'
+                        } else if (keyCode === 116) { // 't'
                             sigplot_show_timecode(plot);
-                        } else if (keyCode == 109) { // 'm'
+                        } else if (keyCode === 109) { // 'm'
                             sigplot_mainmenu(plot);
-                        } else if (keyCode == 63) { // '?'
+                        } else if (keyCode === 63) { // '?'
                             mx.message(Mx, MAIN_HELP);
-                        } else if (keyCode == 102) { // 'f'
+                        } else if (keyCode === 102) { // 'f'
                             mx.fullscreen(Mx);
                             plot.refresh();
-                        } else if ((keyCode == 9) && (event.ctrlKey)) { // ctrl-i
+                        } else if ((keyCode === 9) && (event.ctrlKey)) { // ctrl-i
                             plot.change_settings({
                                 invert: null
                             });
@@ -1035,7 +1040,6 @@ var sigplot = window.sigplot || {};
         remove_plugin: function(plugin) {
             for (var i = 0; i < this._Gx.plugins.length; i++) {
                 if (this._Gx.plugins[i].impl === plugin) {
-                    array.splice(i, 1);
                     if (plugin.dispose) {
                         plugin.dispose();
                     }
@@ -1175,7 +1179,7 @@ var sigplot = window.sigplot || {};
                 Gx.autol = settings.autol;
             }
 
-            if ((settings.index !== undefined) && (settings.index != Gx.index)) {
+            if ((settings.index !== undefined) && (settings.index !== Gx.index)) {
                 if (settings.index === null) {
                     Gx.index = !Gx.index;
                 } else {
@@ -1191,8 +1195,8 @@ var sigplot = window.sigplot || {};
                     Gx.iabsc = 0;
                 }
 
-                var xmin = undefined;
-                var xmax = undefined;
+                var xmin;
+                var xmax;
                 scale_base(this, {
                     get_data: false
                 }, xmin, xmax);
@@ -1313,11 +1317,11 @@ var sigplot = window.sigplot || {};
                     Gx.cross = settings.cross;
                 }
                 if (!Gx.cross) {
-                    if (Gx.cross_xpos != undefined) {
+                    if (Gx.cross_xpos !== undefined) {
                         mx.rubberline(Mx, Gx.cross_xpos, Mx.t, Gx.cross_xpos,
                             Mx.b);
                     }
-                    if (Gx.cross_ypos != undefined) {
+                    if (Gx.cross_ypos !== undefined) {
                         mx.rubberline(Mx, Mx.l, Gx.cross_ypos, Mx.r,
                             Gx.cross_ypos);
                     }
@@ -1346,11 +1350,11 @@ var sigplot = window.sigplot || {};
                 Gx.default_rubberbox_mode = settings.rubberbox_mode;
             }
 
-            if (settings.wheelscroll_mode_natural != undefined) {
+            if (settings.wheelscroll_mode_natural !== undefined) {
                 Gx.wheelscroll_mode_natural = settings.wheelscroll_mode_natural;
             }
 
-            if (settings.colors != undefined) {
+            if (settings.colors !== undefined) {
                 if (!settings.colors.fg) {
                     settings.colors.fg = Mx.fg;
                 }
@@ -1363,7 +1367,7 @@ var sigplot = window.sigplot || {};
             if (settings.cmap !== undefined) {
                 if (settings.cmap === null) {
                     // default
-                    if (Gx.cmode == 2) {
+                    if (Gx.cmode === 2) {
                         Gx.cmap = 2; // wheel
                     } else {
                         Gx.cmap = 1; // ramp
@@ -1422,7 +1426,7 @@ var sigplot = window.sigplot || {};
             }
 
             this.refresh();
-            if (settings.pan != undefined) { // refactor - new code to handle
+            if (settings.pan !== undefined) { // refactor - new code to handle
                 // disappearing specs
                 display_specs(this);
             }
@@ -1476,7 +1480,7 @@ var sigplot = window.sigplot || {};
         reload: function(n, data) {
             var Mx = this._Mx;
             var Gx = this._Gx;
-            if ((n < 0) || (n >= Gx.lyr.length)) return;
+            if ((n < 0) || (n >= Gx.lyr.length)) { return; }
 
             var hcb = Gx.lyr[n].hcb;
 
@@ -1528,7 +1532,7 @@ var sigplot = window.sigplot || {};
         push: function(n, data) {
             var Mx = this._Mx;
             var Gx = this._Gx;
-            if ((n < 0) || (n >= Gx.lyr.length)) return;
+            if ((n < 0) || (n >= Gx.lyr.length)) { return; }
             var hcb = Gx.lyr[n].hcb;
             //console.log("push hcb filename: "+hcb.file_name);
 
@@ -1548,13 +1552,13 @@ var sigplot = window.sigplot || {};
          * @param layerType
          */
         overlay_array: function(data, overrides, layerOptions) {
-	    m.log.debug("Overlay array")
+	    m.log.debug("Overlay array");
             var hcb = m.initialize(data, overrides);
             return this.overlay_bluefile(hcb, layerOptions);
         },
 
         overlay_pipe: function(overrides, layerOptions) {
-	    m.log.debug("Overlay pipe")
+	    m.log.debug("Overlay pipe");
             if (!overrides) {
                 overrides = {};
             }
@@ -1731,8 +1735,8 @@ var sigplot = window.sigplot || {};
                     basefile(this, false);
                 } else {
                     Gx.basemode = Gx.cmode;
-                    var xmin = undefined;
-                    var xmax = undefined;
+                    var xmin;
+                    var xmax;
                     if ((Gx.autox && 1) === 0) {
                         xmin = Gx.xmin;
                     }
@@ -1776,14 +1780,16 @@ var sigplot = window.sigplot || {};
          *            a list of files to plot
          */
         load_files: function(files, layerType) {
+	    var onload = (function(plot) {
+                return function(hdr) {
+                    plot.overlay_bluefile(hdr, layerType);
+                };
+            })(this);
+
             for (var i = 0; i < files.length; i++) {
                 var f = files[i];
                 var br = new BlueFileReader();
-                br.read(f, function(plot) {
-                    return function(hdr) {
-                        plot.overlay_bluefile(hdr, layerType);
-                    };
-                }(this));
+                br.read(f, onload);
             }
         },
 
@@ -1856,8 +1862,9 @@ var sigplot = window.sigplot || {};
             // Notify listeners that a file has been deoverlayed
             var evt = document.createEvent('Event');
             evt.initEvent('file_deoverlayed', true, true);
-            if (fileName != "")
+            if (fileName !== "") {
                 evt.fileName = fileName; // The fileName that was
+	    }
             // de-overlayed
             mx.dispatchEvent(this._Mx, evt);
         },
@@ -2008,7 +2015,7 @@ var sigplot = window.sigplot || {};
             var Mx = this._Mx;
             var Gx = this._Gx;
 
-            if (Mx.level == 0) {
+            if (Mx.level === 0) {
                 return;
             }
 
@@ -2017,7 +2024,7 @@ var sigplot = window.sigplot || {};
             }
 
             while (levels > 0) {
-                if (Mx.level == 0) {
+                if (Mx.level === 0) {
                     break;
                 }
                 Mx.stk.pop();
@@ -2037,8 +2044,6 @@ var sigplot = window.sigplot || {};
             evt.xmax = Mx.stk[Mx.level].xmax;
             evt.ymax = Mx.stk[Mx.level].ymax;
             mx.dispatchEvent(Mx, evt);
-
-            console.log("UNZOOM EVENT");
 
             this.refresh();
         },
@@ -2345,7 +2350,7 @@ var sigplot = window.sigplot || {};
                     var drawaxis_flags = {
                         grid: Gx.grid
                     };
-                    if (Gx.panning == 2) {
+                    if (Gx.panning === 2) {
                         drawaxis_flags.noxtlab = true;
                     } // TODO Does this work??
                     if (!Gx.show_x_axis) {
@@ -2622,7 +2627,7 @@ var sigplot = window.sigplot || {};
         this.wheelscroll_mode_natural = true;
         this.scroll_time_interval = 10;
 
-        this.repeatPanning = undefined
+        this.repeatPanning = undefined;
         this.stillPanning = undefined; // TODO maybe merge this variable with
         // Gx.panning in future?
 
@@ -2632,7 +2637,7 @@ var sigplot = window.sigplot || {};
         this.rasterSmoothing = false;
 
         this.wheelZoom = false;
-        this.wheelZoomPercent = .2;
+        this.wheelZoomPercent = 0.2;
         this.inContinuousZoom = false;
 
         this.lyr = [];
@@ -2790,7 +2795,7 @@ var sigplot = window.sigplot || {};
                 title: "CONTROLS OPTIONS",
                 items: [{
                     text: "Continuous (Disabled)",
-                    checked: Gx.cntrls == -2,
+                    checked: Gx.cntrls === -2,
                     handler: function() {
                         plot.change_settings({
                             xcnt: -2
@@ -2798,7 +2803,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "LM Click (Disabled)",
-                    checked: Gx.cntrls == -1,
+                    checked: Gx.cntrls === -1,
                     handler: function() {
                         plot.change_settings({
                             xcnt: -1
@@ -2806,7 +2811,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "Off",
-                    checked: Gx.cntrls == 0,
+                    checked: Gx.cntrls === 0,
                     handler: function() {
                         plot.change_settings({
                             xcnt: 0
@@ -2814,7 +2819,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "LM Click",
-                    checked: Gx.cntrls == 1,
+                    checked: Gx.cntrls === 1,
                     handler: function() {
                         plot.change_settings({
                             xcnt: 1
@@ -2822,7 +2827,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "Continuous",
-                    checked: Gx.cntrls == 2,
+                    checked: Gx.cntrls === 2,
                     handler: function() {
                         plot.change_settings({
                             xcnt: 2
@@ -2838,7 +2843,7 @@ var sigplot = window.sigplot || {};
                 title: "COMPLEX MODE",
                 items: [{
                     text: "Magnitude",
-                    checked: Gx.cmode == 1,
+                    checked: Gx.cmode === 1,
                     handler: function() {
                         plot.change_settings({
                             cmode: 1
@@ -2846,7 +2851,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "Phase",
-                    checked: Gx.cmode == 2,
+                    checked: Gx.cmode === 2,
                     handler: function() {
                         plot.change_settings({
                             cmode: 2
@@ -2854,7 +2859,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "Real",
-                    checked: Gx.cmode == 3,
+                    checked: Gx.cmode === 3,
                     handler: function() {
                         plot.change_settings({
                             cmode: 3
@@ -2862,7 +2867,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "Imaginary",
-                    checked: Gx.cmode == 4,
+                    checked: Gx.cmode === 4,
                     handler: function() {
                         plot.change_settings({
                             cmode: 4
@@ -2870,7 +2875,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "IR: Imag/Real",
-                    checked: Gx.cmode == 5,
+                    checked: Gx.cmode === 5,
                     handler: function() {
                         plot.change_settings({
                             cmode: 5
@@ -2878,7 +2883,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "10*Log10",
-                    checked: Gx.cmode == 6,
+                    checked: Gx.cmode === 6,
                     handler: function() {
                         plot.change_settings({
                             cmode: 6
@@ -2886,7 +2891,7 @@ var sigplot = window.sigplot || {};
                     }
                 }, {
                     text: "20*Log10",
-                    checked: Gx.cmode == 7,
+                    checked: Gx.cmode === 7,
                     handler: function() {
                         plot.change_settings({
                             cmode: 7
@@ -3077,7 +3082,7 @@ var sigplot = window.sigplot || {};
                         title: "CONTROLS OPTIONS",
                         items: [{
                             text: "Continuous (Disabled)",
-                            checked: Gx.cntrls == -2,
+                            checked: Gx.cntrls === -2,
                             handler: function() {
                                 plot.change_settings({
                                     xcnt: -2
@@ -3085,7 +3090,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "LM Click (Disabled)",
-                            checked: Gx.cntrls == -1,
+                            checked: Gx.cntrls === -1,
                             handler: function() {
                                 plot.change_settings({
                                     xcnt: -1
@@ -3093,7 +3098,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Off",
-                            checked: Gx.cntrls == 0,
+                            checked: Gx.cntrls === 0,
                             handler: function() {
                                 plot.change_settings({
                                     xcnt: 0
@@ -3101,7 +3106,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "LM Click",
-                            checked: Gx.cntrls == 1,
+                            checked: Gx.cntrls === 1,
                             handler: function() {
                                 plot.change_settings({
                                     xcnt: 1
@@ -3109,7 +3114,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Continuous",
-                            checked: Gx.cntrls == 2,
+                            checked: Gx.cntrls === 2,
                             handler: function() {
                                 plot.change_settings({
                                     xcnt: 2
@@ -3258,7 +3263,7 @@ var sigplot = window.sigplot || {};
                         title: "PHASE UNITS",
                         items: [{
                             text: "Radians",
-                            checked: Gx.plab == 23,
+                            checked: Gx.plab === 23,
                             handler: function() {
                                 plot.change_settings({
                                     phunits: 'R'
@@ -3267,7 +3272,7 @@ var sigplot = window.sigplot || {};
 
                         }, {
                             text: "Degrees",
-                            checked: Gx.plab == 24,
+                            checked: Gx.plab === 24,
                             handler: function() {
                                 plot.change_settings({
                                     phunits: 'D'
@@ -3275,7 +3280,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Cycles",
-                            checked: Gx.plab == 25,
+                            checked: Gx.plab === 25,
                             handler: function() {
                                 plot.change_settings({
                                     phunits: 'C'
@@ -3399,7 +3404,7 @@ var sigplot = window.sigplot || {};
                     style: "checkbox",
                     handler: function() {
                         plot.change_settings({
-                            yinv: !(Mx.origin === 4)
+                            yinv: (Mx.origin !== 4)
                         });
                     }
                 }, {
@@ -3513,7 +3518,7 @@ var sigplot = window.sigplot || {};
             }
         };
 
-        var traceoptionsmenu = (function(index) {
+        var traceoptionsmenu = function(index) {
             return {
                 title: "TRACE OPTIONS",
                 items: [{
@@ -3524,11 +3529,11 @@ var sigplot = window.sigplot || {};
                         if (index !== undefined) {
                             thk = Math.abs(plot._Gx.lyr[index].thick);
                         } else {
-                            if (Gx.lyr.length === 0) return;
+                            if (Gx.lyr.length === 0) { return; }
 
                             thk = Math.abs(plot._Gx.lyr[0].thick);
                             for (var i = 0; i < Gx.lyr.length; i++) {
-                                if (thk != Math.abs(plot._Gx.lyr[i].thick)) {
+                                if (thk !== Math.abs(plot._Gx.lyr[i].thick)) {
                                     thk = 1;
                                     break;
                                 }
@@ -3537,7 +3542,7 @@ var sigplot = window.sigplot || {};
                         setupPrompt(
                             plot,
                             "Line thickness:",
-                            mx.intValidator, (function(finalValue) {
+                            mx.intValidator, function(finalValue) {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].line = 3;
                                     plot._Gx.lyr[index].thick = -1 * finalValue;
@@ -3549,7 +3554,7 @@ var sigplot = window.sigplot || {};
                                         plot._Gx.lyr[index].symbol = 0;
                                     }
                                 }
-                            }), thk);
+                            }, thk);
                     }
                 }, {
                     text: "Dots...",
@@ -3559,9 +3564,9 @@ var sigplot = window.sigplot || {};
                         if (index !== undefined) {
                             radius = Math.abs(plot._Gx.lyr[index].radius);
                         } else {
-                            if (Gx.lyr.length === 0) return;
+                            if (Gx.lyr.length === 0) { return; }
                             for (var i = 0; i < Gx.lyr.length; i++) {
-                                if (radius != Math.abs(plot._Gx.lyr[i].radius)) {
+                                if (radius !== Math.abs(plot._Gx.lyr[i].radius)) {
                                     radius = 3;
                                     break;
                                 }
@@ -3570,7 +3575,7 @@ var sigplot = window.sigplot || {};
                         setupPrompt(
                             plot,
                             "Radius/Shape:",
-                            mx.intValidator, (function(finalValue) {
+                            mx.intValidator, function(finalValue) {
                                 var sym;
                                 var rad;
                                 if (finalValue < 0) {
@@ -3594,7 +3599,7 @@ var sigplot = window.sigplot || {};
                                         plot._Gx.lyr[i].symbol = sym;
                                     }
                                 }
-                            }), radius);
+                            }, radius);
                     }
                 }, {
                     text: "Solid...",
@@ -3604,11 +3609,11 @@ var sigplot = window.sigplot || {};
                         if (index !== undefined) {
                             thk = Math.abs(plot._Gx.lyr[index].thick);
                         } else {
-                            if (Gx.lyr.length === 0) return;
+                            if (Gx.lyr.length === 0) { return; }
 
                             thk = Math.abs(plot._Gx.lyr[0].thick);
                             for (var i = 0; i < Gx.lyr.length; i++) {
-                                if (thk != Math.abs(plot._Gx.lyr[i].thick)) {
+                                if (thk !== Math.abs(plot._Gx.lyr[i].thick)) {
                                     thk = 1;
                                     break;
                                 }
@@ -3617,7 +3622,7 @@ var sigplot = window.sigplot || {};
                         setupPrompt(
                             plot,
                             "Line thickness:",
-                            mx.intValidator, (function(finalValue) {
+                            mx.intValidator, function(finalValue) {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].line = 3;
                                     plot._Gx.lyr[index].thick = finalValue;
@@ -3629,7 +3634,7 @@ var sigplot = window.sigplot || {};
                                         plot._Gx.lyr[i].symbol = 0;
                                     }
                                 }
-                            }), thk);
+                            }, thk);
                     }
                 }, {
                     text: "Toggle",
@@ -3652,7 +3657,7 @@ var sigplot = window.sigplot || {};
                             text: "Retain Current"
                         }, {
                             text: "None",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol == 0 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 0 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].radius = 0;
@@ -3666,7 +3671,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Pixels",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol == 1 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 1 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].radius = 1;
@@ -3680,7 +3685,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Circles",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol == 2 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 2 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].radius = 4;
@@ -3694,7 +3699,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Squares",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol == 3 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 3 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].radius = 4;
@@ -3708,7 +3713,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Plusses",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol == 4 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 4 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].radius = 4;
@@ -3722,7 +3727,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "X's",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol == 5 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 5 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].radius = 4;
@@ -3736,7 +3741,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Triangles",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol == 6 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 6 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].radius = 6;
@@ -3750,7 +3755,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Downward Triangles",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol == 7 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 7 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].radius = 6;
@@ -3772,7 +3777,7 @@ var sigplot = window.sigplot || {};
                             text: "Retain Current"
                         }, {
                             text: "None",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].line == 0 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].line === 0 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].line = 0;
@@ -3784,7 +3789,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Verticals",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].line == 1 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].line === 1 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].line = 1;
@@ -3796,7 +3801,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Horizontals",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].line == 2 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].line === 2 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].line = 2;
@@ -3808,7 +3813,7 @@ var sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "Connecting",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].line == 3 : undefined,
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].line === 3 : undefined,
                             handler: function() {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].line = 3;
@@ -3877,7 +3882,7 @@ var sigplot = window.sigplot || {};
                     }
                 }]
             };
-        });
+        };
 
         var TRACES_MENU = {
             text: "Traces...",
@@ -3930,6 +3935,8 @@ var sigplot = window.sigplot || {};
                                     plot.deoverlay();
                                 }
                             });
+			    /* jshint -W083 */
+			    /* TODO figure out how to not create functions within a loop */
                             for (var i = 0; i < Gx.lyr.length; i++) {
                                 var handler = (function(index) {
                                     return function() {
@@ -3942,6 +3949,7 @@ var sigplot = window.sigplot || {};
                                     handler: handler
                                 });
                             }
+			    /* jshint +W083 */
                             return deoverlaymenu;
                         }
                     }
@@ -4325,7 +4333,7 @@ var sigplot = window.sigplot || {};
             Gx.cmap = Math.max(1, Gx.cmap);
         }
         if ((Gx.cmap < 1) || (Gx.cmap > 5)) {
-            if (Gx.cmode == 2) {
+            if (Gx.cmode === 2) {
                 Gx.cmap = 2; // wheel
             } else {
                 Gx.cmap = 1; // ramp
@@ -4482,12 +4490,13 @@ var sigplot = window.sigplot || {};
     function draw_plugins(plot) {
         var Gx = plot._Gx;
         var ctx = plot._Mx.canvas.getContext("2d");
+	var canvas;
 
         var plugin_index = 0;
         while (plugin_index < Gx.plugins.length) {
             var plugin = Gx.plugins[plugin_index].impl;
             if (plugin.refresh) {
-                var canvas = Gx.plugins[plugin_index].canvas;
+                canvas = Gx.plugins[plugin_index].canvas;
                 canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
                 Gx.plugins[plugin_index].impl.refresh(canvas);
             }
@@ -4585,9 +4594,9 @@ var sigplot = window.sigplot || {};
                     // New logic here with 0.6*tw to help with legend symbol
                     // sizing
                     if (Gx.lyr[n].radius < 0) {
-                        thk = -m.trunc(.6 * tw);
+                        thk = -m.trunc(0.6 * tw);
                     } else {
-                        thk = Math.min(Gx.lyr[n].radius, m.trunc(.6 * tw));
+                        thk = Math.min(Gx.lyr[n].radius, m.trunc(0.6 * tw));
                     }
 
                     mx.draw_symbol(Mx, ic, ix + tw - labelOffset, iy - 3,
@@ -4595,7 +4604,7 @@ var sigplot = window.sigplot || {};
                 }
             }
             ix = ix + tw * 3;
-            iy = iy + Mx.text_h * .3;
+            iy = iy + Mx.text_h * 0.3;
             mx.text(Mx, ix - labelOffset, iy, Gx.lyr[n].name);
         }
     }
@@ -4651,7 +4660,7 @@ var sigplot = window.sigplot || {};
         //if (n < Gx.modlayer) Gx.modlayer = Gx.modlayer - 1;
         //if (n < Gx.modsource) Gx.modsource = Gx.modsource - 1;
         var topbs;
-        if (Gx.lyr[n].display) topbs = n;
+        if (Gx.lyr[n].display) { topbs = n; }
         Gx.lyr[n].ybufn = 0;
         Gx.lyr[n].ybuf = null;
         if (n < Gx.lyr.length - 1) {
@@ -4673,7 +4682,7 @@ var sigplot = window.sigplot || {};
         //Gx.pointbufsize = 0;
         //Gx.xptr = undefined; // xpoints ArrayBuffer
         //Gx.yptr = undefined; // ypoints ArrayBuffer
-    };
+    }
 
     /**
      * @memberOf sigplot
@@ -4685,7 +4694,7 @@ var sigplot = window.sigplot || {};
 
         if (Gx.cross) {
             if ((Gx.cross === "vertical") || (Gx.cross === true)) {
-                if ((Mx.xpos >= Mx.l) && (Mx.xpos <= Mx.r) && (Gx.cross_xpos != Mx.xpos)) {
+                if ((Mx.xpos >= Mx.l) && (Mx.xpos <= Mx.r) && (Gx.cross_xpos !== Mx.xpos)) {
                     if (Gx.cross_xpos !== undefined) {
                         mx.rubberline(Mx, Gx.cross_xpos, Mx.t, Gx.cross_xpos, Mx.b);
                     }
@@ -4694,7 +4703,7 @@ var sigplot = window.sigplot || {};
                 }
             }
             if ((Gx.cross === "horizontal") || (Gx.cross === true)) {
-                if ((Mx.ypos >= Mx.t) && (Mx.ypos <= Mx.b) && (Gx.cross_ypos != Mx.ypos)) {
+                if ((Mx.ypos >= Mx.t) && (Mx.ypos <= Mx.b) && (Gx.cross_ypos !== Mx.ypos)) {
                     if (Gx.cross_ypos !== undefined) {
                         mx.rubberline(Mx, Mx.l, Gx.cross_ypos, Mx.r, Gx.cross_ypos);
                     }
@@ -4714,19 +4723,19 @@ var sigplot = window.sigplot || {};
         var Gx = plot._Gx;
         var Mx = plot._Mx;
         var newplab = Gx.plab;
-        if (newphunits == 'R') {
+        if (newphunits === 'R') {
             newplab = 23;
-        } else if (newphunits == 'D') {
+        } else if (newphunits === 'D') {
             newplab = 24;
         }
-        if (newphunits == 'C') {
+        if (newphunits === 'C') {
             newplab = 25;
         }
-        if (newplab != Gx.plab) {
+        if (newplab !== Gx.plab) {
             var phscale = [Math.PI, 180.0, 0.5];
             var dscl = phscale[newplab - 23] / phscale[Gx.plab - 23];
             Gx.plab = newplab;
-            if (Gx.cmode == 2) {
+            if (Gx.cmode === 2) {
                 for (var i = 0; i <= Mx.level; i++) {
                     Mx.stk[i].ymin = Mx.stk[i].ymin * dscl;
                     Mx.stk[i].ymax = Mx.stk[i].ymax * dscl;
@@ -4750,18 +4759,19 @@ var sigplot = window.sigplot || {};
 
         Gx.xdata = false;
         for (var n = 0; n < Gx.lyr.length; n++) {
-            if (newmode == 5) {
+            if (newmode === 5) {
                 Gx.lyr[n].xdata = true;
             } else {
                 Gx.lyr[n].xdata = false; // TODO (Gx.lyr(n).xsub > 0)
             }
-            if (Gx.lyr[n].xdata)
+            if (Gx.lyr[n].xdata) {
                 Gx.xdata = true;
+	    }
         }
 
-        if (newmode == Gx.cmode) {
+        if (newmode === Gx.cmode) {
             return;
-        } else if (newmode == 5 && Gx.index) {
+        } else if (newmode === 5 && Gx.index) {
             alert("Imag/Real mode not permitted in INDEX mode");
         } else if (Gx.lyr.length <= 0) {
             Gx.cmode = newmode;
@@ -4779,19 +4789,19 @@ var sigplot = window.sigplot || {};
             Gx.autox = 3;
             Gx.autoy = 3;
 
-            if ((newmode == 5) || (oldmode == 5)) {
+            if ((newmode === 5) || (oldmode === 5)) {
                 Gx.panxmin = 1.0;
                 Gx.panxmax = -1.0;
                 Gx.panymin = 1.0;
                 Gx.panymax = -1.0;
                 Mx.level = 0;
 
-                if (newmode == Gx.basemode) {
+                if (newmode === Gx.basemode) {
                     Mx.stk[0].xmin = Gx.xmin;
                     Mx.stk[0].xmax = Gx.xmax;
                     Mx.stk[0].ymin = Gx.ymin;
                     Mx.stk[0].ymax = Gx.ymax;
-                } else if ((newmode == 5) || (Gx.basemode == 5)) {
+                } else if ((newmode === 5) || (Gx.basemode === 5)) {
                     scale_base(plot, {
                         get_data: true
                     });
@@ -4804,10 +4814,10 @@ var sigplot = window.sigplot || {};
                 }
             } else if ((newmode >= 6) && (oldmode >= 6)) {
                 var fact = 1;
-                if (oldmode == 6) {
+                if (oldmode === 6) {
                     fact = 2.0;
                 }
-                if (oldmode == 7) {
+                if (oldmode === 7) {
                     fact = 0.5;
                 }
                 Gx.panymin = Gx.panymin * fact;
@@ -4817,7 +4827,7 @@ var sigplot = window.sigplot || {};
                     Mx.stk[n].ymax = Mx.stk[n].ymax * fact;
                 }
             } else {
-                if (newmode == Gx.basemode) { // This is only correct if we
+                if (newmode === Gx.basemode) { // This is only correct if we
                     // didn't load a basefile
                     Gx.panymin = 1.0;
                     Gx.panymax = -1.0;
@@ -4850,8 +4860,9 @@ var sigplot = window.sigplot || {};
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 
-        if ((!Gx.pan) || (Mx.widget))
+        if ((!Gx.pan) || (Mx.widget)) {
             return;
+	}
 
         k = Mx.level; // Y scrollbar
 
@@ -4859,7 +4870,7 @@ var sigplot = window.sigplot || {};
             ps: Mx.stk[k].ymin,
             pe: Mx.stk[k].ymax
         };
-        var need_y_scrollbar = ((out.ps != Gx.panymin) || (out.pe != Gx.panymax));
+        var need_y_scrollbar = ((out.ps !== Gx.panymin) || (out.pe !== Gx.panymax));
         need_y_scrollbar = need_y_scrollbar && (Mx.level > 0);
 
         if (Gx.autohide_panbars && (!need_y_scrollbar || !plot.mouseOnCanvas) && !Gx.panning) {
@@ -4878,7 +4889,7 @@ var sigplot = window.sigplot || {};
                 ps: Mx.stk[k].xmin,
                 pe: Mx.stk[k].xmax
             };
-            var need_x_scrollbar = ((out.ps != Gx.panxmin) || (out.pe != Gx.panxmax));
+            var need_x_scrollbar = ((out.ps !== Gx.panxmin) || (out.pe !== Gx.panxmax));
             need_x_scrollbar = need_x_scrollbar && (!Gx.all || (Mx.level > 0));
 
             if (Gx.autohide_panbars && (!need_x_scrollbar || !plot.mouseOnCanvas) && !Gx.panning) {
@@ -4908,7 +4919,7 @@ var sigplot = window.sigplot || {};
         // var iw; // an integer*4
         // var imin; // an integer*4
         // var imax; // an integer*4
-        // var j; // an integer*4
+        var j; // an integer*4
         var xmin; // a real*8
         var xmax; // a real*8
         var xran; // a real*8
@@ -4959,7 +4970,7 @@ var sigplot = window.sigplot || {};
                 // TODO: Warn only if Scrollbar arrow is pressed and no
                 // movement.
                 if (sby.action !== 0) {
-                    var j = mx.scroll(Mx, sby, mx.XW_UPDATE, undefined,
+                    j = mx.scroll(Mx, sby, mx.XW_UPDATE, undefined,
                         scrollbarState);
                 }
                 warn = false;
@@ -5015,8 +5026,9 @@ var sigplot = window.sigplot || {};
                 // / 2) / (Mx.r - Mx.l) // TODO Worry about any int division
                 // here?
                 xmin = xmin + xran * (Mx.xpos - (Mx.l + Mx.r) / 2) / (Mx.r - Mx.l);
-                if (xmin !== Mx.stk[k].xmin)
+                if (xmin !== Mx.stk[k].xmin) {
                     xmax = xmin + xran;
+		}
                 warn = false;
             }
 
@@ -5207,7 +5219,7 @@ var sigplot = window.sigplot || {};
 
                 plot.refresh();
 
-                if (callback != undefined) {
+                if (callback !== undefined) {
                     callback();
                 }
             };
@@ -5282,7 +5294,7 @@ var sigplot = window.sigplot || {};
         var ctx = Mx.canvas.getContext("2d");
 
         // section logic
-        if (Gx.sections != 0) {
+        if (Gx.sections !== 0) {
             // TODO
         } else {
             Gx.isec = 0;
@@ -5296,24 +5308,28 @@ var sigplot = window.sigplot || {};
         Gx.dretx = Gx.retx - Gx.xmrk;
         Gx.drety = Gx.rety - Gx.ymrk;
 
-        if ((Gx.cmode == 5) && (Gx.iabsc == 1)) {
+        if ((Gx.cmode === 5) && (Gx.iabsc === 1)) {
             Gx.iabsc = 2;
         } // R/I mode
-        if (Gx.iabsc == 1) { // index
+        if (Gx.iabsc === 1) { // index
             Gx.aretx = Math.round((Gx.aretx - Gx.xstart) / Gx.xdelta);
             if (!Gx.index) {
                 Gx.aretx += 1;
             }
             Gx.dretx = Math.round(Gx.dretx / Gx.xdelta);
-        } else if (Gx.iabsc == 2) { // 1/absc
-            if (Gx.aretx != 0.0)
+        } else if (Gx.iabsc === 2) { // 1/absc
+            if (Gx.aretx !== 0.0) {
                 Gx.aretx = 1.0 / Gx.aretx;
-            if (Gx.arety != 0.0)
+	    }
+            if (Gx.arety !== 0.0) {
                 Gx.arety = 1.0 / Gx.arety;
-            if (Gx.dretx != 0.0)
+	    }
+            if (Gx.dretx !== 0.0) {
                 Gx.dretx = 1.0 / Gx.dretx;
-            if (Gx.drety != 0.0)
+	    }
+            if (Gx.drety !== 0.0) {
                 Gx.drety = 1.0 / Gx.drety;
+	    }
         }
 
         if ((!Gx.show_readout) || (Mx.widget)) {
@@ -5325,7 +5341,7 @@ var sigplot = window.sigplot || {};
         var iy = Math.floor(Mx.height - 2.5 * Mx.text_h);
         ctx.fillRect(Mx.text_w, iy, 49 * Mx.text_w, iy + 1.5 * Mx.text_h);
 
-        iy = Math.floor(Mx.height - .5 * Mx.text_h);
+        iy = Math.floor(Mx.height - 0.5 * Mx.text_h);
         var k = Math.max(Gx.pr + Mx.text_w, Mx.width - Mx.text_w * 2);
         ctx.fillStyle = Mx.bg;
         ctx.fillRect(k, iy - Mx.text_h, Mx.text_w, Mx.text_h);
@@ -5336,8 +5352,8 @@ var sigplot = window.sigplot || {};
 
         var chara = "y: " + mx.format_g(Gx.arety, 16, 9, true) + " dy: " + mx.format_g(Gx.drety, 16, 9) + " L=" + Mx.level + " " + cxm[Gx.cmode - 1];
         var charb = "x: " + mx.format_g(Gx.aretx, 16, 9, true) + " dx: " + mx.format_g(Gx.dretx, 16, 9) + " " + cam[Gx.iabsc];
-        if (Gx.iabsc == 3) {
-            if (Gx.dretx == 0.0) {
+        if (Gx.iabsc === 3) {
+            if (Gx.dretx === 0.0) {
                 chara = chara.substr(0, 20) + "sl: Inf             " + chara.substr(40, chara.length);
             } else {
                 chara = chara.substr(0, 20) + "sl: " + mx.format_g(Gx.drety / Gx.dretx, 16, 9) + chara.substr(40, chara.length);
@@ -5346,7 +5362,7 @@ var sigplot = window.sigplot || {};
 
         iy = Math.floor(Mx.height - 1.5 * Mx.text_h);
         mx.text(Mx, Mx.text_w, iy, chara);
-        iy = Math.floor(Mx.height - .5 * Mx.text_h);
+        iy = Math.floor(Mx.height - 0.5 * Mx.text_h);
         mx.text(Mx, Mx.text_w, iy, charb);
 
         // display controls indicator
@@ -5375,7 +5391,7 @@ var sigplot = window.sigplot || {};
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 
-        var load = (mode.get_data == true);
+        var load = (mode.get_data === true);
 
         Gx.panxmin = 1.0;
         Gx.panxmax = -1.0;
@@ -5464,10 +5480,10 @@ var sigplot = window.sigplot || {};
             Gx.panxmax = Gx.panxmax + 1.0;
         }
 
-        if (((Gx.autox & 1) != 0) && noxmin) {
+        if (((Gx.autox & 1) !== 0) && noxmin) {
             Mx.stk[0].xmin = Gx.panxmin;
         }
-        if (((Gx.autox & 2) != 0) && noxmax) {
+        if (((Gx.autox & 2) !== 0) && noxmax) {
             Mx.stk[0].xmax = Gx.panxmax;
             if (!(Gx.all || Gx.xdata)) {
                 for (var n = 0; n < Gx.lyr.length; n++) {
@@ -5480,10 +5496,10 @@ var sigplot = window.sigplot || {};
             }
         }
 
-        if (((Gx.autoy & 1) != 0)) {
+        if (((Gx.autoy & 1) !== 0)) {
             Mx.stk[0].ymin = Gx.panymin;
         }
-        if (((Gx.autoy & 2) != 0)) {
+        if (((Gx.autoy & 2) !== 0)) {
             Mx.stk[0].ymax = Gx.panymax;
         }
     }
@@ -5568,7 +5584,7 @@ var sigplot = window.sigplot || {};
             // Mx.t);
             command = 'YCENTER';
             inCenterRegion = true;
-        } else if (y > Mx.b + m.trunc(.5 * tw) && y <= Mx.b + m.trunc(m.trunc(3 * th) / 2) && x >= Mx.l && x <= Mx.r) { // XCENTER
+        } else if (y > Mx.b + m.trunc(0.5 * tw) && y <= Mx.b + m.trunc(m.trunc(3 * th) / 2) && x >= Mx.l && x <= Mx.r) { // XCENTER
             // Mx.canvas.getContext("2d").strokeStyle = "red";
             // Mx.canvas.getContext("2d").strokeRect(Mx.l, Mx.b + m.trunc(.5 *
             // tw),
@@ -5608,12 +5624,14 @@ var sigplot = window.sigplot || {};
         var s;
         if (scrollbar.origin & 1) {
             s = position.x - scrollbar.x;
-            if (scrollbar.origin & 2)
+            if (scrollbar.origin & 2) {
                 s = scrollbar.w - s;
+	    }
         } else {
             s = position.y - scrollbar.y;
-            if (scrollbar.origin <= 2)
+            if (scrollbar.origin <= 2) {
                 s = scrollbar.h - s;
+	    }
         }
 
         // Update s1 and sw values
@@ -5646,7 +5664,7 @@ var sigplot = window.sigplot || {};
         var Mx = plot._Mx;
 
         // Determine the appropriate scrollbar to work with
-        var scrollbar = undefined;
+        var scrollbar;
         if (direction === "XPAN") {
             scrollbar = Mx.scrollbar_x;
         } else if (direction === "YPAN") {

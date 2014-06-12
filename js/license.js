@@ -23,5 +23,3 @@
  *   Array.remove         - MIT License; Copyright (c) 2007, John Resig
  *   Firefox subarray fix - Public Domain; Copyright (c) 2011, Ryan Berdeen
  */
-
-"use strict";

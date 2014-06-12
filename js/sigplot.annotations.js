@@ -15,6 +15,8 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
+/* global mx */
+/* global m */
 (function( sigplot, mx, m, undefined ) {
 	
 	/**
@@ -25,10 +27,10 @@
 	sigplot.AnnotationPlugin = function(options) {
 		this.options = (options === undefined) ? {} : options;
 		
-		if (this.options.display === undefined)  this.options.display = true;
+		if (this.options.display === undefined) { this.options.display = true; }
 		
 		this.annotations = [];
-	}
+	};
 	
 	sigplot.AnnotationPlugin.prototype = {
 			init: function(plot) {
@@ -75,13 +77,13 @@
 			},
 			
 			clear_annotations: function() {
-				self.annotations = [];
+				this.annotations = [];
 				
 				this.plot.redraw();
 			},
 			
 			refresh: function(canvas) {
-				if (!this.options.display) return;
+				if (!this.options.display) { return; }
 				var Gx = this.plot._Gx;
 				var Mx = this.plot._Mx;
 				
@@ -122,6 +124,6 @@
 				this.plot = undefined;
 				this.annotations = undefined;
 			}
-	}
+	};
 	
 }( window.sigplot = window.sigplot || {}, mx, m));

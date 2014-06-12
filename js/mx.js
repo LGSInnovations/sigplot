@@ -28,6 +28,13 @@
 var mx = window.mx || {};
 
 (function(mx, m, undefined) {
+    /* global getKeyCode */
+    /* global requestAnimFrame */
+    /* global cancelAnimFrame */
+    /* global tinycolor */
+    /* global dashOn */
+    /* global dashOff */
+    /* global CanvasInput */
 
     mx.XW_INIT = -3;
     mx.XW_DRAW = 1;
@@ -140,7 +147,7 @@ var mx = window.mx || {};
         this.ymax = 0;
         this.func = undefined;
         this.mode = undefined;
-    };
+    }
 
     /**
      * Defines 2 canvas layers, canvas and wid_canvas
@@ -234,7 +241,7 @@ var mx = window.mx || {};
 
 	// Render Canvas
 	this._renderCanvas = document.createElement("canvas");
-    };
+    }
 
     /**
      * Create Canvas and it's Mx structure and functions
@@ -251,7 +258,7 @@ var mx = window.mx || {};
 
         this._ctx = Mx.active_canvas.getContext("2d");
 
-        Mx.onmousemove = function(Mx) {
+        Mx.onmousemove = (function(Mx) {
             return function(e) {
                 var rect = e.target.getBoundingClientRect();
                 Mx.xpos = (e.offsetX === undefined) ? (e.pageX - rect.left - window.scrollX) : e.offsetX;
@@ -271,9 +278,9 @@ var mx = window.mx || {};
 
                 mx.widget_callback(Mx, e);
             };
-        }(Mx);
+        })(Mx);
 
-        Mx.onmouseup = function(Mx) {
+        Mx.onmouseup = (function(Mx) {
             return function(event) {
                 if (Mx.warpbox) {
                     mx.onWidgetLayer(Mx, function() {
@@ -283,17 +290,17 @@ var mx = window.mx || {};
                     var old_warpbox = Mx.warpbox;
                     Mx.warpbox = undefined;
 
-                    if (event.which == 1) {
+                    if (event.which === 1) {
                         if (old_warpbox.func) {
                             var xo = old_warpbox.xo;
                             var yo = old_warpbox.yo;
                             var xl = old_warpbox.xl;
                             var yl = old_warpbox.yl;
 
-                            if (old_warpbox.mode == "vertical") {
+                            if (old_warpbox.mode === "vertical") {
                                 xo = Mx.l;
                                 xl = Mx.r;
-                            } else if (old_warpbox.mode == "horizontal") {
+                            } else if (old_warpbox.mode === "horizontal") {
                                 yo = Mx.t;
                                 yl = Mx.b;
                             } // else "box"
@@ -304,17 +311,17 @@ var mx = window.mx || {};
                 }
                 mx.widget_callback(Mx, event);
             };
-        }(Mx);
+        })(Mx);
 
-        Mx.onmousedown = function(Mx) {
+        Mx.onmousedown = (function(Mx) {
             return function(event) {
                 event.preventDefault();
                 mx.widget_callback(Mx, event);
                 return false;
             };
-        }(Mx);
+        })(Mx);
 
-        Mx.onkeydown = function(Mx) {
+        Mx.onkeydown = (function(Mx) {
             return function(event) {
                 if (Mx.warpbox) {
                     var keyCode = getKeyCode(event);
@@ -326,9 +333,9 @@ var mx = window.mx || {};
 
                 mx.widget_callback(Mx, event);
             };
-        }(Mx);
+        })(Mx);
 
-        Mx.onkeyup = function(Mx) {
+        Mx.onkeyup = (function(Mx) {
             return function(event) {
                 if (Mx.warpbox) {
                     var keyCode = getKeyCode(event);
@@ -338,17 +345,17 @@ var mx = window.mx || {};
                     }
                 }
             };
-        }(Mx);
+        })(Mx);
 
-        Mx.ontouchend = function(Mx) {
+        Mx.ontouchend = (function(Mx) {
             return function(event) {
                 Mx.onmouseup({
                     which: 1
                 });
             };
-        }(Mx);
+        })(Mx);
 
-        Mx.ontouchmove = function(Mx) {
+        Mx.ontouchmove = (function(Mx) {
             return function(event) {
                 // Compute the total offset - consider caching offset and only calculating on resize
                 var element = Mx.canvas;
@@ -365,7 +372,7 @@ var mx = window.mx || {};
                 Mx.ypos = event.targetTouches[0].pageY - offsetY;
                 mx.redraw_warpbox(Mx);
             };
-        }(Mx);
+        })(Mx);
 
         mx.enableListeners(Mx);
 
@@ -467,7 +474,7 @@ var mx = window.mx || {};
      * @private
      */
     mx.render = function(Mx, func) {
-        if (!func) return;
+        if (!func) { return; }
 
         var active_canvas = Mx.active_canvas;
 
@@ -708,14 +715,14 @@ var mx = window.mx || {};
         action = Math.abs(mode);
 
         if (ye - ys > xe - xs) {
-            if (Mx.origin < 3) origin = 2; /* inverted Y scrollbar */
-            else origin = 4; /* normal Y scrollbar */
+            if (Mx.origin < 3) { origin = 2; /* inverted Y scrollbar */ }
+            else { origin = 4; /* normal Y scrollbar */ }
         } else {
-            if (Mx.origin & 2) origin = 3; /* inverted X scrollbar */
-            else origin = 1; /* normal X scrollbar */
+            if (Mx.origin & 2) { origin = 3; /* inverted X scrollbar */ }
+            else { origin = 1; /* normal X scrollbar */ }
         }
 
-        if (action < 10) sb = sblocal; /* use local SB structure */
+        if (action < 10) { sb = sblocal; /* use local SB structure */ }
         if (action < 10 || sb.action === 0) { /* re-init the SB structure */
             mx.scroll(Mx, sb, mx.XW_INIT, undefined, scrollbarState);
             sb.flag = mode;
@@ -785,7 +792,7 @@ var mx = window.mx || {};
         var srange; // a real_8
         var s; // an int_4
 
-        if (sv === undefined) return false; // an mx.SCROLLBAR
+        if (sv === undefined) { return false; /* an mx.SCROLLBAR */ }
 
         switch (op) {
             case mx.XW_INIT:
@@ -824,7 +831,7 @@ var mx = window.mx || {};
                             btn = 5;
                             break;
                     }
-                    if (mouseEvent.type === "mouseup") btn = -btn;
+                    if (mouseEvent.type === "mouseup") { btn = -btn; }
                 } else if (mouseEvent.type === "mousewheel" || mouseEvent.type === "DOM-MouseScroll") {
                     // TODO Does this case ever happen?
                     if (mouseEvent.wheelDelta && mouseEvent.wheelDelta > 0) {
@@ -841,14 +848,17 @@ var mx = window.mx || {};
                      *  1 or 2 within our bounds
                      */
                     /* If scroll wheel, pretend we're on vertical scroll bar */
-                    if (btn === 4 || btn === 5)
+                    if (btn === 4 || btn === 5) {
                         Mx.xpos = sv.x;
+		    }
+
 
                     /* Button !=1,2,4,5 OR NOT on scroll bar */
                     if ((btn !== 1 && btn !== 2 && btn !== 4 && btn !== 5) ||
                         Mx.xpos < sv.x || Mx.ypos < sv.y ||
-                        Mx.xpos > sv.x + sv.w || Mx.ypos > sv.y + sv.h)
+                        Mx.xpos > sv.x + sv.w || Mx.ypos > sv.y + sv.h) {
                         return false;
+		    }
                 } else if (btn < 0) {
                     /* Any button release within a repeated action will make us exit */
                     sv.action = sv.repeat_count = 0; // TODO Update scrollbarState's action?
@@ -860,10 +870,10 @@ var mx = window.mx || {};
                  */
                 if (sv.origin & 1) {
                     s = Mx.xpos - sv.x;
-                    if (sv.origin & 2) s = sv.w - s;
+                    if (sv.origin & 2) { s = sv.w - s; }
                 } else {
                     s = Mx.ypos - sv.y;
-                    if (sv.origin <= 2) s = sv.h - s;
+                    if (sv.origin <= 2) { s = sv.h - s; }
                 }
 
                 /*  Determine action */
@@ -883,10 +893,11 @@ var mx = window.mx || {};
                         sv.srange = scrollbarState.srange = 0.0;
                     } else switch (btn) {
                         case 1:
-                            if (s > sv.a1 && s < sv.a2) /* on scroll trough */
+                            if (s > sv.a1 && s < sv.a2) { /* on scroll trough */
                                 sv.action = (sv.soff > 0) ? mx.SB_PAGEINC : mx.SB_PAGEDEC;
-                            else /* on arrows */
+			    } else { /* on arrows */
                                 sv.action = (sv.soff > 0) ? mx.SB_STEPINC : mx.SB_STEPDEC;
+			    }
                             break;
                         case 4:
                             sv.action = mx.SB_WHEELUP;
@@ -906,9 +917,11 @@ var mx = window.mx || {};
                         case mx.SB_FULL:
                             sv.action = sv.repeat_count = 0;
                     }
-                }
+		}
                 /* FALL THROUGH!!! */
+                /* jshint -W086 */
             case mx.XW_COMMAND:
+		/* jshint +W086 */
 
                 smin = sv.smin;
                 srange = sv.srange;
@@ -932,14 +945,14 @@ var mx = window.mx || {};
                         break;
                     case mx.SB_EXPAND:
                         srange = srange * sv.scale;
-                        if (smin <= 0 && smin + sv.srange >= 0) smin *= sv.scale;
-                        else smin -= (srange - sv.srange) / 2.0;
+                        if (smin <= 0 && smin + sv.srange >= 0) { smin *= sv.scale; }
+                        else { smin -= (srange - sv.srange) / 2.0; }
                         break;
                     case mx.SB_SHRINK:
                         srange = srange / sv.scale;
-                        if (smin < 0 && smin + sv.srange >= 0) smin += srange / sv.scale; // Plot crosses axis
-                        else if (smin === 0 && smin + sv.srange >= 0) smin = srange / sv.scale; // Plot touches axis
-                        else smin += (sv.srange - srange) / 2.0; // Plot is completely contained on positive side of axis
+                        if (smin < 0 && smin + sv.srange >= 0) { smin += srange / sv.scale; /* Plot crosses axis */ }
+                        else if (smin === 0 && smin + sv.srange >= 0) { smin = srange / sv.scale; /* Plot touches axis */ }
+                        else { smin += (sv.srange - srange) / 2.0; /* Plot is completely contained on positive side of axis */ }
                         break;
                         /* The mouse wheel needs to scroll 1 page at a time, if you want an 
 		           application to scroll differently, change sv.page with 
@@ -961,7 +974,7 @@ var mx = window.mx || {};
                 }
 
                 if (sv.smin === smin && sv.srange === srange) {
-                    if (sv.action != mx.SB_DRAG) sv.action = sv.repeat_count = 0;
+                    if (sv.action !== mx.SB_DRAG) { sv.action = sv.repeat_count = 0; }
                 } else {
                     // UPDATE SCROLLBAR STATE as well
                     sv.smin = scrollbarState.smin = smin;
@@ -998,7 +1011,7 @@ var mx = window.mx || {};
     //
     mx.scroll_loc = function(sv, x, y, w, h, origin, scrollbarState) {
         // UPDATE local scrollbar and SCROLLBAR STATE
-        if (sv === undefined) return; // mx.SCROLLBAR
+        if (sv === undefined) { return; /* mx.SCROLLBAR */ }
         sv.x = scrollbarState.x = x; // int
         sv.y = scrollbarState.y = y; // int
         sv.w = scrollbarState.w = w; // int
@@ -1038,7 +1051,7 @@ var mx = window.mx || {};
     //
     mx.scroll_vals = function(sv, smin, srange, tmin, trange, step, page, scale, scrollbarState) {
         // UPDATE SCROLLBAR STATE as well
-        if (sv === undefined) return; // an mx.SCROLLBAR
+        if (sv === undefined) { return; /* an mx.SCROLLBAR */ }
         sv.smin = scrollbarState.smin = smin;
         sv.srange = scrollbarState.srange = srange;
         sv.tmin = scrollbarState.tmin = tmin;
@@ -1185,9 +1198,11 @@ var mx = window.mx || {};
                 break;
             case mx.L_ITriangleSymbol:
                 r = -r; // TODO Refactor without switch fall-through?
+	    /* jshint -W086 */
             case mx.L_TriangleSymbol:
+	    /* jshint +W086 */
                 d = m.trunc(r * 1.5);
-                x = m.trunc(r * .80);
+                x = m.trunc(r * 0.80);
 
                 // Coordinates of just the triangle itself
                 tri[1].x = -x;
@@ -1412,7 +1427,7 @@ var mx = window.mx || {};
             }
         }
         return wn;
-    };
+    }
 
     /**
      * Converts array of (x,y) coordinates to pixel coordinates, plots lines or dots
@@ -1465,7 +1480,7 @@ var mx = window.mx || {};
             return;
         }
 
-        var style = undefined;
+        var style;
         if (options.dashed) {
             style = {
                 mode: "dashed",
@@ -1531,7 +1546,7 @@ var mx = window.mx || {};
                     ib += 1;
                 }
             }
-            if (symb != 0 && ib > 1) mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad);
+            if (symb !== 0 && ib > 1) { mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad); }
         } else if (options.vertsym === true) {
             for (var n = (skip - 1); n <= npts; n += skip) {
                 var x = xpoint[n];
@@ -1546,7 +1561,7 @@ var mx = window.mx || {};
                     }
                 }
             }
-            if (symb != 0 && ib > 1) mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad);
+            if (symb !== 0 && ib > 1) { mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad); }
         } else if (options.horzsym === true) {
             for (var n = (skip - 1); n <= npts; n += skip) {
                 var x = xpoint[n];
@@ -1561,7 +1576,7 @@ var mx = window.mx || {};
                     }
                 }
             }
-            if (symb != 0 && ib > 1) mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad);
+            if (symb !== 0 && ib > 1) { mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad); }
         } else {
             var colors;
             if ((options) && (options.highlight)) {
@@ -1572,8 +1587,8 @@ var mx = window.mx || {};
                 });
 
                 for (var sn = 0; sn < options.highlight.length; sn++) {
-                    if (options.highlight[sn].xstart >= xmax) continue;
-                    if (options.highlight[sn].xend <= xmin) continue;
+                    if (options.highlight[sn].xstart >= xmax) { continue; }
+                    if (options.highlight[sn].xend <= xmin) { continue; }
 
                     var xs = Math.max(options.highlight[sn].xstart, xmin);
                     var xe = Math.min(options.highlight[sn].xend, xmax);
@@ -1613,7 +1628,7 @@ var mx = window.mx || {};
                 pixx[ib] = Math.round((x - xxmin) * xscl) + left;
                 pixy[ib] = Math.round((y - yymin) * yscl) + top;
                 ib += 1;
-                if (symb != 0) mx.draw_symbols(Mx, color, pixx, pixy, 1, symb, rad);
+                if (symb !==0) { mx.draw_symbols(Mx, color, pixx, pixy, 1, symb, rad); }
             } else {
                 ib = 0;
             }
@@ -1669,7 +1684,7 @@ var mx = window.mx || {};
                                             ib += 1;
                                             mx.draw_lines(Mx, colors, pixx.subarray(ie, ib), pixy.subarray(ie, ib), (ib - ie), line, style);
 
-                                            if (symb != 0 && (ib - ie) > 2) {
+                                            if (symb !== 0 && (ib - ie) > 2) {
                                                 mx.draw_symbols(Mx, color, pixx.subarray(ie + 1, ib), pixy.subarray(ie + 1, ib), (ib - ie - 1), symb, rad); // if (symb.ne.0 .and. ib.gt.2) call MX$DRAW_SYMBOLS(ic, pix(2), ib-2, symb, rad)
                                             }
                                             ie = ib;
@@ -1693,7 +1708,7 @@ var mx = window.mx || {};
                 if (visible) {
                     ie = ie + 1;
                 }
-                if (symb != 0 && (ib - ie) > 1) mx.draw_symbols(Mx, color, pixx.subarray(ie, ib), pixy.subarray(ie, ib), (ib - 1), symb, rad); // TODO is ib-1 correct here??
+                if (symb !== 0 && (ib - ie) > 1) { mx.draw_symbols(Mx, color, pixx.subarray(ie, ib), pixy.subarray(ie, ib), (ib - 1), symb, rad); /* TODO is ib-1 correct here?? */ }
             }
 
             if (options.fillStyle) {
@@ -1749,7 +1764,7 @@ var mx = window.mx || {};
         if (typeof color === "number") {
             if (!Mx.pixel || Mx.pixel.length === 0) {
                 m.log.warn("COLORMAP not initialized, defaulting to foreground");
-                colors = Mx.fg;
+                color = Mx.fg;
             } else {
                 var cidx = Math.max(0, Math.min(Mx.pixel.length, color));
                 color = to_rgb(
@@ -1804,7 +1819,7 @@ var mx = window.mx || {};
             var y = pixy[0];
 
             ctx.beginPath();
-            if (y == Mx.t) {
+            if (y === Mx.t) {
                 ctx.lineTo(Mx.l, Mx.t);
             } else {
                 ctx.lineTo(Mx.l, Mx.b);
@@ -1821,11 +1836,11 @@ var mx = window.mx || {};
                 ctx.lineTo(x, y);
             }
 
-            if (y == Mx.t) {
+            if (y === Mx.t) {
                 ctx.lineTo(Mx.r, Mx.t);
             }
             ctx.lineTo(Mx.r, Mx.b);
-            if (pixy[0] == Mx.t) {
+            if (pixy[0] === Mx.t) {
                 ctx.lineTo(Mx.l, Mx.b);
             }
 
@@ -1898,7 +1913,7 @@ var mx = window.mx || {};
         ctx.moveTo(x, y);
 
         for (var i = 0; i < npts; i++) {
-	    if ((x == pixx[i]) && (y == pixy[i])) continue;
+	    if ((x === pixx[i]) && (y === pixy[i])) { continue; }
             x = pixx[i];
             y = pixy[i];
 
@@ -2164,7 +2179,9 @@ var mx = window.mx || {};
             var canvasInput = new CanvasInput({
                 height: Mx.text_h,
                 fontFamily: fontFamily,
+		/* jshint -W053 */
                 fontSize: new Number(fontSize),
+		/* jshint +W053 */
                 backgroundColor: Mx.bg,
                 fontColor: Mx.fg,
                 borderWidth: 0,
@@ -2303,7 +2320,7 @@ var mx = window.mx || {};
      */
     mx.intValidator = function(value, strict) {
         if (((strict === undefined || strict === false) && value === "") ||
-            ((parseFloat(value) == parseInt(value)) && !isNaN(value))) {
+            ((parseFloat(value) === parseInt(value, 10)) && !isNaN(value))) {
             return {
                 valid: true,
                 reason: ""
@@ -2335,12 +2352,13 @@ var mx = window.mx || {};
             // box as-is.
             var beg = msg.split(/\r\n|\r|\n/g);
             var linel = 0;
-            if (beg.length == 1) {
+            var center;
+            if (beg.length === 1) {
                 beg = [];
                 var MESSWIDTH = 40;
 
                 linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), msg.length);
-                if (linel <= 0) return;
+                if (linel <= 0) { return; }
                 while ((linel > MESSWIDTH) && (2.5 * Mx.text_h * msg.length < Mx.height * linel)) {
                     linel -= 5;
                 }
@@ -2353,7 +2371,7 @@ var mx = window.mx || {};
                 var brk = 0;
                 var beg = [];
 
-                var center = true;
+                center = true;
                 while (bg < msg.length) {
                     end = bg + linel - 1;
                     brk = end = Math.min(end, msg.length - 1);
@@ -2368,7 +2386,7 @@ var mx = window.mx || {};
                                 break;
                             case '-':
                             case '/':
-                                if (brk != cur - 1) brk = cur;
+                                if (brk !== cur - 1) { brk = cur; }
                                 break;
                             case '@':
                             case '\n':
@@ -2379,7 +2397,7 @@ var mx = window.mx || {};
                                 break;
                         }
                     }
-                    if (cur === msg.length) brk = end;
+                    if (cur === msg.length) { brk = end; }
                     if (endinreturn) {
                         beg.push(msg.substring(bg, brk));
                     } else {
@@ -2549,7 +2567,7 @@ var mx = window.mx || {};
         var ctx = Mx.canvas.getContext("2d");
         var ctx_wid = Mx.wid_canvas.getContext("2d");
 
-        if ((Mx.font) && (Mx.font.width == width)) {
+        if ((Mx.font) && (Mx.font.width === width)) {
             // use the cached font
             ctx.font = Mx.text_h + "px " + Mx.font.font;
             ctx_wid.font = Mx.text_h + "px " + Mx.font.font;
@@ -2732,10 +2750,11 @@ var mx = window.mx || {};
         }
 
         // form nice tickmarks
-        if (xlab == 1) { //time-based tics
-            var xtimecode = true;
+	var xtimecode;
+        if (xlab === 1) { //time-based tics
+            xtimecode = true;
         } else {
-            var xtimecode = false;
+            xtimecode = false;
         }
         var ytimecode = false;
 
@@ -3007,7 +3026,7 @@ var mx = window.mx || {};
      * @private
      */
     function _menu_redraw(Mx, menu) {
-        if (menu.animationFrameHandle) return;
+        if (menu.animationFrameHandle) { return; }
 
         menu.animationFrameHandle = requestAnimFrame(mx.withWidgetLayer(Mx, function() {
             mx.erase_window(Mx);
@@ -3050,7 +3069,7 @@ var mx = window.mx || {};
                 var item = menu.items[i];
                 var y = ycc + yb * i;
 
-                if (item.style == "separator") {
+                if (item.style === "separator") {
                     ctx.fillStyle = Mx.xwbs;
                     ctx.fillRect(xcc, y, xss, yb);
 
@@ -3111,7 +3130,7 @@ var mx = window.mx || {};
                 }
             }
         }));
-    };
+    }
 
     /**
      * @method _menu_takeaction
@@ -3145,7 +3164,7 @@ var mx = window.mx || {};
         if ((!Mx.menu) && (menu.finalize)) {
             menu.finalize();
         }
-    };
+    }
 
     /**
      * @method _menu_dismiss
@@ -3163,7 +3182,7 @@ var mx = window.mx || {};
         if ((!Mx.menu) && (menu.finalize)) {
             menu.finalize();
         }
-    };
+    }
 
     /**
      * @method _menu_callback
@@ -3178,7 +3197,7 @@ var mx = window.mx || {};
             _menu_redraw(Mx, menu);
         } else if (event.type === "mousemove") {
             // Update position
-            if (menu.drag_x != undefined && menu.drag_y != undefined && Math.abs(Mx.xpos - menu.drag_x) > 2 && Math.abs(Mx.ypos - menu.drag_y) > 2) {
+            if (menu.drag_x !== undefined && menu.drag_y !== undefined && Math.abs(Mx.xpos - menu.drag_x) > 2 && Math.abs(Mx.ypos - menu.drag_y) > 2) {
                 menu.x += Mx.xpos - menu.drag_x;
                 menu.y += Mx.ypos - menu.drag_y;
                 menu.drag_x = Mx.xpos;
@@ -3267,20 +3286,20 @@ var mx = window.mx || {};
                     for (var i = 0; i < menu.items.length; i++) {
                         var item = menu.items[i];
                         item.selected = false;
-                        if (!item.text) continue;
+                        if (!item.text) { continue; }
 
                         if (item.text.toUpperCase().indexOf(menu.keypresses) === 0) {
-                            if (matches == 0) {
+                            if (matches === 0) {
                                 item.selected = true;
                             }
                             matches++;
                         }
                     }
 
-                    if (matches == 0) {
+                    if (matches === 0) {
                         menu.keypresses = undefined;
                         _menu_redraw(Mx, menu);
-                    } else if (matches == 1) {
+                    } else if (matches === 1) {
                         _menu_takeaction(Mx, menu);
                     } else {
                         _menu_redraw(Mx, menu);
@@ -3288,7 +3307,7 @@ var mx = window.mx || {};
                 }
             }
         }
-    };
+    }
 
     /**
      * @param Mx
@@ -3317,7 +3336,7 @@ var mx = window.mx || {};
                     if (item.style === "separator") {
                         xb += 2;
                     }
-                    if (item.checked && item.style != "checkbox") {
+                    if (item.checked && item.style !== "checkbox") {
                         yadj = yb * i;
                     }
                 }
@@ -3363,7 +3382,7 @@ var mx = window.mx || {};
             length = Math.max(length, 1);
             var xt = x + (w - length * Mx.text_w) / 2;
             y += GBorder;
-            var yt = y + (iny - y + .7 * Mx.text_h) / 2;
+            var yt = y + (iny - y + 0.7 * Mx.text_h) / 2;
 
             mx.text(Mx, xt, yt, name, Mx.xwfg);
         }
@@ -3436,7 +3455,7 @@ var mx = window.mx || {};
         }
 
         return accept;
-    };
+    }
 
     /**
      * Method which draws a line in a graphics context.
@@ -3577,7 +3596,7 @@ var mx = window.mx || {};
 		ctx.clearRect(0, 0, 1, 1);
 	    }
         }
-    };
+    }
 
     /**
      * Method which draws a polygon in a graphics context.
@@ -3601,7 +3620,7 @@ var mx = window.mx || {};
 
         ctx.stroke(); // draw the shape outlined in the path
         ctx.closePath();
-    };
+    }
 
     /**
      * Method which draws a filled polygon in a graphics context.
@@ -3633,7 +3652,7 @@ var mx = window.mx || {};
 
         ctx.fill(); // fill in the shape only, no outline drawn
         ctx.closePath();
-    };
+    }
 
     /**
      * Helper method which starts drawing a polygon in a graphics context.
@@ -3670,7 +3689,7 @@ var mx = window.mx || {};
             y = pix[i].y;
             ctx.lineTo(x, y);
         }
-    };
+    }
 
     /**
      * Method which draws a rectangle (hollowed) in a graphics context.
@@ -3695,7 +3714,7 @@ var mx = window.mx || {};
         }
 
         ctx.strokeRect(x, y, width, height);
-    };
+    }
 
     /**
      * Method which draws a rectangle (filled) in a graphics context.
@@ -3724,7 +3743,7 @@ var mx = window.mx || {};
         }
 
         ctx.fillRect(x, y, width, height);
-    };
+    }
 
     /**
      * @method pc2px
@@ -3733,7 +3752,7 @@ var mx = window.mx || {};
      */
     function pc2px(perc) {
         return Math.floor(Math.round(255 * (perc / 100)));
-    };
+    }
 
     /**
      * @method to_rgb
@@ -3744,7 +3763,7 @@ var mx = window.mx || {};
      */
     function to_rgb(red, green, blue) {
         return "rgb(" + Math.round(red) + ", " + Math.round(green) + ", " + Math.round(blue) + ")";
-    };
+    }
 
     /**
      *
@@ -3924,7 +3943,7 @@ var mx = window.mx || {};
         var eloc = f.indexOf("e");
         // If there is already an 'e' in the string parse it out
         if (eloc !== -1) {
-            exp = parseInt(f.slice(eloc + 1, f.length));
+            exp = parseInt(f.slice(eloc + 1, f.length), 10);
             f = f.slice(0, eloc);
         }
 
@@ -3936,7 +3955,7 @@ var mx = window.mx || {};
 
         if (num !== 0) {
             if (Math.abs(num) < 1.0) {
-                if (f.slice(0, 2) == "0.") {
+                if (f.slice(0, 2) === "0.") {
                     // Shift to the left until the first number is non-zero
                     for (var i = 2; i < f.length; i++) {
                         if (f[i] === "0") {
@@ -4224,11 +4243,11 @@ var mx = window.mx || {};
             ts1 = sv.a1 + Math.floor(0.5 + (sv.smin - sv.tmin) * dv);
             ts2 = ts1 + Math.floor(0.5 + sv.srange * dv);
 
-            if (ts1 > sv.a2 - sv.swmin) ts1 = sv.a2 - sv.swmin;
-            else ts1 = Math.max(ts1, sv.a1);
+            if (ts1 > sv.a2 - sv.swmin) { ts1 = sv.a2 - sv.swmin; }
+            else { ts1 = Math.max(ts1, sv.a1); }
 
-            if (ts2 < sv.a1 + sv.swmin) ts2 = sv.a1 + sv.swmin;
-            else ts2 = Math.min(ts2, sv.a2);
+            if (ts2 < sv.a1 + sv.swmin) { ts2 = sv.a1 + sv.swmin; }
+            else { ts2 = Math.min(ts2, sv.a2); }
 
             return {
                 s1: ts1,
@@ -4339,7 +4358,7 @@ var mx = window.mx || {};
      */
     function bound(a, b, c) {
         return a < b ? b : (a > c ? c : a);
-    };
+    }
 
     /**
      * @param {Object} Mx - the Mx object
@@ -4399,7 +4418,7 @@ var mx = window.mx || {};
         var rety;
 
         var k = Mx.level;
-        if ((Mx.origin != 2) && (Mx.origin != 3)) {
+        if ((Mx.origin !== 2) && (Mx.origin !== 3)) {
             retx = Mx.stk[k].xmin + (iretx - Mx.stk[k].x1) * Mx.stk[k].xscl;
         } else {
             retx = Mx.stk[k].xmin + (Mx.stk[k].x2 - iretx) * Mx.stk[k].xscl;
@@ -4433,12 +4452,12 @@ var mx = window.mx || {};
 
         var iz;
         for (iz = 0;
-            (iz < 6) && (map[iz + 1].pos == 0); iz++) {}
+            (iz < 6) && (map[iz + 1].pos === 0); iz++) {}
 
         for (var n = 0; n < ncolors; n++) {
             Mx.pixel[n] = 0;
             var z = colorp[n];
-            while ((iz < 6) && (Math.floor(z) > map[iz].pos)) iz++;
+            while ((iz < 6) && (Math.floor(z) > map[iz].pos)) { iz++; }
             if ((iz === 0) || (z >= map[iz].pos)) {
                 // above, below, or directly on boundry
                 Mx.pixel[n] = {
@@ -4473,7 +4492,7 @@ var mx = window.mx || {};
             var cidx = Math.floor(Mx.pixel.length * (j - 1) / h);
             mx.draw_line(Mx, cidx, x, y + h - j, x + w, y + h - j);
         }
-        mx.draw_box(Mx, Mx.fg, x + .5, y, w, h);
+        mx.draw_box(Mx, Mx.fg, x + 0.5, y, w, h);
     };
 
     /**
@@ -4543,7 +4562,7 @@ var mx = window.mx || {};
 	}
 	ctx.drawImage(Mx._renderCanvas, sx, sy, sw, sh, x, y, w, h);
 	ctx.restore();
-    };
+    }
 
     /**
      * @private
@@ -4621,7 +4640,7 @@ var mx = window.mx || {};
         }
         ctx.drawImage(Mx._renderCanvas, sx, sy, sw, sh, x, y, w, h);
         ctx.restore();
-    };
+    }
 
     /**
      * Scale the image data (represented by buf) into the destination canvas
@@ -4682,7 +4701,7 @@ var mx = window.mx || {};
 	// Set the data
 	imgd.data.set(buf8);
 	imgctx.putImageData(imgd, 0, 0);
-    };
+    }
 
     var renderImage = (typeof Uint8ClampedArray === 'undefined') ? renderImageNoTypedArrays : renderImageTypedArrays;
 
@@ -4718,7 +4737,7 @@ var mx = window.mx || {};
         var imgd = new Uint32Array(buf, row*buf.width*4, buf.width);
         
         var fscale = 1;
-        if (zmax != zmin) {
+        if (zmax !== zmin) {
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
         }
         for (var i = 0; i < data.length; i++) {
@@ -4728,10 +4747,12 @@ var mx = window.mx || {};
 
             var color = Mx.pixel[cidx];
             if (color) {
+		/*jshint bitwise: false */
                 imgd[i] = (255         << 24) | // alpha
                           (color.blue  << 16) | // blue
                           (color.green <<  8) | // green
                           (color.red        );  // red
+		/*jshint bitwise: true */
             }
         }
 
@@ -4757,7 +4778,7 @@ var mx = window.mx || {};
         }
 
         var fscale = 1;
-        if (zmax != zmin) {
+        if (zmax !== zmin) {
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
         }
 
@@ -4786,10 +4807,12 @@ var mx = window.mx || {};
 
             var color = Mx.pixel[cidx];
             if (color) {
+		/*jshint bitwise: false */
                 imgd[i] = (255         << 24) | // alpha
                           (color.blue  << 16) | // blue
                           (color.green <<  8) | // green
                           (color.red        );  // red
+		/*jshint bitwise: true */
             }
         }
 
@@ -4835,16 +4858,18 @@ var mx = window.mx || {};
         buf.height = h;
 
         var imgd = new Uint32Array(buf);
-        for (var i = 0; i < img.length; i++) {
+        for (var i = 0; i < imgd.length; i++) {
             var cidx = Math.max(0, data[i]);
             cidx = Math.min(Mx.pixel.length - 1, cidx);
 
             var color = Mx.pixel[cidx];
             if (color) {
+		/*jshint bitwise: false */
                 imgd[i] = (255         << 24) | // alpha
                           (color.blue  << 16) | // blue
                           (color.green <<  8) | // green
                           (color.red        );  // red
+		/*jshint bitwise: true */
             }
         }
 

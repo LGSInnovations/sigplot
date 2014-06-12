@@ -15,6 +15,8 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
+/* global mx */
+/* global m */
 (function( sigplot, mx, m, undefined ) {
 	
 	/**
@@ -25,11 +27,11 @@
 	sigplot.SliderPlugin = function(options) {
 		this.options = (options !== undefined) ? options : {};
 		
-		if (this.options.display === undefined)  this.options.display = true;
+		if (this.options.display === undefined) { this.options.display = true; }
 		
-		if (this.options.style === undefined) this.options.style = {};
+		if (this.options.style === undefined) { this.options.style = {}; }
 		
-		if (this.options.direction === undefined) this.options.direction = "vertical";
+		if (this.options.direction === undefined) { this.options.direction = "vertical"; }
 		
 		this.position = undefined;
 		this.location = undefined;
@@ -44,10 +46,10 @@
 				var self = this;
 				this.onmousemove = function(evt) {
 					// Ignore if the slider isn't even visible
-					if (self.location === undefined) return;
+					if (self.location === undefined) { return; }
 					
 					// Or if the user wants to prevent a drag operation
-					if (self.options.prevent_drag) return;
+					if (self.options.prevent_drag) { return; }
 					
 					// Ignore if the mouse is outside of the plot area
 					if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) { self.set_highlight(false); return; }
@@ -95,13 +97,13 @@
 				this.plot.addListener("mmove", this.onmousemove);
 				
 				this.onmousedown = function(evt) {
-					if (self.location === undefined) return;
+					if (self.location === undefined) { return; }
 					
 					// Or if the user wants to prevent a drag operation
-					if (self.options.prevent_drag) return;
+					if (self.options.prevent_drag) { return; }
 					
-					if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) return;
-					if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) return;
+					if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) { return; }
+					if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) { return; }
 					
 					var lineWidth = (self.options.style.lineWidth !== undefined) ? self.options.style.lineWidth : 1;
 					
@@ -151,15 +153,15 @@
 			},
 			
 			set_highlight: function(ishighlight) {
-				if (ishighlight != this.highlight) {
+				if (ishighlight !== this.highlight) {
 					this.highlight = ishighlight;
 					this.plot.redraw();
 				}
 			},
 			
 			set_position: function(position) {
-				if (this.dragging) return;
-				if (this.position == position) return;
+				if (this.dragging) { return; }
+				if (this.position === position) { return; }
 				
 				this.set_highlight(false); // cheat any set position clears the highlight
 				
@@ -180,20 +182,20 @@
 				evt.location = this.location;
 				evt.position = this.position;
 				var canceled = !mx.dispatchEvent(Mx, evt);
-				if (canceled) return;
+				if (canceled) { return; }
 				
 				this.plot.redraw();
 			},
 			
 			set_location: function(location) {
-				if (this.dragging) return;
-				if (this.location == location) return;
+				if (this.dragging) { return; }
+				if (this.location === location) { return; }
 				this.set_highlight(false); // cheat any set location clears the highlight
 				
 				var Mx = this.plot._Mx;
 				this.location = location;
 				
-				pos = mx.pixel_to_real(Mx, location, location);
+				var pos = mx.pixel_to_real(Mx, location, location);
 				if (this.options.direction === "vertical") {
 					this.position = pos.x;
 				} else if (this.options.direction === "horizontal") {
@@ -206,7 +208,7 @@
 				evt.location = this.location;
 				evt.position = this.position;
 				var canceled = !mx.dispatchEvent(Mx, evt);
-				if (canceled) return;
+				if (canceled) { return; }
 				
 				this.plot.redraw();
 			},
@@ -220,8 +222,8 @@
 			},
 			
 			refresh: function(canvas) {
-				if (!this.options.display) return;
-				if (this.position === undefined) return;
+				if (!this.options.display) { return; }
+				if (this.position === undefined) { return; }
 				
 				var Mx = this.plot._Mx;
 				var ctx = canvas.getContext("2d");
@@ -266,6 +268,6 @@
 				this.plot = undefined;
 				this.position = undefined;
 			}
-	}
+	};
 	
 }( window.sigplot = window.sigplot || {}, mx, m));

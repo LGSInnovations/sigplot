@@ -86,8 +86,8 @@
         var a = new Uint32Array(b);
         var c = new Uint8Array(b);
         a[0] = 0xdeadbeef;
-        if (c[0] == 0xef) return 'LE';
-        if (c[0] == 0xde) return 'BE';
+        if (c[0] === 0xef) { return 'LE'; }
+        if (c[0] === 0xde) { return 'BE'; }
         throw new Error('unknown endianness');
     }
 
@@ -181,7 +181,7 @@
         }
     } catch (error) {
         _applySupportsTypedArray = false;
-    };
+    }
 
 
 
@@ -219,20 +219,20 @@
             this.version = ab2str(this.buf.slice(0, 4));
             this.headrep = ab2str(this.buf.slice(4, 8));
             this.datarep = ab2str(this.buf.slice(8, 12));
-            var littleEndianHdr = (this.headrep == "EEEI");
-            var littleEndianData = (this.datarep == "EEEI");
+            var littleEndianHdr = (this.headrep === "EEEI");
+            var littleEndianData = (this.datarep === "EEEI");
             this.type = dvhdr.getUint32(48, littleEndianHdr);
             this["class"] = this.type / 1000;
             this.format = ab2str(this.buf.slice(52, 54));
             this.timecode = dvhdr.getFloat64(56, littleEndianHdr);
 
             // the adjunct starts at offset 0x100
-            if (this["class"] == 1) {
+            if (this["class"] === 1) {
                 this.xstart = dvhdr.getFloat64(0x100, littleEndianHdr);
                 this.xdelta = dvhdr.getFloat64(0x100 + 8, littleEndianHdr);
                 this.xunits = dvhdr.getInt32(0x100 + 16, littleEndianHdr);
                 this.subsize = 1;
-            } else if (this["class"] == 2) {
+            } else if (this["class"] === 2) {
                 this.xstart = dvhdr.getFloat64(0x100, littleEndianHdr);
                 this.xdelta = dvhdr.getFloat64(0x100 + 8, littleEndianHdr);
                 this.xunits = dvhdr.getInt32(0x100 + 16, littleEndianHdr);
@@ -260,13 +260,13 @@
          *
          */
         setData: function(buf, offset, data_end, littleEndian) {
-            if (this["class"] == 1) {
+            if (this["class"] === 1) {
                 this.spa = _SPA[this.format[0]];
                 this.bps = _BPS[this.format[1]];
                 this.bpa = this.spa * this.bps;
                 this.ape = 1;
                 this.bpe = this.ape * this.bpa;
-            } else if (this["class"] == 2) {
+            } else if (this["class"] === 2) {
                 this.spa = _SPA[this.format[0]];
                 this.bps = _BPS[this.format[1]];
                 this.bpa = this.spa * this.bps;
@@ -306,8 +306,8 @@
          * @returns -
          */
         createArray: function(buf, offset, length) {
-            var typedArray = _XM_TO_TYPEDARRAY[this.format[1]]
-            if (typedArray === undefined) {
+            var TypedArray = _XM_TO_TYPEDARRAY[this.format[1]];
+            if (TypedArray === undefined) {
                 throw ("unknown format " + this.format[1]);
             }
             // backwards compatibility with some implementations of typed array
@@ -320,9 +320,9 @@
             }
 
             if (buf) {
-                return new typedArray(buf, offset, length);
+                return new TypedArray(buf, offset, length);
             } else {
-                return new typedArray(length);
+                return new TypedArray(length);
             }
         }
     };
@@ -363,10 +363,10 @@
                 }
                 return ret;
             })(),
-            file: (a.pathname.match(/\/([^\/?#]+)$/i) || [, ''])[1],
+            file: (a.pathname.match(/\/([^\/?#]+)$/i) || [null, ''])[1],
             hash: a.hash.replace('#', ''),
             path: a.pathname.replace(/^([^\/])/, '/$1'),
-            relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [, ''])[1],
+            relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [null, ''])[1],
             segments: a.pathname.replace(/^\//, '').split('/')
         };
     }
@@ -423,7 +423,7 @@
             reader.onloadend = (function(theFile) {
                 return function(e) {
                     if (e.target.error) {
-                        alert("There was an error reading this file");
+                        onload(null);
                         return;
                     }
 
@@ -451,7 +451,7 @@
             reader.onloadend = (function(theFile) {
                 return function(e) {
                     if (e.target.error) {
-                        alert("There was an error reading this file");
+                        onload(null);
                         return;
                     }
 
@@ -507,7 +507,7 @@
 
             oReq.onerror = function(oEvent) {
                 onload(null);
-            }
+            };
 
             oReq.send(null);
         }

@@ -14,6 +14,8 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
+/* global mx */
+/* global m */
 (function(sigplot, mx, m, undefined) {
 
     /**
@@ -129,7 +131,7 @@
                 this.ystart = 1.0;
                 this.ydelta = 1.0;
                 this.ymin = 1.0;
-                this.ymax = size;
+                this.ymax = this.size;
             } else {
                 this.xstart = hcb.xstart;
                 this.xdelta = hcb.xdelta;
@@ -186,7 +188,7 @@
 
             var ngot = m.grabx(this.hcb, this.zbuf, this.hcb.subsize * this.hcb.spa, this.frame * this.hcb.subsize * this.hcb.spa);
 
-            var zpoint;
+            var zpoint,ypoint;
             if (this.cx) {
                 var dbuf = this.zbuf.subarray(this.frame * this.hcb.subsize * this.hcb.spa, (this.frame + 1) * this.hcb.subsize * this.hcb.spa);
                 zpoint = new sigplot.PointArray(this.hcb.subsize);
@@ -224,8 +226,8 @@
             var min = zpoint[0];
             var max = zpoint[0];
             for (var i = 0; i < zpoint.length; i++) {
-                if (zpoint[i] < min) min = zpoint[i];
-                if (zpoint[i] > max) max = zpoint[i];
+                if (zpoint[i] < min) { min = zpoint[i]; }
+                if (zpoint[i] > max) { max = zpoint[i]; }
             }
 
             if (Gx.autol === 1) {
@@ -323,7 +325,7 @@
 
                 npts = n2 - n1 + 1;
                 if (npts < 0) {
-                    console.log("Nothing to plot");
+                    m.log.debug("Nothing to plot");
                     npts = 0;
                 }
             }
@@ -337,7 +339,7 @@
             }
 
             if (npts <= 0) {
-                console.log("Nothing to plot");
+		m.log.debug("Nothing to plot");
                 return;
             }
 
@@ -360,7 +362,7 @@
 
                 npts = n2 - n1 + 1;
                 if (npts < 0) {
-                    console.log("Nothing to plot");
+                    m.log.debug("Nothing to plot");
                     npts = 0;
                 }
             }
@@ -386,9 +388,9 @@
             var min = this.zbuf[0];
             var max = this.zbuf[0];
             for (var i = 0; i < this.zbuf.length; i++) {
-                if ((i / this.xframe) >= this.lpb) break;
-                if (this.zbuf[i] < min) min = this.zbuf[i];
-                if (this.zbuf[i] > max) max = this.zbuf[i];
+                if ((i / this.xframe) >= this.lpb) { break; }
+                if (this.zbuf[i] < min) { min = this.zbuf[i]; }
+                if (this.zbuf[i] > max) { max = this.zbuf[i]; }
             }
             if (Gx.zmin !== undefined) {
                 Gx.zmin = Math.min(Gx.zmin, min);
@@ -416,7 +418,7 @@
 
             if (this.hcb.pipe) {
                 var lps = Math.max(1, (Mx.b - Mx.t));
-                if ((lps != this.lps) && this.buf) {
+                if ((lps !== this.lps) && this.buf) {
                     var new_buf = new ArrayBuffer(lps * this.hcb.subsize * sigplot.PointArray.BYTES_PER_ELEMENT);
                     var new_zbuf = new sigplot.PointArray(new_buf);
 
