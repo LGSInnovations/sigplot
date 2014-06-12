@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean dist beautify
 
 BLUEFILE_SOURCES = js/license.js \
 		   js/loglevel.js \
@@ -43,6 +43,8 @@ else
 	java -jar support/google-closure-compiler/build/compiler.jar --js=$^ --js_output_file=$@ --formatting=PRETTY_PRINT --compilation_level=WHITESPACE_ONLY
 endif
 
+dist:
+	grunt dist
 
 beautify:
 	# Requires js-beautifier
