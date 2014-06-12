@@ -291,7 +291,7 @@
                 } else {
                     this.dview = this.createArray(buf);
                 }
-                this.size = this.dview.byteLength / this.bpe;
+                this.size = this.dview.length / (this.spa * this.ape);
             } else {
                 this.dview = this.createArray(null, null, this.size);
             }
