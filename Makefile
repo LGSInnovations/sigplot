@@ -32,7 +32,7 @@ else
 ifeq ($(UGLIFYJS),1)
 	uglifyjs -o $@ $^
 else
-	java -jar support/google-closure-compiler/compiler.jar --js=$^ --js_output_file=$@
+	java -jar support/google-closure-compiler/build/compiler.jar --js=$^ --js_output_file=$@
 endif
 endif
 
@@ -40,7 +40,7 @@ dist/%-debug.js: dist/%.js
 ifeq ($(UGLIFYJS),1)
 	uglifyjs --no-mangle-functions -b -o $@ $^
 else
-	java -jar support/google-closure-compiler/compiler.jar --js=$^ --js_output_file=$@ --formatting=PRETTY_PRINT --compilation_level=WHITESPACE_ONLY
+	java -jar support/google-closure-compiler/build/compiler.jar --js=$^ --js_output_file=$@ --formatting=PRETTY_PRINT --compilation_level=WHITESPACE_ONLY
 endif
 
 

@@ -6,9 +6,50 @@ module.exports = function (grunt) {
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
+        concat: {
+          bluefile: {
+            src: [
+                    'js/license.js',
+                    'js/loglevel.js',
+                    'js/typedarray.js',
+                    'js/common.js',
+                    'js/bluefile.js'
+            ],
+            dest: 'dist/bluefile.js'
+          },
+          sigplot: {
+            src: [
+                    'js/license.js',
+                    'js/loglevel.js',
+                    'js/typedarray.js',
+                    'js/common.js',
+                    'js/bluefile.js',
+                    'js/tinycolor.js',
+                    'js/CanvasInput.js',
+                    'js/spin.js',
+                    'js/m.js',
+                    'js/mx.js',
+                    'js/sigplot.layer1d.js',
+                    'js/sigplot.layer2d.js',
+                    'js/sigplot.js'
+            ],
+            dest: 'dist/sigplot.js'
+          },
+          sigplot_plugins: {
+            src: [
+                    'js/license.js',
+                    'js/sigplot.annotations.js',
+                    'js/sigplot.slider.js',
+                    'js/sigplot.accordion.js',
+                    'js/sigplot.boxes.js',
+                    'js/sigplot.playback.js',
+            ],
+            dest: 'dist/sigplot.plugins.js'
+          }
+        },
         jshint: {
             options: {
-		jshintrc: '.jshintrc'
+                jshintrc: '.jshintrc'
             },
             gruntfile: {
                 src: 'Gruntfile.js'
@@ -23,18 +64,75 @@ module.exports = function (grunt) {
         qunit: {
             options: { '--web-security': 'no', '--local-to-remote-url-access': 'yes' },
             all: ['test/passfail.html']
+        },
+        'closure-compiler': {
+            bluefile_debug: {
+                closurePath: 'support/google-closure-compiler',
+                js: 'dist/bluefile.js',
+                jsOutputFile: 'dist/bluefile-debug.js',
+                options: {
+                    formatting: 'PRETTY_PRINT',
+                    compilation_level: 'WHITESPACE_ONLY'
+                }
+            },
+            sigplot_debug: {
+                closurePath: 'support/google-closure-compiler',
+                js: 'dist/sigplot.js',
+                jsOutputFile: 'dist/sigplot-debug.js',
+                options: {
+                    formatting: 'PRETTY_PRINT',
+                    compilation_level: 'WHITESPACE_ONLY',
+                }
+            },
+            sigplot_plugins_debug: {
+                closurePath: 'support/google-closure-compiler',
+                js: 'dist/sigplot.plugins.js',
+                jsOutputFile: 'dist/sigplot.plugins-debug.js',
+                options: {
+                    formatting: 'PRETTY_PRINT',
+                    compilation_level: 'WHITESPACE_ONLY'
+                }
+            },
+            bluefile_minimized: {
+                closurePath: 'support/google-closure-compiler',
+                js: 'dist/bluefile.js',
+                jsOutputFile: 'dist/bluefile-minimized.js',
+                options: {
+                    compilation_level: 'ADVANCED_OPTIMIZATIONS'
+                }
+            },
+            sigplot_minimized: {
+                closurePath: 'support/google-closure-compiler',
+                js: 'dist/sigplot.js',
+                jsOutputFile: 'dist/sigplot-minimized.js',
+                options: {
+                    compilation_level: 'ADVANCED_OPTIMIZATIONS'
+                }
+            },
+            sigplot_plugins_minimized: {
+                closurePath: 'support/google-closure-compiler',
+                js: 'dist/sigplot.plugins.js',
+                jsOutputFile: 'dist/sigplot.plugins-minimized.js',
+                options: {
+                    compilation_level: 'ADVANCED_OPTIMIZATIONS'
+                }
+            } 
         }
     });
 
     // These plugins provide necessary tasks.
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-closure-compiler');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
 
-    // Build a distributable release
-    grunt.registerTask('dist', ['test' ]);
+    grunt.registerTask('build', ['concat']);
 
     // Check everything is good
-    grunt.registerTask('test', ['jshint', 'qunit']);
+    grunt.registerTask('test', ['build', 'jshint', 'qunit']);
+    
+    // Build a distributable release
+    grunt.registerTask('dist', ['test', 'closure-compiler']);
 
     // Default task.
     grunt.registerTask('default', 'test');
