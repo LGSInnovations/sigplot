@@ -17,6 +17,8 @@ var fixture = document.getElementById("qunit-fixture");
 var ifixture = document.getElementById("interactive-fixture");
 
 function interactiveTest(testName, msg, callback) {
+    if ( !ifixture ) return;
+
     var wrapped_callback = function() {
 	callback();
 
@@ -43,8 +45,6 @@ function interactiveTest(testName, msg, callback) {
     };
     QUnit.test( testName, null, wrapped_callback, true);
 }
-
-m.log.setLevel("trace");
 
 QUnit.module('m', {
     setup: function() {
