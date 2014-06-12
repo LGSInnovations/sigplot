@@ -1,8 +1,7 @@
 *.o
 *.so
 *.exe
-*-debug.js
-*-minimized.js
 /Makefile~
 *.gitignore
 Git_History
+node_modules
