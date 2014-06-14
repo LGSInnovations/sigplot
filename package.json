@@ -32,6 +32,7 @@
     "grunt-closure-compiler": "^0.0.21",
     "grunt-contrib-jshint": "^0.8.0",
     "grunt-contrib-qunit": "^0.5.0",
+    "grunt-contrib-clean": "^0.5.0",
     "grunt-jsdoc": "^0.5.4",
     "qunitjs": "^1.13.0"
   }

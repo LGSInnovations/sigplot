@@ -118,16 +118,20 @@ module.exports = function (grunt) {
                 }
             } 
         },
-	jsdoc: {
+        jsdoc: {
             sigplot: {
-	        src: ['js/*.js'],
-		options: {
-		    destination: 'doc',
-		    template: 'docstrap-master/template',
-		    configure: 'docstrap-master/conf.json'
-		}
-	    }
-	}
+                src: ['js/*.js'],
+                options: {
+                    destination: 'doc',
+                    template: 'docstrap-master/template',
+                    configure: 'docstrap-master/conf.json'
+                }
+            }
+        },
+        clean: {
+            build: ["dist/**/*"],
+            doc: ["doc/**/*"]
+        }
     });
 
     // These plugins provide necessary tasks.
@@ -136,6 +140,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-contrib-clean');
 
     grunt.registerTask('build', ['concat']);
 
@@ -143,7 +148,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['build', 'jshint', 'qunit']);
     
     // Build a distributable release
-    grunt.registerTask('dist', ['test', 'closure-compiler', 'jsdoc']);
+    grunt.registerTask('dist', ['clean', 'test', 'closure-compiler', 'jsdoc']);
     
     // Default task.
     grunt.registerTask('default', 'test');
