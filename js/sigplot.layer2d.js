@@ -166,6 +166,10 @@
             var Gx = this.plot._Gx;
             var Mx = this.plot._Mx;
 
+            if (m.pavail(this.hcb) < (this.hcb.subsize * this.hcb.spa)) {
+                return;
+            }
+
             if (this.drawmode === "falling") {
                 this.frame = 0;
                 this.zbuf.set(this.zbuf.subarray(0, (this.lps - 1) * this.hcb.subsize * this.hcb.spa), this.hcb.subsize * this.hcb.spa);
@@ -187,6 +191,10 @@
             }
 
             var ngot = m.grabx(this.hcb, this.zbuf, this.hcb.subsize * this.hcb.spa, this.frame * this.hcb.subsize * this.hcb.spa);
+	    if (ngot === 0) { // shouldn't happen because of the pavail check
+                m.log.error("Internal error");
+                return;
+	    }
 
             var zpoint,ypoint;
             if (this.cx) {
