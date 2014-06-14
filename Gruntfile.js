@@ -117,7 +117,17 @@ module.exports = function (grunt) {
                     compilation_level: 'ADVANCED_OPTIMIZATIONS'
                 }
             } 
-        }
+        },
+	jsdoc: {
+            sigplot: {
+	        src: ['js/*.js'],
+		options: {
+		    destination: 'doc',
+		    template: 'docstrap-master/template',
+		    configure: 'docstrap-master/conf.json'
+		}
+	    }
+	}
     });
 
     // These plugins provide necessary tasks.
@@ -125,6 +135,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-closure-compiler');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
+    grunt.loadNpmTasks('grunt-jsdoc');
 
     grunt.registerTask('build', ['concat']);
 
@@ -132,8 +143,8 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['build', 'jshint', 'qunit']);
     
     // Build a distributable release
-    grunt.registerTask('dist', ['test', 'closure-compiler']);
-
+    grunt.registerTask('dist', ['test', 'closure-compiler', 'jsdoc']);
+    
     // Default task.
     grunt.registerTask('default', 'test');
 
