@@ -494,7 +494,7 @@ var m = window.m || {};
 
     /**
      * @param	{header}	hcb		Bluefile header control block
-     * @return
+     * @return	{number}	elements available
      * @private
      */
     m.pavail = function(hcb) {
