@@ -4812,20 +4812,6 @@ var sigplot = window.sigplot || {};
                         get_data: true
                     }, Gx.xmin, Gx.xmax);
                 }
-            } else if ((newmode >= 6) && (oldmode >= 6)) {
-                var fact = 1;
-                if (oldmode === 6) {
-                    fact = 2.0;
-                }
-                if (oldmode === 7) {
-                    fact = 0.5;
-                }
-                Gx.panymin = Gx.panymin * fact;
-                Gx.panymax = Gx.panymax * fact;
-                for (var n = 0; n <= Mx.level; n++) {
-                    Mx.stk[n].ymin = Mx.stk[n].ymin * fact;
-                    Mx.stk[n].ymax = Mx.stk[n].ymax * fact;
-                }
             } else {
                 if (newmode === Gx.basemode) { // This is only correct if we
                     // didn't load a basefile
