@@ -134,16 +134,21 @@
         _onpipewrite : function() {
             var ybuf = new sigplot.PointArray(this.ybuf);
 
-            var tl = this.tl;
+            var tl = this.tl; // in scalars
             if (tl === undefined) {
-		tl = m.pavail(this.hcb);
+		tl = Math.floor(m.pavail(this.hcb));
+            }
+            var tle = tl / this.hcb.spa; // in atoms
+
+            if (m.pavail(this.hcb) < tl) {
+                return;
             }
 
             if (this.drawmode === "lefttoright") {
 		this.position = 0;
 		ybuf.set(ybuf.subarray(0, this.size-tl), tl);
             } else if (this.drawmode === "righttoleft") {
-		this.position = this.size-tl;
+		this.position = this.size-tle;
 		ybuf.set(ybuf.subarray(tl), 0);
             } else if (this.drawmode === "scrolling") {
 		// Nothing to do
@@ -152,9 +157,12 @@
             }
 
             tl = Math.min(tl, this.size-this.position);
-            var ngot = m.grabx(this.hcb, ybuf, tl, this.position);
+            var ngot = m.grabx(this.hcb, ybuf, tl, this.position*this.hcb.spa);
+            if (ngot === 0) {
+                return;
+            }
 
-            this.position = (this.position + ngot) % this.size;
+            this.position = (this.position + tle) % this.size;
         },
 
         get_data: function(xmin, xmax) {
