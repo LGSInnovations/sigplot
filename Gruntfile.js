@@ -131,6 +131,18 @@ module.exports = function (grunt) {
         clean: {
             build: ["dist/**/*"],
             doc: ["doc/**/*"]
+        },
+        compress: {
+            main: {
+                options: {
+                    archive: "dist/sigplot-<%= pkg.version %>.zip",
+                },
+                files: [
+                    {expand: true, cwd: 'dist/', src: ['*-debug.js'], dest: 'sigplot-<%= pkg.version %>'},
+                    {expand: true, cwd: 'dist/', src: ['*-minimized.js'], dest: 'sigplot-<%= pkg.version %>'},
+                    {src: ['doc/**/*'], dest: 'sigplot-<%= pkg.version %>'}
+                ]
+            }
         }
     });
 
@@ -141,6 +153,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-compress');
 
     grunt.registerTask('build', ['concat']);
 
@@ -148,7 +161,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['build', 'jshint', 'qunit']);
     
     // Build a distributable release
-    grunt.registerTask('dist', ['clean', 'test', 'closure-compiler', 'jsdoc']);
+    grunt.registerTask('dist', ['clean', 'test', 'closure-compiler', 'jsdoc', 'compress']);
     
     // Default task.
     grunt.registerTask('default', 'test');
