@@ -859,6 +859,10 @@ QUnit.module('sigplot-interactive', {
     },
     teardown: function() {
         ifixture.innerHTML = '';
+	if (ifixture.interval) {
+		window.clearInterval(ifixture.interval);
+		ifixture.interval = undefined;
+	}
     }
 });
 
@@ -897,6 +901,48 @@ interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?',  function()
         plot.overlay_array(ramp,{file_name: "ramp"});
 });
 
+interactiveTest('scrolling line', 'Do you see a scrolling random data plot',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+	plot.change_settings({
+                                ymin: -2,
+                                ymax: 2
+	});
+	
+	plot.overlay_pipe({type: 1000}, { framesize: 32768, drawmode: "scrolling" });
+                
+	ifixture.interval = window.setInterval(function() {
+		var random = [];
+		for (var i = 0; i < 100; i += 1) {
+			random.push(Math.random());
+		}
+		plot.push(0, random);
+	}, 100);
+});
+
+interactiveTest('complex scrolling line', 'Do you see a scrolling random data plot',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+	plot.change_settings({
+                                cmode: 3,
+                                autol: 5,
+	});
+	
+	plot.overlay_pipe({type: 1000, format: "CF"}, { framesize: 32768, drawmode: "scrolling" });
+                
+	ifixture.interval = window.setInterval(function() {
+		var random = [];
+		for (var i = 0; i < 100; i += 1) {
+			random.push(Math.random());
+		}
+		plot.push(0, random);
+	}, 100);
+});
+
 interactiveTest('sigplot penny', 'Do you see a raster of a penny',  function() {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
@@ -907,4 +953,69 @@ interactiveTest('sigplot penny', 'Do you see a raster of a penny',  function() {
             ramp.push(i);
         }
         plot.overlay_href("dat/penny.prm");
+});
+
+interactiveTest('falling raster', 'Do you see a falling raster?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+                        
+	plot.change_settings({
+                                autol: 5,
+	});
+	
+	var framesize = 128;
+	plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", ydelta: 0.25});
+                
+	ifixture.interval = window.setInterval(function() {
+		var ramp = [];
+		for (var i = 0; i < framesize; i += 1) {
+			ramp.push(i+1);
+		}
+		plot.push(0, ramp);
+	}, 100);
+});
+
+interactiveTest('large framesize falling raster', 'Do you see a falling raster?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+                        
+	plot.change_settings({
+                                autol: 5,
+				all: true
+	});
+	
+	var framesize = 128000;
+	plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", ydelta: 0.25});
+                
+	ifixture.interval = window.setInterval(function() {
+		var ramp = [];
+		for (var i = 0; i < framesize; i += 1) {
+			ramp.push(i);
+		}
+		plot.push(0, ramp);
+	}, 100);
+});
+
+interactiveTest('complex data falling raster', 'Do you see a falling raster?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+                        
+	plot.change_settings({
+                                autol: 5,
+	});
+	
+	var framesize = 128;
+	plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", format: "CF", ydelta: 0.25});
+                
+	ifixture.interval = window.setInterval(function() {
+		var ramp = [];
+		for (var i = 0; i < framesize; i += 1) {
+			ramp.push(i+1);
+			ramp.push(-1*(i+1));
+		}
+		plot.push(0, ramp);
+	}, 100);
 });
