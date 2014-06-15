@@ -708,6 +708,38 @@ var m = window.m || {};
             dst[i] = dst[i] * dbscale;
         }
     };
+    
+    /**
+     * Same as vlogscale but computes magnitude squared.
+     *
+     * @param 	{array}		src		Input vector.
+     * @param 	{number}	lo_thresh	User-set minimum log threshold.
+     *                                              If undefined, defaults to 1.0e-20. Prevent computing log of 0 or negative values.
+     * @param 	{number}	dbscale		Output scale factor. If undefined, defaults to 1.
+     * @param 	{array}		dst		Output vector. If undefined, <src> elements will be overwritten.
+     * @private
+     */
+    m.cvmag2logscale = function(src, lo_thresh, dbscale, dst) {
+        if (lo_thresh === undefined) {
+            lo_thresh = 1.0e-20;
+        }
+        if (dbscale === undefined) {
+            dbscale = 1;
+        }
+        if (dst === undefined) {
+            dst = src;
+        }
+        var j = 0;
+        for (var i = 0; i < dst.length; i++) {
+            j = 2 * i + 1;
+            if (j >= src.length) {
+                break;
+            }
+            dst[i] = (src[j - 1] * src[j - 1]) + (src[j] * src[j]);
+            dst[i] = Math.log(Math.abs(Math.max(dst[i], lo_thresh))) / Math.log(10);
+            dst[i] = dst[i] * dbscale;
+        }
+    };
 
     /**
      * Multiply <count> elements of <src> by <mul>, store results in <dst>
