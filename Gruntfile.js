@@ -19,13 +19,13 @@ module.exports = function (grunt) {
           sigplot: {
             src: [
                     'js/license.js',
-                    'js/loglevel.js',
                     'js/typedarray.js',
                     'js/common.js',
                     'js/bluefile.js',
                     'js/tinycolor.js',
                     'js/CanvasInput.js',
                     'js/spin.js',
+                    'js/loglevel.js',
                     'js/m.js',
                     'js/mx.js',
                     'js/sigplot.layer1d.js',
