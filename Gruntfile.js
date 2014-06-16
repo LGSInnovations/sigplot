@@ -98,7 +98,7 @@ module.exports = function (grunt) {
                 js: 'dist/bluefile.js',
                 jsOutputFile: 'dist/bluefile-minimized.js',
                 options: {
-                    compilation_level: 'ADVANCED_OPTIMIZATIONS'
+                    compilation_level: 'SIMPLE_OPTIMIZATIONS'
                 }
             },
             sigplot_minimized: {
@@ -106,7 +106,7 @@ module.exports = function (grunt) {
                 js: 'dist/sigplot.js',
                 jsOutputFile: 'dist/sigplot-minimized.js',
                 options: {
-                    compilation_level: 'ADVANCED_OPTIMIZATIONS'
+                    compilation_level: 'SIMPLE_OPTIMIZATIONS'
                 }
             },
             sigplot_plugins_minimized: {
@@ -114,7 +114,7 @@ module.exports = function (grunt) {
                 js: 'dist/sigplot.plugins.js',
                 jsOutputFile: 'dist/sigplot.plugins-minimized.js',
                 options: {
-                    compilation_level: 'ADVANCED_OPTIMIZATIONS'
+                    compilation_level: 'SIMPLE_OPTIMIZATIONS'
                 }
             } 
         },
