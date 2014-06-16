@@ -10,7 +10,6 @@ module.exports = function (grunt) {
           bluefile: {
             src: [
                     'js/license.js',
-                    'js/loglevel.js',
                     'js/typedarray.js',
                     'js/common.js',
                     'js/bluefile.js'
