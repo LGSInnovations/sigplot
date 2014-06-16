@@ -21,7 +21,7 @@
  *
  * @namespace sigplot
  */
-var sigplot = window.sigplot || {};
+window.sigplot = window.sigplot || {};
 
 //Uses Immediately-invoked Function Expressions (IIFE)s for namespaces
 //See:

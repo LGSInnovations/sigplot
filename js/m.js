@@ -22,7 +22,7 @@
 /**
  * @namespace
  */
-var m = window.m || {};
+window.m = window.m || {};
 
 (function(m, undefined) {
     'use strict';

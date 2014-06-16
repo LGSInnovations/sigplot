@@ -25,7 +25,7 @@
  *
  * @namespace
  */
-var mx = window.mx || {};
+window.mx = window.mx || {};
 
 (function(mx, m, undefined) {
     /* global getKeyCode */
