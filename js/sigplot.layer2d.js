@@ -25,9 +25,6 @@
     sigplot.Layer2D = function(plot) {
         this.plot = plot;
 
-        this.xbuf = undefined; // raw (ArrayBuffer) of ABSC data
-        this.ybuf = undefined; // raw (ArrayBuffer) of ORD data
-
         this.offset = 0.0;
         this.xstart = 0.0;
         this.xdelta = 0.0;
@@ -39,8 +36,6 @@
         this.name = "";
         this.cx = false;
         this.hcb = undefined; // index in Gx.HCB
-        // xbufn = xbuf.byteLength
-        // ybufn = ybuf.byteLength
 
         this.display = true;
         this.color = 0;
