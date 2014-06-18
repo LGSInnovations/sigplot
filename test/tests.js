@@ -26,9 +26,9 @@ function interactiveTest(testName, msg, callback) {
         var question = document.createElement("div")
         toolbar.appendChild(question);
         question.innerHTML =
-            "<span>" + msg + "?</span>" +
             "<input id='askOkYes' type='button' value='Yes'></input>" +
-            "<input id='askOkNo' type='button' value='No'></input>";
+            "<input id='askOkNo' type='button' value='No'></input>" +
+            "<span>" + msg + "?</span>";
 
         var askOkYes = document.getElementById("askOkYes");
         askOkYes.onclick = function () {
