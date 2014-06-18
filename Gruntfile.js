@@ -134,7 +134,7 @@ module.exports = function (grunt) {
         compress: {
             main: {
                 options: {
-                    archive: "dist/sigplot-<%= pkg.version %>.zip",
+                    archive: "dist/sigplot-<%= pkg.version %>-<%= grunt.template.today('yyyy-mm-dd') %>.zip",
                 },
                 files: [
                     {expand: true, cwd: 'dist/', src: ['*-debug.js'], dest: 'sigplot-<%= pkg.version %>'},
