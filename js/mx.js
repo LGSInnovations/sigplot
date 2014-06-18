@@ -4898,6 +4898,12 @@ window.mx = window.mx || {};
         var view_ymax = Math.min(ymax, Mx.stk[Mx.level].ymax);
 
 
+        if ((buf.width <= 1) || Math.abs(xmax-xmin) === 0) {
+            return;
+        }
+        if ((buf.height <= 1) || Math.abs(ymax-ymin) === 0) {
+            return;
+        }
         var rx = (buf.width - 1) / (xmax - xmin);
         var sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
         var sw = Math.min(buf.width, buf.width - Math.floor((xmax - view_xmax) * rx) - sx);
