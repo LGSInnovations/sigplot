@@ -497,8 +497,8 @@
             if (this.hcb.pipe) {
                 var lps = Math.max(1, (Mx.b - Mx.t));
                 if ((lps !== this.lps) && this.buf) {
-                    var new_buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
-                    var new_zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+                    var new_buf = this.hcb.createArray(null, 0, lps * this.hcb.subsize * this.hcb.spa);
+                    var new_zbuf = new sigplot.PointArray(lps * this.hcb.subsize);
 
                     // copy the data into the new buffer, it will be clamped by subarray
                     new_buf.set(this.buf.subarray(0, new_buf.length));
