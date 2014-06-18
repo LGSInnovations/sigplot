@@ -845,6 +845,95 @@ test('sigplot layer1d autoscale negative', function() {
         }
 });
 
+test('sigplot 0px height', function() {
+        var container = document.getElementById('plot');
+        container.style.height = "0px";
+
+        equal( container.childNodes.length, 0);
+        equal( fixture.childNodes.length, 1);
+
+        var plot = new sigplot.Plot(container);
+        notEqual( plot, null);
+        equal( plot._Mx.canvas.height, 0);
+
+        var zeros = [];
+        for (var i = 0; i <= 1000; i += 1) {
+                zeros.push(0.0);
+        }
+        plot.overlay_array(zeros);
+        notEqual( plot.get_layer(0), null);
+        plot.deoverlay();
+        equal( plot.get_layer(0), null);
+        
+        plot.overlay_array(zeros, {type: 2000});
+        notEqual( plot.get_layer(0), null);
+        plot.deoverlay();
+        equal( plot.get_layer(0), null);
+
+        plot.overlay_pipe({type: 2000, subsize: 128});
+        notEqual( plot.get_layer(0), null);
+        equal( plot.get_layer(0).drawmode, "scrolling");
+        plot.push(0, zeros, true);
+        equal(plot.get_layer(0).position, 0)
+        equal(plot.get_layer(0).lps, 1)
+        plot.deoverlay();
+                        
+        plot.overlay_pipe({type: 2000, subsize: 128}, {drawmode: "rising"});
+        notEqual( plot.get_layer(0), null);
+        equal( plot.get_layer(0).drawmode, "rising");
+        plot.push(0, zeros, true);
+        equal(plot.get_layer(0).position, 0)
+        equal(plot.get_layer(0).lps, 1)
+        plot.deoverlay();
+
+        plot.overlay_pipe({type: 2000, subsize: 128}, {drawmode: "falling"});
+        notEqual( plot.get_layer(0), null);
+        equal( plot.get_layer(0).drawmode, "falling");
+        plot.push(0, zeros, true);
+        equal(plot.get_layer(0).position, 0)
+        equal(plot.get_layer(0).position, 0)
+        equal(plot.get_layer(0).lps, 1)
+        plot.deoverlay();
+});
+
+test('sigplot resize raster 0px height', function() {
+        var container = document.getElementById('plot');
+
+        equal( container.childNodes.length, 0);
+        equal( fixture.childNodes.length, 1);
+
+        var plot = new sigplot.Plot(container);
+        notEqual( plot, null);
+        equal( plot._Mx.canvas.height, 400);
+
+        var zeros = [];
+        for (var i = 0; i <= 128; i += 1) {
+                zeros.push(0.0);
+        }
+
+        plot.overlay_pipe({type: 2000, subsize: 128});
+        notEqual( plot.get_layer(0), null);
+        equal( plot.get_layer(0).drawmode, "scrolling");
+        
+        plot.push(0, zeros, true);
+        equal(plot.get_layer(0).position, 1);
+        ok(plot.get_layer(0).lps > 1);
+        
+        plot.push(0, zeros, true);
+        equal(plot.get_layer(0).position, 2);
+        ok(plot.get_layer(0).lps > 1);
+
+        container.style.height = "0px";
+        plot.checkresize();
+        plot._refresh();
+        plot.checkresize();
+        equal( plot._Mx.canvas.height, 0);
+        equal(plot.get_layer(0).lps, 1);
+        
+        plot.push(0, zeros, true);
+        equal(plot.get_layer(0).position, 0);
+});
+
 QUnit.module('sigplot-interactive', {
     setup: function() {
         ifixture.innerHTML = '';
