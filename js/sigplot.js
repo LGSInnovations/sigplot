@@ -1529,14 +1529,24 @@ window.sigplot = window.sigplot || {};
             this.refresh();
         },
 
-        push: function(n, data) {
+        /**
+         * Push data into a layer that was created with overlay_pipe
+         * 
+         * @param {Number} n
+         *            the layer to push data into 
+         * @param {Number[]} data
+         *            data to push
+         * @param {boolean} [sync=false]
+         *            optional dispatch onpipewrite syncronously 
+         */
+        push: function(n, data, sync) {
             var Mx = this._Mx;
             var Gx = this._Gx;
             if ((n < 0) || (n >= Gx.lyr.length)) { return; }
             var hcb = Gx.lyr[n].hcb;
             //console.log("push hcb filename: "+hcb.file_name);
 
-            m.filad(hcb, data);
+            m.filad(hcb, data, sync);
 
             this.refresh();
         },

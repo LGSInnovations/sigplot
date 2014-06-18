@@ -462,8 +462,9 @@ window.m = window.m || {};
      * Append data buffer to file specified in the bluefile header control block.
      * @param	{header}	hcb		Bluefile header control block
      * @param	{array}		data		Data buffer
+     * @param   {boolean}       [sync=false]    dispatch onpipewrite syncronously 
      */
-    m.filad = function(hcb, data) {
+    m.filad = function(hcb, data, sync) {
         if (hcb.data_free < data.length) {
             throw "Pipe full";
         }
@@ -487,7 +488,11 @@ window.m = window.m || {};
         hcb.data_free -= data.length;
         if (hcb.onwritelisteners) {
             for (var i = 0; i < hcb.onwritelisteners.length; i++) {
-                window.setTimeout(hcb.onwritelisteners[i], 0);
+                if (!sync) {
+                    window.setTimeout(hcb.onwritelisteners[i], 0);
+                } else {
+                    hcb.onwritelisteners[i]();
+                }
             }
         }
     };
