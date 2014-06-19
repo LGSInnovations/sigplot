@@ -509,14 +509,14 @@ window.mx = window.mx || {};
             Mx.root.style.width = "100%";
             Mx.root.style.left = "0px";
             Mx.root.style.top = "0px";
-            Mx.root.style.zIndex = 99;
+            Mx.root.style.zIndex = 16777271; // http://www.puidokas.com/max-z-index/
         } else {
             Mx.root.style.position = Mx.fullscreen.position;
             Mx.root.style.height = Mx.fullscreen.height;
             Mx.root.style.width = Mx.fullscreen.width;
             Mx.root.style.left = Mx.fullscreen.left;
             Mx.root.style.top = Mx.fullscreen.top;
-            Mx.root.style.zIndex = Mx.root.style.zIndex;
+            Mx.root.style.zIndex = Mx.fullscreen.zIndex;
             Mx.fullscreen = undefined;
         }
         mx.checkresize(Mx);
