@@ -121,7 +121,7 @@
             if (this.hcb.pipe) {
 		this.drawmode = "scrolling";
 		this.position = 0;
-		this.tl = options.tl;
+		this.tle = options.tl;
 
 		this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
 		this.ybuf = new ArrayBuffer(this.ybufn);
@@ -134,15 +134,14 @@
         _onpipewrite : function() {
             var ybuf = new sigplot.PointArray(this.ybuf);
 
-            var tl = this.tl; // in scalars
-            if (tl === undefined) {
-		tl = Math.floor(m.pavail(this.hcb));
-            }
-            var tle = tl / this.hcb.spa; // in atoms
-
-            if (m.pavail(this.hcb) < tl) {
+            var tle = this.tle; // in scalars
+            if (tle === undefined) {
+		tle = Math.floor(m.pavail(this.hcb)) / this.hcb.spa;
+            } else if (m.pavail(this.hcb) < (tle*this.hcb.spa)) {
                 return;
             }
+
+            var tl = tle * this.hcb.spa;
 
             if (this.drawmode === "lefttoright") {
 		this.position = 0;
@@ -156,8 +155,8 @@
 		throw "Invalid draw mode";
             }
 
-            tl = Math.min(tl, this.size-this.position);
-            var ngot = m.grabx(this.hcb, ybuf, tl, this.position*this.hcb.spa);
+            tle = Math.min(tle, this.size-this.position);
+            var ngot = m.grabx(this.hcb, ybuf, tle*this.hcb.spa, this.position*this.hcb.spa);
             if (ngot === 0) {
                 return;
             }
