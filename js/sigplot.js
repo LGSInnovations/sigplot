@@ -1425,6 +1425,14 @@ window.sigplot = window.sigplot || {};
                 updateViewbox(this, Mx.stk[0].ymin, settings.ymax, "Y");
             }
 
+            if (settings.xmin !== undefined) {
+                updateViewbox(this, settings.xmin, Mx.stk[0].xmax, "X");
+            }
+
+            if (settings.xmax !== undefined) {
+                updateViewbox(this, Mx.stk[0].xmin, settings.xmax, "X");
+            }
+
             this.refresh();
             if (settings.pan !== undefined) { // refactor - new code to handle
                 // disappearing specs
