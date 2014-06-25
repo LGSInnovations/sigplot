@@ -1151,3 +1151,33 @@ interactiveTest('complex data falling raster', 'Do you see a falling raster?',  
 		plot.push(0, ramp);
 	}, 100);
 });
+
+interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+                        
+	plot.change_settings({
+                                cmode: 5,
+	});
+	
+	var framesize = 1024;
+	plot.overlay_pipe({file_name: "constellation", format: "CF"}, {framesize: framesize, line: 0, radius: 1, symbol: 1});
+	
+        plot.change_settings({
+                                cmode: 5,
+                                ymin: -2,
+                                ymax: 2,
+                                xmin: -2,
+                                xmax: 2,
+	});
+                
+	ifixture.interval = window.setInterval(function() {
+		var data = [];
+		for (var i = 0; i < framesize; i += 1) {
+			data.push((Math.random()*2)-1);
+			data.push((Math.random()*2)-1);
+		}
+		plot.push(0, data);
+	}, 100);
+});
