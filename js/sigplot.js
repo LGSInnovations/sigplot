@@ -1485,14 +1485,19 @@ window.sigplot = window.sigplot || {};
         /**
          * Reload data without adjusting other aspects about a plot
          */
-        reload: function(n, data) {
+        reload: function(n, data, hdrmod) {
             var Mx = this._Mx;
             var Gx = this._Gx;
             if ((n < 0) || (n >= Gx.lyr.length)) { return; }
 
             var hcb = Gx.lyr[n].hcb;
 
-            var new_xrange = (hcb.dview.length !== data.length);
+            var axis_change = (hcb.dview.length !== data.length) || hdrmod;
+            if (hdrmod) {
+                for (var k in hdrmod) {
+                    hcb[k] = hdrmod[k];
+                }
+            }
 
             hcb.setData(data);
 
@@ -1504,8 +1509,7 @@ window.sigplot = window.sigplot || {};
             var xmin = Gx.lyr[n].xmin;
             var xmax = Gx.lyr[n].xmax;
 
-            if (new_xrange) {
-                // TODO - what about index mode
+            if (axis_change) {
                 var d = hcb.xstart + hcb.xdelta * (hcb.size - 1.0);
                 Gx.lyr[n].xmin = Math.min(hcb.xstart, d);
                 Gx.lyr[n].xmax = Math.max(hcb.xstart, d);

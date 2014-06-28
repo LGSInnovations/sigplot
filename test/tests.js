@@ -1033,6 +1033,98 @@ interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?',  function()
         plot.overlay_array(ramp,{file_name: "ramp"});
 });
 
+interactiveTest('reload', 'Do you see a pulse scrolling right?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+        var pulse = [];
+        var pulse_width = 5;
+        var pulse_position = 0;
+        for (var i=0; i<1000; i++) {
+            if ((i >= pulse_position) && (i < (pulse_position+pulse_width))) {
+                pulse.push(10.0);
+            } else {
+                pulse.push(-10.0);
+            }
+        }
+	plot.overlay_array(pulse, {type: 1000});
+
+	ifixture.interval = window.setInterval(function() {
+            pulse_position = (pulse_position + 1) % 1000;
+            for (var i=0; i<1000; i++) {
+                if ((i >= pulse_position) && (i < (pulse_position+pulse_width))) {
+                    pulse[i] = 10.0;
+                } else {
+                    pulse[i] = -10.0;
+                }
+            }
+	    plot.reload(0, pulse);
+	}, 100);
+});
+
+interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis shifts?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+        var pulse = [];
+        var pulse_width = 1;
+        var pulse_position = 500;
+        var xstart = -500;
+        var delta = 100;
+        for (var i=0; i<1000; i++) {
+            if ((i >= pulse_position) && (i < (pulse_position+pulse_width))) {
+                pulse.push(10.0);
+            } else {
+                pulse.push(-10.0);
+            }
+        }
+	plot.overlay_array(pulse, {type: 1000, xstart: xstart});
+
+        ifixture.interval = window.setInterval(function() {
+            pulse_position = pulse_position + delta;
+            xstart = xstart - delta;
+            if ((pulse_position >= 900) || (pulse_position <= 100)) {
+                delta = delta * -1;
+            }
+            for (var i=0; i<1000; i++) {
+                if ((i >= pulse_position) && (i < (pulse_position+pulse_width))) {
+                    pulse[i] = 10.0;
+                } else {
+                    pulse[i] = -10.0;
+                }
+            }
+	    plot.reload(0, pulse, {xstart: xstart});
+	}, 1000);
+});
+
+interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis grows?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+        var pulse = [];
+        var pulse_width = 1;
+        var pulse_position = 500;
+        var xstart = -500;
+        var xdelta = 1;
+        for (var i=0; i<1000; i++) {
+            if ((i >= pulse_position) && (i < (pulse_position+pulse_width))) {
+                pulse.push(10.0);
+            } else {
+                pulse.push(-10.0);
+            }
+        }
+	plot.overlay_array(pulse, {type: 1000, xstart: -500, xdelta: xdelta});
+
+        ifixture.interval = window.setInterval(function() {
+            xdelta = xdelta * 2;
+            xstart = -500 * xdelta;
+	    plot.reload(0, pulse, {xstart: xstart, xdelta: xdelta});
+	}, 5000);
+});
+
 interactiveTest('scrolling line', 'Do you see a scrolling random data plot',  function() {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
