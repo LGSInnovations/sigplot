@@ -2318,6 +2318,11 @@ window.sigplot = window.sigplot || {};
             Mx.stk[k].xscl = (Mx.stk[k].xmax - Mx.stk[k].xmin) / (Mx.r - Mx.l);
             Mx.stk[k].yscl = (Mx.stk[k].ymax - Mx.stk[k].ymin) / (Mx.b - Mx.t);
 
+            // In case things have rescaled
+            var re = pixel_to_real(this, Mx.xpos, Mx.ypos);
+            Gx.retx = re.x;
+            Gx.rety = re.y;
+
             // modify stack for section plotting
             //if (Gx.sections) {
             // TODO
