@@ -248,6 +248,37 @@
 		this.ybuf = new ArrayBuffer(this.ybufn);
             }
         },
+       
+        reload: function(data, hdrmod) {
+
+            var axis_change = (this.hcb.dview.length !== data.length) || hdrmod;
+            if (hdrmod) {
+                for (var k in hdrmod) {
+                    this.hcb[k] = hdrmod[k];
+                }
+            }
+            this.hcb.setData(data);
+
+            // Setting these causes refresh() to refetch 
+            this.imin = 0;
+            this.xstart = undefined;
+            this.size = 0;
+
+            var xmin = this.xmin;
+            var xmax = this.xmax;
+
+            if (axis_change) {
+                var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1.0);
+                this.xmin = Math.min(this.hcb.xstart, d);
+                this.xmax = Math.max(this.hcb.xstart, d);
+                this.xdelta = this.hcb.xdelta;
+                this.xstart = this.hcb.xstart;
+                xmin = undefined;
+                xmax = undefined;
+            }
+
+            return {xmin: xmin, xmax: xmax};
+        },         
 
         prep: function(xmin, xmax) {
             var Gx = this.plot._Gx;

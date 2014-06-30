@@ -1484,45 +1484,29 @@ window.sigplot = window.sigplot || {};
 
         /**
          * Reload data without adjusting other aspects about a plot
+         *
+         * @param {Number} n
+         *            the layer to push data into 
+         * @param {Number[]} data
+         *            data to push
+         * @param {Object} hdrmod 
+         *            optional changes to the file header
          */
         reload: function(n, data, hdrmod) {
             var Mx = this._Mx;
             var Gx = this._Gx;
             if ((n < 0) || (n >= Gx.lyr.length)) { return; }
 
-            var hcb = Gx.lyr[n].hcb;
+            if (Gx.lyr[n].reload === undefined) { return; }
 
-            var axis_change = (hcb.dview.length !== data.length) || hdrmod;
-            if (hdrmod) {
-                for (var k in hdrmod) {
-                    hcb[k] = hdrmod[k];
-                }
-            }
-
-            hcb.setData(data);
-
-            // Setting these causes refresh() to refetch 
-            Gx.lyr[n].imin = 0;
-            Gx.lyr[n].xstart = undefined;
-            Gx.lyr[n].size = 0;
-
-            var xmin = Gx.lyr[n].xmin;
-            var xmax = Gx.lyr[n].xmax;
-
-            if (axis_change) {
-                var d = hcb.xstart + hcb.xdelta * (hcb.size - 1.0);
-                Gx.lyr[n].xmin = Math.min(hcb.xstart, d);
-                Gx.lyr[n].xmax = Math.max(hcb.xstart, d);
-                Gx.lyr[n].xdelta = hcb.xdelta;
-                Gx.lyr[n].xstart = hcb.xstart;
-                xmin = undefined;
-                xmax = undefined;
-            }
+            var xbnds = Gx.lyr[n].reload(data, hdrmod);
 
             if (Mx.level === 0) {
+                // Unlike push(), always call scale_base
+                // when reload is invoked
                 scale_base(this, {
                     get_data: false
-                }, xmin, xmax);
+                }, xbnds.xmin, xbnds.xmax);
             }
 
             this.refresh();
