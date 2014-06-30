@@ -1532,17 +1532,25 @@ window.sigplot = window.sigplot || {};
          *            the layer to push data into 
          * @param {Number[]} data
          *            data to push
+         * @param {Object} hdrmod 
+         *            optional changes to the file header
          * @param {boolean} [sync=false]
          *            optional dispatch onpipewrite syncronously 
          */
-        push: function(n, data, sync) {
+        push: function(n, data, hdrmod, sync) {
             var Mx = this._Mx;
             var Gx = this._Gx;
             if ((n < 0) || (n >= Gx.lyr.length)) { return; }
-            var hcb = Gx.lyr[n].hcb;
-            //console.log("push hcb filename: "+hcb.file_name);
+            
+            if (Gx.lyr[n].push === undefined) { return; }
 
-            m.filad(hcb, data, sync);
+            var rescale = Gx.lyr[n].push(data, hdrmod, sync);
+
+            if ((Mx.level === 0) && rescale) {
+                scale_base(this, {
+                    get_data: false
+                });
+            }
 
             this.refresh();
         },

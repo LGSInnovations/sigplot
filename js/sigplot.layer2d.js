@@ -309,6 +309,33 @@
             }
         },
 
+        push: function(data, hdrmod, sync) {
+            if (hdrmod) {
+                // TODO handle hcb subsize changes
+                
+                for (var k in hdrmod) {
+                    this.hcb[k] = hdrmod[k];
+                }
+                      
+                var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1.0);
+                this.xmin = Math.min(this.hcb.xstart, d);
+                this.xmax = Math.max(this.hcb.xstart, d);
+                this.xdelta = this.hcb.xdelta;
+                this.xstart = this.hcb.xstart;
+
+                this.ystart = this.hcb.ystart;
+                this.ydelta = this.hcb.ydelta;
+                var d = this.hcb.ystart + this.hcb.ydelta * (this.lps - 1.0);
+                this.ymin = Math.min(this.hcb.ystart, d);
+                this.ymax = Math.max(this.hcb.ystart, d);
+            }
+
+            m.filad(this.hcb, data, sync);
+
+            return hdrmod ? true : false;
+            
+        },
+
         prep: function(xmin, xmax) {
             var Gx = this.plot._Gx;
             var Mx = this.plot._Mx;

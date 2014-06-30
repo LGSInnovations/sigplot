@@ -873,7 +873,7 @@ test('sigplot 0px height', function() {
         plot.overlay_pipe({type: 2000, subsize: 128});
         notEqual( plot.get_layer(0), null);
         equal( plot.get_layer(0).drawmode, "scrolling");
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null, true);
         equal(plot.get_layer(0).position, 0)
         equal(plot.get_layer(0).lps, 1)
         plot.deoverlay();
@@ -881,7 +881,7 @@ test('sigplot 0px height', function() {
         plot.overlay_pipe({type: 2000, subsize: 128}, {drawmode: "rising"});
         notEqual( plot.get_layer(0), null);
         equal( plot.get_layer(0).drawmode, "rising");
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null ,true);
         equal(plot.get_layer(0).position, 0)
         equal(plot.get_layer(0).lps, 1)
         plot.deoverlay();
@@ -889,7 +889,7 @@ test('sigplot 0px height', function() {
         plot.overlay_pipe({type: 2000, subsize: 128}, {drawmode: "falling"});
         notEqual( plot.get_layer(0), null);
         equal( plot.get_layer(0).drawmode, "falling");
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null, true);
         equal(plot.get_layer(0).position, 0)
         equal(plot.get_layer(0).position, 0)
         equal(plot.get_layer(0).lps, 1)
@@ -915,11 +915,11 @@ test('sigplot resize raster 0px height', function() {
         notEqual( plot.get_layer(0), null);
         equal( plot.get_layer(0).drawmode, "scrolling");
         
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null, true);
         equal(plot.get_layer(0).position, 1);
         ok(plot.get_layer(0).lps > 1);
         
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null, true);
         equal(plot.get_layer(0).position, 2);
         ok(plot.get_layer(0).lps > 1);
 
@@ -930,7 +930,7 @@ test('sigplot resize raster 0px height', function() {
         equal( plot._Mx.canvas.height, 0);
         equal(plot.get_layer(0).lps, 1);
         
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null, true);
         equal(plot.get_layer(0).position, 0);
 });
 
@@ -953,11 +953,11 @@ test('sigplot resize raster larger height', function() {
         notEqual( plot.get_layer(0), null);
         equal( plot.get_layer(0).drawmode, "scrolling");
         
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null, true);
         equal(plot.get_layer(0).position, 1);
         ok(plot.get_layer(0).lps > 1);
         
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null, true);
         equal(plot.get_layer(0).position, 2);
         ok(plot.get_layer(0).lps > 1);
         var orig_lps = plot.get_layer(0).lps;
@@ -970,10 +970,10 @@ test('sigplot resize raster larger height', function() {
         equal( plot._Mx.canvas.height, 600);
         ok(plot.get_layer(0).lps > orig_lps);
         
-        plot.push(0, zeros, true);
+        plot.push(0, zeros, null, true);
         equal(plot.get_layer(0).position, 3);
         for (var i = 0; i <= plot.get_layer(0).lps; i += 1) {
-            plot.push(0, zeros, true);
+            plot.push(0, zeros, null, true);
         }
 });
 
