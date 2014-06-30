@@ -1200,6 +1200,56 @@ interactiveTest('falling raster', 'Do you see a falling raster?',  function() {
 	}, 100);
 });
 
+interactiveTest('raster changing xstart', 'Do you see a falling raster that stays the same while the axis shifts?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+                        
+	plot.change_settings({
+                                autol: 5,
+	});
+	
+	var framesize = 128;
+	plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", xstart: -64, ydelta: 0.25});
+               
+        var xstart = 0; 
+        var xstart_chng = 16;
+	ifixture.interval = window.setInterval(function() {
+		var ramp = [];
+		for (var i = 0; i < framesize; i += 1) {
+			ramp.push(i+1);
+		}
+                if (Math.abs(xstart) >= 64) {
+                    xstart_chng = xstart_chng * -1;
+                }
+                xstart += xstart_chng;
+		plot.push(0, ramp, {xstart: xstart});
+	}, 500);
+});
+
+interactiveTest('raster changing xdelta', 'Do you see a falling raster that stays the same while the axis increases?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+                        
+	plot.change_settings({
+                                autol: 5,
+	});
+	
+	var framesize = 128;
+	plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", ydelta: 0.25});
+               
+        var xdelta = 1; 
+	ifixture.interval = window.setInterval(function() {
+		var ramp = [];
+		for (var i = 0; i < framesize; i += 1) {
+			ramp.push(i+1);
+		}
+                xdelta *= 2;
+		plot.push(0, ramp, {xdelta: xdelta});
+	}, 500);
+});
+
 interactiveTest('large framesize falling raster', 'Do you see a falling raster?',  function() {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
