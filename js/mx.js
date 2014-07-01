@@ -4782,6 +4782,8 @@ window.mx = window.mx || {};
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
         }
 
+        w = Math.ceil(w);
+        h = Math.ceil(h);
         var buf = new ArrayBuffer(w*h*4);
         buf.width = w;
         buf.height = h;
