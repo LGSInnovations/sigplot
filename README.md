@@ -39,16 +39,24 @@ available along with [API](http://TODO) documentation.
 
 Building
 =============
-If you wish to build SigPlot from source you will need the following:
+
+Using Grunt
+-------------
+[Grunt](http://gruntjs.com) is the primary mechanism for building SigPlot.  You
+will need an installation of Node.js and the Grunt command line interface.
+
+The first step is to install the build dependencies using `npm install`.
+
+Run `grunt test` to run the unittests and JavaScript linting; run `grunt dist`
+to build a distributable version of the project.
+
+Using Make
+-------------
+Although Grunt is the canonical build system, a basic Makefile is provided for
+environment where Grunt cannot be used.  You will need the following:
 
 * GNU Make
 * Java version 1.7+
-
-```
-$ git clone https://github.com/Axios-Engineering/sigplot.git
-$ cd sigplot
-$ make
-```
 
 If you wish to build the SigPlot API documention, you will need
 [jsdoc](https://github.com/jsdoc3/jsdoc) installed.

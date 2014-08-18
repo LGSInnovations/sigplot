@@ -1,0 +1,40 @@
+{
+  "name": "sigplot",
+  "description": "Advanced plotting for signal processing applications",
+  "version": "1.1.0-rc",
+  "homepage": "http://demo.axiosengineering.com/sigplot",
+  "author": {
+    "name": "Axios Engineering",
+    "email": "sigplot@axiosengineering.com",
+    "url": "http://www.axiosengineering.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Axios-Engineering/sigplot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Axios-Engineering/sigplot/issues"
+  },
+  "licenses": [
+    {
+      "type": "LGPL",
+      "url": "https://www.gnu.org/licenses/lgpl.html"
+    }
+  ],
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "^0.4.1",
+    "grunt-cli": "^0.1.9",
+    "grunt-contrib-concat": "^0.3.0",
+    "grunt-closure-compiler": "^0.0.21",
+    "grunt-contrib-jshint": "^0.8.0",
+    "grunt-contrib-qunit": "^0.5.0",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-compress": "^0.9.1",
+    "grunt-jsdoc": "^0.5.4",
+    "qunitjs": "^1.13.0"
+  }
+}

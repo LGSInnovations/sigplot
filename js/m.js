@@ -22,8 +22,7 @@
 /**
  * @namespace
  */
-var debug_global = -1;
-var m = window.m || {};
+window.m = window.m || {};
 
 (function(m, undefined) {
     'use strict';
@@ -396,10 +395,6 @@ var m = window.m || {};
         }
         hcb["class"] = hcb.type / 1000;
 
-        if (hcb.file_name != "") {
-            if (debug_global > 0) console.log("<m.js:m.initialize> Input Filename: " + hcb.file_name);
-        }
-
         if (!overrides.pipe) {
             hcb.setData(data);
         } else {
@@ -422,7 +417,7 @@ var m = window.m || {};
      * @param	{header}	hcb		Bluefile header control block
      */
     m.force1000 = function(hcb) {
-        if (hcb["class"] == 2) {
+        if (hcb["class"] === 2) {
             hcb.size = hcb.subsize * hcb.size;
             hcb.bpe = hcb.bpe / hcb.subsize;
             hcb.ape = 1;
@@ -438,7 +433,7 @@ var m = window.m || {};
      * @return	{number}	ngot		Number of received data
      */
     m.grab = function(hcb, bufview, start, nget) {
-        if (!hcb.dview) return 0;
+        if (!hcb.dview) { return 0; }
 
         // TODO reformat
         if (hcb.format[0] === 'C') {
@@ -467,8 +462,9 @@ var m = window.m || {};
      * Append data buffer to file specified in the bluefile header control block.
      * @param	{header}	hcb		Bluefile header control block
      * @param	{array}		data		Data buffer
+     * @param   {boolean}       [sync=false]    dispatch onpipewrite syncronously 
      */
-    m.filad = function(hcb, data) {
+    m.filad = function(hcb, data, sync) {
         if (hcb.data_free < data.length) {
             throw "Pipe full";
         }
@@ -477,8 +473,13 @@ var m = window.m || {};
         if (eidx > hcb.dview.length) {
             var head = hcb.dview.length - sidx;
             var tail = data.length - head;
-            hcb.dview.set(data.slice(0, head), sidx);
-            hcb.dview.set(data.slice(head, data.length), 0);
+	    if (data.subarray) {
+              hcb.dview.set(data.subarray(0, head), sidx);
+              hcb.dview.set(data.subarray(head, data.length), 0);
+	    } else {
+              hcb.dview.set(data.slice(0, head), sidx);
+              hcb.dview.set(data.slice(head, data.length), 0);
+	    }
             hcb.in_byte = (tail * hcb.dview.BYTES_PER_ELEMENT);
         } else {
             hcb.dview.set(data, sidx);
@@ -487,14 +488,18 @@ var m = window.m || {};
         hcb.data_free -= data.length;
         if (hcb.onwritelisteners) {
             for (var i = 0; i < hcb.onwritelisteners.length; i++) {
-                hcb.onwritelisteners[i]();
+                if (!sync) {
+                    window.setTimeout(hcb.onwritelisteners[i], 0);
+                } else {
+                    hcb.onwritelisteners[i]();
+                }
             }
         }
     };
 
     /**
      * @param	{header}	hcb		Bluefile header control block
-     * @return
+     * @return	{number}	elements available
      * @private
      */
     m.pavail = function(hcb) {
@@ -511,31 +516,34 @@ var m = window.m || {};
      */
     // WARNING - nget is number of scalars...which differs from the normal API
     m.grabx = function(hcb, dview, nget, offset) {
-        var navail = hcb.dview.length - hcb.data_free;
-        if (!nget) {
-            nget = Math.min(dview.length, navail);
-        }
-        if (nget > navail) {
-            return 0;
-        }
+	var navail = hcb.dview.length - hcb.data_free;
+	if (offset === undefined) {
+		offset = 0;
+	}
+	if (!nget) {
+		nget = Math.min(dview.length-offset, navail);
+	} else if (nget > dview.length-offset) {
+		throw "m.grabx : nget larger then available buffer space";
+	}
+	if (nget < 0) {
+		throw "m.grabx : nget cannot be negative";
+	}
+	if (nget > navail) {
+		return 0;
+	}
 
-        if (offset === undefined) {
-            offset = 0;
-        }
-        if (nget > 0) {
-            var sidx = hcb.out_byte / hcb.dview.BYTES_PER_ELEMENT;
-            var eidx = (sidx + nget);
-            if (eidx >= hcb.dview.length) {
-                var head = hcb.dview.length - sidx;
-                eidx = eidx - hcb.dview.length;
-                dview.set(hcb.dview.subarray(sidx, hcb.dview.length), offset);
-                dview.set(hcb.dview.subarray(0, eidx), offset + head);
-            } else {
-                dview.set(hcb.dview.subarray(sidx, eidx), offset);
-            }
-            hcb.out_byte = (eidx * hcb.dview.BYTES_PER_ELEMENT) % hcb.buf.byteLength;
-        }
-        hcb.data_free += nget;
+	var sidx = hcb.out_byte / hcb.dview.BYTES_PER_ELEMENT;
+	var eidx = (sidx + nget);
+	if (eidx >= hcb.dview.length) {
+		var head = hcb.dview.length - sidx;
+		eidx = eidx - hcb.dview.length;
+		dview.set(hcb.dview.subarray(sidx, hcb.dview.length), offset);
+		dview.set(hcb.dview.subarray(0, eidx), offset+head);
+	} else {
+		dview.set(hcb.dview.subarray(sidx, eidx), offset);
+	}
+	hcb.out_byte = (eidx * hcb.dview.BYTES_PER_ELEMENT) % hcb.buf.byteLength;
+	hcb.data_free += nget;
         var ngot = nget;
         return ngot;
     };
@@ -573,10 +581,10 @@ var m = window.m || {};
      */
     m.trim_name = function(pathfilename) {
         var i = pathfilename.indexOf(']');
-        if (i == -1) {
+        if (i === -1) {
             i = pathfilename.indexOf('/');
         }
-        if (i == -1) {
+        if (i === -1) {
             i = pathfilename.indexOf(':');
         }
         var j = pathfilename.substr(i + 1, pathfilename.length).indexOf('.');
@@ -705,6 +713,38 @@ var m = window.m || {};
             dst[i] = dst[i] * dbscale;
         }
     };
+    
+    /**
+     * Same as vlogscale but computes magnitude squared.
+     *
+     * @param 	{array}		src		Input vector.
+     * @param 	{number}	lo_thresh	User-set minimum log threshold.
+     *                                              If undefined, defaults to 1.0e-20. Prevent computing log of 0 or negative values.
+     * @param 	{number}	dbscale		Output scale factor. If undefined, defaults to 1.
+     * @param 	{array}		dst		Output vector. If undefined, <src> elements will be overwritten.
+     * @private
+     */
+    m.cvmag2logscale = function(src, lo_thresh, dbscale, dst) {
+        if (lo_thresh === undefined) {
+            lo_thresh = 1.0e-20;
+        }
+        if (dbscale === undefined) {
+            dbscale = 1;
+        }
+        if (dst === undefined) {
+            dst = src;
+        }
+        var j = 0;
+        for (var i = 0; i < dst.length; i++) {
+            j = 2 * i + 1;
+            if (j >= src.length) {
+                break;
+            }
+            dst[i] = (src[j - 1] * src[j - 1]) + (src[j] * src[j]);
+            dst[i] = Math.log(Math.abs(Math.max(dst[i], lo_thresh))) / Math.log(10);
+            dst[i] = dst[i] * dbscale;
+        }
+    };
 
     /**
      * Multiply <count> elements of <src> by <mul>, store results in <dst>
@@ -740,24 +780,32 @@ var m = window.m || {};
      */
     // ~= M$VMXMN
     m.vmxmn = function(vec, size) {
-        var mxmn = {
-            smax: vec[0],
-            smin: vec[0],
-            imax: 0,
-            imin: 0
-        };
+        // Originally this code used an object to hold the values
+        // but Chrome 34.0.1847.131 seemed to have a bug where
+        // these values would somehow get messed up...oddly
+        // putting printouts or breakpoints prevented the
+        // problem from showing up.
+        var smax = vec[0];
+        var smin = vec[0];
+        var imax = 0;
+        var imin = 0;
         size = Math.min(size, vec.length);
         for (var i = 0; i < size; i++) {
-            if (vec[i] > mxmn.smax) {
-                mxmn.smax = vec[i];
-                mxmn.imax = i;
+            if (vec[i] > smax) {
+                smax = vec[i];
+                imax = i;
             }
-            if (vec[i] < mxmn.smin) {
-                mxmn.smin = vec[i];
-                mxmn.imin = i;
+            if (vec[i] < smin) {
+                smin = vec[i];
+                imin = i;
             }
         }
-        return mxmn;
+        return {
+            smax: smax,
+            smin: smin,
+            imax: imax,
+            imin: imin
+        };
     };
 
     /**
@@ -997,37 +1045,21 @@ var m = window.m || {};
         var diffDaySecs = (midnightTomorrow - midnightToday) / 1000; //    86400 secs = 24*60*60
         var diffYearSecs = (midnightDec - midnightJan) / 1000; // 31536000 secs = 365*24*60*60
         var negDiffYearSecs = -1 * diffYearSecs; //-31536000 secs
-        if (debug_global > 0) {
-            console.log("<m.js:m.sec2tod> *****Input seconds:" + sec + "*********");
-            console.log("<m.js:m.sec2tod> MidnightToday    :" + midnightToday);
-            console.log("<m.js:m.sec2tod> MidnightTomorrow :" + midnightTomorrow);
-            console.log("<m.js:m.sec2tod> MidnightJanuary  :" + midnightJan);
-            console.log("<m.js:m.sec2tod> MidnightDecembr  :" + midnightDec);
-            console.log("<m.js:m.sec2tod> Diff daySecs     :" + diffDaySecs);
-            console.log("<m.js:m.sec2tod> Diff yearSecs    :" + diffYearSecs);
-            console.log("<m.js:m.sec2tod> j1950Secs        :" + j1950 / 1000);
-            console.log("<m.js:m.sec2tod> j1949Secs        :" + j1949 / 1000);
-            console.log("<m.js:m.sec2tod> j1950Date        :" + j1950Date.toUTCString());
-            console.log("<m.js:m.sec2tod> j1949Date        :" + j1949Date.toUTCString());
-        }
 
         if (sec >= 0) {
             if (sec < diffDaySecs) {
                 // hh:mm:ss
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Less than 1 day");
                 var millisecs = midnightToday.getTime() + (sec * 1000);
                 var d = new Date(millisecs);
                 tod = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
             } else if (sec < diffYearSecs) {
                 // ddd:hh:mm:ss
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Less than 365 days");
                 var days = sec / diffDaySecs;
                 days = [days > 0 ? Math.floor(days) : Math.ceil(days)];
                 var d = new Date((sec * 1000) + midnightToday.getTime());
                 tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
             } else {
                 // convert to j1950
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Greater than or equal to 365 days");
                 var secMilli = sec * 1000 + j1950;
                 d = new Date(secMilli);
                 tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth()) + ":" + pad2(d.getUTCDate()) + "::" +
@@ -1036,14 +1068,12 @@ var m = window.m || {};
         } else {
             if (sec > negDiffYearSecs) {
                 // -ddd:hh:mm:ss
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Greater than -365 days");
                 var days = sec / diffDaySecs;
                 days = [days <= 0 ? Math.ceil(days) : Math.floor(days)];
                 var d = new Date(Math.abs(sec * 1000) + midnightToday.getTime());
                 tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
             } else {
                 // convert to j1950
-                if (debug_global > 0) console.log("<m.js:m.sec2tod> Less than or equal to -365 days");
                 var secMilli = sec * 1000 + j1950;
                 d = new Date(secMilli);
                 tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth()) + ":" + pad2(d.getUTCDate()) + "::" +
@@ -1051,7 +1081,7 @@ var m = window.m || {};
             }
         }
 
-        if ((sec % 1) != 0) {
+        if ((sec % 1) !== 0) {
             tod += "." + (sec % 1).toPrecision(6).slice(2, 8);
         }
 
@@ -1066,16 +1096,16 @@ var m = window.m || {};
 
     m.sec2tod_j1970 = function(sec) {
         var tod = "";
-        if (debug_global > 0) console.log("<m.js:m.sec2tod_j1970> *****Input seconds:" + sec + "*********");
+	var d;
         if ((sec >= 0) && (sec < 86400)) {
             // hh:mm:ss
-            var d = new Date(sec * 1000);
+            d = new Date(sec * 1000);
             tod = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
 
         } else if ((sec < 0) && (sec > -31536000)) {
             // -ddd:hh:mm:ss
             var days = -1 * (sec / (24 * 60 * 60));
-            var d = new Date(sec * 1000);
+            d = new Date(sec * 1000);
             tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
         } else {
             // convert to j1950
@@ -1084,7 +1114,7 @@ var m = window.m || {};
             tod = d.getFullYear() + ":" + pad2(d.getMonth()) + ":" + pad2(d.getDate()) + "::" +
                 pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
         }
-        if ((sec % 1) != 0) {
+        if ((sec % 1) !== 0) {
             tod += "." + (sec % 1).toPrecision(6).slice(2, 8);
         }
         return tod;

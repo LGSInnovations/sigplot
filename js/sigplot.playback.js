@@ -15,6 +15,8 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
+/* global mx */
+/* global m */
 (function( sigplot, mx, m, undefined ) {
 	
 	/**
@@ -25,13 +27,13 @@
 	sigplot.PlaybackControlsPlugin = function(options) {
 		this.options = (options === undefined) ? {} : options;
 		
-		if (this.options.display === undefined)  this.options.display = true;
+		if (this.options.display === undefined) { this.options.display = true; }
 		
 		this.options.size = this.options.size || 25;
 		this.options.lineWidth = this.options.lineWidth || 2;
 		this.state = "paused";
 		this.highlight = false;
-	}
+	};
 	
 	sigplot.PlaybackControlsPlugin.prototype = {
 			init: function(plot) {
@@ -76,7 +78,7 @@
 			},
 			
 			set_highlight: function(ishighlight) {
-				if (ishighlight != this.highlight) {
+				if (ishighlight !== this.highlight) {
 					this.highlight = ishighlight;
 					this.plot.redraw();
 				}
@@ -137,7 +139,7 @@
 			},
 			
 			refresh: function(canvas) {
-				if (!this.options.display) return;
+				if (!this.options.display) { return; }
 				var Gx = this.plot._Gx;
 				var Mx = this.plot._Mx;
 				
@@ -224,6 +226,6 @@
 				this.plot = undefined;
 				this.boxes = undefined;
 			}
-	}
+	};
 	
 }( window.sigplot = window.sigplot || {}, mx, m));

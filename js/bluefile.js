@@ -65,7 +65,6 @@
  *
  * @namespace bluefile
  */
-var debug_global = 1;
 (function(global) {
     'use strict';
 
@@ -87,8 +86,8 @@ var debug_global = 1;
         var a = new Uint32Array(b);
         var c = new Uint8Array(b);
         a[0] = 0xdeadbeef;
-        if (c[0] == 0xef) return 'LE';
-        if (c[0] == 0xde) return 'BE';
+        if (c[0] === 0xef) { return 'LE'; }
+        if (c[0] === 0xde) { return 'BE'; }
         throw new Error('unknown endianness');
     }
 
@@ -182,7 +181,7 @@ var debug_global = 1;
         }
     } catch (error) {
         _applySupportsTypedArray = false;
-    };
+    }
 
 
 
@@ -220,20 +219,20 @@ var debug_global = 1;
             this.version = ab2str(this.buf.slice(0, 4));
             this.headrep = ab2str(this.buf.slice(4, 8));
             this.datarep = ab2str(this.buf.slice(8, 12));
-            var littleEndianHdr = (this.headrep == "EEEI");
-            var littleEndianData = (this.datarep == "EEEI");
+            var littleEndianHdr = (this.headrep === "EEEI");
+            var littleEndianData = (this.datarep === "EEEI");
             this.type = dvhdr.getUint32(48, littleEndianHdr);
             this["class"] = this.type / 1000;
             this.format = ab2str(this.buf.slice(52, 54));
             this.timecode = dvhdr.getFloat64(56, littleEndianHdr);
 
             // the adjunct starts at offset 0x100
-            if (this["class"] == 1) {
+            if (this["class"] === 1) {
                 this.xstart = dvhdr.getFloat64(0x100, littleEndianHdr);
                 this.xdelta = dvhdr.getFloat64(0x100 + 8, littleEndianHdr);
                 this.xunits = dvhdr.getInt32(0x100 + 16, littleEndianHdr);
                 this.subsize = 1;
-            } else if (this["class"] == 2) {
+            } else if (this["class"] === 2) {
                 this.xstart = dvhdr.getFloat64(0x100, littleEndianHdr);
                 this.xdelta = dvhdr.getFloat64(0x100 + 8, littleEndianHdr);
                 this.xunits = dvhdr.getInt32(0x100 + 16, littleEndianHdr);
@@ -261,13 +260,13 @@ var debug_global = 1;
          *
          */
         setData: function(buf, offset, data_end, littleEndian) {
-            if (this["class"] == 1) {
+            if (this["class"] === 1) {
                 this.spa = _SPA[this.format[0]];
                 this.bps = _BPS[this.format[1]];
                 this.bpa = this.spa * this.bps;
                 this.ape = 1;
                 this.bpe = this.ape * this.bpa;
-            } else if (this["class"] == 2) {
+            } else if (this["class"] === 2) {
                 this.spa = _SPA[this.format[0]];
                 this.bps = _BPS[this.format[1]];
                 this.bpa = this.spa * this.bps;
@@ -292,7 +291,7 @@ var debug_global = 1;
                 } else {
                     this.dview = this.createArray(buf);
                 }
-                this.size = this.dview.byteLength / this.bpe;
+                this.size = this.dview.length / (this.spa * this.ape);
             } else {
                 this.dview = this.createArray(null, null, this.size);
             }
@@ -307,10 +306,9 @@ var debug_global = 1;
          * @returns -
          */
         createArray: function(buf, offset, length) {
-            var typedArray = _XM_TO_TYPEDARRAY[this.format[1]]
-            if (typedArray === undefined) {
-                console.log(" unknown format", this.format[1], _XM_TO_TYPEDARRAY);
-                return undefined;
+            var TypedArray = _XM_TO_TYPEDARRAY[this.format[1]];
+            if (TypedArray === undefined) {
+                throw ("unknown format " + this.format[1]);
             }
             // backwards compatibility with some implementations of typed array
             // requires this
@@ -322,9 +320,9 @@ var debug_global = 1;
             }
 
             if (buf) {
-                return new typedArray(buf, offset, length);
+                return new TypedArray(buf, offset, length);
             } else {
-                return new typedArray(length);
+                return new TypedArray(length);
             }
         }
     };
@@ -365,10 +363,10 @@ var debug_global = 1;
                 }
                 return ret;
             })(),
-            file: (a.pathname.match(/\/([^\/?#]+)$/i) || [, ''])[1],
+            file: (a.pathname.match(/\/([^\/?#]+)$/i) || [null, ''])[1],
             hash: a.hash.replace('#', ''),
             path: a.pathname.replace(/^([^\/])/, '/$1'),
-            relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [, ''])[1],
+            relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [null, ''])[1],
             segments: a.pathname.replace(/^\//, '').split('/')
         };
     }
@@ -425,7 +423,7 @@ var debug_global = 1;
             reader.onloadend = (function(theFile) {
                 return function(e) {
                     if (e.target.error) {
-                        alert("There was an error reading this file");
+                        onload(null);
                         return;
                     }
 
@@ -453,7 +451,7 @@ var debug_global = 1;
             reader.onloadend = (function(theFile) {
                 return function(e) {
                     if (e.target.error) {
-                        alert("There was an error reading this file");
+                        onload(null);
                         return;
                     }
 
@@ -482,12 +480,10 @@ var debug_global = 1;
             oReq.responseType = "arraybuffer";
             oReq.overrideMimeType('text\/plain; charset=x-user-defined');
             oReq.onload = function(oEvent) {
-                if (debug_global > 0) console.log("<bluefile.js:read_http> readyState/status: " + oReq.readyState + "/" + oReq.status);
                 if (oReq.readyState === 4) {
                     if ((oReq.status === 200) || (oReq.status === 0)) { // status = 0 is necessary for file URL
                         var arrayBuffer = null; // Note: not oReq.responseText
                         if (oReq.response) {
-                            if (debug_global > 0) console.log("<bluefile.js:read_http> binary file");
                             arrayBuffer = oReq.response;
                             var hdr = new BlueHeader(arrayBuffer);
                             parseURL(href);
@@ -495,7 +491,6 @@ var debug_global = 1;
                             hdr.file_name = fileUrl.file;
                             onload(hdr);
                         } else if (oReq.responseText) {
-                            if (debug_global > 0) console.log("<bluefile.js:read_http> text file");
                             text2buffer(oReq.responseText, function(arrayBuffer) {
                                 var hdr = new BlueHeader(arrayBuffer);
                                 parseURL(href);
@@ -507,14 +502,12 @@ var debug_global = 1;
                         return;
                     }
                 }
-                console.log("<bluefile.js:read_http> " + href + " failed: State " + oReq.readyState + ", Status " + oReq.status);
                 onload(null);
             };
 
             oReq.onerror = function(oEvent) {
-                console.log("read_http error", oEvent);
                 onload(null);
-            }
+            };
 
             oReq.send(null);
         }

@@ -23,6 +23,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * $/LicenseInfo$
+ *
+ * Copyright (c) 2013, Michael Ihde - Added big-endian/little-endian support
  */
 
 /*global document*/
@@ -562,6 +564,7 @@ var DataView;
 
                 ctor.prototype = new ArrayBufferView();
                 ctor.prototype.BYTES_PER_ELEMENT = bytesPerElement;
+                ctor.prototype.emulated = true;
                 ctor.prototype._pack = pack;
                 ctor.prototype._unpack = unpack;
                 ctor.BYTES_PER_ELEMENT = bytesPerElement;

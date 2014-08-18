@@ -14,6 +14,8 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
+/* global mx */
+/* global m */
 (function(sigplot, mx, m, undefined) {
 
     /**
@@ -23,20 +25,17 @@
     sigplot.Layer2D = function(plot) {
         this.plot = plot;
 
-        this.xbuf = undefined; // raw (ArrayBuffer) of ABSC data
-        this.ybuf = undefined; // raw (ArrayBuffer) of ORD data
-
         this.offset = 0.0;
         this.xstart = 0.0;
         this.xdelta = 0.0;
+        this.ystart = 0.0;
+        this.ydelta = 0.0;
         this.imin = 0;
         this.xmin = 0.0;
         this.xmax = 0.0;
         this.name = "";
         this.cx = false;
         this.hcb = undefined; // index in Gx.HCB
-        // xbufn = xbuf.byteLength
-        // ybufn = ybuf.byteLength
 
         this.display = true;
         this.color = 0;
@@ -87,17 +86,18 @@
 
             if (this.hcb.pipe) {
                 var self = this;
+                this.position = 0;
                 this.frame = 0;
 
 
-                this.lps = Math.max(1, (Mx.b - Mx.t));
+                this.lps = Math.ceil(Math.max(1, (Mx.b - Mx.t)));
                 m.addPipeWriteListener(this.hcb, function() {
                     self._onpipewrite();
                 });
-                this.buf = new ArrayBuffer(this.lps * this.hcb.subsize * this.hcb.spa * sigplot.PointArray.BYTES_PER_ELEMENT);
-                this.zbuf = new sigplot.PointArray(this.buf);
+                this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+                this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
             } else {
-                this.lps = hcb.size;
+                this.lps = Math.ceil(hcb.size);
             }
 
             this.offset = 0;
@@ -127,7 +127,7 @@
                 this.ystart = 1.0;
                 this.ydelta = 1.0;
                 this.ymin = 1.0;
-                this.ymax = size;
+                this.ymax = this.size;
             } else {
                 this.xstart = hcb.xstart;
                 this.xdelta = hcb.xdelta;
@@ -162,66 +162,84 @@
             var Gx = this.plot._Gx;
             var Mx = this.plot._Mx;
 
+            if (m.pavail(this.hcb) < (this.hcb.subsize * this.hcb.spa)) {
+                return;
+            }
+
             if (this.drawmode === "falling") {
-                this.frame = 0;
-                this.zbuf.set(this.zbuf.subarray(0, (this.lps - 1) * this.hcb.subsize * this.hcb.spa), this.hcb.subsize * this.hcb.spa);
+                this.position = 0;
+                this.buf.set(this.buf.subarray(0, (this.lps - 1) * this.hcb.subsize * this.hcb.spa), this.hcb.subsize * this.hcb.spa);
                 if (this.img) {
                     mx.shift_image_rows(Mx, this.img, 1);
                 }
             } else if (this.drawmode === "rising") {
-                this.frame = this.lps - 1;
-                this.zbuf.set(this.zbuf.subarray(this.hcb.subsize * this.hcb.spa), 0);
+                this.position = this.lps - 1;
+                this.buf.set(this.buf.subarray(this.hcb.subsize * this.hcb.spa), 0);
                 if (this.img) {
                     mx.shift_image_rows(Mx, this.img, -1);
                 }
             } else if (this.drawmode === "scrolling") {
-                // Nothing to do
+                if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
+                    this.position = 0;
+                }
             } else {
                 throw "Invalid draw mode";
             }
 
-            var ngot = m.grabx(this.hcb, this.zbuf, this.hcb.subsize * this.hcb.spa, this.frame * this.hcb.subsize * this.hcb.spa);
+            var ngot = m.grabx(this.hcb, this.buf, this.hcb.subsize * this.hcb.spa, this.position * this.hcb.subsize * this.hcb.spa);
+	    if (ngot === 0) { // shouldn't happen because of the pavail check
+                m.log.error("Internal error");
+                return;
+	    }
 
-            var zpoint;
+            var dbuf = this.buf.subarray(this.position * this.hcb.subsize * this.hcb.spa, (this.position + 1) * this.hcb.subsize * this.hcb.spa);
+            var zpoint = new sigplot.PointArray(this.hcb.subsize);
             if (this.cx) {
-                var dbuf = this.zbuf.subarray(this.frame * this.hcb.subsize * this.hcb.spa, (this.frame + 1) * this.hcb.subsize * this.hcb.spa);
-                zpoint = new sigplot.PointArray(this.hcb.subsize);
                 if (Gx.cmode === 1) {
                     m.cvmag(dbuf, zpoint, zpoint.length);
                 } else if (Gx.cmode === 2) {
                     if (Gx.plab === 25) {
                         m.cvpha(dbuf, zpoint, zpoint.length);
-                        m.vsmul(ypoint, 1.0 / (2 * Math.PI), ypoint, zpoint.length);
+                        m.vsmul(zpoint, 1.0 / (2 * Math.PI), zpoint, zpoint.length);
                     } else if (Gx.plab !== 24) {
                         m.cvpha(dbuf, zpoint, zpoint.length);
                     } else {
                         m.cvphad(dbuf, zpoint, zpoint.length);
                     }
                 } else if (Gx.cmode === 3) {
-                    m.vmov(dbuf, skip, zpoint, 1, zpoint.length);
-                } else if (Gx.cmode >= 6) {
-                    m.cvmag2(dbuf, zpoint, zpoint.length);
-                } else if (Gx.cmode >= 4) {
-                    m.vmov(dbuf.subarray(1), skip, zpoint, 1, zpoint.length);
+                    m.vmov(dbuf, this.skip, zpoint, 1, zpoint.length);
+                } else if (Gx.cmode === 4) {
+                    m.vmov(dbuf.subarray(1), this.skip, zpoint, 1, zpoint.length);
+                } else if (Gx.cmode === 5) { // IR
+                    m.vfill(zpoint, 0, zpoint.length);
+                } else if (Gx.cmode === 6) { // 10log
+                    m.cvmag2logscale(dbuf, Gx.dbmin, 10.0, zpoint);
+                } else if (Gx.cmode === 7) { // 20log
+                    m.cvmag2logscale(dbuf, Gx.dbmin, 20.0, zpoint);
                 }
             } else {
-                zpoint = this.zbuf.subarray(this.frame * this.hcb.subsize, (this.frame + 1) * this.hcb.subsize);
-                if (Gx.cmode === 1) {
-                    m.vabs(zpoint);
+                if (Gx.cmode === 1) { // mag
+                    m.vabs(dbuf, zpoint);
+                } else if (Gx.cmode === 2) { // phase
+                    m.vfill(zpoint, 0, zpoint.length);
+                } else if (Gx.cmode === 3) { // real
+                    m.vmov(dbuf, this.skip, zpoint, 1, zpoint.length);
+                } else if (Gx.cmode === 4) { // imag
+                    m.vfill(zpoint, 0, zpoint.length);
+                } else if (Gx.cmode === 5) { // IR
+                    m.vfill(zpoint, 0, zpoint.length);
+                } else if (Gx.cmode === 6) { // 10log
+                    m.vlogscale(dbuf, Gx.dbmin, 10.0, zpoint);
+                } else if (Gx.cmode === 7) { // 20log
+                    m.vlogscale(dbuf, Gx.dbmin, 20.0, zpoint);
                 }
-            }
-
-            if (Gx.cmode === 6) {
-                m.vlogscale(zpoint, Gx.dbmin, 10.0);
-            } else if (Gx.cmode === 7) {
-                m.vlogscale(zpoint, Gx.dbmin, 20.0);
             }
 
             var min = zpoint[0];
             var max = zpoint[0];
             for (var i = 0; i < zpoint.length; i++) {
-                if (zpoint[i] < min) min = zpoint[i];
-                if (zpoint[i] > max) max = zpoint[i];
+                if (zpoint[i] < min) { min = zpoint[i]; }
+                if (zpoint[i] > max) { max = zpoint[i]; }
             }
 
             if (Gx.autol === 1) {
@@ -234,10 +252,11 @@
             }
 
             if (this.img) {
-                mx.update_image_row(Mx, this.img, zpoint, this.frame, Gx.zmin, Gx.zmax);
+                mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax);
             }
+            this.frame += 1;
             if (this.drawmode === "scrolling") {
-                this.frame = (this.frame + 1) % this.lps;
+                this.position = (this.position + 1) % this.lps;
             }
         },
 
@@ -245,13 +264,12 @@
             var HCB = this.hcb;
 
             if (!this.buf) {
-                // Grab all the data
-                this.buf = new ArrayBuffer(this.lps * HCB.subsize * this.hcb.spa * sigplot.PointArray.BYTES_PER_ELEMENT);
-                this.zbuf = new sigplot.PointArray(this.buf);
+                this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+                this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
             }
 
             if (!this.hcb.pipe) {
-                m.grab(HCB, this.zbuf, 0, HCB.subsize);
+                m.grab(HCB, this.buf, 0, HCB.subsize);
             }
         },
 
@@ -270,8 +288,12 @@
         },
 
         change_settings: function(settings) {
+            var Gx = this.plot._Gx;
+
             if (settings.cmode !== undefined) {
                 this.img = undefined;
+                Gx.zmin  = undefined;
+                Gx.zmax  = undefined;
             }
             if (settings.cmap !== undefined) {
                 this.img = undefined;
@@ -279,11 +301,39 @@
             if (settings.drawmode !== undefined) {
                 this.drawmode = settings.drawmode;
                 // Reset the buffer
+                this.position = 0;
                 this.frame = 0;
-                this.buf = new ArrayBuffer(this.lps * this.hcb.subsize * this.hcb.spa * sigplot.PointArray.BYTES_PER_ELEMENT);
-                this.zbuf = new sigplot.PointArray(this.buf);
+                this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+                this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
                 this.img = undefined;
             }
+        },
+
+        push: function(data, hdrmod, sync) {
+            if (hdrmod) {
+                // TODO handle hcb subsize changes
+                
+                for (var k in hdrmod) {
+                    this.hcb[k] = hdrmod[k];
+                }
+                      
+                var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1.0);
+                this.xmin = Math.min(this.hcb.xstart, d);
+                this.xmax = Math.max(this.hcb.xstart, d);
+                this.xdelta = this.hcb.xdelta;
+                this.xstart = this.hcb.xstart;
+
+                this.ystart = this.hcb.ystart;
+                this.ydelta = this.hcb.ydelta;
+                var d = this.hcb.ystart + this.hcb.ydelta * (this.lps - 1.0);
+                this.ymin = Math.min(this.hcb.ystart, d);
+                this.ymax = Math.max(this.hcb.ystart, d);
+            }
+
+            m.filad(this.hcb, data, sync);
+
+            return hdrmod ? true : false;
+            
         },
 
         prep: function(xmin, xmax) {
@@ -319,7 +369,7 @@
 
                 npts = n2 - n1 + 1;
                 if (npts < 0) {
-                    console.log("Nothing to plot");
+                    m.log.debug("Nothing to plot");
                     npts = 0;
                 }
             }
@@ -333,7 +383,7 @@
             }
 
             if (npts <= 0) {
-                console.log("Nothing to plot");
+		m.log.debug("Nothing to plot");
                 return;
             }
 
@@ -356,7 +406,7 @@
 
                 npts = n2 - n1 + 1;
                 if (npts < 0) {
-                    console.log("Nothing to plot");
+                    m.log.debug("Nothing to plot");
                     npts = 0;
                 }
             }
@@ -369,23 +419,70 @@
                 Gx.panymax = Math.max(Gx.panymax, this.ymax);
             }
 
-            if (Gx.cmode === 1) {
-                m.vabs(this.zbuf);
-            } else if (Gx.cmode === 6) {
-                m.vlogscale(this.zbuf, Gx.dbmin, 10.0);
-            } else if (Gx.cmode === 7) {
-                m.vlogscale(this.zbuf, Gx.dbmin, 20.0);
+            if (this.cx) {
+                if (Gx.cmode === 1) { // mag
+                    m.cvmag(this.buf, this.zbuf, this.zbuf.length);
+                } else if (Gx.cmode === 2) { // phase
+                    if (Gx.plab === 25) {
+                        m.cvpha(this.buf, this.zbuf, this.zbuf.length);
+                        m.vsmul(this.zbuf, 1.0 / (2 * Math.PI), this.zbuf, this.zbuf.length);
+                    } else if (Gx.plab !== 24) {
+                        m.cvpha(this.buf, this.zbuf, this.zbuf.length);
+                    } else {
+                        m.cvphad(this.buf, this.zbuf, this.zbuf.length);
+                    }
+                } else if (Gx.cmode === 3) { // real
+                    m.vmov(this.buf, this.skip, this.zbuf, 1, this.zbuf.length);
+                } else if (Gx.cmode === 4) { // imag
+                    m.vmov(this.buf.subarray(1), this.skip, this.zbuf, 1, this.zbuf.length);
+                } else if (Gx.cmode === 5) { // IR - what does this mean for a raster?
+                    m.vfill(this.zbuf, 0, this.zbuf.length);
+                } else if (Gx.cmode === 6) { // 10log
+                    m.cvmag2logscale(this.buf, Gx.dbmin, 10.0, this.zbuf);
+                } else if (Gx.cmode === 7) { // 20log
+                    m.cvmag2logscale(this.buf, Gx.dbmin, 20.0, this.zbuf);
+                }
+            } else {
+                if (Gx.cmode === 1) { // mag
+                    m.vabs(this.buf, this.zbuf);
+                } else if (Gx.cmode === 2) { // phase
+                    m.vfill(this.zbuf, 0, this.zbuf.length);
+                } else if (Gx.cmode === 3) { // real
+                    m.vmov(this.buf, this.skip, this.zbuf, 1, this.zbuf.length);
+                } else if (Gx.cmode === 4) { // imag
+                    m.vfill(this.zbuf, 0, this.zbuf.length);
+                } else if (Gx.cmode === 5) { // IR
+                    m.vfill(this.zbuf, 0, this.zbuf.length);
+                } else if (Gx.cmode === 6) { // 10log
+                    m.vlogscale(this.buf, Gx.dbmin, 10.0, this.zbuf);
+                } else if (Gx.cmode === 7) { // 20log
+                    m.vlogscale(this.buf, Gx.dbmin, 20.0, this.zbuf);
+                }
             }
 
             // find z-min/z-max
             // this is equivalent to setting XRASTER /LPB=0
-            var min = this.zbuf[0];
-            var max = this.zbuf[0];
-            for (var i = 0; i < this.zbuf.length; i++) {
-                if ((i / this.xframe) >= this.lpb) break;
-                if (this.zbuf[i] < min) min = this.zbuf[i];
-                if (this.zbuf[i] > max) max = this.zbuf[i];
+            var zpoint = this.zbuf;
+            if (this.hcb.pipe && (this.frame < this.lps)) {
+                if (this.drawmode === "rising") {
+                    zpoint = this.zbuf.subarray(this.zbuf.length-(this.frame*this.hcb.subsize));
+                } else {
+                    zpoint = this.zbuf.subarray(0,this.frame*this.hcb.subsize);
+                }
             }
+
+            var min = 0;
+            var max = 0;
+            if (zpoint.length > 0) {
+                min = zpoint[0];
+                max = zpoint[0];
+                for (var i = 0; i < zpoint.length; i++) {
+                    if ((i / this.xframe) >= this.lpb) { break; }
+                    if (zpoint[i] < min) { min = zpoint[i]; }
+                    if (zpoint[i] > max) { max = zpoint[i]; }
+                }
+            }
+
             if (Gx.zmin !== undefined) {
                 Gx.zmin = Math.min(Gx.zmin, min);
             } else {
@@ -401,6 +498,20 @@
             this.img.cmode = Gx.cmode;
             this.img.cmap = Gx.cmap;
             this.img.origin = Mx.origin;
+           
+            // Make the parts without data transparent 
+            if (this.hcb.pipe && (this.frame < this.lps)) {
+                var imgd = new Uint32Array(this.img);
+                if (this.drawmode === "rising") {
+                    for (var i=0; i<imgd.length-(this.frame*this.hcb.subsize); i++) {
+                        imgd[i] = 0;
+                    }
+                } else {
+                    for (var i=this.frame * this.hcb.subsize; i<imgd.length; i++) {
+                        imgd[i] = 0;
+                    }
+                }
+            }
 
             return npts;
         },
@@ -411,16 +522,20 @@
             var HCB = this.hcb;
 
             if (this.hcb.pipe) {
-                var lps = Math.max(1, (Mx.b - Mx.t));
-                if ((lps != this.lps) && this.buf) {
-                    var new_buf = new ArrayBuffer(lps * this.hcb.subsize * sigplot.PointArray.BYTES_PER_ELEMENT);
-                    var new_zbuf = new sigplot.PointArray(new_buf);
+                var lps = Math.ceil(Math.max(1, (Mx.b - Mx.t)));
+                if ((lps !== this.lps) && this.buf) {
+                    var new_buf = this.hcb.createArray(null, 0, lps * this.hcb.subsize * this.hcb.spa);
+                    var new_zbuf = new sigplot.PointArray(lps * this.hcb.subsize);
 
                     // copy the data into the new buffer, it will be clamped by subarray
+                    new_buf.set(this.buf.subarray(0, new_buf.length));
                     new_zbuf.set(this.zbuf.subarray(0, new_zbuf.length));
                     this.buf = new_buf;
                     this.zbuf = new_zbuf;
                     this.lps = lps;
+		    if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
+			this.position = 0;
+		    }
                     var d = HCB.ystart + HCB.ydelta * (this.lps - 1.0);
                     this.ymin = Math.min(HCB.ystart, d);
                     this.ymax = Math.max(HCB.ystart, d);
@@ -469,8 +584,8 @@
                 mx.draw_image(Mx, this.img, this.xmin, this.ymin, this.xmax, this.ymax, this.opacity, Gx.rasterSmoothing);
             }
 
-            if (this.frame) {
-                var pnt = mx.real_to_pixel(Mx, 0, this.frame);
+            if (this.position) {
+                var pnt = mx.real_to_pixel(Mx, 0, this.position*this.ydelta);
                 if ((pnt.y > Mx.t) && (pnt.y < Mx.b)) {
                     mx.draw_line(Mx, "white", Mx.l, pnt.y, Mx.r, pnt.y);
                 }

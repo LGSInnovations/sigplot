@@ -89,7 +89,7 @@ function getKeyCode(e) {
 }
 
 function setKeypressHandler(handler) {
-    if (window.addEventListener) window.addEventListener('keypress', handler, false);
+    if (window.addEventListener) { window.addEventListener('keypress', handler, false); }
     else if (window.attachEvent) {
         window.attachEvent('onkeypress', handler);
     }
@@ -102,7 +102,7 @@ function setKeypressHandler(handler) {
 // http://kangax.github.io/es5-compat-table/#Array.isArray
 if (!Array.isArray) {
     Array.isArray = function(obj) {
-        return Object.prototype.toString.call(obj) === "[object Array]"
+        return Object.prototype.toString.call(obj) === "[object Array]";
     };
 }
 
@@ -119,7 +119,7 @@ if (!window.Float64Array) {
                     throw "Invalid type";
                 }
                 var dv = new DataView(buffer);
-                var b = new Array();
+                var b = [];
                 var maxlength = (buffer.byteLength - byteOffset) / 8;
                 if (length === undefined) {
                     b.length = maxlength;
@@ -181,7 +181,7 @@ if (!window.Float64Array) {
 
             var byteOffset = this.byteOffset + begin * this.BYTES_PER_ELEMENT;
             return new this.constructor(this.buffer, byteOffset, end - begin);
-        }
+        };
 
         var typedArrays = [Int8Array, Uint8Array, Int16Array, Uint16Array,
             Int32Array, Uint32Array, Float32Array, Float64Array
@@ -218,13 +218,14 @@ if (!window.Float64Array) {
         _addWheelListener(elem, support, callback, useCapture);
 
         // handle MozMousePixelScroll in older Firefox
-        if (support == "DOMMouseScroll") {
+        if (support === "DOMMouseScroll") {
             _addWheelListener(elem, "MozMousePixelScroll", callback, useCapture);
         }
     };
 
+    /* jshint -W030 */
     function _addWheelListener(elem, eventName, callback, useCapture) {
-        elem[_addEventListener](prefix + eventName, support == "wheel" ? callback : function(originalEvent) {
+        elem[_addEventListener](prefix + eventName, support === "wheel" ? callback : function(originalEvent) {
             !originalEvent && (originalEvent = window.event);
 
             // create a normalized event object
@@ -233,7 +234,7 @@ if (!window.Float64Array) {
                 originalEvent: originalEvent,
                 target: originalEvent.target || originalEvent.srcElement,
                 type: "wheel",
-                deltaMode: originalEvent.type == "MozMousePixelScroll" ? 0 : 1,
+                deltaMode: originalEvent.type === "MozMousePixelScroll" ? 0 : 1,
                 deltaX: 0,
                 delatZ: 0,
                 preventDefault: function() {
@@ -244,7 +245,7 @@ if (!window.Float64Array) {
             };
 
             // calculate deltaY (and deltaX) according to the event
-            if (support == "mousewheel") {
+            if (support === "mousewheel") {
                 event.deltaY = -1 / 40 * originalEvent.wheelDelta;
                 // Webkit also support wheelDeltaX
                 originalEvent.wheelDeltaX && (event.deltaX = -1 / 40 * originalEvent.wheelDeltaX);
@@ -257,5 +258,6 @@ if (!window.Float64Array) {
 
         }, useCapture || false);
     }
+    /* jshint +W030 */
 
 })(window, document);

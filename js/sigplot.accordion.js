@@ -15,6 +15,8 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
+/* global mx */
+/* global m */
 (function( sigplot, mx, m, undefined ) {
 	
 	/**
@@ -25,13 +27,13 @@
 	sigplot.AccordionPlugin = function(options) {
 		this.options = (options !== undefined) ? options : {};
 		
-		if (this.options.display === undefined)  this.options.display = true;
+		if (this.options.display === undefined) { this.options.display = true; }
 		
-		if (this.options.center_line_style === undefined) this.options.center_line_style = {};
-		if (this.options.edge_line_style === undefined) this.options.edge_line_style = {};
-		if (this.options.fill_style === undefined) this.options.fill_style = {};
+		if (this.options.center_line_style === undefined) { this.options.center_line_style = {}; }
+		if (this.options.edge_line_style === undefined) { this.options.edge_line_style = {}; }
+		if (this.options.fill_style === undefined) { this.options.fill_style = {}; }
 		
-		if (this.options.direction === undefined) this.options.direction = "vertical";
+		if (this.options.direction === undefined) { this.options.direction = "vertical"; }
 		
 		this.center = undefined; // In real units
 		this.width = undefined;  // In real units
@@ -49,10 +51,10 @@
 				var self = this;
 				this.onmousemove = function(evt) {
 					// Ignore if the slider isn't even visible
-					if (self.center_location === undefined) return;
+					if (self.center_location === undefined) { return; }
 					
 					// Or if the user wants to prevent a drag operation
-					if (self.options.prevent_drag) return;
+					if (self.options.prevent_drag) { return; }
 					
 					// Ignore if the mouse is outside of the plot area
 					if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) { self.set_highlight(false); return; }
@@ -123,10 +125,10 @@
 				this.plot.addListener("mmove", this.onmousemove);
 				
 				this.onmousedown = function(evt) {
-					if (self.center_location === undefined) return;
+					if (self.center_location === undefined) { return; }
 					
-					if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) return;
-					if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) return;
+					if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) { return; }
+					if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) { return; }
 					
 					var lineWidth = (self.options.center_line_style.lineWidth !== undefined) ? self.options.center_line_style.lineWidth : 1;
 					var elineWidth = (self.options.edge_line_style.lineWidth !== undefined) ? self.options.edge_line_style.lineWidth : 1;
@@ -178,14 +180,14 @@
 			},
 			
 			set_highlight: function(ishighlight) {
-				if (ishighlight != this.highlight) {
+				if (ishighlight !== this.highlight) {
 					this.highlight = ishighlight;
 					this.plot.redraw();
 				}
 			},
 			
 			set_edge_highlight: function(ishighlight) {
-				if (ishighlight != this.edge_highlight) {
+				if (ishighlight !== this.edge_highlight) {
 					this.edge_highlight = ishighlight;
 					this.plot.redraw();
 				}
@@ -202,7 +204,7 @@
 					evt.center = this.center;
 					evt.width = this.width;
 					var canceled = !mx.dispatchEvent(Mx, evt);
-					if (canceled) return;
+					if (canceled) { return; }
 
 					this.plot.redraw();
 				}
@@ -219,7 +221,7 @@
 					evt.center = this.center;
 					evt.width = this.width;
 					var canceled = !mx.dispatchEvent(Mx, evt);
-					if (canceled) return;
+					if (canceled) { return; }
 					
 					this.plot.redraw();
 				}
@@ -234,9 +236,9 @@
 			},
 			
 			refresh: function(canvas) {
-				if (!this.plot) return;
-				if (!this.options.display) return;
-				if ((this.center === undefined) || (this.width === undefined)) return;
+				if (!this.plot) { return; }
+				if (!this.options.display) { return; }
+				if ((this.center === undefined) || (this.width === undefined)) { return; }
 				
 				var Mx = this.plot._Mx;
 				var ctx = canvas.getContext("2d");
@@ -330,6 +332,6 @@
 				this.center_location = undefined;
 				this.width = undefined;
 			}
-	}
+	};
 	
 }( window.sigplot = window.sigplot || {}, mx, m));
