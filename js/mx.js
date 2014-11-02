@@ -268,7 +268,7 @@ window.mx = window.mx || {};
                 //				Mx.ypos = (e.offsetY === undefined) ? e.layerY : e.offsetY;
 
                 if (Mx.warpbox) {
-                    if ((e.ctrlKey) && (Mx.warpbox.alt_style !== undefined)) {
+                    if ((e.ctrlKey || e.metaKey) && (Mx.warpbox.alt_style !== undefined)) {
                         Mx.warpbox.style = Mx.warpbox.alt_style;
                     } else {
                         Mx.warpbox.style = Mx.warpbox.def_style;
@@ -325,7 +325,11 @@ window.mx = window.mx || {};
             return function(event) {
                 if (Mx.warpbox) {
                     var keyCode = getKeyCode(event);
-                    if ((keyCode === 17) && (Mx.warpbox.style !== Mx.warpbox.alt_style)) { // CTRL
+                    if (((keyCode === 17)  || // Ctrl 
+                         (keyCode === 224) || // Mac Command Firefox 
+                         (keyCode === 91)  || // Safari/Chrome Left-command
+                         (keyCode === 93)) &&   // Safari/Chrome Right-command
+                        (Mx.warpbox.style !== Mx.warpbox.alt_style)) { 
                         Mx.warpbox.style = Mx.warpbox.alt_style;
                         mx.redraw_warpbox(Mx);
                     }
@@ -339,7 +343,11 @@ window.mx = window.mx || {};
             return function(event) {
                 if (Mx.warpbox) {
                     var keyCode = getKeyCode(event);
-                    if ((keyCode === 17) && (Mx.warpbox.style !== Mx.warpbox.def_style)) { // CTRL
+                    if (((keyCode === 17)  || // Ctrl 
+                         (keyCode === 224) || // Mac Command Firefox 
+                         (keyCode === 91)  || // Safari/Chrome Left-command
+                         (keyCode === 93)) &&   // Safari/Chrome Right-command
+                        (Mx.warpbox.style !== Mx.warpbox.def_style)) { 
                         Mx.warpbox.style = Mx.warpbox.def_style;
                         mx.redraw_warpbox(Mx);
                     }
