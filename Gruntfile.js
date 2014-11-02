@@ -128,7 +128,7 @@ module.exports = function (grunt) {
             }
         },
         clean: {
-            build: ["dist/**/*"],
+            build: ["dist/**/*", "!dist/*.zip"],
             doc: ["doc/**/*"]
         },
         compress: {

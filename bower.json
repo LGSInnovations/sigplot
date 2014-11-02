@@ -1,0 +1,37 @@
+{
+  "name": "sigplot",
+  "description": "Fast interactive plotting for signal processing applications",
+  "version": "1.1.1",
+  "license": "LGPL",
+  "homepage": "http://demo.axiosengineering.com/sigplot",
+  "private": true,
+  "moduleType": [
+    "globals"
+  ],
+  "authors": [
+    "Michael Ihde <michael.ihde@axiosengineering.com>",
+    "Axios Inc. <sigplot@axiosengineering.com>"
+  ],
+  "main": [
+    "dist/sigplot-debug.js",
+    "dist/sigplot-minimized.js",
+    "dist/sigplot.plugins-debug.js",
+    "dist/sigplot.plugins-minimized.js",
+    "dist/bluefile-debug.js",
+    "dist/bluefile-minimized.js"
+  ],
+  "ignore": [
+    "**/.*",
+    "dist/*.zip",
+    "Makefile",
+    "Gruntfile.js",
+    "package.json",
+    "doc",
+    "docstrap-master",
+    "js",
+    "node_modules",
+    "bower_components",
+    "support",
+    "test"
+  ]
+}

@@ -1,2 +1,4 @@
-*.js
 *.js.report.txt
+bluefile.js
+sigplot.js
+sigplot.plugins.js
