@@ -1533,12 +1533,10 @@ window.mx = window.mx || {};
         //xmax = xmax + dx;
         //ymax = ymax + dy;
 
-
-        // These buffers need to be able to hold 4/3 the number of points.
-        // If all three points are on the screen than you need exactly xpoint.length.
-        // If all three points are off the screen, then this turns into four
-        // points.
-        var bufsize = 4 * Math.ceil(1.33 * xpoint.length);
+        // These buffers need to be able to hold 2 times the number of points.
+        // if all points are on screen, then we will will need 'n' points
+        // if all points are off the screen, then we will need (2*n)-2
+        var bufsize = 4 * Math.ceil(2 * xpoint.length);
         var pixx = new Int32Array(new ArrayBuffer(bufsize));
         var pixy = new Int32Array(new ArrayBuffer(bufsize));
 
