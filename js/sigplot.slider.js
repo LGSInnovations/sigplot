@@ -74,6 +74,13 @@
 							} else {
 								self.set_highlight(false);
 							}
+						} else if (self.options.direction === "both") {
+							if (Math.abs(self.location.x - evt.xpos) < (lineWidth + 5) &&
+								Math.abs(self.location.y - evt.ypos) < (lineWidth + 5)) {
+								self.set_highlight(true);
+							} else {
+								self.set_highlight(false);
+							}
 						}
 						return;
 					}
@@ -86,6 +93,11 @@
 					} else if (self.options.direction === "horizontal") {
 						self.location = evt.ypos;
 						self.position = pos.y;
+					} else if (self.options.direction === "both") {
+						self.location.x = evt.xpos;
+						self.position.x = pos.x;
+						self.location.y = evt.ypos;
+						self.position.y = pos.y;
 					}
 					
 					// Refresh the plugin
@@ -117,6 +129,12 @@
 							self.dragging = true;
 							evt.preventDefault();
 						}
+					} else if (self.options.direction === "both") {
+						if (Math.abs(self.location.x - evt.xpos) < (lineWidth + 5) &&
+							Math.abs(self.location.y - evt.ypos) < (lineWidth + 5)) {
+							self.dragging = true;
+							evt.preventDefault();
+						}
 					}
 				};
 				this.plot.addListener("mdown", this.onmousedown);
@@ -128,15 +146,28 @@
 					// Issue a slider tag event
 					var evt = document.createEvent('Event');
 					evt.initEvent('slidertag', true, true);
-					evt.location = self.location;
-					evt.position = self.position;
+
+					if (self.options.direction === "both") {
+						evt.location = JSON.parse(JSON.stringify(self.location));
+						evt.position = JSON.parse(JSON.stringify(self.position));
+					} else {
+						evt.location = self.location;
+						evt.position = self.position;
+					}
+
 					var canceled = !mx.dispatchEvent(Mx, evt);
 					
 					// Issue a slider tag event
 					var evt = document.createEvent('Event');
 					evt.initEvent('sliderdrag', true, true);
-					evt.location = self.location;
-					evt.position = self.position;
+					if (self.options.direction === "both") {
+						evt.location = JSON.parse(JSON.stringify(self.location));
+						evt.position = JSON.parse(JSON.stringify(self.position));
+					} else {
+						evt.location = self.location;
+						evt.position = self.position;
+					}
+
 					var canceled = !mx.dispatchEvent(Mx, evt);
 				};
 				document.addEventListener("mouseup", this.onmouseup, false);
@@ -161,26 +192,47 @@
 			
 			set_position: function(position) {
 				if (this.dragging) { return; }
-				if (this.position === position) { return; }
+				if (this.options.direction === "both") { // Object comparison
+					if (this.position !== undefined && this.position.x === position.x && this.position.y === position.y) { return; }
+				} else {
+					if (this.position === position) { return; }
+				}
 				
 				this.set_highlight(false); // cheat any set position clears the highlight
 				
 				var Mx = this.plot._Mx;
-				this.position = position;
-				
-				var pxl = mx.real_to_pixel(Mx, this.position, this.position);
-				
+				if (this.options.direction === "both") {
+					this.position = JSON.parse(JSON.stringify(position));
+				} else {
+					this.position = position;
+				}
+
+				var pxl;
+				if (this.options.direction === "both") {
+					pxl = mx.real_to_pixel(Mx, this.position.x, this.position.y);
+				} else {
+					pxl = mx.real_to_pixel(Mx, this.position, this.position);
+				}
+
 				if (this.options.direction === "vertical") {
 					this.location = pxl.x;
 				} else if (this.options.direction === "horizontal") {
 					this.location = pxl.y;
+				} else if (this.options.direction === "both") {
+					this.location = {x : pxl.x, y: pxl.y};
 				}
 				
 				// Issue a slider tag event
 				var evt = document.createEvent('Event');
 				evt.initEvent('slidertag', true, true);
-				evt.location = this.location;
-				evt.position = this.position;
+				if (this.options.direction === "both") { // If both, expecting position to be an object
+					evt.location = JSON.parse(JSON.stringify(this.location));
+					evt.position = JSON.parse(JSON.stringify(this.position));
+				} else { // vertical or horizontal
+					evt.location = this.location;
+					evt.position = this.position;
+				}
+
 				var canceled = !mx.dispatchEvent(Mx, evt);
 				if (canceled) { return; }
 				
@@ -189,24 +241,48 @@
 			
 			set_location: function(location) {
 				if (this.dragging) { return; }
-				if (this.location === location) { return; }
+
+				if (this.options.direction === "both") {
+					if (this.location !== undefined && this.location.x === location.x && this.location.y === location.y) { return; }
+				} else {
+					if (this.location === location) { return; }
+				}
 				this.set_highlight(false); // cheat any set location clears the highlight
 				
 				var Mx = this.plot._Mx;
-				this.location = location;
-				
-				var pos = mx.pixel_to_real(Mx, location, location);
+
+				if (this.options.direction === "both") {
+					this.location = JSON.parse(JSON.stringify(location));
+				} else {
+					this.location = location;
+				}
+
+				var pos;
+				if (this.options.direction === "both") {
+					pos = mx.pixel_to_real(Mx, location.x, location.y);
+				} else {
+					pos = mx.pixel_to_real(Mx, location, location);
+				}
+
 				if (this.options.direction === "vertical") {
 					this.position = pos.x;
 				} else if (this.options.direction === "horizontal") {
 					this.position = pos.y;
+				} else if (this.options.direction === "both") {
+					this.position = {x: pos.x, y: pos.y};
 				}
 
 				// Issue a slider tag event
 				var evt = document.createEvent('Event');
 				evt.initEvent('slidertag', true, true);
-				evt.location = this.location;
-				evt.position = this.position;
+
+				if (this.options.direction === "both") {
+					evt.location = JSON.parse(JSON.stringify(this.location));
+					evt.position = JSON.parse(JSON.stringify(this.position));
+				} else {
+					evt.location = this.location;
+					evt.position = this.position;
+				}
 				var canceled = !mx.dispatchEvent(Mx, evt);
 				if (canceled) { return; }
 				
@@ -235,8 +311,13 @@
 				if (this.dragging || this.highlight) {
 					ctx.lineWidth = Math.ceil(ctx.lineWidth * 1.2); 
 				}
-				
-				var pxl = mx.real_to_pixel(Mx, this.position, this.position);
+
+				var pxl;
+				if (this.options.direction === "both") {
+					pxl = mx.real_to_pixel(Mx, this.position.x, this.position.y);
+				} else {
+					pxl = mx.real_to_pixel(Mx, this.position, this.position);
+				}
 				if (this.options.direction === "vertical") {
 					if ((pxl.x < Mx.l) || (pxl.x > Mx.r)) {
 						return;
@@ -247,6 +328,13 @@
 						return;
 					}
 					this.location = pxl.y;
+				} else if (this.options.direction === "both") {
+					if ((pxl.x < Mx.l) || (pxl.x > Mx.r) ||
+						((pxl.y < Mx.t) || (pxl.y > Mx.b))) {
+						return;
+					}
+					this.location.x = pxl.x;
+					this.location.y = pxl.y;
 				}
 				
 				if (this.options.direction === "vertical") {
@@ -258,6 +346,17 @@
 					ctx.beginPath();
 					ctx.moveTo(Mx.l, this.location+0.5);
 					ctx.lineTo(Mx.r, this.location+0.5);
+					ctx.stroke();
+				} else if (this.options.direction === "both") {
+					// Horizontal portion
+					ctx.beginPath();
+					ctx.moveTo(Mx.l, this.location.y+0.5);
+					ctx.lineTo(Mx.r, this.location.y+0.5);
+					ctx.closePath();
+
+					// Vertical portion
+					ctx.moveTo(this.location.x+0.5, Mx.t);
+					ctx.lineTo(this.location.x+0.5, Mx.b);
 					ctx.stroke();
 				}
 			},
