@@ -1323,3 +1323,28 @@ interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?',  funct
 		plot.push(0, data);
 	}, 100);
 });
+
+interactiveTest('rescale', 'Do you see a plot that scales -2 to 2?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+        var data1 = [];
+        for (var i=0; i<1024; i++) {
+            data1.push(i % 2);
+        }
+        plot.overlay_array(data1,{file_name: "data1"});
+        
+        var data2 = [];
+        for (var i=0; i<2048; i++) {
+            if (i % 2) {
+                data2.push(2);
+            } else {
+                data2.push(-2);
+            }
+        }
+        plot.overlay_array(data2,{file_name: "data2"});
+
+        plot.rescale();
+
+});
