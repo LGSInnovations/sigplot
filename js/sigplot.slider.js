@@ -85,7 +85,7 @@
 						self.position = pos.x;
 					} else if (self.options.direction === "horizontal") {
 						self.location = evt.ypos;
-						self.location = pos.y;
+						self.position = pos.y;
 					}
 					
 					// Refresh the plugin
@@ -199,7 +199,7 @@
 				if (this.options.direction === "vertical") {
 					this.position = pos.x;
 				} else if (this.options.direction === "horizontal") {
-					this.location = pos.y;
+					this.position = pos.y;
 				}
 
 				// Issue a slider tag event
