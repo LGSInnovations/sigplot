@@ -4095,6 +4095,7 @@ window.sigplot = window.sigplot || {};
                 evt.y = re.y;
                 evt.w = Math.abs(rwh.x - re.x);
                 evt.h = Math.abs(rwh.y - re.y);
+	            evt.shift = event.shiftKey;
                 mx.dispatchEvent(Mx, evt);
             }
         };
