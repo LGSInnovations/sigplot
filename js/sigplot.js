@@ -4079,6 +4079,7 @@ window.sigplot = window.sigplot || {};
                             evt.y = Gx.ymrk;
                             evt.w = undefined;
                             evt.h = undefined;
+                            evt.shift = event.shiftKey;
                             mx.dispatchEvent(Mx, evt);
                         }
                         return;
