@@ -148,8 +148,8 @@
 					evt.initEvent('slidertag', true, true);
 
 					if (self.options.direction === "both") {
-						evt.location = JSON.parse(JSON.stringify(self.location));
-						evt.position = JSON.parse(JSON.stringify(self.position));
+						evt.location = self.location ? JSON.parse(JSON.stringify(self.location)) : undefined;
+						evt.position = self.position ? JSON.parse(JSON.stringify(self.position)) : undefined;
 					} else {
 						evt.location = self.location;
 						evt.position = self.position;
@@ -161,8 +161,8 @@
 					var evt = document.createEvent('Event');
 					evt.initEvent('sliderdrag', true, true);
 					if (self.options.direction === "both") {
-						evt.location = JSON.parse(JSON.stringify(self.location));
-						evt.position = JSON.parse(JSON.stringify(self.position));
+						evt.location = self.location ? JSON.parse(JSON.stringify(self.location)) : undefined;
+						evt.position = self.position ? JSON.parse(JSON.stringify(self.position)) : undefined;
 					} else {
 						evt.location = self.location;
 						evt.position = self.position;
@@ -202,7 +202,7 @@
 				
 				var Mx = this.plot._Mx;
 				if (this.options.direction === "both") {
-					this.position = JSON.parse(JSON.stringify(position));
+					this.position = position ? JSON.parse(JSON.stringify(position)) : undefined;
 				} else {
 					this.position = position;
 				}
@@ -226,8 +226,8 @@
 				var evt = document.createEvent('Event');
 				evt.initEvent('slidertag', true, true);
 				if (this.options.direction === "both") { // If both, expecting position to be an object
-					evt.location = JSON.parse(JSON.stringify(this.location));
-					evt.position = JSON.parse(JSON.stringify(this.position));
+					evt.location = this.location ? JSON.parse(JSON.stringify(this.location)) : undefined;
+					evt.position = this.position ? JSON.parse(JSON.stringify(this.position)) : undefined;
 				} else { // vertical or horizontal
 					evt.location = this.location;
 					evt.position = this.position;
@@ -252,7 +252,7 @@
 				var Mx = this.plot._Mx;
 
 				if (this.options.direction === "both") {
-					this.location = JSON.parse(JSON.stringify(location));
+					this.location = location ? JSON.parse(JSON.stringify(location)) : undefined;
 				} else {
 					this.location = location;
 				}
@@ -277,8 +277,8 @@
 				evt.initEvent('slidertag', true, true);
 
 				if (this.options.direction === "both") {
-					evt.location = JSON.parse(JSON.stringify(this.location));
-					evt.position = JSON.parse(JSON.stringify(this.position));
+					evt.location = this.location ? JSON.parse(JSON.stringify(this.location)) : undefined;
+					evt.position = this.position ? JSON.parse(JSON.stringify(this.position)) : undefined;
 				} else {
 					evt.location = this.location;
 					evt.position = this.position;
