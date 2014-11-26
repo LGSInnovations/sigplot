@@ -140,11 +140,14 @@
 				this.plot.addListener("mdown", this.onmousedown);
 				
 				this.onmouseup = function(evt) {
+					if (!self.dragging) { return; }
+
 					// We are no longer dragging
 					self.dragging = false;
 					
 					// Issue a slider tag event
 					var evt = document.createEvent('Event');
+					evt.source = self;
 					evt.initEvent('slidertag', true, true);
 
 					if (self.options.direction === "both") {
@@ -175,7 +178,13 @@
 			
 			addListener: function (what, callback) {
 				var Mx = this.plot._Mx;
-				mx.addEventListener(Mx, what, callback, false);
+				var self = this;
+				var wrapped_cb = function(evt) {
+					if (evt.source === self) {
+						return callback(evt); 
+					}
+				};
+				mx.addEventListener(Mx, what, wrapped_cb, false);
 			},
 			
 			removeListener: function (what, callback) {
