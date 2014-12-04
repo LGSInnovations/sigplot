@@ -284,6 +284,20 @@
             if (hdrmod) {
                 for (var k in hdrmod) {
                     this.hcb[k] = hdrmod[k];
+                    if (k === "type") {
+                        this.hcb["class"] = hdrmod[k] / 1000;
+                    }
+                }
+
+                if (hdrmod.subsize) {
+                    if (this.hcb["class"] === 2) {
+                        m.force1000(this.hcb);
+                        this.size = this.hcb.subsize;
+                        // Reset the buffer
+                        this.position = null;
+                        this.ybufn =  this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+                        this.ybuf = new ArrayBuffer(this.ybufn);
+                    }
                 }
                       
                 var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1.0);

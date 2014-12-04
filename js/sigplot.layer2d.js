@@ -311,10 +311,15 @@
 
         push: function(data, hdrmod, sync) {
             if (hdrmod) {
-                // TODO handle hcb subsize changes
-                
                 for (var k in hdrmod) {
                     this.hcb[k] = hdrmod[k];
+                    if (k === "type") {
+                        this.hcb["class"] = hdrmod[k] / 1000;
+                    }
+                }
+                if (hdrmod.subsize) {
+                    this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+                    this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
                 }
                       
                 var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1.0);
