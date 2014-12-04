@@ -162,6 +162,10 @@
             }
 
             this.position = (this.position + tle) % this.size;
+
+            if (this.plot._Gx.autol > 1) {
+                this.plot.rescale();
+            }
         },
 
         get_data: function(xmin, xmax) {
