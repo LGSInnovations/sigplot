@@ -418,7 +418,12 @@ window.m = window.m || {};
      */
     m.force1000 = function(hcb) {
         if (hcb["class"] === 2) {
-            hcb.size = hcb.subsize * hcb.size;
+            if ((hcb.size) && (!hcb.pipe)) {
+                hcb.size = hcb.subsize * hcb.size;
+            } else {
+                // assume the size is 1
+                hcb.size = hcb.subsize;
+            }
             hcb.bpe = hcb.bpe / hcb.subsize;
             hcb.ape = 1;
         }
