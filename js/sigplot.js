@@ -1588,6 +1588,10 @@ window.sigplot = window.sigplot || {};
             ws.binaryType = "arraybuffer";
 
             var plot = this;
+            if (!overrides) {
+                overrides = {};
+            }
+            overrides.pipe = true;
             var hcb = m.initialize(null, overrides);
             hcb.ws = ws;
 
@@ -1599,17 +1603,16 @@ window.sigplot = window.sigplot || {};
                 return function(evt) {
                     if (evt.data instanceof ArrayBuffer) {
                         var data = hcb.createArray(evt.data);
-                        plot.reload(layer_n, data);
+                        plot.push(layer_n, data);
                     } else if (typeof evt.data === "string") {
                         var Gx = plot._Gx;
-                        var hdr = Gx.HCB[Gx.lyr[layer_n].hcb];
+                        var hdr = Gx.lyr[layer_n].hcb;
+                        if (!hdr) {
+                            m.log.warning("Couldn't find header for layer " + layer_n);
+                        }
 
                         var newHdr = JSON.parse(evt.data);
-
-                        for (var field in newHdr) {
-                            hdr[field] = newHdr[field];
-                        }
-                        hcb.size = undefined; // trigger rescale
+                        plot.push(layer_n, [], newHdr);
                     }
                 };
             })(ws);
