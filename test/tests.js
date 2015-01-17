@@ -1348,3 +1348,110 @@ interactiveTest('rescale', 'Do you see a plot that scales -2 to 2?',  function()
         plot.rescale();
 
 });
+
+interactiveTest('annotations', 'Do you see a text annotation at the correct locations, fonts and colors?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+		var annotations = new sigplot.AnnotationPlugin();
+		plot.add_plugin(annotations);
+		
+		annotations.add_annotation({x: 0, y:0, value: "0,0 (red)", color: "red", highlight_color: "green", popup: "a"});	
+		annotations.add_annotation({x: 0.5, y:0.5, value: "0.5,0.5 (small)", font:"15px monospace", popup: "b"});	
+		annotations.add_annotation({x: -0.5, y:-0.5, value: "-0.5,-0.5", popup: "c"});
+		annotations.add_annotation({x: -0.5, y:0.5, value: "-0.5,0.5", popup: "d"});	
+		annotations.add_annotation({x: 0.5, y:-0.5, value: "0.5,-0.5 (small green)", color: "green", font:"15px monospace", popup: "e"});			
+
+});
+
+interactiveTest('annotations png', 'Do you see a image annotation centered at 0,0 that has a popup on hover?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+		var annotations = new sigplot.AnnotationPlugin();
+		plot.add_plugin(annotations);
+		
+		var img = new Image();   // Create new img element
+		img.onload = function() {
+		    annotations.add_annotation({x: 0, y:0, value: img, popup: "Hello World" });
+		};
+		img.src = 'dat/info.png';
+});
+
+interactiveTest('annotations popup', 'Do you see an popup when you hover over the annotation?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+		var annotations = new sigplot.AnnotationPlugin();
+		plot.add_plugin(annotations);
+		
+		annotations.add_annotation({x: -0.25, y:0.25, value: "Test Popup", popup: "This is metadata"});				
+});
+
+interactiveTest('annotations custom popup', 'Do you see an popup when you hover over the annotation?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+        
+        plot.addListener("annotationhighlight", function(evt) {
+            // you could use tipped.js, opentip, bootstrap, etc. here
+            // this is just a simple test example not intended to be actually used
+            var tt;
+            if (evt.state) {
+                tt = document.createElement("div");
+                tt.setAttribute("id", "test-tooltip");
+                tt.style.display = "block";
+                tt.style.position = "relative";
+                tt.style.top = (evt.y+5) + "px";
+                tt.style.left = (evt.x+5) + "px";
+                tt.style.width = "100px";
+                tt.style.height = "50px";
+                tt.style.opacity = 0.4;
+                tt.style.background = "red";
+                container.appendChild(tt);
+            } else {
+                tt = document.getElementById("test-tooltip")
+                container.removeChild(tt);
+            }
+        });
+
+		var annotations = new sigplot.AnnotationPlugin();
+		plot.add_plugin(annotations);
+		
+		annotations.add_annotation({x: 0, y:0, value: "Test Custom Popup"});				
+});
+
+interactiveTest('annotations shift', 'Do you see a text annotation the remain at the correct locations while the axis shifts?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+		var annotations = new sigplot.AnnotationPlugin();
+		plot.add_plugin(annotations);
+		
+		annotations.add_annotation({x: 0, y:50, value: "0,50"});
+		annotations.add_annotation({x: 50, y:60, value: "50,60"});
+		annotations.add_annotation({x: -50, y:60, value: "-50,60"});
+		   
+		plot.change_settings({autol: 5});
+		
+		var framesize = 128;
+		plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", xstart: -64, ydelta: 0.25});
+		           
+		var xstart = 0; 
+		var xstart_chng = 16;
+		ifixture.interval = window.setInterval(function() {
+			var ramp = [];
+			for (var i = 0; i < framesize; i += 1) {
+				ramp.push(i+1);
+			}
+		    if (Math.abs(xstart) >= 64) {
+		        xstart_chng = xstart_chng * -1;
+		    }
+		    xstart += xstart_chng;
+			plot.push(0, ramp, {xstart: xstart});
+		}, 500);
+});
