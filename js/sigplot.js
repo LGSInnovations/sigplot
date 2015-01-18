@@ -626,9 +626,9 @@ window.sigplot = window.sigplot || {};
                             evt.initEvent('showmenu', true, true);
                             evt.x = event.x || event.clientX;
                             evt.y = event.y || event.clientY;
-                            var cancelled = !mx.dispatchEvent(Mx, evt);
+                            var executeDefault = mx.dispatchEvent(Mx, evt);
 
-                            if (!cancelled) {
+                            if (executeDefault) {
                                 if (event.stopPropagation) {
                                     event.stopPropagation();
                                 }
@@ -967,7 +967,16 @@ window.sigplot = window.sigplot || {};
                         } else if (keyCode === 116) { // 't'
                             sigplot_show_timecode(plot);
                         } else if (keyCode === 109) { // 'm'
-                            sigplot_mainmenu(plot);
+                            if (!Gx.nomenu) {
+	                            var evt = document.createEvent('Event');
+	                            evt.initEvent('showmenu', true, true);
+	                            evt.x = Mx.x;
+	                            evt.y = Mx.y;
+	                            var executeDefault = mx.dispatchEvent(Mx, evt);
+	                            if (executeDefault) {
+	                                sigplot_mainmenu(plot);
+	                            }
+                            }
                         } else if (keyCode === 63) { // '?'
                             mx.message(Mx, MAIN_HELP);
                         } else if (keyCode === 102) { // 'f'
