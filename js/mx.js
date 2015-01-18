@@ -2355,123 +2355,20 @@ window.mx = window.mx || {};
     /**
      * @param Mx
      * @param msg
-     * @param time
+     * @param time - unused?
      * @param xpos
      * @param ypos
      */
     //
     // ~= MX$MESSAGE
     //
-    mx.message = function(Mx, msg, time, xpos, ypos) {
+    mx.message = function(Mx, msg, time, xpos, ypos, type) {
         mx.onWidgetLayer(Mx, function() {
-            var GBorder = 3;
-
-            // Unlike MX$MESSAGE, this implementaion if the message
-            // already contains newlines, the text will placed in the
-            // box as-is.
-            var beg = msg.split(/\r\n|\r|\n/g);
-            var linel = 0;
-            var center;
-            if (beg.length === 1) {
-                beg = [];
-                var MESSWIDTH = 40;
-
-                linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), msg.length);
-                if (linel <= 0) { return; }
-                while ((linel > MESSWIDTH) && (2.5 * Mx.text_h * msg.length < Mx.height * linel)) {
-                    linel -= 5;
-                }
-
-                var cur = 0;
-                var bg = 0;
-                var i = 0;
-                var j = 0;
-                var end = 0;
-                var brk = 0;
-                var beg = [];
-
-                center = true;
-                while (bg < msg.length) {
-                    end = bg + linel - 1;
-                    brk = end = Math.min(end, msg.length - 1);
-                    var endinreturn = false;
-                    for (cur = bg; cur <= end && !endinreturn; cur++) {
-                        switch (msg[cur]) {
-                            case ',':
-                            case ';':
-                            case ' ':
-                            case ':':
-                                brk = cur;
-                                break;
-                            case '-':
-                            case '/':
-                                if (brk !== cur - 1) { brk = cur; }
-                                break;
-                            case '@':
-                            case '\n':
-                            case '\r':
-                                center = false;
-                                endinreturn = true;
-                                brk = cur;
-                                break;
-                        }
-                    }
-                    if (cur === msg.length) { brk = end; }
-                    if (endinreturn) {
-                        beg.push(msg.substring(bg, brk));
-                    } else {
-                        // trim leading space
-                        var s = msg.substring(bg, brk + 1).replace(/^\s+/, "");
-                        beg.push(s);
-                    }
-                    bg = brk + 1;
-                    j = Math.max(j, beg[i].length);
-                }
-            } else {
-                for (var i = 0; i < beg.length; i++) {
-                    linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), Math.max(linel, beg[i].length));
-                }
-            }
-
-            var lines = beg.length;
-            if (lines > 6) {
-                center = false;
-            }
-            var cur = 0;
-            var winlines = Math.max(1, Mx.height / Mx.text_h);
-            var lastline = Math.min(lines, cur + winlines - 1);
-
-            var xss = (linel + 2) * Mx.text_w;
-            var yss = (lastline - cur + 1) * Mx.text_h;
-
-            var xs = xss + 2 * GBorder;
-            var ys = yss + 2 * GBorder;
-            if (!xpos) {
-                xpos = Mx.xpos;
-            }
-            if (!ypos) {
-                ypos = Mx.ypos;
-            }
-            var xc = Math.max(0, Math.min(xpos, Mx.width - xs));
-            var yc = Math.max(0, Math.min(ypos, Mx.height - ys));
-            var xcc = xc + GBorder;
-            var ycc = yc + GBorder;
-
-            mx.widgetbox(Mx, xc, yc, xs, ys, xcc, ycc, 0, "");
-
-            var j = ycc + Mx.text_h / 3;
-            var i = xcc + Mx.text_w;
-            while (cur < lastline) {
-                j += Mx.text_h;
-                if (center) {
-                    i = xc + xs / 2 - ((beg[cur].length * Mx.text_w) / 2);
-                }
-                mx.text(Mx, i, j, beg[cur]);
-                cur++;
-            }
-
+ 
+            mx.render_message_box(Mx, msg, xpos, ypos);
+            
             Mx.widget = {
-                type: "ONESHOT",
+                type: type || "ONESHOT",
                 callback: function(event) {
                     if ((event.type === "mousedown") || (event.type === "keydown")) {
                         Mx.widget = null;
@@ -2482,6 +2379,114 @@ window.mx = window.mx || {};
                 }
             };
         });
+    };
+    
+    mx.render_message_box = function(Mx, msg, xpos, ypos) {
+       var GBorder = 3;
+
+        // Unlike MX$MESSAGE, this implementaion if the message
+        // already contains newlines, the text will placed in the
+        // box as-is.
+        var beg = msg.split(/\r\n|\r|\n/g);
+        var linel = 0;
+        var center;
+        if (beg.length === 1) {
+            beg = [];
+            var MESSWIDTH = 40;
+
+            linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), msg.length);
+            if (linel <= 0) { return; }
+            while ((linel > MESSWIDTH) && (2.5 * Mx.text_h * msg.length < Mx.height * linel)) {
+                linel -= 5;
+            }
+
+            var cur = 0;
+            var bg = 0;
+            var i = 0;
+            var j = 0;
+            var end = 0;
+            var brk = 0;
+            var beg = [];
+
+            center = true;
+            while (bg < msg.length) {
+                end = bg + linel - 1;
+                brk = end = Math.min(end, msg.length - 1);
+                var endinreturn = false;
+                for (cur = bg; cur <= end && !endinreturn; cur++) {
+                    switch (msg[cur]) {
+                        case ',':
+                        case ';':
+                        case ' ':
+                        case ':':
+                            brk = cur;
+                            break;
+                        case '-':
+                        case '/':
+                            if (brk !== cur - 1) { brk = cur; }
+                            break;
+                        case '@':
+                        case '\n':
+                        case '\r':
+                            center = false;
+                            endinreturn = true;
+                            brk = cur;
+                            break;
+                    }
+                }
+                if (cur === msg.length) { brk = end; }
+                if (endinreturn) {
+                    beg.push(msg.substring(bg, brk));
+                } else {
+                    // trim leading space
+                    var s = msg.substring(bg, brk + 1).replace(/^\s+/, "");
+                    beg.push(s);
+                }
+                bg = brk + 1;
+                j = Math.max(j, beg[i].length);
+            }
+        } else {
+            for (var i = 0; i < beg.length; i++) {
+                linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), Math.max(linel, beg[i].length));
+            }
+        }
+
+        var lines = beg.length;
+        if (lines > 6) {
+            center = false;
+        }
+        var cur = 0;
+        var winlines = Math.max(1, Mx.height / Mx.text_h);
+        var lastline = Math.min(lines, cur + winlines - 1);
+
+        var xss = (linel + 2) * Mx.text_w;
+        var yss = (lastline - cur + 1) * Mx.text_h;
+
+        var xs = xss + 2 * GBorder;
+        var ys = yss + 2 * GBorder;
+        if (!xpos) {
+            xpos = Mx.xpos;
+        }
+        if (!ypos) {
+            ypos = Mx.ypos;
+        }
+        var xc = Math.max(0, Math.min(xpos, Mx.width - xs));
+        var yc = Math.max(0, Math.min(ypos, Mx.height - ys));
+        var xcc = xc + GBorder;
+        var ycc = yc + GBorder;
+
+        mx.widgetbox(Mx, xc, yc, xs, ys, xcc, ycc, 0, "");
+
+        var j = ycc + Mx.text_h / 3;
+        var i = xcc + Mx.text_w;
+        while (cur < lastline) {
+            j += Mx.text_h;
+            if (center) {
+                i = xc + xs / 2 - ((beg[cur].length * Mx.text_w) / 2);
+            }
+            mx.text(Mx, i, j, beg[cur]);
+            cur++;
+        }
     };
 
     /**
