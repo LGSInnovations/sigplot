@@ -2588,8 +2588,8 @@ window.mx = window.mx || {};
 
         if ((Mx.font) && (Mx.font.width === width)) {
             // use the cached font
-            ctx.font = Mx.text_h + "px " + Mx.font.font;
-            ctx_wid.font = Mx.text_h + "px " + Mx.font.font;
+            ctx.font = Mx.font.font;
+            ctx_wid.font = Mx.font.font;
         } else {
             // figure out the font
             var font = "Courier New, monospace";
@@ -2603,7 +2603,7 @@ window.mx = window.mx || {};
                 Mx.text_h = text_h;
             } while (Mx.text_w < width);
             Mx.font = {
-                font: font,
+                font: text_h + "px " + font,
                 width: width
             };
         }
@@ -3433,6 +3433,7 @@ window.mx = window.mx || {};
         }
         ctx.textBaseline = "bottom";
         ctx.textAlign = "left";
+        ctx.font = Mx.font.font;
         if (color === undefined) {
             ctx.fillStyle = Mx.fg;
         } else {
