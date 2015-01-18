@@ -1179,13 +1179,13 @@ interactiveTest('sigplot penny', 'Do you see a raster of a penny',  function() {
         plot.overlay_href("dat/penny.prm");
 });
 
-interactiveTest('falling raster', 'Do you see a falling raster?',  function() {
+interactiveTest('scrolling raster', 'Do you see a scrolling raster?',  function() {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
         notEqual( plot, null);
                         
 	plot.change_settings({
-                                autol: 5,
+        autol: 5,
 	});
 	
 	var framesize = 128;
@@ -1198,6 +1198,48 @@ interactiveTest('falling raster', 'Do you see a falling raster?',  function() {
 		}
 		plot.push(0, ramp);
 	}, 100);
+});
+
+interactiveTest('falling raster', 'Do you see a falling raster?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+                        
+    plot.change_settings({
+        autol: 5
+    });
+    
+    var framesize = 128;
+    plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", ydelta: 0.25}, {drawmode: "falling"});
+                
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i+1);
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
+
+interactiveTest('rising raster', 'Do you see a rising raster?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+                        
+    plot.change_settings({
+        autol: 5,
+    });
+    
+    var framesize = 128;
+    plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", ydelta: 0.25}, {drawmode: "rising"});
+                
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i+1);
+        }
+        plot.push(0, ramp);
+    }, 100);
 });
 
 interactiveTest('raster changing xstart', 'Do you see a falling raster that stays the same while the axis shifts?',  function() {
@@ -1454,4 +1496,76 @@ interactiveTest('annotations shift', 'Do you see a text annotation the remain at
 		    xstart += xstart_chng;
 			plot.push(0, ramp, {xstart: xstart});
 		}, 500);
+});
+
+interactiveTest('annotation falling raster', 'Do you see annotations that scroll with the data?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+    var img = new Image();   // Create new img element
+    img.src = 'dat/info.png';
+
+    var annotations = new sigplot.AnnotationPlugin();
+    plot.add_plugin(annotations);
+                        
+    plot.change_settings({
+        autol: 5
+    });
+    
+    var framesize = 128;
+    plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", ydelta: 0.25}, {drawmode: "falling"});
+                
+    var row = 0;
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i+1);
+        }
+        row += 1;
+        if (row % 64 == 0) {
+            var y = (row*0.25);
+            annotations.add_annotation({x: 64, y:y, value: "64,"+y, popup: "test"});
+        } else if (row % 100 == 0) {
+            var y = (row*0.25);
+            annotations.add_annotation({x: 32, y:y, value: img, popup: "32,"+y });
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
+
+interactiveTest('annotation rising raster', 'Do you see annotations that scroll with the data?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+    var img = new Image();   // Create new img element
+    img.src = 'dat/info.png';
+
+    var annotations = new sigplot.AnnotationPlugin();
+    plot.add_plugin(annotations);
+                        
+    plot.change_settings({
+        autol: 5
+    });
+    
+    var framesize = 128;
+    plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", ydelta: 0.25}, {drawmode: "rising"});
+                
+    var row = 0;
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i+1);
+        }
+        row += 1;
+        if (row % 64 == 0) {
+            var y = (row*0.25);
+            annotations.add_annotation({x: 64, y:y, value: "64,"+y, popup: "test"});
+        } else if (row % 100 == 0) {
+            var y = (row*0.25);
+            annotations.add_annotation({x: 32, y:y, value: img, popup: "32,"+y });
+        }
+        plot.push(0, ramp);
+    }, 100);
 });
