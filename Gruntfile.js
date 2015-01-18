@@ -142,7 +142,15 @@ module.exports = function (grunt) {
                     {src: ['doc/**/*'], dest: 'sigplot-<%= pkg.version %>'}
                 ]
             }
-        }
+        },
+        web_server: {
+            options: {
+                cors: true,
+                nevercache: true,
+                logRequests: true
+            },
+            foo: 'bar' // necessary for some odd reason, see the docs
+        },
     });
 
     // These plugins provide necessary tasks.
@@ -153,6 +161,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-compress');
+    grunt.loadNpmTasks('grunt-web-server');
 
     grunt.registerTask('build', ['concat']);
 
