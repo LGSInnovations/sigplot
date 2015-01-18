@@ -167,6 +167,18 @@
             }
 
             if (this.drawmode === "falling") {
+                this.hcb.ystart += this.hcb.ydelta;
+                this.ystart = this.hcb.ystart;
+                this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps)); // the top of the plot is older than the current ystart
+                this.ymax = this.hcb.ystart;
+            } else if (this.drawmode === "rising") {
+                this.hcb.ystart += this.hcb.ydelta;
+                this.ystart = this.hcb.ystart;
+                this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps)); // the top of the plot is older than the current ystart
+                this.ymax = this.hcb.ystart;
+            } 
+
+            if (this.drawmode === "falling") {
                 this.position = 0;
                 this.buf.set(this.buf.subarray(0, (this.lps - 1) * this.hcb.subsize * this.hcb.spa), this.hcb.subsize * this.hcb.spa);
                 if (this.img) {
@@ -313,6 +325,14 @@
                 this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
                 this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
                 this.img = undefined;
+
+                if (this.drawmode === "falling") {
+                    this.plot._Mx.origin = 1;
+                    this.preferred_origin = 1;
+                } else {
+                    this.plot._Mx.origin = 4;
+                    this.preferred_origin = 4;
+                }
             }
         },
 
@@ -340,17 +360,7 @@
                 var d = this.hcb.ystart + this.hcb.ydelta * (this.lps - 1.0);
                 this.ymin = Math.min(this.hcb.ystart, d);
                 this.ymax = Math.max(this.hcb.ystart, d);
-            } else if (this.drawmode === "falling") {
-                this.hcb.ystart += this.hcb.ydelta;
-                this.ystart = this.hcb.ystart;
-                this.ymin = this.hcb.ystart;
-                this.ymax = this.hcb.ystart - (this.hcb.ydelta * (this.lps - 1.0)); // the bottom of the plot is older than the current ystart
-            } else if (this.drawmode === "rising") {
-                this.hcb.ystart += this.hcb.ydelta;
-                this.ystart = this.hcb.ystart;
-                this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps - 1.0)); // the top of the plot is older than the current ystart
-                this.ymax = this.hcb.ystart;
-            } 
+            }
 
             m.filad(this.hcb, data, sync);
 
@@ -606,7 +616,7 @@
                 mx.draw_image(Mx, this.img, this.xmin, this.ymin, this.xmax, this.ymax, this.opacity, Gx.rasterSmoothing);
             }
 
-            if (this.position && this.drawmode === "scrolling") {
+            if (this.position !== null && this.drawmode === "scrolling") {
                 var pnt = mx.real_to_pixel(Mx, 0, this.position*this.ydelta);
                 if ((pnt.y > Mx.t) && (pnt.y < Mx.b)) {
                     mx.draw_line(Mx, "white", Mx.l, pnt.y, Mx.r, pnt.y);
@@ -635,11 +645,7 @@
             layer.name = "layer_" + Gx.lyr.length;
         }
 
-        for (var layerOption in layerOptions) {
-            if (layer[layerOption] !== undefined) {
-                layer[layerOption] = layerOptions[layerOption];
-            }
-        }
+        layer.change_settings(layerOptions);
 
         plot.add_layer(layer);
     };
