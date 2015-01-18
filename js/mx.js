@@ -457,8 +457,17 @@ window.mx = window.mx || {};
      * @private
      */
     mx.onWidgetLayer = function(Mx, func) {
+        mx.onCanvas(Mx, Mx.wid_canvas, func);
+    };
+    
+    /**
+     * @param Mx
+     * @param func
+     * @private
+     */
+    mx.onCanvas = function(Mx, canvas, func) {
         var current_active = Mx.active_canvas;
-        Mx.active_canvas = Mx.wid_canvas;
+        Mx.active_canvas = canvas;
         try {
             if (func) {
                 return func();
