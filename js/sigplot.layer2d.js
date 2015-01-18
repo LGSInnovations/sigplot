@@ -589,7 +589,7 @@
                 mx.draw_image(Mx, this.img, this.xmin, this.ymin, this.xmax, this.ymax, this.opacity, Gx.rasterSmoothing);
             }
 
-            if (this.position) {
+            if (this.position && this.drawmode === "scrolling") {
                 var pnt = mx.real_to_pixel(Mx, 0, this.position*this.ydelta);
                 if ((pnt.y > Mx.t) && (pnt.y < Mx.b)) {
                     mx.draw_line(Mx, "white", Mx.l, pnt.y, Mx.r, pnt.y);
