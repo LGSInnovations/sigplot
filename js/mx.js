@@ -4931,30 +4931,52 @@ window.mx = window.mx || {};
         if ((buf.height <= 1) || Math.abs(ymax-ymin) === 0) {
             return;
         }
-        var rx = (buf.width - 1) / (xmax - xmin);
-        var sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
-        var sw = Math.min(buf.width, buf.width - Math.floor((xmax - view_xmax) * rx) - sx);
+        var rx = buf.width / (xmax - xmin + 1);
+        var ry = buf.height / (ymax - ymin);
+        
+        // Ensure we are on buffer pixel boundaries, later we use clipping
+        // to constrain to the proper area
+        view_xmin = Math.floor(view_xmin*rx)/rx;
+        view_xmax = Math.floor(view_xmax*rx)/rx;
+        view_ymin = Math.floor(view_ymin*ry)/ry;
+        view_ymax = Math.ceil(view_ymax*ry)/ry;
 
-        var ry = (buf.height - 1) / (ymax - ymin);
-        var sy = Math.max(0, Math.floor((view_ymin - ymin) * ry));
-        var sh = Math.min(buf.height, buf.height - Math.floor((ymax - view_ymax) * ry) - sy);
-
-        var ul;
-        var lr;
+        var ul, lr;
+        var sy,sx,sw,sh;
         if (Mx.origin === 1) {
             // regular x, regular y
+            sy = Math.max(0, Math.floor((ymax - view_ymax) * ry));
+            sh = Math.min(buf.height-sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
+            sw = Math.min(buf.width-sx, Math.floor((view_xmax - view_xmin) * rx));
+
             ul = mx.real_to_pixel(Mx, view_xmin, view_ymax);
             lr = mx.real_to_pixel(Mx, view_xmax, view_ymin);
         } else if (Mx.origin === 2) {
             // inverted x, regular y
+            sy = Math.max(0, Math.floor((ymax - view_ymax) * ry));
+            sh = Math.min(buf.height-sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.ceil((view_xmin - xmin) * rx)); 
+            sw = Math.min(buf.width-sx, Math.floor((view_xmax - view_xmin) * rx));
+
             ul = mx.real_to_pixel(Mx, view_xmax, view_ymax);
             lr = mx.real_to_pixel(Mx, view_xmin, view_ymin);
         } else if (Mx.origin === 3) {
             // inverted x, inverted y
+            sy = Math.max(0, Math.ceil((view_ymin - ymin) * ry)); 
+            sh = Math.min(buf.height-sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.ceil((view_xmin - xmin) * rx)); 
+            sw = Math.min(buf.width-sx, Math.floor((view_xmax - view_xmin) * rx));
+
             ul = mx.real_to_pixel(Mx, view_xmax, view_ymin);
             lr = mx.real_to_pixel(Mx, view_xmin, view_ymax);
         } else if (Mx.origin === 4) {
             // regular x, inverted y
+            sy = Math.max(0, Math.ceil((view_ymin - ymin) * ry)); 
+            sh = Math.min(buf.height-sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
+            sw = Math.min(buf.width-sx, Math.floor((view_xmax - view_xmin) * rx));
+
             ul = mx.real_to_pixel(Mx, view_xmin, view_ymin);
             lr = mx.real_to_pixel(Mx, view_xmax, view_ymax);
         }
@@ -4964,7 +4986,12 @@ window.mx = window.mx || {};
 
         //render the buffered canvas onto the original canvas element
         var ctx = Mx.active_canvas.getContext("2d");
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(Mx.l, Mx.t, Mx.r-Mx.l, Mx.b-Mx.t);
+        ctx.clip();
         renderImage(Mx, ctx, buf, opacity, smoothing, ul.x, ul.y, iw, ih, sx, sy, sw, sh);
+        ctx.restore();
     };
 
 }(window.mx, window.m));
