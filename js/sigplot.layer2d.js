@@ -258,6 +258,13 @@
             if (this.drawmode === "scrolling") {
                 this.position = (this.position + 1) % this.lps;
             }
+
+            if (Mx.level === 0) {
+                Gx.panymin = this.ymin;
+                Gx.panymax = this.ymax;
+                Mx.stk[0].ymin = this.ymin;
+                Mx.stk[0].ymax = this.ymax;
+            }
         },
 
         get_data: function() {
@@ -333,7 +340,17 @@
                 var d = this.hcb.ystart + this.hcb.ydelta * (this.lps - 1.0);
                 this.ymin = Math.min(this.hcb.ystart, d);
                 this.ymax = Math.max(this.hcb.ystart, d);
-            }
+            } else if (this.drawmode === "falling") {
+                this.hcb.ystart += this.hcb.ydelta;
+                this.ystart = this.hcb.ystart;
+                this.ymin = this.hcb.ystart;
+                this.ymax = this.hcb.ystart - (this.hcb.ydelta * (this.lps - 1.0)); // the bottom of the plot is older than the current ystart
+            } else if (this.drawmode === "rising") {
+                this.hcb.ystart += this.hcb.ydelta;
+                this.ystart = this.hcb.ystart;
+                this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps - 1.0)); // the top of the plot is older than the current ystart
+                this.ymax = this.hcb.ystart;
+            } 
 
             m.filad(this.hcb, data, sync);
 
