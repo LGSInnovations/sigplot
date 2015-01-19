@@ -164,7 +164,7 @@
 					evt.initEvent('accordiontag', true, true);
 					evt.center = self.center;
 					evt.width = self.width;
-					var canceled = !mx.dispatchEvent(Mx, evt);
+					mx.dispatchEvent(Mx, evt);
 				};
 				document.addEventListener("mouseup", this.onmouseup, false);
 			},
@@ -203,8 +203,7 @@
 					evt.initEvent('accordiontag', true, true);
 					evt.center = this.center;
 					evt.width = this.width;
-					var canceled = !mx.dispatchEvent(Mx, evt);
-					if (canceled) { return; }
+					mx.dispatchEvent(Mx, evt);
 
 					this.plot.redraw();
 				}
@@ -220,8 +219,7 @@
 					evt.initEvent('accordiontag', true, true);
 					evt.center = this.center;
 					evt.width = this.width;
-					var canceled = !mx.dispatchEvent(Mx, evt);
-					if (canceled) { return; }
+					mx.dispatchEvent(Mx, evt);
 					
 					this.plot.redraw();
 				}

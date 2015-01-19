@@ -99,8 +99,8 @@
 						var evt = document.createEvent('Event');
 						evt.initEvent('playbackevt', true, true);
 						evt.state = new_state;
-						var canceled = !mx.dispatchEvent(Mx, evt);
-						if (!canceled) {
+						var executeDefault = mx.dispatchEvent(Mx, evt);
+						if (executeDefault) {
 							this.state = new_state;
 						}
 						this.plot.redraw();

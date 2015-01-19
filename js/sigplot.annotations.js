@@ -116,8 +116,8 @@
                    evt.state = state;
                    evt.x = x;
                    evt.y = y;
-                   var canceled = !mx.dispatchEvent(this.plot._Mx, evt);
-                   if (!canceled) {
+                   var executeDefault = mx.dispatchEvent(this.plot._Mx, evt);
+                   if (executeDefault) {
                        _annotations[i].highlight = state;
                    }
                 }
