@@ -1438,11 +1438,11 @@ interactiveTest('annotations custom popup', 'Do you see an popup when you hover 
         var plot = new sigplot.Plot(container, {});
         notEqual( plot, null);
         
+        var tt;
         plot.addListener("annotationhighlight", function(evt) {
             // you could use tipped.js, opentip, bootstrap, etc. here
             // this is just a simple test example not intended to be actually used
-            var tt;
-            if (evt.state) {
+            if (evt.state && !tt) {
                 tt = document.createElement("div");
                 tt.setAttribute("id", "test-tooltip");
                 tt.style.display = "block";
@@ -1454,9 +1454,9 @@ interactiveTest('annotations custom popup', 'Do you see an popup when you hover 
                 tt.style.opacity = 0.4;
                 tt.style.background = "red";
                 container.appendChild(tt);
-            } else {
-                tt = document.getElementById("test-tooltip")
+            } else if (!evt.state && tt) {
                 container.removeChild(tt);
+                tt = null;
             }
         });
 
