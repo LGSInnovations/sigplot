@@ -1600,3 +1600,37 @@ interactiveTest('x-fixed annotation rising raster', 'Do you see annotations that
         plot.push(0, ramp);
     }, 100);
 });
+
+interactiveTest('lots of annotations', 'Does the plot still seem smooth?',  function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual( plot, null);
+
+    var img = new Image();   // Create new img element
+    img.src = 'dat/info.png';
+
+    var annotations = new sigplot.AnnotationPlugin();
+    plot.add_plugin(annotations);
+                        
+    plot.change_settings({
+        autol: 5
+    });
+    
+    var framesize = 128;
+    plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "ramp", ydelta: 0.25}, {drawmode: "rising"});
+
+    for (var j = 0; j < 1000; j += 1) {
+        var x = Math.random()*128;
+        var y = (Math.random()*(plot._Mx.b-plot._Mx.t))+plot._Mx.t;
+        annotations.add_annotation({x: x, pxl_y: y, value: j.toString(), popup: "Test"});
+    }
+            
+    var row = 0;
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i+1);
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
