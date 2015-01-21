@@ -54,13 +54,27 @@
                     for (var i=0; i<self.annotations.length; i++) {
                         var annotation = self.annotations[i];
                         
-                        var pxl = {x: annotation.x,
-                                   y: annotation.y};
-                        if (annotation.absolute_placement === true) {
-                            pxl.x += Mx.l;
-                            pxl.y += Mx.t;
-                        } else {
-                            pxl = mx.real_to_pixel(Mx, pxl.x, pxl.y);
+                        var pxl = {x: undefined,
+                                   y: undefined};
+                        // Perserve the legacy API for now
+                        if (annotation.absolute_placement) {
+                            pxl.x = annotation.x;
+                            pxl.y = annotation.y;
+                        }
+                        // Provide the new API
+                        if (annotation.pxl_x !== undefined) {
+                            pxl.x = annotation.pxl_x;
+                        }
+                        if (annotation.pxl_y !== undefined) {
+                            pxl.y = annotation.pxl_y;
+                        }
+                        var res = mx.real_to_pixel(Mx, annotation.x, annotation.y);
+                        if (pxl.x === undefined) {
+                            pxl.x = res.x;
+                        } 
+
+                        if (pxl.y === undefined) {
+                            pxl.y = res.y;
                         }
                         
                         var rect_upperleft = {x: pxl.x, y: pxl.y};
@@ -188,16 +202,31 @@
                     for (var i=self.annotations.length-1; i>=0; i--) {
                         var annotation = self.annotations[i];
                         
-                        var pxl = {x: annotation.x,
-                                   y: annotation.y};
-                        if (annotation.absolute_placement === true) {
-                            pxl.x += Mx.l;
-                            pxl.y += Mx.t;
-                        } else {
-                            pxl = mx.real_to_pixel(Mx, pxl.x, pxl.y);
+                        var pxl = {x: undefined,
+                                   y: undefined};
+                        // Perserve the legacy API for now
+                        if (annotation.absolute_placement) {
+                            pxl.x = annotation.x;
+                            pxl.y = annotation.y;
                         }
+                        // Provide the new API
+                        if (annotation.pxl_x !== undefined) {
+                            pxl.x = annotation.pxl_x;
+                        }
+                        if (annotation.pxl_y !== undefined) {
+                            pxl.y = annotation.pxl_y;
+                        }
+                        var res = mx.real_to_pixel(Mx, annotation.x, annotation.y);
+                        if (pxl.x === undefined) {
+                            pxl.x = res.x;
+                        } 
 
+                        if (pxl.y === undefined) {
+                            pxl.y = res.y;
+                        }
+                        
                         if (!mx.inrect(pxl.x, pxl.y, Mx.l, Mx.t, Mx.r-Mx.l, Mx.b-Mx.t)) {
+                            // do we want to auto-remove?
                             //self.annotations.splice(i,1);
                             continue;
                         }
