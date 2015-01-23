@@ -298,8 +298,8 @@ window.sigplot = window.sigplot || {};
                 evt.ypos = ypos;
                 evt.x = Gx.retx;
                 evt.y = Gx.rety;
-                var canceled = !mx.dispatchEvent(Mx, evt);
-                if (canceled) {
+                var executeDefault = mx.dispatchEvent(Mx, evt);
+                if (!executeDefault) {
                     return;
                 }
 
@@ -409,8 +409,8 @@ window.sigplot = window.sigplot || {};
                 evt.x = Gx.retx;
                 evt.y = Gx.rety;
                 evt.which = event.which;
-                var canceled = !mx.dispatchEvent(Mx, evt);
-                if (canceled) {
+                var executeDefault = mx.dispatchEvent(Mx, evt);
+                if (!executeDefault) {
                     return false;
                 }
 
@@ -609,8 +609,8 @@ window.sigplot = window.sigplot || {};
                 evt.x = Gx.retx;
                 evt.y = Gx.rety;
                 evt.which = event.which;
-                var canceled = !mx.dispatchEvent(Mx, evt);
-                if (!canceled) {
+                var executeDefault = mx.dispatchEvent(Mx, evt);
+                if (executeDefault) {
                     if (event.which === 3) { // unzoom only happens on
                         // right-clicks on plot
                         // unzoom/expand
