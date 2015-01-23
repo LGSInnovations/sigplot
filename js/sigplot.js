@@ -2017,6 +2017,7 @@ window.sigplot = window.sigplot || {};
             }
             Gx.inContinuousZoom = continuous;
 
+            this.inZoom = true; // prevent recursive zooms
             var evt = document.createEvent('Event');
             evt.initEvent('zoom', true, true);
             evt.level = Mx.level;
@@ -2025,7 +2026,8 @@ window.sigplot = window.sigplot || {};
             evt.ymin = Mx.stk[Mx.level].ymin;
             evt.xmax = Mx.stk[Mx.level].xmax;
             evt.ymax = Mx.stk[Mx.level].ymax;
-            mx.dispatchEvent(Mx, evt);
+            mx.dispatchEvent(Mx, evt); // TODO should we allow zoom to be cancelled?
+            this.inZoom = false;
 
             this.refresh();
         },
@@ -2061,6 +2063,7 @@ window.sigplot = window.sigplot || {};
             // continuous zoom
             Gx.inContinuousZoom = false;
 
+            this.inZoom = true; // prevent recursive zoom
             // Send the event to listeners
             var evt = document.createEvent('Event');
             evt.initEvent('unzoom', true, true);
@@ -2070,6 +2073,7 @@ window.sigplot = window.sigplot || {};
             evt.xmax = Mx.stk[Mx.level].xmax;
             evt.ymax = Mx.stk[Mx.level].ymax;
             mx.dispatchEvent(Mx, evt);
+            this.inZoom = false;
 
             this.refresh();
         },
@@ -2105,6 +2109,9 @@ window.sigplot = window.sigplot || {};
 
             if (mask.zoom) {
                 other.addListener("zoom", function(event) {
+                    if (self.inZoom) {
+                        return;
+                    }
                     self.zoom({
                             x: event.xmin,
                             y: event.ymin
@@ -2116,6 +2123,9 @@ window.sigplot = window.sigplot || {};
                 });
             } else if (mask.xzoom) {
                 other.addListener("zoom", function(event) {
+                    if (self.inZoom) {
+                        return;
+                    }
                     self.zoom({
                             x: event.xmin,
                             y: undefined
@@ -2127,6 +2137,9 @@ window.sigplot = window.sigplot || {};
                 });
             } else if (mask.yzoom) {
                 other.addListener("zoom", function(event) {
+                    if (self.inZoom) {
+                        return;
+                    }
                     self.zoom({
                             x: undefined,
                             y: event.ymin
@@ -2140,6 +2153,9 @@ window.sigplot = window.sigplot || {};
 
             if (mask.unzoom) {
                 other.addListener("unzoom", function(event) {
+                    if (self.inZoom) {
+                        return;
+                    }
                     self.unzoom(1);
                 });
             }
