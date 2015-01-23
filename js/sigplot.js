@@ -5538,7 +5538,7 @@ window.sigplot = window.sigplot || {};
         }
 
         // draw color bar
-        var x = (49 * Mx.text_w) - 1;
+        var x = (49 * Mx.text_w) - 3;
         var y = Mx.height - Mx.text_h * 2.5;
         var w = Mx.text_w;
         var h = Mx.text_h * 2;
