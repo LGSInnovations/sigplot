@@ -1,7 +1,7 @@
 {
   "name": "sigplot",
   "description": "Advanced plotting for signal processing applications",
-  "version": "1.1.1",
+  "version": "1.1.2rc",
   "homepage": "http://demo.axiosengineering.com/sigplot",
   "author": {
     "name": "Axios Engineering",
