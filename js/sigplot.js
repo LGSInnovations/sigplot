@@ -2104,7 +2104,7 @@ window.sigplot = window.sigplot || {};
             var self = this;
 
             if (!mask) {
-                mask = {};
+                throw "mimic must be called with at least one event mask";
             }
 
             if (mask.zoom) {
