@@ -2490,6 +2490,55 @@ window.mx = window.mx || {};
     };
 
     /**
+     * Based on http://js-bits.blogspot.co.uk/2010/07/canvas-rounded-corner-rectangles.html
+     *
+     * @param Mx
+     * @param color
+     * @param {Number} x
+     * @param {Number} y
+     * @param {Number} w
+     * @param {Number} h
+     * @param fill_opacity
+     * @param fill_color
+     * @param {Number} radius The corner radius. Defaults to 5;
+     */
+    mx.draw_round_box = function(Mx, color, x, y, w, h, fill_opacity, fill_color, radius) {
+        var ctx = Mx.active_canvas.getContext("2d");
+
+        if (!radius) {
+            radius = 5;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+
+        if ((fill_opacity !== undefined) && (fill_opacity > 0)) {
+            var oldAlpha = ctx.globalAlpha;
+            ctx.globalAlpha = fill_opacity;
+            if (fill_color) {
+                ctx.fillStyle = fill_color;
+            } else {
+                ctx.fillStyle = color;
+            }
+            ctx.fill();
+            ctx.globalAlpha = oldAlpha;
+        }
+    };
+    
+    /**
      * @param Mx
      * @param color
      * @param x
@@ -4173,6 +4222,96 @@ window.mx = window.mx || {};
             yt = y + m.trunc((h + 0.7 * Mx.text_h) / 2);
             ctx.fillText(label, xt, yt); // Draw a string
         }
+    };
+
+
+    mx.chevron = function (shape,x,y,w,h,e) {
+        // Figure out the largest square dimension
+        var q = Math.min(w,h);
+
+        // if the edge width isn't provided use a decent one
+        if (!e) {
+            e = q*0.25;
+        }
+
+        
+        
+        // Initialize the pixel array
+        var pix = [];
+        for (var cnt = 0; cnt < 6; cnt++) { // initializing 11 points in the array
+            pix[cnt] = {
+                x: 0,
+                y: 0
+            };
+        }
+
+        
+        var x_offset = m.trunc(((w-q)/2)+(q/4)-(e/(2*1.414)));
+        var y_offset = m.trunc(((h-q)/2)+(q/4)-(e/(2*1.414)));
+        switch (shape) {
+            case mx.L_ArrowLeft:
+                // Chevron points from the tip around the edge clockwise
+                pix[0].x = x+x_offset;
+                pix[0].y = y+m.trunc(q/2);
+                pix[1].x = x+x_offset+m.trunc(q/2);
+                pix[1].y = y;
+                pix[2].x = x+x_offset+m.trunc((q/2)+(e/1.414));
+                pix[2].y = y+m.trunc(e/1.414);
+                pix[3].x = x+x_offset+m.trunc((2*e)/1.414);
+                pix[3].y = y+m.trunc(q/2);
+                pix[4].x = x+x_offset+m.trunc((q/2)+(e/1.414));
+                pix[4].y = y+h-m.trunc(e/1.414);
+                pix[5].x = x+x_offset+m.trunc(q/2);
+                pix[5].y = y+q;
+                break;
+            case mx.L_ArrowRight:
+                // Chevron points from the tip around the edge clockwise
+                pix[0].x = x+w-x_offset;
+                pix[0].y = y+m.trunc(q/2);
+                pix[1].x = x+w-x_offset-m.trunc(q/2);
+                pix[1].y = y;
+                pix[2].x = x+w-x_offset-m.trunc((q/2)+(e/1.414));
+                pix[2].y = y+m.trunc(e/1.414);
+                pix[3].x = x+w-x_offset-m.trunc((2*e)/1.414);
+                pix[3].y = y+m.trunc(q/2);
+                pix[4].x = x+w-x_offset-m.trunc((q/2)+(e/1.414));
+                pix[4].y = y+h-m.trunc(e/1.414);
+                pix[5].x = x+w-x_offset-m.trunc(q/2);
+                pix[5].y = y+q;
+                break;
+            case mx.L_ArrowUp:
+                // Chevron points from the tip around the edge counter-clockwise
+                pix[0].x = x+m.trunc(q/2);
+                pix[0].y = y+y_offset;
+                pix[1].x = x;
+                pix[1].y = y+y_offset+m.trunc(q/2);
+                pix[2].x = x+m.trunc(e/1.414);
+                pix[2].y = y+y_offset+m.trunc((q/2)+(e/1.414));
+                pix[3].x = x+m.trunc(q/2);
+                pix[3].y = y+y_offset+m.trunc((2*e)/1.414);
+                pix[4].x = x+w-m.trunc(e/1.414);
+                pix[4].y = y+y_offset+m.trunc((q/2)+(e/1.414));
+                pix[5].x = x+q;
+                pix[5].y = y+y_offset+m.trunc(q/2);
+                break;
+            case mx.L_ArrowDown:
+                // Chevron points from the tip around the edge counter-clockwise
+                pix[0].x = x+m.trunc(q/2);
+                pix[0].y = y+h-y_offset;
+                pix[1].x = x;
+                pix[1].y = y+h-y_offset-m.trunc(q/2);
+                pix[2].x = x+m.trunc(e/1.414);
+                pix[2].y = y+h-y_offset-m.trunc((q/2)+(e/1.414));
+                pix[3].x = x+m.trunc(q/2);
+                pix[3].y = y+h-y_offset-m.trunc((2*e)/1.414);
+                pix[4].x = x+w-m.trunc(e/1.414);
+                pix[4].y = y+h-y_offset-m.trunc((q/2)+(e/1.414));
+                pix[5].x = x+q;
+                pix[5].y = y+h-y_offset-m.trunc(q/2);
+                break;
+        }
+
+        return pix;
     };
 
     /**
