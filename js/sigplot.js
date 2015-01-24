@@ -2091,14 +2091,22 @@ window.sigplot = window.sigplot || {};
          *     if true, respond to zoom events
          *
          * @param mask.xzoom
-         *     if true, respond to zoom events on for the x-axis only
+         *     if true, respond to zoom events for the x-axis only
          *
          * @param mask.yzoom
-         *     if true, respond to zoom events on for the y-axis only
+         *     if true, respond to zoom events for the y-axis only
          *
          * @param mask.unzoom
          *     if true, respond to unzoom events
          *
+         * @param mask.pan
+         *     if true, respond to pan events
+         *
+         * @param mask.xpan
+         *     if true, respond to pan events for the x-axis only
+         *
+         * @param mask.ypan
+         *     if true, respond to pan events for the y-axis only
          */
         mimic: function(other, mask) {
             var self = this;
@@ -2159,6 +2167,24 @@ window.sigplot = window.sigplot || {};
                     if (event.level < self._Mx.level) {
                         self.unzoom(self._Mx.level - event.level);
                     }
+                });
+            }
+
+            if (mask.pan || mask.xpan) {
+                other.addListener("xpan", function(event) {
+                    if (self.inPan) {
+                        return;
+                    }
+                    updateViewbox(self, event.xmin, event.xmax, "X");
+                });
+            }
+
+            if (mask.pan || mask.ypan) {
+                other.addListener("ypan", function(event) {
+                    if (self.inPan) {
+                        return;
+                    }
+                    updateViewbox(self, event.ymin, event.ymax, "Y");
                 });
             }
 
@@ -5032,6 +5058,18 @@ window.sigplot = window.sigplot || {};
                     Gx.ymin = Math.min(Gx.ymin, ymin);
                     Gx.ymax = Math.max(Gx.ymax, ymax);
                 }
+
+                this.inPan = true; // prevent recursive pans
+                var evt = document.createEvent('Event');
+                evt.initEvent('ypan', true, true);
+                evt.level = Mx.level;
+                evt.xmin = Mx.stk[Mx.level].xmin;
+                evt.ymin = Mx.stk[Mx.level].ymin;
+                evt.xmax = Mx.stk[Mx.level].xmax;
+                evt.ymax = Mx.stk[Mx.level].ymax;
+                mx.dispatchEvent(Mx, evt); // TODO should we allow pan to be cancelled?
+                this.inPan = false;
+
                 plot.refresh();
                 // MSGDO(MSK_PANY, Mx.level); // just sets plotinfo.xmin and
                 // xmax into the MQD for the menu
@@ -5082,6 +5120,18 @@ window.sigplot = window.sigplot || {};
                     Gx.xmin = Mx.stk[1].xmin;
                     Gx.xmax = Mx.stk[1].xmax;
                 }
+
+                this.inPan = true; // prevent recursive pans
+                var evt = document.createEvent('Event');
+                evt.initEvent('xpan', true, true);
+                evt.level = Mx.level;
+                evt.xmin = Mx.stk[Mx.level].xmin;
+                evt.ymin = Mx.stk[Mx.level].ymin;
+                evt.xmax = Mx.stk[Mx.level].xmax;
+                evt.ymax = Mx.stk[Mx.level].ymax;
+                mx.dispatchEvent(Mx, evt); // TODO should we allow pan to be cancelled?
+                this.inPan = false;
+
                 plot.refresh();
                 // MSGDO (MSK_PANX, Mx.level); // just sets plotinfo.xmin and
                 // xmax into the MQD for the menu
@@ -5156,6 +5206,21 @@ window.sigplot = window.sigplot || {};
         // ----- Update the viewbox -----
         updateViewbox(plot, scrollbar.smin, scrollbar.smin + scrollbar.srange,
             scrollAction.slice(0, 1));
+
+        this.inPan = true; // prevent recursive pans
+        var evt = document.createEvent('Event');
+        if (scrollAction === "XPAN") {
+            evt.initEvent('xpan', true, true);
+        } else if (scrollAction === "YPAN") {
+            evt.initEvent('ypan', true, true);
+        }
+        evt.level = Mx.level;
+        evt.xmin = Mx.stk[Mx.level].xmin;
+        evt.ymin = Mx.stk[Mx.level].ymin;
+        evt.xmax = Mx.stk[Mx.level].xmax;
+        evt.ymax = Mx.stk[Mx.level].ymax;
+        mx.dispatchEvent(Mx, evt); // TODO should we allow pan to be cancelled?
+        this.inPan = false;
 
         scrollbar.action = 0; // TODO New step - reset action of the scrollbar
         // after drag is done...
@@ -5726,6 +5791,22 @@ window.sigplot = window.sigplot || {};
         // Update the viewbox based on new min and max values
         updateViewbox(plot, scrollbar.smin, scrollbar.smin + scrollbar.srange,
             direction.slice(0, 1));
+
+        this.inPan = true; // prevent recursive pans
+        var evt = document.createEvent('Event');
+        if (direction === "XPAN") {
+            evt.initEvent('xpan', true, true);
+        } else if (direction === "YPAN") {
+            evt.initEvent('ypan', true, true);
+        }
+        evt.level = Mx.level;
+        evt.xmin = Mx.stk[Mx.level].xmin;
+        evt.ymin = Mx.stk[Mx.level].ymin;
+        evt.xmax = Mx.stk[Mx.level].xmax;
+        evt.ymax = Mx.stk[Mx.level].ymax;
+        mx.dispatchEvent(Mx, evt); // TODO should we allow pan to be cancelled?
+        this.inPan = false;
+
     }
 
     /**
