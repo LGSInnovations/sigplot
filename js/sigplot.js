@@ -3959,6 +3959,61 @@ window.sigplot = window.sigplot || {};
             };
         };
 
+        var VIEW_MENU = {
+            text: "View...",
+            menu: {
+                title: "VIEW",
+                items: [{
+                    text: "Reset",
+                    handler: function() {
+                        plot.unzoom();
+                    }
+                },{
+                    text: "Y Axis",
+                    style: "separator"
+                }, {
+                    text: "Expand Range",
+                    handler: function() {
+                        middleClickScrollMenuAction(plot,
+                            mx.SB_EXPAND, "YPAN");
+                    }
+                }, {
+                    text: "Shrink Range",
+                    handler: function() {
+                        middleClickScrollMenuAction(plot,
+                            mx.SB_SHRINK, "YPAN");
+                    }
+                }, {
+                    text: "Expand Full",
+                    handler: function() {
+                        middleClickScrollMenuAction(plot,
+                            mx.SB_FULL, "YPAN");
+                    }
+                }, {
+                    text: "X Axis",
+                    style: "separator"
+                }, {
+                    text: "Expand Range",
+                    handler: function() {
+                        middleClickScrollMenuAction(plot,
+                            mx.SB_EXPAND, "XPAN");
+                    }
+                }, {
+                    text: "Shrink Range",
+                    handler: function() {
+                        middleClickScrollMenuAction(plot,
+                            mx.SB_SHRINK, "XPAN");
+                    }
+                }, {
+                    text: "Expand Full",
+                    handler: function() {
+                        middleClickScrollMenuAction(plot,
+                            mx.SB_FULL, "XPAN");
+                    }
+                }]
+            }
+        };
+
         var TRACES_MENU = {
             text: "Traces...",
             menu: function() {
@@ -4090,7 +4145,7 @@ window.sigplot = window.sigplot || {};
                 }
                 plot.refresh();
             },
-            items: [REFRESH_ITEM, CONTROLS_MENU, CXMODE_MENU, SCALING_MENU,
+            items: [REFRESH_ITEM, CONTROLS_MENU, CXMODE_MENU, SCALING_MENU, VIEW_MENU,
                 GRID_MENU, SETTINGS_MENU, COLORMAP_MENU, TRACES_MENU, FILES_MENU,
                 PLUGINS_MENU, KEYPRESSINFO_ITEM, EXIT_ITEM
             ]
