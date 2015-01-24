@@ -2845,7 +2845,11 @@ window.m = window.m || {};
   };
   m.force1000 = function(hcb) {
     if (hcb["class"] === 2) {
-      hcb.size = hcb.subsize * hcb.size;
+      if (hcb.size && !hcb.pipe) {
+        hcb.size = hcb.subsize * hcb.size;
+      } else {
+        hcb.size = hcb.subsize;
+      }
       hcb.bpe = hcb.bpe / hcb.subsize;
       hcb.ape = 1;
     }
@@ -3468,10 +3472,12 @@ window.mx = window.mx || {};
     Mx.onmousemove = function(Mx) {
       return function(e) {
         var rect = e.target.getBoundingClientRect();
+        Mx.x = event.x || event.clientX;
+        Mx.y = event.y || event.clientY;
         Mx.xpos = e.offsetX === undefined ? e.pageX - rect.left - window.scrollX : e.offsetX;
         Mx.ypos = e.offsetX === undefined ? e.pageY - rect.top - window.scrollY : e.offsetY;
         if (Mx.warpbox) {
-          if (e.ctrlKey && Mx.warpbox.alt_style !== undefined) {
+          if ((e.ctrlKey || e.metaKey) && Mx.warpbox.alt_style !== undefined) {
             Mx.warpbox.style = Mx.warpbox.alt_style;
           } else {
             Mx.warpbox.style = Mx.warpbox.def_style;
@@ -3522,7 +3528,7 @@ window.mx = window.mx || {};
       return function(event) {
         if (Mx.warpbox) {
           var keyCode = getKeyCode(event);
-          if (keyCode === 17 && Mx.warpbox.style !== Mx.warpbox.alt_style) {
+          if ((keyCode === 17 || (keyCode === 224 || (keyCode === 91 || keyCode === 93))) && Mx.warpbox.style !== Mx.warpbox.alt_style) {
             Mx.warpbox.style = Mx.warpbox.alt_style;
             mx.redraw_warpbox(Mx);
           }
@@ -3534,7 +3540,7 @@ window.mx = window.mx || {};
       return function(event) {
         if (Mx.warpbox) {
           var keyCode = getKeyCode(event);
-          if (keyCode === 17 && Mx.warpbox.style !== Mx.warpbox.def_style) {
+          if ((keyCode === 17 || (keyCode === 224 || (keyCode === 91 || keyCode === 93))) && Mx.warpbox.style !== Mx.warpbox.def_style) {
             Mx.warpbox.style = Mx.warpbox.def_style;
             mx.redraw_warpbox(Mx);
           }
@@ -4260,7 +4266,7 @@ window.mx = window.mx || {};
     var ymin = Math.min(stk4.ymin, stk4.ymax);
     var xmax = xmin + dx;
     var ymax = ymin + dy;
-    var bufsize = 4 * Math.ceil(1.33 * xpoint.length);
+    var bufsize = 4 * Math.ceil(2 * xpoint.length);
     var pixx = new Int32Array(new ArrayBuffer(bufsize));
     var pixy = new Int32Array(new ArrayBuffer(bufsize));
     var ib = 0;
@@ -6659,6 +6665,9 @@ window.mx = window.mx || {};
       return;
     }
     this.position = (this.position + tle) % this.size;
+    if (this.plot._Gx.autol > 1) {
+      this.plot.rescale();
+    }
   }, get_data:function(xmin, xmax) {
     var Gx = this.plot._Gx;
     var HCB = this.hcb;
@@ -6757,6 +6766,18 @@ window.mx = window.mx || {};
     if (hdrmod) {
       for (var k in hdrmod) {
         this.hcb[k] = hdrmod[k];
+        if (k === "type") {
+          this.hcb["class"] = hdrmod[k] / 1E3;
+        }
+      }
+      if (hdrmod.subsize) {
+        if (this.hcb["class"] === 2) {
+          m.force1000(this.hcb);
+          this.size = this.hcb.subsize;
+          this.position = null;
+          this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+          this.ybuf = new ArrayBuffer(this.ybufn);
+        }
       }
       var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1);
       this.xmin = Math.min(this.hcb.xstart, d);
@@ -7379,6 +7400,13 @@ window.mx = window.mx || {};
     if (hdrmod) {
       for (var k in hdrmod) {
         this.hcb[k] = hdrmod[k];
+        if (k === "type") {
+          this.hcb["class"] = hdrmod[k] / 1E3;
+        }
+      }
+      if (hdrmod.subsize) {
+        this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+        this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
       }
       var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1);
       this.xmin = Math.min(this.hcb.xstart, d);
@@ -7934,8 +7962,8 @@ window.sigplot = window.sigplot || {};
                 evt.initEvent("showmenu", true, true);
                 evt.x = event.x || event.clientX;
                 evt.y = event.y || event.clientY;
-                var cancelled = !mx.dispatchEvent(Mx, evt);
-                if (!cancelled) {
+                var executeDefault = mx.dispatchEvent(Mx, evt);
+                if (executeDefault) {
                   if (event.stopPropagation) {
                     event.stopPropagation();
                   }
@@ -8180,7 +8208,16 @@ window.sigplot = window.sigplot || {};
                                   sigplot_show_timecode(plot);
                                 } else {
                                   if (keyCode === 109) {
-                                    sigplot_mainmenu(plot);
+                                    if (!Gx.nomenu) {
+                                      var evt = document.createEvent("Event");
+                                      evt.initEvent("showmenu", true, true);
+                                      evt.x = Mx.x;
+                                      evt.y = Mx.y;
+                                      var executeDefault = mx.dispatchEvent(Mx, evt);
+                                      if (executeDefault) {
+                                        sigplot_mainmenu(plot);
+                                      }
+                                    }
                                   } else {
                                     if (keyCode === 63) {
                                       mx.message(Mx, MAIN_HELP);
@@ -8565,6 +8602,10 @@ window.sigplot = window.sigplot || {};
     var ws = new WebSocket(wsurl, "plot-data");
     ws.binaryType = "arraybuffer";
     var plot = this;
+    if (!overrides) {
+      overrides = {};
+    }
+    overrides.pipe = true;
     var hcb = m.initialize(null, overrides);
     hcb.ws = ws;
     var layer_n = this.overlay_bluefile(hcb, layerOptions);
@@ -8574,16 +8615,16 @@ window.sigplot = window.sigplot || {};
       return function(evt) {
         if (evt.data instanceof ArrayBuffer) {
           var data = hcb.createArray(evt.data);
-          plot.reload(layer_n, data);
+          plot.push(layer_n, data);
         } else {
           if (typeof evt.data === "string") {
             var Gx = plot._Gx;
-            var hdr = Gx.HCB[Gx.lyr[layer_n].hcb];
-            var newHdr = JSON.parse(evt.data);
-            for (var field in newHdr) {
-              hdr[field] = newHdr[field];
+            var hdr = Gx.lyr[layer_n].hcb;
+            if (!hdr) {
+              m.log.warning("Couldn't find header for layer " + layer_n);
             }
-            hcb.size = undefined;
+            var newHdr = JSON.parse(evt.data);
+            plot.push(layer_n, [], newHdr);
           }
         }
       };
@@ -8837,6 +8878,7 @@ window.sigplot = window.sigplot || {};
       Mx.stk[Mx.level] = zstk;
     }
     Gx.inContinuousZoom = continuous;
+    this.inZoom = true;
     var evt = document.createEvent("Event");
     evt.initEvent("zoom", true, true);
     evt.level = Mx.level;
@@ -8846,6 +8888,7 @@ window.sigplot = window.sigplot || {};
     evt.xmax = Mx.stk[Mx.level].xmax;
     evt.ymax = Mx.stk[Mx.level].ymax;
     mx.dispatchEvent(Mx, evt);
+    this.inZoom = false;
     this.refresh();
   }, unzoom:function(levels) {
     var Mx = this._Mx;
@@ -8865,6 +8908,7 @@ window.sigplot = window.sigplot || {};
       levels -= 1;
     }
     Gx.inContinuousZoom = false;
+    this.inZoom = true;
     var evt = document.createEvent("Event");
     evt.initEvent("unzoom", true, true);
     evt.level = Mx.level;
@@ -8873,24 +8917,34 @@ window.sigplot = window.sigplot || {};
     evt.xmax = Mx.stk[Mx.level].xmax;
     evt.ymax = Mx.stk[Mx.level].ymax;
     mx.dispatchEvent(Mx, evt);
+    this.inZoom = false;
     this.refresh();
   }, mimic:function(other, mask) {
     var self = this;
     if (!mask) {
-      mask = {};
+      throw "mimic must be called with at least one event mask";
     }
     if (mask.zoom) {
       other.addListener("zoom", function(event) {
+        if (self.inZoom) {
+          return;
+        }
         self.zoom({x:event.xmin, y:event.ymin}, {x:event.xmax, y:event.ymax}, event.inContinuousZoom);
       });
     } else {
       if (mask.xzoom) {
         other.addListener("zoom", function(event) {
+          if (self.inZoom) {
+            return;
+          }
           self.zoom({x:event.xmin, y:undefined}, {x:event.xmax, y:undefined}, event.inContinuousZoom);
         });
       } else {
         if (mask.yzoom) {
           other.addListener("zoom", function(event) {
+            if (self.inZoom) {
+              return;
+            }
             self.zoom({x:undefined, y:event.ymin}, {x:undefined, y:event.ymax}, event.inContinuousZoom);
           });
         }
@@ -8898,7 +8952,28 @@ window.sigplot = window.sigplot || {};
     }
     if (mask.unzoom) {
       other.addListener("unzoom", function(event) {
-        self.unzoom(1);
+        if (self.inZoom) {
+          return;
+        }
+        if (event.level < self._Mx.level) {
+          self.unzoom(self._Mx.level - event.level);
+        }
+      });
+    }
+    if (mask.pan || mask.xpan) {
+      other.addListener("xpan", function(event) {
+        if (self.inPan) {
+          return;
+        }
+        updateViewbox(self, event.xmin, event.xmax, "X");
+      });
+    }
+    if (mask.pan || mask.ypan) {
+      other.addListener("ypan", function(event) {
+        if (self.inPan) {
+          return;
+        }
+        updateViewbox(self, event.ymin, event.ymax, "Y");
       });
     }
   }, redraw:function() {
@@ -9810,6 +9885,21 @@ window.sigplot = window.sigplot || {};
         }, opacity, undefined, undefined, undefined);
       }}]};
     };
+    var VIEW_MENU = {text:"View...", menu:{title:"VIEW", items:[{text:"Reset", handler:function() {
+      plot.unzoom();
+    }}, {text:"Y Axis", style:"separator"}, {text:"Expand Range", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_EXPAND, "YPAN");
+    }}, {text:"Shrink Range", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_SHRINK, "YPAN");
+    }}, {text:"Expand Full", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_FULL, "YPAN");
+    }}, {text:"X Axis", style:"separator"}, {text:"Expand Range", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_EXPAND, "XPAN");
+    }}, {text:"Shrink Range", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_SHRINK, "XPAN");
+    }}, {text:"Expand Full", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_FULL, "XPAN");
+    }}]}};
     var TRACES_MENU = {text:"Traces...", menu:function() {
       var Gx = plot._Gx;
       var tracemenu = {title:"TRACE", items:[]};
@@ -9863,7 +9953,7 @@ window.sigplot = window.sigplot || {};
         mx.addEventListener(Mx, "mousedown", plot.onmousedown, false);
       }
       plot.refresh();
-    }, items:[REFRESH_ITEM, CONTROLS_MENU, CXMODE_MENU, SCALING_MENU, GRID_MENU, SETTINGS_MENU, COLORMAP_MENU, TRACES_MENU, FILES_MENU, PLUGINS_MENU, KEYPRESSINFO_ITEM, EXIT_ITEM]};
+    }, items:[REFRESH_ITEM, CONTROLS_MENU, CXMODE_MENU, SCALING_MENU, VIEW_MENU, GRID_MENU, SETTINGS_MENU, COLORMAP_MENU, TRACES_MENU, FILES_MENU, PLUGINS_MENU, KEYPRESSINFO_ITEM, EXIT_ITEM]};
     mx.menu(Mx, MAINMENU);
   }
   function rubberbox_cb(plot) {
@@ -9890,6 +9980,7 @@ window.sigplot = window.sigplot || {};
                 evt.y = Gx.ymrk;
                 evt.w = undefined;
                 evt.h = undefined;
+                evt.shift = event.shiftKey;
                 mx.dispatchEvent(Mx, evt);
               }
             }
@@ -9908,6 +9999,7 @@ window.sigplot = window.sigplot || {};
           evt.y = re.y;
           evt.w = Math.abs(rwh.x - re.x);
           evt.h = Math.abs(rwh.y - re.y);
+          evt.shift = event.shiftKey;
           mx.dispatchEvent(Mx, evt);
         }
       }
@@ -10236,6 +10328,12 @@ window.sigplot = window.sigplot || {};
       var plugin = Gx.plugins[plugin_index].impl;
       if (plugin.refresh) {
         canvas = Gx.plugins[plugin_index].canvas;
+        if (canvas.width !== plot._Mx.canvas.width) {
+          canvas.width = plot._Mx.canvas.width;
+        }
+        if (canvas.height !== plot._Mx.canvas.height) {
+          canvas.height = plot._Mx.canvas.height;
+        }
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         Gx.plugins[plugin_index].impl.refresh(canvas);
         ctx.drawImage(canvas, 0, 0);
@@ -10578,6 +10676,16 @@ window.sigplot = window.sigplot || {};
           Gx.ymin = Math.min(Gx.ymin, ymin);
           Gx.ymax = Math.max(Gx.ymax, ymax);
         }
+        this.inPan = true;
+        var evt = document.createEvent("Event");
+        evt.initEvent("ypan", true, true);
+        evt.level = Mx.level;
+        evt.xmin = Mx.stk[Mx.level].xmin;
+        evt.ymin = Mx.stk[Mx.level].ymin;
+        evt.xmax = Mx.stk[Mx.level].xmax;
+        evt.ymax = Mx.stk[Mx.level].ymax;
+        mx.dispatchEvent(Mx, evt);
+        this.inPan = false;
         plot.refresh();
         SIGPLOT_PAN = true;
       }
@@ -10611,6 +10719,16 @@ window.sigplot = window.sigplot || {};
           Gx.xmin = Mx.stk[1].xmin;
           Gx.xmax = Mx.stk[1].xmax;
         }
+        this.inPan = true;
+        var evt = document.createEvent("Event");
+        evt.initEvent("xpan", true, true);
+        evt.level = Mx.level;
+        evt.xmin = Mx.stk[Mx.level].xmin;
+        evt.ymin = Mx.stk[Mx.level].ymin;
+        evt.xmax = Mx.stk[Mx.level].xmax;
+        evt.ymax = Mx.stk[Mx.level].ymax;
+        mx.dispatchEvent(Mx, evt);
+        this.inPan = false;
         plot.refresh();
         SIGPLOT_PAN = true;
       }
@@ -10654,6 +10772,22 @@ window.sigplot = window.sigplot || {};
     scrollbar.srange = max - min;
     mx.redrawScrollbar(scrollbar, Mx, undefined);
     updateViewbox(plot, scrollbar.smin, scrollbar.smin + scrollbar.srange, scrollAction.slice(0, 1));
+    this.inPan = true;
+    var evt = document.createEvent("Event");
+    if (scrollAction === "XPAN") {
+      evt.initEvent("xpan", true, true);
+    } else {
+      if (scrollAction === "YPAN") {
+        evt.initEvent("ypan", true, true);
+      }
+    }
+    evt.level = Mx.level;
+    evt.xmin = Mx.stk[Mx.level].xmin;
+    evt.ymin = Mx.stk[Mx.level].ymin;
+    evt.xmax = Mx.stk[Mx.level].xmax;
+    evt.ymax = Mx.stk[Mx.level].ymax;
+    mx.dispatchEvent(Mx, evt);
+    this.inPan = false;
     scrollbar.action = 0;
     plot.refresh();
   }
@@ -11026,6 +11160,22 @@ window.sigplot = window.sigplot || {};
     scrollbar.scale = 2;
     mx.scroll(Mx, scrollbar, mx.XW_COMMAND, undefined, scrollbar);
     updateViewbox(plot, scrollbar.smin, scrollbar.smin + scrollbar.srange, direction.slice(0, 1));
+    this.inPan = true;
+    var evt = document.createEvent("Event");
+    if (direction === "XPAN") {
+      evt.initEvent("xpan", true, true);
+    } else {
+      if (direction === "YPAN") {
+        evt.initEvent("ypan", true, true);
+      }
+    }
+    evt.level = Mx.level;
+    evt.xmin = Mx.stk[Mx.level].xmin;
+    evt.ymin = Mx.stk[Mx.level].ymin;
+    evt.xmax = Mx.stk[Mx.level].xmax;
+    evt.ymax = Mx.stk[Mx.level].ymax;
+    mx.dispatchEvent(Mx, evt);
+    this.inPan = false;
   }
   function updateViewbox(plot, newMin, newMax, axis) {
     var Mx = plot._Mx;
