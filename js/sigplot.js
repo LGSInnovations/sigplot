@@ -2156,7 +2156,9 @@ window.sigplot = window.sigplot || {};
                     if (self.inZoom) {
                         return;
                     }
-                    self.unzoom(1);
+                    if (event.level < self._Mx.level) {
+                        self.unzoom(self._Mx.level - event.level);
+                    }
                 });
             }
 
