@@ -2845,7 +2845,11 @@ window.m = window.m || {};
   };
   m.force1000 = function(hcb) {
     if (hcb["class"] === 2) {
-      hcb.size = hcb.subsize * hcb.size;
+      if (hcb.size && !hcb.pipe) {
+        hcb.size = hcb.subsize * hcb.size;
+      } else {
+        hcb.size = hcb.subsize;
+      }
       hcb.bpe = hcb.bpe / hcb.subsize;
       hcb.ape = 1;
     }
@@ -3471,7 +3475,7 @@ window.mx = window.mx || {};
         Mx.xpos = e.offsetX === undefined ? e.pageX - rect.left - window.scrollX : e.offsetX;
         Mx.ypos = e.offsetX === undefined ? e.pageY - rect.top - window.scrollY : e.offsetY;
         if (Mx.warpbox) {
-          if (e.ctrlKey && Mx.warpbox.alt_style !== undefined) {
+          if ((e.ctrlKey || e.metaKey) && Mx.warpbox.alt_style !== undefined) {
             Mx.warpbox.style = Mx.warpbox.alt_style;
           } else {
             Mx.warpbox.style = Mx.warpbox.def_style;
@@ -3522,7 +3526,7 @@ window.mx = window.mx || {};
       return function(event) {
         if (Mx.warpbox) {
           var keyCode = getKeyCode(event);
-          if (keyCode === 17 && Mx.warpbox.style !== Mx.warpbox.alt_style) {
+          if ((keyCode === 17 || (keyCode === 224 || (keyCode === 91 || keyCode === 93))) && Mx.warpbox.style !== Mx.warpbox.alt_style) {
             Mx.warpbox.style = Mx.warpbox.alt_style;
             mx.redraw_warpbox(Mx);
           }
@@ -3534,7 +3538,7 @@ window.mx = window.mx || {};
       return function(event) {
         if (Mx.warpbox) {
           var keyCode = getKeyCode(event);
-          if (keyCode === 17 && Mx.warpbox.style !== Mx.warpbox.def_style) {
+          if ((keyCode === 17 || (keyCode === 224 || (keyCode === 91 || keyCode === 93))) && Mx.warpbox.style !== Mx.warpbox.def_style) {
             Mx.warpbox.style = Mx.warpbox.def_style;
             mx.redraw_warpbox(Mx);
           }
@@ -4260,7 +4264,7 @@ window.mx = window.mx || {};
     var ymin = Math.min(stk4.ymin, stk4.ymax);
     var xmax = xmin + dx;
     var ymax = ymin + dy;
-    var bufsize = 4 * Math.ceil(1.33 * xpoint.length);
+    var bufsize = 4 * Math.ceil(2 * xpoint.length);
     var pixx = new Int32Array(new ArrayBuffer(bufsize));
     var pixy = new Int32Array(new ArrayBuffer(bufsize));
     var ib = 0;
@@ -6659,6 +6663,9 @@ window.mx = window.mx || {};
       return;
     }
     this.position = (this.position + tle) % this.size;
+    if (this.plot._Gx.autol > 1) {
+      this.plot.rescale();
+    }
   }, get_data:function(xmin, xmax) {
     var Gx = this.plot._Gx;
     var HCB = this.hcb;
@@ -6757,6 +6764,18 @@ window.mx = window.mx || {};
     if (hdrmod) {
       for (var k in hdrmod) {
         this.hcb[k] = hdrmod[k];
+        if (k === "type") {
+          this.hcb["class"] = hdrmod[k] / 1E3;
+        }
+      }
+      if (hdrmod.subsize) {
+        if (this.hcb["class"] === 2) {
+          m.force1000(this.hcb);
+          this.size = this.hcb.subsize;
+          this.position = null;
+          this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+          this.ybuf = new ArrayBuffer(this.ybufn);
+        }
       }
       var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1);
       this.xmin = Math.min(this.hcb.xstart, d);
@@ -7379,6 +7398,13 @@ window.mx = window.mx || {};
     if (hdrmod) {
       for (var k in hdrmod) {
         this.hcb[k] = hdrmod[k];
+        if (k === "type") {
+          this.hcb["class"] = hdrmod[k] / 1E3;
+        }
+      }
+      if (hdrmod.subsize) {
+        this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+        this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
       }
       var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1);
       this.xmin = Math.min(this.hcb.xstart, d);
@@ -8565,6 +8591,10 @@ window.sigplot = window.sigplot || {};
     var ws = new WebSocket(wsurl, "plot-data");
     ws.binaryType = "arraybuffer";
     var plot = this;
+    if (!overrides) {
+      overrides = {};
+    }
+    overrides.pipe = true;
     var hcb = m.initialize(null, overrides);
     hcb.ws = ws;
     var layer_n = this.overlay_bluefile(hcb, layerOptions);
@@ -8574,16 +8604,16 @@ window.sigplot = window.sigplot || {};
       return function(evt) {
         if (evt.data instanceof ArrayBuffer) {
           var data = hcb.createArray(evt.data);
-          plot.reload(layer_n, data);
+          plot.push(layer_n, data);
         } else {
           if (typeof evt.data === "string") {
             var Gx = plot._Gx;
-            var hdr = Gx.HCB[Gx.lyr[layer_n].hcb];
-            var newHdr = JSON.parse(evt.data);
-            for (var field in newHdr) {
-              hdr[field] = newHdr[field];
+            var hdr = Gx.lyr[layer_n].hcb;
+            if (!hdr) {
+              m.log.warning("Couldn't find header for layer " + layer_n);
             }
-            hcb.size = undefined;
+            var newHdr = JSON.parse(evt.data);
+            plot.push(layer_n, [], newHdr);
           }
         }
       };
@@ -9890,6 +9920,7 @@ window.sigplot = window.sigplot || {};
                 evt.y = Gx.ymrk;
                 evt.w = undefined;
                 evt.h = undefined;
+                evt.shift = event.shiftKey;
                 mx.dispatchEvent(Mx, evt);
               }
             }
@@ -9908,6 +9939,7 @@ window.sigplot = window.sigplot || {};
           evt.y = re.y;
           evt.w = Math.abs(rwh.x - re.x);
           evt.h = Math.abs(rwh.y - re.y);
+          evt.shift = event.shiftKey;
           mx.dispatchEvent(Mx, evt);
         }
       }
@@ -10236,6 +10268,12 @@ window.sigplot = window.sigplot || {};
       var plugin = Gx.plugins[plugin_index].impl;
       if (plugin.refresh) {
         canvas = Gx.plugins[plugin_index].canvas;
+        if (canvas.width !== plot._Mx.canvas.width) {
+          canvas.width = plot._Mx.canvas.width;
+        }
+        if (canvas.height !== plot._Mx.canvas.height) {
+          canvas.height = plot._Mx.canvas.height;
+        }
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         Gx.plugins[plugin_index].impl.refresh(canvas);
         ctx.drawImage(canvas, 0, 0);
