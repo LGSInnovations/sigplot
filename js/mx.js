@@ -80,6 +80,11 @@ window.mx = window.mx || {};
     mx.L_VLineSymbol = 9;
 
     /**
+     * Set to True for a retro look that would make hipsters proud
+     */
+    mx.LEGACY_RENDER = false;
+
+    /**
      * The zoom stack structure object
      * @private
      */
@@ -2470,8 +2475,8 @@ window.mx = window.mx || {};
         if (!ypos) {
             ypos = Mx.ypos;
         }
-        var xc = Math.max(0, Math.min(xpos, Mx.width - xs));
-        var yc = Math.max(0, Math.min(ypos, Mx.height - ys));
+        var xc = Math.max(Mx.l, Math.min(xpos, Mx.r - xs));
+        var yc = Math.max(Mx.t, Math.min(ypos, Mx.b - ys));
         var xcc = xc + GBorder;
         var ycc = yc + GBorder;
 
@@ -2952,11 +2957,15 @@ window.mx = window.mx || {};
             }
             if (flags.grid && flags.grid !== "y") {
                 if (!flags.gridStyle) {
-                    flags.gridStyle = {
-                        mode: "dashed",
-                        on: 1,
-                        off: 3
-                    };
+                    if (mx.LEGACY_RENDER) {
+                        flags.gridStyle = {
+                            mode: "dashed",
+                            on: 1,
+                            off: 3
+                        }; 
+                    } else {
+                        flags.gridStyle = {"color": Mx.xwms};
+                    }
                 }
                 mx.textline(Mx, i, iscb, i, isct, flags.gridStyle);
             } else {
@@ -3156,19 +3165,32 @@ window.mx = window.mx || {};
                     ctx.fillStyle = Mx.xwfg;
                     ctx.fillText(" " + item.text + " ", xcc + Mx.text_w * 2, y + yb / 2);
                 } else {
-                    ctx.fillStyle = Mx.xwlo;
-                    ctx.fillRect(xcc, y, xss, yb);
-
-                    ctx.beginPath();
-                    ctx.moveTo(xcc, y + 0.5);
-                    ctx.lineTo(xcc + xss, y + 0.5);
-                    ctx.stroke();
-
-                    if (item.selected) {
-                        mx.shadowbox(Mx, xcc - 1, y, xss + 2, yb, 1, 2, "", 0);
+                    if (mx.LEGACY_RENDER) {
+                        ctx.fillStyle = Mx.xwlo;
+                        ctx.fillRect(xcc, y, xss, yb);
+                        ctx.beginPath();
+                        ctx.moveTo(xcc, y + 0.5);
+                        ctx.lineTo(xcc + xss, y + 0.5);
+                        ctx.stroke();
+                        if (item.selected) {
+                            mx.shadowbox(Mx, xcc - 1, y, xss + 2, yb, 1, 2, "", 0.75);
+                        }
+                    } else {
+                        ctx.save();
+                        ctx.globalAlpha = 0.75;
+                        if (item.selected) {
+                            ctx.fillStyle = Mx.xwts;
+                        } else {
+                            ctx.fillStyle = Mx.xwlo;
+                        }
+                        ctx.fillRect(xcc, y, xss, yb);
+                        ctx.restore();
+                        ctx.strokeStyle = Mx.bg;
+                        ctx.beginPath();
+                        ctx.moveTo(xcc, y + 0.5);
+                        ctx.lineTo(xcc + xss, y + 0.5);
+                        ctx.stroke();
                     }
-
-
 
                     ctx.textBaseline = "middle";
                     ctx.textAlign = "left";
@@ -3448,7 +3470,7 @@ window.mx = window.mx || {};
      */
     mx.widgetbox = function(Mx, x, y, w, h, inx, iny, inw, inh, name) {
         var GBorder = 3;
-        mx.shadowbox(Mx, x, y, w, h, 1, 2, "", 0);
+        mx.shadowbox(Mx, x, y, w, h, 1, 2, "", 0.75);
         if (name) {
             var length = name.length;
             length = Math.min(length, w / Mx.text_w);
@@ -3461,8 +3483,16 @@ window.mx = window.mx || {};
         }
         if (inw > 0 && inh > 0) {
             var ctx = Mx.active_canvas.getContext("2d");
-            ctx.fillStyle = Mx.bg;
-            ctx.fillRect(inx, iny, inw, inh);
+            if (mx.LEGACY_RENDER) {
+                ctx.fillStyle = Mx.bg;
+                ctx.fillRect(inx, iny, inw, inh);
+            } else {
+                ctx.save();
+                ctx.globalAlpha = 0.1;
+                ctx.fillStyle = Mx.bg;
+                ctx.fillRect(inx, iny, inw, inh);
+                ctx.restore();
+            }
         }
     };
 
@@ -4109,7 +4139,7 @@ window.mx = window.mx || {};
      * @private
      */
     // ~= MX$SHADOWBOX
-    mx.shadowbox = function(Mx, x, y, w, h, shape, func, label) {
+    mx.legacy_shadowbox = function(Mx, x, y, w, h, shape, func, label) {
         var length = label.length; // Original method declaration includes a length - but it only represents the length of the label
 
         var xt = 0; // Originally an int
@@ -4224,6 +4254,68 @@ window.mx = window.mx || {};
         }
     };
 
+        /**
+     * @param Mx
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param shape
+     * @param func
+     * @param label
+     * @private
+     */
+    // ~= MX$SHADOWBOX
+    mx.sigplot_shadowbox = function(Mx, x, y, w, h, shape, func, label, alpha) {
+        var ctx = Mx.active_canvas.getContext("2d");
+
+        var length = label.length; // Original method declaration includes a length - but it only represents the length of the label
+
+        var color = (func < 0) ? Mx.xwts : Mx.xwbs;
+
+        alpha = alpha || 1.0;
+
+        var pix = []; // Originally declared as a size 11 XPoint array
+        for (var cnt = 0; cnt < 11; cnt++) { // initializing 11 points in the array
+            pix[cnt] = {
+                x: 0,
+                y: 0
+            };
+        }
+
+        
+        switch (shape) {
+            case mx.L_ArrowLeft:
+            case mx.L_ArrowRight:
+            case mx.L_ArrowUp:
+            case mx.L_ArrowDown:
+                var pix = mx.chevron(shape,x,y,w,h);
+                ctx.fillStyle = (func > 0) ? Mx.xwts : Mx.xwbs;
+                fill_poly(ctx, pix.slice(0, 6));
+                break;
+            default:
+                mx.draw_round_box(Mx, color, x, y, w, h, alpha, Mx.xwbg, 5, Mx.xwbs);
+                break;
+        }
+
+        ctx.fillStyle = Mx.xwfg; // Set foreground color
+        ctx.textBaseline = "alphabetic"; // Reset vertical text alignment
+
+        var fill = !(func === 1 || func === -1); // Originally a bool
+        if (fill && length > 0) {
+            length = Math.min(length, m.trunc(w / Mx.text_w));
+            length = Math.max(length, 1);
+            var xt = x + m.trunc((w - length * Mx.text_w) / 2);
+            var yt = y + m.trunc((h + 0.7 * Mx.text_h) / 2);
+            ctx.fillText(label, xt, yt); // Draw a string
+        }
+    };
+
+    if (mx.LEGACY_RENDER) { // TODO new-style conditional
+        mx.shadowbox = mx.legacy_shadowbox;
+    } else {
+        mx.shadowbox = mx.sigplot_shadowbox;
+    }
 
     mx.chevron = function (shape,x,y,w,h,e) {
         // Figure out the largest square dimension
@@ -4455,6 +4547,7 @@ window.mx = window.mx || {};
         xss = sv.w;
         yss = sv.h;
 
+        // horizontal scroll bar
         if (sv.origin & 1) {
             y = ycc + yss / 2;
             if (sv.origin & 2) {
@@ -4469,19 +4562,24 @@ window.mx = window.mx || {};
             }
 
 
-            if (Mx.legacyRender) {
+            if (mx.LEGACY_RENDER) {
                 mx.draw_line(Mx, Mx.fg, xcc + sv.a1, y, xcc + sv.a2, y);
                 mx.shadowbox(Mx, xcc + p1, ycc, sw + 1, yss, 1, 2, "", 0);
             } else {
+                // Veritical gradiant
                 var lingrad = ctx.createLinearGradient(xcc + sv.a1, 0, xcc + sv.a2, 0);
                 lingrad.addColorStop(0, Mx.xwbs);
                 lingrad.addColorStop(0.5, Mx.xwts);
                 lingrad.addColorStop(1, Mx.xwbs);
                 mx.draw_line(Mx, lingrad, xcc + sv.a1, y, xcc + sv.a2, y, 1);
 
-                mx.shadowbox(Mx, xcc + p1, ycc, sw + 1, yss, 1, 2, "", 0); // TODO replace with something cooler
+                var lingrad = ctx.createLinearGradient(0, ycc, 0, ycc+yss);
+                lingrad.addColorStop(0.1, Mx.xwts);
+                lingrad.addColorStop(0.75, Mx.xwbs);
+                mx.draw_round_box(Mx, Mx.xwbg, xcc + p1, ycc, sw + 1, yss, 1, lingrad, 8, Mx.xwbs);
             }
 
+        // else vertical scroll bar
         } else {
             x = xcc + m.trunc(xss / 2);
             if (sv.origin <= 2) {
@@ -4494,17 +4592,21 @@ window.mx = window.mx || {};
                 mx.shadowbox(Mx, xcc, ycc + yss - arrow, xss - 1, arrow, mx.L_ArrowDown, 2, "", 0);
             }
 
-            if (Mx.legacyRender) {
+            if (mx.LEGACY_RENDER) {
                 mx.draw_line(Mx, Mx.fg, x, ycc + sv.a1, x, ycc + sv.a2);
                 mx.shadowbox(Mx, xcc, ycc + p1, xss, sw + 1, 1, 2, "", 0);
             } else {
+                // Horizontal gradiant
                 var lingrad = ctx.createLinearGradient(0, ycc + sv.a1, 0, ycc + sv.a2);
                 lingrad.addColorStop(0, Mx.xwbs);
                 lingrad.addColorStop(0.5, Mx.xwts);
                 lingrad.addColorStop(1, Mx.xwbs);
-                mx.draw_line(Mx, lingrad, x, ycc + sv.a1, x, ycc + sv.a2);
+                mx.draw_line(Mx, lingrad, x, ycc + sv.a1, x, ycc + sv.a2, 1);
 
-                mx.shadowbox(Mx, xcc, ycc + p1, xss, sw + 1, 1, 2, "", 0); // TODO replace with something cooler
+                var lingrad = ctx.createLinearGradient(xcc, 0, xcc+xss, 0);
+                lingrad.addColorStop(0.1, Mx.xwts);
+                lingrad.addColorStop(0.75, Mx.xwbs);
+                mx.draw_round_box(Mx, Mx.xwbg, xcc-1, ycc + p1, xss, sw + 1, 1, lingrad, 8, Mx.xwbs);
             }
 
         }
