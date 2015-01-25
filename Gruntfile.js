@@ -151,6 +151,50 @@ module.exports = function (grunt) {
             },
             foo: 'bar' // necessary for some odd reason, see the docs
         },
+        jsbeautifier: {
+            check: {
+                // Only check a subset of the files
+                src: [
+                        'js/bluefile.js',
+                        'js/m.js',
+                        'js/mx.js',
+                        'js/sigplot.layer1d.js',
+                        'js/sigplot.layer2d.js',
+                        'js/sigplot.js',
+                        'js/sigplot.annotations.js',
+                        'js/sigplot.slider.js',
+                        'js/sigplot.accordion.js',
+                        'js/sigplot.boxes.js',
+                        'js/sigplot.playback.js',
+                        'test/tests.js'
+                ],
+                options: {
+                    mode: "VERIFY_ONLY"
+                }
+            },
+            cleanup: {
+                // Only cleanup a subset of the files
+                src: [
+                        'js/bluefile.js',
+                        'js/m.js',
+                        'js/mx.js',
+                        'js/sigplot.layer1d.js',
+                        'js/sigplot.layer2d.js',
+                        'js/sigplot.js',
+                        'js/sigplot.annotations.js',
+                        'js/sigplot.slider.js',
+                        'js/sigplot.accordion.js',
+                        'js/sigplot.boxes.js',
+                        'js/sigplot.playback.js',
+                        'test/tests.js'
+                ],
+                options: {
+                    indentSize: 4,
+                    indentWithTabs: false,
+                    wrapLineLength: 0
+                }
+            }
+        }
     });
 
     // These plugins provide necessary tasks.
@@ -162,8 +206,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-web-server');
+    grunt.loadNpmTasks('grunt-jsbeautifier');
 
-    grunt.registerTask('build', ['concat']);
+    grunt.registerTask('build', ['concat', 'jsbeautifier:check']);
 
     // Check everything is good
     grunt.registerTask('test', ['build', 'jshint', 'qunit']);
