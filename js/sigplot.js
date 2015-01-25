@@ -5575,12 +5575,14 @@ window.sigplot = window.sigplot || {};
         iy = Math.floor(Mx.height - 0.5 * Mx.text_h);
         mx.text(Mx, Mx.text_w, iy, charb);
 
-        // display controls indicator
-        if (k < Mx.width) {
-            if (Gx.cntrls > 0) {
-                mx.text(Mx, k, iy, 'C');
-            } else {
-                mx.text(Mx, k, iy, ' ');
+        if (mx.LEGACY_RENDER) {
+            // display controls indicator
+            if (k < Mx.width) {
+                if (Gx.cntrls > 0) {
+                    mx.text(Mx, k, iy, 'C');
+                } else {
+                    mx.text(Mx, k, iy, ' ');
+                }
             }
         }
 
