@@ -2964,7 +2964,7 @@ window.mx = window.mx || {};
                             off: 3
                         }; 
                     } else {
-                        flags.gridStyle = {"color": Mx.xwms};
+                        flags.gridStyle = {"color": Mx.xwms, mode: "dashed", on: 1, off: 3};
                     }
                 }
                 mx.textline(Mx, i, iscb, i, isct, flags.gridStyle);
