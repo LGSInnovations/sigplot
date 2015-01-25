@@ -86,14 +86,14 @@
             this.ybufn = 0;
 
             if (!this.hcb.pipe) {
-		if (hcb["class"] === 2) {
+                if (hcb["class"] === 2) {
                     m.force1000(hcb);
                     this.size = hcb.subsize;
                 } else {
                     this.size = hcb.size;
                 }
             } else {
-		this.size = options.framesize;
+                this.size = options.framesize;
             }
 
             if (hcb["class"] <= 2) {
@@ -119,44 +119,46 @@
             this.ylab = hcb.yunits; // might be undefined
 
             if (this.hcb.pipe) {
-		this.drawmode = "scrolling";
-		this.position = 0;
-		this.tle = options.tl;
+                this.drawmode = "scrolling";
+                this.position = 0;
+                this.tle = options.tl;
 
-		this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
-		this.ybuf = new ArrayBuffer(this.ybufn);
+                this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+                this.ybuf = new ArrayBuffer(this.ybufn);
 
-		var self = this;
-		m.addPipeWriteListener(this.hcb, function() { self._onpipewrite(); });
+                var self = this;
+                m.addPipeWriteListener(this.hcb, function() {
+                    self._onpipewrite();
+                });
             }
         },
 
-        _onpipewrite : function() {
+        _onpipewrite: function() {
             var ybuf = new sigplot.PointArray(this.ybuf);
 
             var tle = this.tle; // in scalars
             if (tle === undefined) {
-		tle = Math.floor(m.pavail(this.hcb)) / this.hcb.spa;
-            } else if (m.pavail(this.hcb) < (tle*this.hcb.spa)) {
+                tle = Math.floor(m.pavail(this.hcb)) / this.hcb.spa;
+            } else if (m.pavail(this.hcb) < (tle * this.hcb.spa)) {
                 return;
             }
 
             var tl = tle * this.hcb.spa;
 
             if (this.drawmode === "lefttoright") {
-		this.position = 0;
-		ybuf.set(ybuf.subarray(0, this.size-tl), tl);
+                this.position = 0;
+                ybuf.set(ybuf.subarray(0, this.size - tl), tl);
             } else if (this.drawmode === "righttoleft") {
-		this.position = this.size-tle;
-		ybuf.set(ybuf.subarray(tl), 0);
+                this.position = this.size - tle;
+                ybuf.set(ybuf.subarray(tl), 0);
             } else if (this.drawmode === "scrolling") {
-		// Nothing to do
+                // Nothing to do
             } else {
-		throw "Invalid draw mode";
+                throw "Invalid draw mode";
             }
 
-            tle = Math.min(tle, this.size-this.position);
-            var ngot = m.grabx(this.hcb, ybuf, tle*this.hcb.spa, this.position*this.hcb.spa);
+            tle = Math.min(tle, this.size - this.position);
+            var ngot = m.grabx(this.hcb, ybuf, tle * this.hcb.spa, this.position * this.hcb.spa);
             if (ngot === 0) {
                 return;
             }
@@ -200,7 +202,7 @@
             var npts = Math.max(0.0, Math.min(imax - imin + 1, Gx.bufmax));
             if (HCB.xdelta < 0) {
                 imin = imax - npts + 1;
-	    }
+            }
 
             if ((imin >= this.imin) && (imin + npts <= this.imin + this.size) && (this.ybuf !== undefined)) {
                 // data already in buffers
@@ -245,14 +247,14 @@
             }
 
             if (settings.drawmode !== undefined) {
-		this.drawmode = settings.drawmode;
-		// Reset the buffer
-		this.position = 0;
-		this.ybufn =  this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
-		this.ybuf = new ArrayBuffer(this.ybufn);
+                this.drawmode = settings.drawmode;
+                // Reset the buffer
+                this.position = 0;
+                this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+                this.ybuf = new ArrayBuffer(this.ybufn);
             }
         },
-       
+
         reload: function(data, hdrmod) {
 
             var axis_change = (this.hcb.dview.length !== data.length) || hdrmod;
@@ -281,9 +283,12 @@
                 xmax = undefined;
             }
 
-            return {xmin: xmin, xmax: xmax};
-        },         
-        
+            return {
+                xmin: xmin,
+                xmax: xmax
+            };
+        },
+
         push: function(data, hdrmod, sync) {
             if (hdrmod) {
                 for (var k in hdrmod) {
@@ -299,11 +304,11 @@
                         this.size = this.hcb.subsize;
                         // Reset the buffer
                         this.position = null;
-                        this.ybufn =  this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+                        this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
                         this.ybuf = new ArrayBuffer(this.ybufn);
                     }
                 }
-                      
+
                 var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1.0);
                 this.xmin = Math.min(this.hcb.xstart, d);
                 this.xmax = Math.max(this.hcb.xstart, d);
@@ -314,7 +319,7 @@
             m.filad(this.hcb, data, sync);
 
             return hdrmod ? true : false;
-            
+
         },
 
         prep: function(xmin, xmax) {
@@ -325,7 +330,9 @@
 
             var skip = this.skip;
 
-            if (npts === 0) { return; }
+            if (npts === 0) {
+                return;
+            }
 
             if (npts * sigplot.PointArray.BYTES_PER_ELEMENT > Gx.pointbufsize) {
                 Gx.pointbufsize = npts * sigplot.PointArray.BYTES_PER_ELEMENT;
@@ -381,7 +388,7 @@
 
                 npts = n2 - n1 + 1;
                 if (npts < 0) {
-		    m.log.debug("Nothing to plot");
+                    m.log.debug("Nothing to plot");
                     npts = 0;
                 }
                 dbuf = new sigplot.PointArray(this.ybuf).subarray(n1 * skip);
@@ -523,10 +530,10 @@
                 }
                 if (this.line === 1) {
                     traceoptions.vertsym = true;
-		}
+                }
                 if (this.line === 2) {
                     traceoptions.horzsym = true;
-		}
+                }
             }
 
             var segment = (Gx.segment) && (Gx.cmode !== 5) && (this.xsub > 0) && (mask === 0);
@@ -602,7 +609,7 @@
             }
 
             if ((this.position) && (this.drawmode === "scrolling")) {
-                var pnt = mx.real_to_pixel(Mx, this.position*this.xdelta, 0);
+                var pnt = mx.real_to_pixel(Mx, this.position * this.xdelta, 0);
                 if ((pnt.x > Mx.l) && (pnt.x < Mx.r)) {
                     mx.draw_line(Mx, "white", pnt.x, Mx.t, pnt.x, Mx.b);
                 }
@@ -628,14 +635,14 @@
          * @param {String}
          *            hightlight.id the id for the highlight
          */
-        add_highlight : function(highlight) {
+        add_highlight: function(highlight) {
             if (!this.options.highlight) {
                 this.options.highlight = [];
             }
 
             if (highlight instanceof Array) {
                 this.options.highlight.push.apply(
-                this.options.highlight, highlight);
+                    this.options.highlight, highlight);
             } else {
                 this.options.highlight.push(highlight);
             }
@@ -649,19 +656,19 @@
          *             the id of the highlight to remove
          *             or the highlight object itself
          */
-        remove_highlight : function(highlight) {
+        remove_highlight: function(highlight) {
             if (this.options.highlight) {
                 var i = this.options.highlight.length;
                 while (i--) {
-                if ((highlight === this.options.highlight[i]) || (highlight === this.options.highlight[i].id)) {
-                    this.options.highlight.splice(i, 1);
-                }
+                    if ((highlight === this.options.highlight[i]) || (highlight === this.options.highlight[i].id)) {
+                        this.options.highlight.splice(i, 1);
+                    }
                 }
                 this.plot.refresh();
             }
         },
 
-        get_highlights: function(){
+        get_highlights: function() {
             if (this.options.highlight) {
                 return this.options.highlight.slice(0);
             } else {
@@ -672,7 +679,7 @@
         /**
          * Clear all highlights from the layer.
          */
-        clear_highlights : function() {
+        clear_highlights: function() {
             if (this.options.highlight) {
                 this.options.highlight = undefined;
                 this.plot.refresh();

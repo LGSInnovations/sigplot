@@ -39,7 +39,22 @@ window.sigplot = window.sigplot || {};
      * @memberOf sigplot
      * @private
      */
-    var KEYPRESS_HELP = "Keypress Table:\n" + "--------------\n" + "?    - Main help box.\n" + "A    - Toggle display x,y readouts:\n" + "       (absc) -> (index) -> (1/absc) -> (time).\n" + "B    - Toggle LM Drag Mode:\n" + "       (box) -> (horizontal) -> (vertical).\n" + "C    - Toggle controls.\n" + "L    - Toggle legend.\n" + "M    - Pops up main menu\n" + "R    - Toggle display specs (x/y readout)\n" + "S    - Toggle display specs and axes.\n" + "T    - Popup box with timecode value at mouse.\n" + "X    - Popup box with X value at mouse.\n" + "Y    - Popup box with Y value at mouse.\n" + "F    - Toggle fullscreen.\n";
+    var KEYPRESS_HELP = "Keypress Table:\n" +
+        "--------------\n" +
+        "?    - Main help box.\n" +
+        "A    - Toggle display x,y readouts:\n" +
+        "       (absc) -> (index) -> (1/absc) -> (time).\n" +
+        "B    - Toggle LM Drag Mode:\n" +
+        "       (box) -> (horizontal) -> (vertical).\n" +
+        "C    - Toggle controls.\n" +
+        "L    - Toggle legend.\n" +
+        "M    - Pops up main menu\n" +
+        "R    - Toggle display specs (x/y readout)\n" +
+        "S    - Toggle display specs and axes.\n" +
+        "T    - Popup box with timecode value at mouse.\n" +
+        "X    - Popup box with X value at mouse.\n" +
+        "Y    - Popup box with Y value at mouse.\n" +
+        "F    - Toggle fullscreen.\n";
 
     /**
      * Text of the main help dialog.
@@ -47,7 +62,9 @@ window.sigplot = window.sigplot || {};
      * @memberOf sigplot
      * @private
      */
-    var MAIN_HELP = "To zoom, press and drag the left mouse (LM) over the region of interest and release. " + "To unzoom, press right mouse (RM).  Press the middle mouse (MM) button or press the " + "key 'M' to bring up the menu.  Information about keypresses and what they do can be found" + "by selecting 'Keypress Info' from the main menu.";
+    var MAIN_HELP = "To zoom, press and drag the left mouse (LM) over the region of interest and release. " +
+        "To unzoom, press right mouse (RM).  Press the middle mouse (MM) button or press the " +
+        "by selecting 'Keypress Info' from the main menu.";
 
     /**
      * Attempts basic checks to determine if the browser is compatible with
@@ -84,10 +101,10 @@ window.sigplot = window.sigplot || {};
      * @private
      */
     var iOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false);
-    if ((iOS) ||                                   // iOS doesn't support Float64
-	(typeof Float64Array === 'undefined') ||   // If it's undefined it's obviously not supported
-	(Float64Array.emulated) ||                 // If it's emulated, don't waste time on extra precision
-	(!Float64Array.BYTES_PER_ELEMENT)) {       // If bytes per element isn't defined, it's a buggy implementation (i.e. PhantomJS)
+    if ((iOS) || // iOS doesn't support Float64
+        (typeof Float64Array === 'undefined') || // If it's undefined it's obviously not supported
+        (Float64Array.emulated) || // If it's emulated, don't waste time on extra precision
+        (!Float64Array.BYTES_PER_ELEMENT)) { // If bytes per element isn't defined, it's a buggy implementation (i.e. PhantomJS)
         sigplot.PointArray = Float32Array;
     } else {
         sigplot.PointArray = Float64Array;
@@ -253,7 +270,6 @@ window.sigplot = window.sigplot || {};
         if (!sigplot.browserIsCompatible()) {
             throw "Browser is not compatible";
         }
-
         // Register with the Mx structure - Step #4
         this._Mx = mx.open(element);
         var Mx = this._Mx;
@@ -456,9 +472,9 @@ window.sigplot = window.sigplot || {};
                                     // pan
                                     var repeatPan = function() {
                                         if (!onScrollbar({
-                                            "x": Mx.xpos,
-                                            "y": Mx.ypos
-                                        }, scrollbar)) {
+                                                "x": Mx.xpos,
+                                                "y": Mx.ypos
+                                            }, scrollbar)) {
                                             pan(plot, inPan.command, 0, event);
                                             // execute
                                             // a
@@ -972,14 +988,14 @@ window.sigplot = window.sigplot || {};
                             sigplot_show_timecode(plot);
                         } else if (keyCode === 109) { // 'm'
                             if (!Gx.nomenu) {
-	                            var evt = document.createEvent('Event');
-	                            evt.initEvent('showmenu', true, true);
-	                            evt.x = Mx.x;
-	                            evt.y = Mx.y;
-	                            var executeDefault = mx.dispatchEvent(Mx, evt);
-	                            if (executeDefault) {
-	                                sigplot_mainmenu(plot);
-	                            }
+                                var evt = document.createEvent('Event');
+                                evt.initEvent('showmenu', true, true);
+                                evt.x = Mx.x;
+                                evt.y = Mx.y;
+                                var executeDefault = mx.dispatchEvent(Mx, evt);
+                                if (executeDefault) {
+                                    sigplot_mainmenu(plot);
+                                }
                             }
                         } else if (keyCode === 63) { // '?'
                             mx.message(Mx, MAIN_HELP);
@@ -1503,18 +1519,22 @@ window.sigplot = window.sigplot || {};
          * Reload data without adjusting other aspects about a plot
          *
          * @param {Number} n
-         *            the layer to push data into 
+         *            the layer to push data into
          * @param {Number[]} data
          *            data to push
-         * @param {Object} hdrmod 
+         * @param {Object} hdrmod
          *            optional changes to the file header
          */
         reload: function(n, data, hdrmod) {
             var Mx = this._Mx;
             var Gx = this._Gx;
-            if ((n < 0) || (n >= Gx.lyr.length)) { return; }
+            if ((n < 0) || (n >= Gx.lyr.length)) {
+                return;
+            }
 
-            if (Gx.lyr[n].reload === undefined) { return; }
+            if (Gx.lyr[n].reload === undefined) {
+                return;
+            }
 
             var xbnds = Gx.lyr[n].reload(data, hdrmod);
 
@@ -1544,22 +1564,26 @@ window.sigplot = window.sigplot || {};
 
         /**
          * Push data into a layer that was created with overlay_pipe
-         * 
+         *
          * @param {Number} n
-         *            the layer to push data into 
+         *            the layer to push data into
          * @param {Number[]} data
          *            data to push
-         * @param {Object} hdrmod 
+         * @param {Object} hdrmod
          *            optional changes to the file header
          * @param {boolean} [sync=false]
-         *            optional dispatch onpipewrite syncronously 
+         *            optional dispatch onpipewrite syncronously
          */
         push: function(n, data, hdrmod, sync) {
             var Mx = this._Mx;
             var Gx = this._Gx;
-            if ((n < 0) || (n >= Gx.lyr.length)) { return; }
-            
-            if (Gx.lyr[n].push === undefined) { return; }
+            if ((n < 0) || (n >= Gx.lyr.length)) {
+                return;
+            }
+
+            if (Gx.lyr[n].push === undefined) {
+                return;
+            }
 
             var rescale = Gx.lyr[n].push(data, hdrmod, sync);
 
@@ -1583,13 +1607,13 @@ window.sigplot = window.sigplot || {};
          * @param layerType
          */
         overlay_array: function(data, overrides, layerOptions) {
-	    m.log.debug("Overlay array");
+            m.log.debug("Overlay array");
             var hcb = m.initialize(data, overrides);
             return this.overlay_bluefile(hcb, layerOptions);
         },
 
         overlay_pipe: function(overrides, layerOptions) {
-	    m.log.debug("Overlay pipe");
+            m.log.debug("Overlay pipe");
             if (!overrides) {
                 overrides = {};
             }
@@ -1600,7 +1624,7 @@ window.sigplot = window.sigplot || {};
         },
 
         overlay_websocket: function(wsurl, overrides, layerOptions) {
-	    m.log.debug("Overlay websocket: " + wsurl);
+            m.log.debug("Overlay websocket: " + wsurl);
             var ws = new WebSocket(wsurl, "plot-data");
             ws.binaryType = "arraybuffer";
 
@@ -1646,7 +1670,7 @@ window.sigplot = window.sigplot || {};
          *            callback to be called when the file has been loaded
          */
         overlay_href: function(href, onload, layerOptions) {
-	    m.log.debug("Overlay href: " + href);
+            m.log.debug("Overlay href: " + href);
             try {
                 this.show_spinner();
 
@@ -1721,7 +1745,7 @@ window.sigplot = window.sigplot || {};
          * @returns the index of the new layer
          */
         overlay_bluefile: function(hcb, layerOptions) {
-	    m.log.debug("Overlay bluefile: " + hcb.file_name);
+            m.log.debug("Overlay bluefile: " + hcb.file_name);
             var Mx = this._Mx;
             var Gx = this._Gx;
             var size = 0;
@@ -1814,7 +1838,7 @@ window.sigplot = window.sigplot || {};
          *            a list of files to plot
          */
         load_files: function(files, layerType) {
-	    var onload = (function(plot) {
+            var onload = (function(plot) {
                 return function(hdr) {
                     plot.overlay_bluefile(hdr, layerType);
                 };
@@ -1898,7 +1922,7 @@ window.sigplot = window.sigplot || {};
             evt.initEvent('file_deoverlayed', true, true);
             if (fileName !== "") {
                 evt.fileName = fileName; // The fileName that was
-	    }
+            }
             // de-overlayed
             mx.dispatchEvent(this._Mx, evt);
         },
@@ -2212,16 +2236,12 @@ window.sigplot = window.sigplot || {};
             if (!Gx.plotData.valid) {
                 this.refresh();
             } else {
-		ctx.drawImage(Gx.plotData,
-			      Mx.l - 1,
-			      Mx.t - 1,
-			      (Mx.r - Mx.l) + 2,
-			      (Mx.b - Mx.t) + 2,
-			      Mx.l - 1,
-			      Mx.t - 1,
-			      (Mx.r - Mx.l) + 2,
-			      (Mx.b - Mx.t) + 2
-			     );
+                ctx.drawImage(Gx.plotData,
+                    Mx.l - 1,
+                    Mx.t - 1, (Mx.r - Mx.l) + 2, (Mx.b - Mx.t) + 2,
+                    Mx.l - 1,
+                    Mx.t - 1, (Mx.r - Mx.l) + 2, (Mx.b - Mx.t) + 2
+                );
 
                 draw_plugins(this);
 
@@ -2516,11 +2536,11 @@ window.sigplot = window.sigplot || {};
             draw_accessories(this, 4);
 
             if ((Mx.r > Mx.l) && (Mx.b > Mx.t)) {
-	      // Resize
-              Gx.plotData.width = Mx.canvas.width;
-              Gx.plotData.height = Mx.canvas.height;
-	      Gx.plotData.getContext("2d").drawImage(Mx.canvas, 0, 0);
-	      Gx.plotData.valid = true;
+                // Resize
+                Gx.plotData.width = Mx.canvas.width;
+                Gx.plotData.height = Mx.canvas.height;
+                Gx.plotData.getContext("2d").drawImage(Mx.canvas, 0, 0);
+                Gx.plotData.valid = true;
             }
 
             draw_plugins(this);
@@ -2734,9 +2754,9 @@ window.sigplot = window.sigplot || {};
         this.lyr = [];
         this.HCB = [];
         this.plugins = [];
-                
+
         this.plotData = document.createElement("canvas");
-	this.plotData.valid = false;
+        this.plotData.valid = false;
     }
 
     /**
@@ -3620,7 +3640,9 @@ window.sigplot = window.sigplot || {};
                         if (index !== undefined) {
                             thk = Math.abs(plot._Gx.lyr[index].thick);
                         } else {
-                            if (Gx.lyr.length === 0) { return; }
+                            if (Gx.lyr.length === 0) {
+                                return;
+                            }
 
                             thk = Math.abs(plot._Gx.lyr[0].thick);
                             for (var i = 0; i < Gx.lyr.length; i++) {
@@ -3633,7 +3655,8 @@ window.sigplot = window.sigplot || {};
                         setupPrompt(
                             plot,
                             "Line thickness:",
-                            mx.intValidator, function(finalValue) {
+                            mx.intValidator,
+                            function(finalValue) {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].line = 3;
                                     plot._Gx.lyr[index].thick = -1 * finalValue;
@@ -3655,7 +3678,9 @@ window.sigplot = window.sigplot || {};
                         if (index !== undefined) {
                             radius = Math.abs(plot._Gx.lyr[index].radius);
                         } else {
-                            if (Gx.lyr.length === 0) { return; }
+                            if (Gx.lyr.length === 0) {
+                                return;
+                            }
                             for (var i = 0; i < Gx.lyr.length; i++) {
                                 if (radius !== Math.abs(plot._Gx.lyr[i].radius)) {
                                     radius = 3;
@@ -3666,7 +3691,8 @@ window.sigplot = window.sigplot || {};
                         setupPrompt(
                             plot,
                             "Radius/Shape:",
-                            mx.intValidator, function(finalValue) {
+                            mx.intValidator,
+                            function(finalValue) {
                                 var sym;
                                 var rad;
                                 if (finalValue < 0) {
@@ -3700,7 +3726,9 @@ window.sigplot = window.sigplot || {};
                         if (index !== undefined) {
                             thk = Math.abs(plot._Gx.lyr[index].thick);
                         } else {
-                            if (Gx.lyr.length === 0) { return; }
+                            if (Gx.lyr.length === 0) {
+                                return;
+                            }
 
                             thk = Math.abs(plot._Gx.lyr[0].thick);
                             for (var i = 0; i < Gx.lyr.length; i++) {
@@ -3713,7 +3741,8 @@ window.sigplot = window.sigplot || {};
                         setupPrompt(
                             plot,
                             "Line thickness:",
-                            mx.intValidator, function(finalValue) {
+                            mx.intValidator,
+                            function(finalValue) {
                                 if (index !== undefined) {
                                     plot._Gx.lyr[index].line = 3;
                                     plot._Gx.lyr[index].thick = finalValue;
@@ -3984,7 +4013,7 @@ window.sigplot = window.sigplot || {};
                     handler: function() {
                         plot.unzoom();
                     }
-                },{
+                }, {
                     text: "Y Axis",
                     style: "separator"
                 }, {
@@ -4081,8 +4110,8 @@ window.sigplot = window.sigplot || {};
                                     plot.deoverlay();
                                 }
                             });
-			    /* jshint -W083 */
-			    /* TODO figure out how to not create functions within a loop */
+                            /* jshint -W083 */
+                            /* TODO figure out how to not create functions within a loop */
                             for (var i = 0; i < Gx.lyr.length; i++) {
                                 var handler = (function(index) {
                                     return function() {
@@ -4095,7 +4124,7 @@ window.sigplot = window.sigplot || {};
                                     handler: handler
                                 });
                             }
-			    /* jshint +W083 */
+                            /* jshint +W083 */
                             return deoverlaymenu;
                         }
                     }
@@ -4128,7 +4157,7 @@ window.sigplot = window.sigplot || {};
 
         var REFRESH_ITEM = {
             text: "Refresh" // no handler, just let the finalizer deal with
-            // it
+                // it
         };
 
         var KEYPRESSINFO_ITEM = {
@@ -4223,7 +4252,7 @@ window.sigplot = window.sigplot || {};
                 evt.y = re.y;
                 evt.w = Math.abs(rwh.x - re.x);
                 evt.h = Math.abs(rwh.y - re.y);
-	            evt.shift = event.shiftKey;
+                evt.shift = event.shiftKey;
                 mx.dispatchEvent(Mx, evt);
             }
         };
@@ -4639,7 +4668,7 @@ window.sigplot = window.sigplot || {};
     function draw_plugins(plot) {
         var Gx = plot._Gx;
         var ctx = plot._Mx.canvas.getContext("2d");
-	var canvas;
+        var canvas;
 
         var plugin_index = 0;
         while (plugin_index < Gx.plugins.length) {
@@ -4815,7 +4844,9 @@ window.sigplot = window.sigplot || {};
         //if (n < Gx.modlayer) Gx.modlayer = Gx.modlayer - 1;
         //if (n < Gx.modsource) Gx.modsource = Gx.modsource - 1;
         var topbs;
-        if (Gx.lyr[n].display) { topbs = n; }
+        if (Gx.lyr[n].display) {
+            topbs = n;
+        }
         Gx.lyr[n].ybufn = 0;
         Gx.lyr[n].ybuf = null;
         if (n < Gx.lyr.length - 1) {
@@ -4892,11 +4923,11 @@ window.sigplot = window.sigplot || {};
             ctx.textAlign = "left";
             ctx.fillStyle = Mx.fg;
             ctx.font = Mx.font.font;
-            
-            var text = "x:"+mx.format_g(Gx.xmrk, 6, 3, true);
-            ctx.fillText(text, pix.x+5, pix.y-5);
-            text  = "y:"+mx.format_g(Gx.ymrk, 6, 3, true);
-            ctx.fillText(text, pix.x+5, pix.y-5+Mx.text_h);
+
+            var text = "x:" + mx.format_g(Gx.xmrk, 6, 3, true);
+            ctx.fillText(text, pix.x + 5, pix.y - 5);
+            text = "y:" + mx.format_g(Gx.ymrk, 6, 3, true);
+            ctx.fillText(text, pix.x + 5, pix.y - 5 + Mx.text_h);
         }
     }
 
@@ -4951,7 +4982,7 @@ window.sigplot = window.sigplot || {};
             }
             if (Gx.lyr[n].xdata) {
                 Gx.xdata = true;
-	    }
+            }
         }
 
         if (newmode === Gx.cmode) {
@@ -5033,7 +5064,7 @@ window.sigplot = window.sigplot || {};
 
         if ((!Gx.pan) || (Mx.widget)) {
             return;
-	}
+        }
 
         k = Mx.level; // Y scrollbar
 
@@ -5211,7 +5242,7 @@ window.sigplot = window.sigplot || {};
                 xmin = xmin + xran * (Mx.xpos - (Mx.l + Mx.r) / 2) / (Mx.r - Mx.l);
                 if (xmin !== Mx.stk[k].xmin) {
                     xmax = xmin + xran;
-		}
+                }
                 warn = false;
             }
 
@@ -5530,16 +5561,16 @@ window.sigplot = window.sigplot || {};
         } else if (Gx.iabsc === 2) { // 1/absc
             if (Gx.aretx !== 0.0) {
                 Gx.aretx = 1.0 / Gx.aretx;
-	    }
+            }
             if (Gx.arety !== 0.0) {
                 Gx.arety = 1.0 / Gx.arety;
-	    }
+            }
             if (Gx.dretx !== 0.0) {
                 Gx.dretx = 1.0 / Gx.dretx;
-	    }
+            }
             if (Gx.drety !== 0.0) {
                 Gx.drety = 1.0 / Gx.drety;
-	    }
+            }
         }
 
         if ((!Gx.show_readout) || (Mx.widget)) {
@@ -5838,12 +5869,12 @@ window.sigplot = window.sigplot || {};
             s = position.x - scrollbar.x;
             if (scrollbar.origin & 2) {
                 s = scrollbar.w - s;
-	    }
+            }
         } else {
             s = position.y - scrollbar.y;
             if (scrollbar.origin <= 2) {
                 s = scrollbar.h - s;
-	    }
+            }
         }
 
         // Update s1 and sw values

@@ -438,7 +438,9 @@ window.m = window.m || {};
      * @return	{number}	ngot		Number of received data
      */
     m.grab = function(hcb, bufview, start, nget) {
-        if (!hcb.dview) { return 0; }
+        if (!hcb.dview) {
+            return 0;
+        }
 
         // TODO reformat
         if (hcb.format[0] === 'C') {
@@ -467,7 +469,7 @@ window.m = window.m || {};
      * Append data buffer to file specified in the bluefile header control block.
      * @param	{header}	hcb		Bluefile header control block
      * @param	{array}		data		Data buffer
-     * @param   {boolean}       [sync=false]    dispatch onpipewrite syncronously 
+     * @param   {boolean}       [sync=false]    dispatch onpipewrite syncronously
      */
     m.filad = function(hcb, data, sync) {
         if (hcb.data_free < data.length) {
@@ -478,13 +480,13 @@ window.m = window.m || {};
         if (eidx > hcb.dview.length) {
             var head = hcb.dview.length - sidx;
             var tail = data.length - head;
-	    if (data.subarray) {
-              hcb.dview.set(data.subarray(0, head), sidx);
-              hcb.dview.set(data.subarray(head, data.length), 0);
-	    } else {
-              hcb.dview.set(data.slice(0, head), sidx);
-              hcb.dview.set(data.slice(head, data.length), 0);
-	    }
+            if (data.subarray) {
+                hcb.dview.set(data.subarray(0, head), sidx);
+                hcb.dview.set(data.subarray(head, data.length), 0);
+            } else {
+                hcb.dview.set(data.slice(0, head), sidx);
+                hcb.dview.set(data.slice(head, data.length), 0);
+            }
             hcb.in_byte = (tail * hcb.dview.BYTES_PER_ELEMENT);
         } else {
             hcb.dview.set(data, sidx);
@@ -521,34 +523,34 @@ window.m = window.m || {};
      */
     // WARNING - nget is number of scalars...which differs from the normal API
     m.grabx = function(hcb, dview, nget, offset) {
-	var navail = hcb.dview.length - hcb.data_free;
-	if (offset === undefined) {
-		offset = 0;
-	}
-	if (!nget) {
-		nget = Math.min(dview.length-offset, navail);
-	} else if (nget > dview.length-offset) {
-		throw "m.grabx : nget larger then available buffer space";
-	}
-	if (nget < 0) {
-		throw "m.grabx : nget cannot be negative";
-	}
-	if (nget > navail) {
-		return 0;
-	}
+        var navail = hcb.dview.length - hcb.data_free;
+        if (offset === undefined) {
+            offset = 0;
+        }
+        if (!nget) {
+            nget = Math.min(dview.length - offset, navail);
+        } else if (nget > dview.length - offset) {
+            throw "m.grabx : nget larger then available buffer space";
+        }
+        if (nget < 0) {
+            throw "m.grabx : nget cannot be negative";
+        }
+        if (nget > navail) {
+            return 0;
+        }
 
-	var sidx = hcb.out_byte / hcb.dview.BYTES_PER_ELEMENT;
-	var eidx = (sidx + nget);
-	if (eidx >= hcb.dview.length) {
-		var head = hcb.dview.length - sidx;
-		eidx = eidx - hcb.dview.length;
-		dview.set(hcb.dview.subarray(sidx, hcb.dview.length), offset);
-		dview.set(hcb.dview.subarray(0, eidx), offset+head);
-	} else {
-		dview.set(hcb.dview.subarray(sidx, eidx), offset);
-	}
-	hcb.out_byte = (eidx * hcb.dview.BYTES_PER_ELEMENT) % hcb.buf.byteLength;
-	hcb.data_free += nget;
+        var sidx = hcb.out_byte / hcb.dview.BYTES_PER_ELEMENT;
+        var eidx = (sidx + nget);
+        if (eidx >= hcb.dview.length) {
+            var head = hcb.dview.length - sidx;
+            eidx = eidx - hcb.dview.length;
+            dview.set(hcb.dview.subarray(sidx, hcb.dview.length), offset);
+            dview.set(hcb.dview.subarray(0, eidx), offset + head);
+        } else {
+            dview.set(hcb.dview.subarray(sidx, eidx), offset);
+        }
+        hcb.out_byte = (eidx * hcb.dview.BYTES_PER_ELEMENT) % hcb.buf.byteLength;
+        hcb.data_free += nget;
         var ngot = nget;
         return ngot;
     };
@@ -718,7 +720,7 @@ window.m = window.m || {};
             dst[i] = dst[i] * dbscale;
         }
     };
-    
+
     /**
      * Same as vlogscale but computes magnitude squared.
      *
@@ -1101,7 +1103,7 @@ window.m = window.m || {};
 
     m.sec2tod_j1970 = function(sec) {
         var tod = "";
-	var d;
+        var d;
         if ((sec >= 0) && (sec < 86400)) {
             // hh:mm:ss
             d = new Date(sec * 1000);

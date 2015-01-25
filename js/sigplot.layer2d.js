@@ -176,7 +176,7 @@
                 this.ystart = this.hcb.ystart;
                 this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps)); // the top of the plot is older than the current ystart
                 this.ymax = this.hcb.ystart;
-            } 
+            }
 
             if (this.drawmode === "falling") {
                 this.position = 0;
@@ -199,10 +199,10 @@
             }
 
             var ngot = m.grabx(this.hcb, this.buf, this.hcb.subsize * this.hcb.spa, this.position * this.hcb.subsize * this.hcb.spa);
-	    if (ngot === 0) { // shouldn't happen because of the pavail check
+            if (ngot === 0) { // shouldn't happen because of the pavail check
                 m.log.error("Internal error");
                 return;
-	    }
+            }
 
             var dbuf = this.buf.subarray(this.position * this.hcb.subsize * this.hcb.spa, (this.position + 1) * this.hcb.subsize * this.hcb.spa);
             var zpoint = new sigplot.PointArray(this.hcb.subsize);
@@ -250,8 +250,12 @@
             var min = zpoint[0];
             var max = zpoint[0];
             for (var i = 0; i < zpoint.length; i++) {
-                if (zpoint[i] < min) { min = zpoint[i]; }
-                if (zpoint[i] > max) { max = zpoint[i]; }
+                if (zpoint[i] < min) {
+                    min = zpoint[i];
+                }
+                if (zpoint[i] > max) {
+                    max = zpoint[i];
+                }
             }
 
             if (Gx.autol === 1) {
@@ -311,8 +315,8 @@
 
             if (settings.cmode !== undefined) {
                 this.img = undefined;
-                Gx.zmin  = undefined;
-                Gx.zmax  = undefined;
+                Gx.zmin = undefined;
+                Gx.zmax = undefined;
             }
             if (settings.cmap !== undefined) {
                 this.img = undefined;
@@ -348,7 +352,7 @@
                     this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
                     this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
                 }
-                      
+
                 var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1.0);
                 this.xmin = Math.min(this.hcb.xstart, d);
                 this.xmax = Math.max(this.hcb.xstart, d);
@@ -365,7 +369,7 @@
             m.filad(this.hcb, data, sync);
 
             return hdrmod ? true : false;
-            
+
         },
 
         prep: function(xmin, xmax) {
@@ -415,7 +419,7 @@
             }
 
             if (npts <= 0) {
-		m.log.debug("Nothing to plot");
+                m.log.debug("Nothing to plot");
                 return;
             }
 
@@ -497,9 +501,9 @@
             var zpoint = this.zbuf;
             if (this.hcb.pipe && (this.frame < this.lps)) {
                 if (this.drawmode === "rising") {
-                    zpoint = this.zbuf.subarray(this.zbuf.length-(this.frame*this.hcb.subsize));
+                    zpoint = this.zbuf.subarray(this.zbuf.length - (this.frame * this.hcb.subsize));
                 } else {
-                    zpoint = this.zbuf.subarray(0,this.frame*this.hcb.subsize);
+                    zpoint = this.zbuf.subarray(0, this.frame * this.hcb.subsize);
                 }
             }
 
@@ -509,9 +513,15 @@
                 min = zpoint[0];
                 max = zpoint[0];
                 for (var i = 0; i < zpoint.length; i++) {
-                    if ((i / this.xframe) >= this.lpb) { break; }
-                    if (zpoint[i] < min) { min = zpoint[i]; }
-                    if (zpoint[i] > max) { max = zpoint[i]; }
+                    if ((i / this.xframe) >= this.lpb) {
+                        break;
+                    }
+                    if (zpoint[i] < min) {
+                        min = zpoint[i];
+                    }
+                    if (zpoint[i] > max) {
+                        max = zpoint[i];
+                    }
                 }
             }
 
@@ -530,16 +540,16 @@
             this.img.cmode = Gx.cmode;
             this.img.cmap = Gx.cmap;
             this.img.origin = Mx.origin;
-           
+
             // Make the parts without data transparent 
             if (this.hcb.pipe && (this.frame < this.lps)) {
                 var imgd = new Uint32Array(this.img);
                 if (this.drawmode === "rising") {
-                    for (var i=0; i<imgd.length-(this.frame*this.hcb.subsize); i++) {
+                    for (var i = 0; i < imgd.length - (this.frame * this.hcb.subsize); i++) {
                         imgd[i] = 0;
                     }
                 } else {
-                    for (var i=this.frame * this.hcb.subsize; i<imgd.length; i++) {
+                    for (var i = this.frame * this.hcb.subsize; i < imgd.length; i++) {
                         imgd[i] = 0;
                     }
                 }
@@ -565,9 +575,9 @@
                     this.buf = new_buf;
                     this.zbuf = new_zbuf;
                     this.lps = lps;
-		    if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
-			this.position = 0;
-		    }
+                    if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
+                        this.position = 0;
+                    }
                     var d = HCB.ystart + HCB.ydelta * (this.lps - 1.0);
                     this.ymin = Math.min(HCB.ystart, d);
                     this.ymax = Math.max(HCB.ystart, d);
@@ -617,7 +627,7 @@
             }
 
             if (this.position !== null && this.drawmode === "scrolling") {
-                var pnt = mx.real_to_pixel(Mx, 0, this.position*this.ydelta);
+                var pnt = mx.real_to_pixel(Mx, 0, this.position * this.ydelta);
                 if ((pnt.y > Mx.t) && (pnt.y < Mx.b)) {
                     mx.draw_line(Mx, "white", Mx.l, pnt.y, Mx.r, pnt.y);
                 }
