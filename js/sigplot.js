@@ -537,6 +537,10 @@ window.sigplot = window.sigplot || {};
                                     Gx.default_rubberbox_mode,
                                     select_style, zoom_style);
                             } // otherwise rubber-box is considered disabled
+
+                            if (Gx.always_show_marker || Gx.show_marker) {
+                                plot.redraw();
+                            }
                         }
                     } else if (event.which === 2) {
                         if (!Gx.nomenu) {
@@ -986,6 +990,10 @@ window.sigplot = window.sigplot || {};
                             plot.change_settings({
                                 invert: null
                             });
+                        } else if (keyCode === 107) { // 'k' show marker
+                            Gx.show_marker = !Gx.show_marker;
+                            plot.redraw();
+
                         }
                     }
                 };
@@ -2220,6 +2228,10 @@ window.sigplot = window.sigplot || {};
                 Gx.cross_xpos = undefined;
                 Gx.cross_ypos = undefined;
                 draw_crosshairs(this);
+
+                if (Gx.always_show_marker || Gx.show_marker) {
+                    draw_marker(this);
+                }
             }
         },
 
@@ -2517,6 +2529,10 @@ window.sigplot = window.sigplot || {};
             Gx.cross_xpos = undefined;
             Gx.cross_ypos = undefined;
             draw_crosshairs(this);
+
+            if (Gx.always_show_marker || Gx.show_marker) {
+                draw_marker(this);
+            }
         }
     };
 
@@ -4297,6 +4313,7 @@ window.sigplot = window.sigplot || {};
         Gx.xdata = false;
         Gx.note = "";
         Gx.hold = 0;
+        Gx.always_show_marker = o.always_show_marker || false;
 
         m.vstype('D');
 
@@ -4850,6 +4867,36 @@ window.sigplot = window.sigplot || {};
                     Gx.cross_ypos = Mx.ypos;
                 }
             }
+        }
+    }
+
+    /**
+     * @memberOf sigplot
+     * @private
+     */
+    function draw_marker(plot) {
+        var Gx = plot._Gx;
+        var Mx = plot._Mx;
+
+        if (Gx.xmrk !== null && Gx.ymrk !== null) {
+            var ctx = Mx.active_canvas.getContext("2d");
+            ctx.beginPath();
+            ctx.strokeStyle = Mx.xwfg;
+            ctx.fillStyle = Mx.xwfg;
+            var pix = mx.real_to_pixel(Mx, Gx.xmrk, Gx.ymrk);
+            ctx.arc(pix.x, pix.y, 2, 0, 360);
+            ctx.stroke(); // just draw the arc's outline
+
+            // TODO add x/y coord
+            ctx.textBaseline = "alphabetic";
+            ctx.textAlign = "left";
+            ctx.fillStyle = Mx.fg;
+            ctx.font = Mx.font.font;
+            
+            var text = "x:"+mx.format_g(Gx.xmrk, 6, 3, true);
+            ctx.fillText(text, pix.x+5, pix.y-5);
+            text  = "y:"+mx.format_g(Gx.ymrk, 6, 3, true);
+            ctx.fillText(text, pix.x+5, pix.y-5+Mx.text_h);
         }
     }
 
