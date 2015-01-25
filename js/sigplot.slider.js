@@ -117,23 +117,32 @@
 					
 					if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) { return; }
 					if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) { return; }
+
+					if (evt.slider_drag) {
+						return;
+					}
 					
 					var lineWidth = (self.options.style.lineWidth !== undefined) ? self.options.style.lineWidth : 1;
 					
+					// TODO if multiple sliders are on the same position
+					// they will become stuck together and cannot be separated
 					if (self.options.direction === "vertical") {
 						if (Math.abs(self.location - evt.xpos) < (lineWidth + 5)) {
 							self.dragging = true;
+							evt.slider_drag = true;
 							evt.preventDefault();
 						}
 					} else if (self.options.direction === "horizontal") {
 						if (Math.abs(self.location - evt.ypos) < (lineWidth + 5)) {
 							self.dragging = true;
+							evt.slider_drag = true;
 							evt.preventDefault();
 						}
 					} else if (self.options.direction === "both") {
 						if (Math.abs(self.location.x - evt.xpos) < (lineWidth + 5) &&
 							Math.abs(self.location.y - evt.ypos) < (lineWidth + 5)) {
 							self.dragging = true;
+							evt.slider_drag = true;
 							evt.preventDefault();
 						}
 					}
