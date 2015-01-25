@@ -168,7 +168,7 @@
 						evt.position = self.position;
 					}
 
-					var canceled = !mx.dispatchEvent(Mx, evt);
+					mx.dispatchEvent(Mx, evt);
 					
 					// Issue a slider tag event
 					var evt = document.createEvent('Event');
@@ -181,7 +181,7 @@
 						evt.position = self.position;
 					}
 
-					var canceled = !mx.dispatchEvent(Mx, evt);
+					mx.dispatchEvent(Mx, evt);
 				};
 				document.addEventListener("mouseup", this.onmouseup, false);
 			},
@@ -264,8 +264,7 @@
 					evt.position = this.position;
 				}
 
-				var canceled = !mx.dispatchEvent(Mx, evt);
-				if (canceled) { return; }
+				mx.dispatchEvent(Mx, evt);
 				
 				this.plot.redraw();
 			},
@@ -314,8 +313,7 @@
 					evt.location = this.location;
 					evt.position = this.position;
 				}
-				var canceled = !mx.dispatchEvent(Mx, evt);
-				if (canceled) { return; }
+				mx.dispatchEvent(Mx, evt);
 				
 				this.plot.redraw();
 			},
