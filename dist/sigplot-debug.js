@@ -3472,8 +3472,8 @@ window.mx = window.mx || {};
     Mx.onmousemove = function(Mx) {
       return function(e) {
         var rect = e.target.getBoundingClientRect();
-        Mx.x = event.x || event.clientX;
-        Mx.y = event.y || event.clientY;
+        Mx.x = e.x || e.clientX;
+        Mx.y = e.y || e.clientY;
         Mx.xpos = e.offsetX === undefined ? e.pageX - rect.left - window.scrollX : e.offsetX;
         Mx.ypos = e.offsetX === undefined ? e.pageY - rect.top - window.scrollY : e.offsetY;
         if (Mx.warpbox) {
