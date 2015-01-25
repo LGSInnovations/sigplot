@@ -35,6 +35,7 @@
 		
 		this.position = undefined;
 		this.location = undefined;
+		this.paired_slider = undefined;
 	};
 	
 	sigplot.SliderPlugin.prototype = {
@@ -190,6 +191,18 @@
 			removeListener: function (what, callback) {
 				var Mx = this.plot._Mx;
 				mx.removeEventListener(Mx, what, callback, false);
+			},
+
+			pair: function(other_slider) {
+				if (!other_slider) {
+					this.paired_slider = null;
+					return;
+				}
+
+				if (other_slider.direction !== this.direction) {
+					throw "paired sliders must use the same direction setting";
+				}
+				this.paired_slider = other_slider;
 			},
 			
 			set_highlight: function(ishighlight) {
@@ -367,6 +380,60 @@
 					ctx.moveTo(this.location.x+0.5, Mx.t);
 					ctx.lineTo(this.location.x+0.5, Mx.b);
 					ctx.stroke();
+				}
+
+				// Show extra information while dragging or highlighted
+				if (this.dragging || this.highlight) {
+					if (this.options.direction === "vertical") {
+						ctx.textBaseline = "alphabetic";
+                    	ctx.textAlign = "left";
+                    	ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
+                    	ctx.font = Mx.font.font;
+                    	var text = mx.format_g(this.position, 6, 3, true);
+                    	ctx.fillText(text, this.location+5, Mx.t+10);
+					} else if (this.options.direction === "horizontal") {
+						ctx.textBaseline = "alphabetic";
+                    	ctx.textAlign = "left";
+                    	ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
+                    	ctx.font = Mx.font.font;
+                    	var text = mx.format_g(this.position, 6, 3, true);
+                    	ctx.fillText(text, Mx.l+10, this.location-5);
+					} else if (this.options.direction === "both") {
+						// TODO
+                    }
+
+                    if (this.paired_slider) {
+                    	if (this.options.direction === "vertical") {
+                    		var delta = this.position - this.paired_slider.position;
+                    		var locdelta = this.location - this.paired_slider.location;
+
+                    		var ypos = Mx.t + Math.round((Mx.b-Mx.t)/2);
+                    		mx.textline(Mx, this.location, ypos, this.paired_slider.location, ypos, {mode: "dashed", on: 3, off: 3});
+
+                    		ctx.textBaseline = "alphabetic";
+	                    	ctx.textAlign = "center";
+	                    	ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
+	                    	ctx.font = Mx.font.font;
+	                    	var text = mx.format_g(delta, 6, 3, true);
+	                    	ctx.fillText(text, this.location-Math.round(locdelta/2), ypos-5);
+
+                    	} else if (this.options.direction === "horizontal") {
+							var delta = this.position - this.paired_slider.position;
+                    		var locdelta = this.location - this.paired_slider.location;
+
+                    		var xpos = Mx.l + Math.round((Mx.r-Mx.l)/2);
+                    		mx.textline(Mx, xpos, this.location, xpos, this.paired_slider.location, {mode: "dashed", on: 3, off: 3});
+
+                    		ctx.textBaseline = "alphabetic";
+	                    	ctx.textAlign = "left";
+	                    	ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
+	                    	ctx.font = Mx.font.font;
+	                    	var text = mx.format_g(delta, 6, 3, true);
+	                    	ctx.fillText(text, xpos+5, this.location-Math.round(locdelta/2));
+                		} else if (this.options.direction === "both") {
+						// TODO
+	                    }	
+                    }
 				}
 			},
 			
