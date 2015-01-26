@@ -4397,9 +4397,6 @@ window.sigplot = window.sigplot || {};
             }
         }
 
-        Gx.yptr = undefined;
-        Gx.xptr = undefined;
-        Gx.pointbufsize = 0;
         Gx.xdata = false;
         Gx.note = "";
         Gx.hold = 0;
@@ -4925,11 +4922,6 @@ window.sigplot = window.sigplot || {};
             Gx.panymin = 1.0;
             Gx.panymax = -1.0;
         }
-        //Gx.yptr = undefined;
-        //Gx.xptr = undefined;
-        //Gx.pointbufsize = 0;
-        //Gx.xptr = undefined; // xpoints ArrayBuffer
-        //Gx.yptr = undefined; // ypoints ArrayBuffer
     }
 
     /**
@@ -5761,8 +5753,7 @@ window.sigplot = window.sigplot || {};
                         // get_data fills in the layer xbuf/ybuf with data
                         Gx.lyr[n].get_data(xmin, xmax);
 
-                        // sigplot_prep fills in Gx.xptr and Gx.yptr (both PointArray)
-                        // with the data to be plotted
+                        // have the layer prep it's data to be rendered
                         var npts = Gx.lyr[n].prep(xmin, xmax);
 
                         // If both All and Expand are provided we

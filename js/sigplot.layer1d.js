@@ -58,6 +58,12 @@
         this.opacity = 1.0;
         this.preferred_origin = 1;
 
+        this.pointbufsize = 0;
+        this.xptr = null;
+        this.yptr = null;
+        this.xpoint = null; // PointArray backed by memory in xptr
+        this.ypoint = null; // PointArray backed by memory in yptr
+
         this.options = {};
     };
 
@@ -339,14 +345,15 @@
                 return;
             }
 
-            if (npts * sigplot.PointArray.BYTES_PER_ELEMENT > Gx.pointbufsize) {
-                Gx.pointbufsize = npts * sigplot.PointArray.BYTES_PER_ELEMENT;
-                Gx.xptr = new ArrayBuffer(Gx.pointbufsize);
-                Gx.yptr = new ArrayBuffer(Gx.pointbufsize);
+            if (npts * sigplot.PointArray.BYTES_PER_ELEMENT > this.pointbufsize) {
+                this.pointbufsize = npts * sigplot.PointArray.BYTES_PER_ELEMENT;
+                this.xptr = new ArrayBuffer(this.pointbufsize);
+                this.yptr = new ArrayBuffer(this.pointbufsize);
+                this.xpoint = new sigplot.PointArray(this.xptr);
+                this.ypoint = new sigplot.PointArray(this.yptr);
             }
 
             var dbuf = new sigplot.PointArray(this.ybuf);
-            var xpoint = new sigplot.PointArray(Gx.xptr);
             var qmin = this.xmin;
             var qmax = this.xmax;
             var n1, n2;
@@ -356,21 +363,21 @@
                     qmin = Gx.panxmin;
                     qmax = Gx.panxmax;
                 } else if (Gx.cmode !== 5) {
-                    xpoint = new sigplot.PointArray(this.xbuf);
+                    this.xpoint = new sigplot.PointArray(this.xbuf);
                 } else if (this.cx) {
-                    m.vmov(dbuf, skip, xpoint, 1, npts);
+                    m.vmov(dbuf, skip, this.xpoint, 1, npts);
                 } else if (this.line !== 0) {
                     mxmn = m.vmxmn(dbuf, npts);
-                    xpoint[0] = mxmn.smax;
-                    xpoint[1] = mxmn.smin;
+                    this.xpoint[0] = mxmn.smax;
+                    this.xpoint[1] = mxmn.smin;
                     n1 = mxmn.imax;
                     n2 = mxmn.imin;
                     npts = 2;
                 } else {
-                    xpoint = dbuf;
+                    this.xpoint = dbuf;
                 }
                 if (npts > 0) {
-                    mxmn = m.vmxmn(xpoint, npts);
+                    mxmn = m.vmxmn(this.xpoint, npts);
                     qmax = mxmn.smax;
                     qmin = mxmn.smin;
                     n1 = mxmn.imax;
@@ -400,9 +407,9 @@
                 xstart = xstart + xdelta * (n1);
                 for (var i = 0; i < npts; i++) {
                     if (Gx.index) {
-                        xpoint[i] = this.imin + i + 1;
+                        this.xpoint[i] = this.imin + i + 1;
                     } else {
-                        xpoint[i] = xstart + i * xdelta;
+                        this.xpoint[i] = xstart + i * xdelta;
                     }
                 }
             }
@@ -419,42 +426,41 @@
                 m.log.debug("Nothing to plot");
                 return;
             }
-            var ypoint = new sigplot.PointArray(Gx.yptr);
             if (this.cx) {
                 if (Gx.cmode === 1) {
-                    m.cvmag(dbuf, ypoint, npts);
+                    m.cvmag(dbuf, this.ypoint, npts);
                 } else if (Gx.cmode === 2) {
                     if (Gx.plab === 25) {
-                        m.cvpha(dbuf, ypoint, npts);
-                        m.vsmul(ypoint, 1.0 / (2 * Math.PI), ypoint, npts);
+                        m.cvpha(dbuf, this.ypoint, npts);
+                        m.vsmul(this.ypoint, 1.0 / (2 * Math.PI), this.ypoint, npts);
                     } else if (Gx.plab !== 24) {
-                        m.cvpha(dbuf, ypoint, npts);
+                        m.cvpha(dbuf, this.ypoint, npts);
                     } else {
-                        m.cvphad(dbuf, ypoint, npts);
+                        m.cvphad(dbuf, this.ypoint, npts);
                     }
                 } else if (Gx.cmode === 3) {
-                    m.vmov(dbuf, skip, ypoint, 1, npts);
+                    m.vmov(dbuf, skip, this.ypoint, 1, npts);
                 } else if (Gx.cmode >= 6) {
-                    m.cvmag2(dbuf, ypoint, npts);
+                    m.cvmag2(dbuf, this.ypoint, npts);
                 } else if (Gx.cmode >= 4) {
-                    m.vmov(dbuf.subarray(1), skip, ypoint, 1, npts);
+                    m.vmov(dbuf.subarray(1), skip, this.ypoint, 1, npts);
                 }
             } else {
                 if (Gx.cmode === 5) { // I vs. R
-                    m.vfill(ypoint, 0, npts);
+                    m.vfill(this.ypoint, 0, npts);
                 } else if ((Gx.cmode === 1) || (Gx.cmode >= 6)) { // Mag, log
                     for (var i = 0; i < npts; i++) {
-                        ypoint[i] = Math.abs(dbuf[i]);
+                        this.ypoint[i] = Math.abs(dbuf[i]);
                     }
                 } else {
                     for (var i = 0; i < npts; i++) {
-                        ypoint[i] = dbuf[i];
+                        this.ypoint[i] = dbuf[i];
                     }
                 }
             }
 
             if (Gx.cmode >= 6) {
-                m.vlog10(ypoint, Gx.dbmin, ypoint);
+                m.vlog10(this.ypoint, Gx.dbmin, this.ypoint);
                 var dbscale = 10.0;
                 if (Gx.cmode === 7) {
                     dbscale = 20.0;
@@ -462,9 +468,9 @@
                 if ((Gx.lyr.length > 0) && (Gx.lyr[0].cx)) {
                     dbscale = dbscale / 2.0;
                 }
-                m.vsmul(ypoint, dbscale, ypoint);
+                m.vsmul(this.ypoint, dbscale, this.ypoint);
             }
-            mxmn = m.vmxmn(ypoint, npts);
+            mxmn = m.vmxmn(this.ypoint, npts);
 
             qmax = mxmn.smax;
             qmin = mxmn.smin;
@@ -501,8 +507,6 @@
                 }
             }
 
-            // Gx.xptr = xpoint;
-            // Gx.yptr = ypoint;
             return npts;
         },
 
@@ -581,7 +585,7 @@
                     this.get_data(xmin, xmax);
                 }
 
-                // sigplot_prep fills in Gx.xptr and Gx.yptr (both sigplot.PointArray)
+                // sigplot_prep fills in this.xptr and this.yptr (both sigplot.PointArray)
                 // with the data to be plotted
 
                 var npts = this.prep(xmin, xmax);
@@ -589,8 +593,8 @@
                     if (segment) {
                         // TODO
                     } else {
-                        mx.trace(Mx, ic, new sigplot.PointArray(Gx.xptr), new sigplot.PointArray(
-                            Gx.yptr), npts, 1, line, symbol, rad, traceoptions);
+                        mx.trace(Mx, ic, new sigplot.PointArray(this.xptr), new sigplot.PointArray(
+                            this.yptr), npts, 1, line, symbol, rad, traceoptions);
                     }
                 }
 
