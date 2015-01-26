@@ -2845,7 +2845,11 @@ window.m = window.m || {};
   };
   m.force1000 = function(hcb) {
     if (hcb["class"] === 2) {
-      hcb.size = hcb.subsize * hcb.size;
+      if (hcb.size && !hcb.pipe) {
+        hcb.size = hcb.subsize * hcb.size;
+      } else {
+        hcb.size = hcb.subsize;
+      }
       hcb.bpe = hcb.bpe / hcb.subsize;
       hcb.ape = 1;
     }
@@ -3352,6 +3356,7 @@ window.mx = window.mx || {};
   mx.L_ITriangleSymbol = 7;
   mx.L_HLineSymbol = 8;
   mx.L_VLineSymbol = 9;
+  mx.LEGACY_RENDER = false;
   mx.STKSTRUCT = function() {
     this.xmin = 0;
     this.xmax = 0;
@@ -3468,10 +3473,12 @@ window.mx = window.mx || {};
     Mx.onmousemove = function(Mx) {
       return function(e) {
         var rect = e.target.getBoundingClientRect();
+        Mx.x = e.x || e.clientX;
+        Mx.y = e.y || e.clientY;
         Mx.xpos = e.offsetX === undefined ? e.pageX - rect.left - window.scrollX : e.offsetX;
         Mx.ypos = e.offsetX === undefined ? e.pageY - rect.top - window.scrollY : e.offsetY;
         if (Mx.warpbox) {
-          if (e.ctrlKey && Mx.warpbox.alt_style !== undefined) {
+          if ((e.ctrlKey || e.metaKey) && Mx.warpbox.alt_style !== undefined) {
             Mx.warpbox.style = Mx.warpbox.alt_style;
           } else {
             Mx.warpbox.style = Mx.warpbox.def_style;
@@ -3522,7 +3529,7 @@ window.mx = window.mx || {};
       return function(event) {
         if (Mx.warpbox) {
           var keyCode = getKeyCode(event);
-          if (keyCode === 17 && Mx.warpbox.style !== Mx.warpbox.alt_style) {
+          if ((keyCode === 17 || (keyCode === 224 || (keyCode === 91 || keyCode === 93))) && Mx.warpbox.style !== Mx.warpbox.alt_style) {
             Mx.warpbox.style = Mx.warpbox.alt_style;
             mx.redraw_warpbox(Mx);
           }
@@ -3534,7 +3541,7 @@ window.mx = window.mx || {};
       return function(event) {
         if (Mx.warpbox) {
           var keyCode = getKeyCode(event);
-          if (keyCode === 17 && Mx.warpbox.style !== Mx.warpbox.def_style) {
+          if ((keyCode === 17 || (keyCode === 224 || (keyCode === 91 || keyCode === 93))) && Mx.warpbox.style !== Mx.warpbox.def_style) {
             Mx.warpbox.style = Mx.warpbox.def_style;
             mx.redraw_warpbox(Mx);
           }
@@ -3589,8 +3596,11 @@ window.mx = window.mx || {};
     return Mx.wid_canvas.dispatchEvent(event);
   };
   mx.onWidgetLayer = function(Mx, func) {
+    mx.onCanvas(Mx, Mx.wid_canvas, func);
+  };
+  mx.onCanvas = function(Mx, canvas, func) {
     var current_active = Mx.active_canvas;
-    Mx.active_canvas = Mx.wid_canvas;
+    Mx.active_canvas = canvas;
     try {
       if (func) {
         return func();
@@ -4260,7 +4270,7 @@ window.mx = window.mx || {};
     var ymin = Math.min(stk4.ymin, stk4.ymax);
     var xmax = xmin + dx;
     var ymax = ymin + dy;
-    var bufsize = 4 * Math.ceil(1.33 * xpoint.length);
+    var bufsize = 4 * Math.ceil(2 * xpoint.length);
     var pixx = new Int32Array(new ArrayBuffer(bufsize));
     var pixy = new Int32Array(new ArrayBuffer(bufsize));
     var ib = 0;
@@ -4760,113 +4770,10 @@ window.mx = window.mx || {};
       return{valid:false, reason:"Failed integer validation: not a valid integer"};
     }
   };
-  mx.message = function(Mx, msg, time, xpos, ypos) {
+  mx.message = function(Mx, msg, time, xpos, ypos, type) {
     mx.onWidgetLayer(Mx, function() {
-      var GBorder = 3;
-      var beg = msg.split(/\r\n|\r|\n/g);
-      var linel = 0;
-      var center;
-      if (beg.length === 1) {
-        beg = [];
-        var MESSWIDTH = 40;
-        linel = Math.min((Mx.width - 2 * GBorder) / Mx.text_w - 2, msg.length);
-        if (linel <= 0) {
-          return;
-        }
-        while (linel > MESSWIDTH && 2.5 * Mx.text_h * msg.length < Mx.height * linel) {
-          linel -= 5;
-        }
-        var cur = 0;
-        var bg = 0;
-        var i = 0;
-        var j = 0;
-        var end = 0;
-        var brk = 0;
-        var beg = [];
-        center = true;
-        while (bg < msg.length) {
-          end = bg + linel - 1;
-          brk = end = Math.min(end, msg.length - 1);
-          var endinreturn = false;
-          for (cur = bg;cur <= end && !endinreturn;cur++) {
-            switch(msg[cur]) {
-              case ",":
-              ;
-              case ";":
-              ;
-              case " ":
-              ;
-              case ":":
-                brk = cur;
-                break;
-              case "-":
-              ;
-              case "/":
-                if (brk !== cur - 1) {
-                  brk = cur;
-                }
-                break;
-              case "@":
-              ;
-              case "\n":
-              ;
-              case "\r":
-                center = false;
-                endinreturn = true;
-                brk = cur;
-                break;
-            }
-          }
-          if (cur === msg.length) {
-            brk = end;
-          }
-          if (endinreturn) {
-            beg.push(msg.substring(bg, brk));
-          } else {
-            var s = msg.substring(bg, brk + 1).replace(/^\s+/, "");
-            beg.push(s);
-          }
-          bg = brk + 1;
-          j = Math.max(j, beg[i].length);
-        }
-      } else {
-        for (var i = 0;i < beg.length;i++) {
-          linel = Math.min((Mx.width - 2 * GBorder) / Mx.text_w - 2, Math.max(linel, beg[i].length));
-        }
-      }
-      var lines = beg.length;
-      if (lines > 6) {
-        center = false;
-      }
-      var cur = 0;
-      var winlines = Math.max(1, Mx.height / Mx.text_h);
-      var lastline = Math.min(lines, cur + winlines - 1);
-      var xss = (linel + 2) * Mx.text_w;
-      var yss = (lastline - cur + 1) * Mx.text_h;
-      var xs = xss + 2 * GBorder;
-      var ys = yss + 2 * GBorder;
-      if (!xpos) {
-        xpos = Mx.xpos;
-      }
-      if (!ypos) {
-        ypos = Mx.ypos;
-      }
-      var xc = Math.max(0, Math.min(xpos, Mx.width - xs));
-      var yc = Math.max(0, Math.min(ypos, Mx.height - ys));
-      var xcc = xc + GBorder;
-      var ycc = yc + GBorder;
-      mx.widgetbox(Mx, xc, yc, xs, ys, xcc, ycc, 0, "");
-      var j = ycc + Mx.text_h / 3;
-      var i = xcc + Mx.text_w;
-      while (cur < lastline) {
-        j += Mx.text_h;
-        if (center) {
-          i = xc + xs / 2 - beg[cur].length * Mx.text_w / 2;
-        }
-        mx.text(Mx, i, j, beg[cur]);
-        cur++;
-      }
-      Mx.widget = {type:"ONESHOT", callback:function(event) {
+      mx.render_message_box(Mx, msg, xpos, ypos);
+      Mx.widget = {type:type || "ONESHOT", callback:function(event) {
         if (event.type === "mousedown" || event.type === "keydown") {
           Mx.widget = null;
           mx.onWidgetLayer(Mx, function() {
@@ -4875,6 +4782,143 @@ window.mx = window.mx || {};
         }
       }};
     });
+  };
+  mx.render_message_box = function(Mx, msg, xpos, ypos) {
+    var GBorder = 3;
+    var beg = msg.split(/\r\n|\r|\n/g);
+    var linel = 0;
+    var center;
+    if (beg.length === 1) {
+      beg = [];
+      var MESSWIDTH = 40;
+      linel = Math.min((Mx.width - 2 * GBorder) / Mx.text_w - 2, msg.length);
+      if (linel <= 0) {
+        return;
+      }
+      while (linel > MESSWIDTH && 2.5 * Mx.text_h * msg.length < Mx.height * linel) {
+        linel -= 5;
+      }
+      var cur = 0;
+      var bg = 0;
+      var i = 0;
+      var j = 0;
+      var end = 0;
+      var brk = 0;
+      var beg = [];
+      center = true;
+      while (bg < msg.length) {
+        end = bg + linel - 1;
+        brk = end = Math.min(end, msg.length - 1);
+        var endinreturn = false;
+        for (cur = bg;cur <= end && !endinreturn;cur++) {
+          switch(msg[cur]) {
+            case ",":
+            ;
+            case ";":
+            ;
+            case " ":
+            ;
+            case ":":
+              brk = cur;
+              break;
+            case "-":
+            ;
+            case "/":
+              if (brk !== cur - 1) {
+                brk = cur;
+              }
+              break;
+            case "@":
+            ;
+            case "\n":
+            ;
+            case "\r":
+              center = false;
+              endinreturn = true;
+              brk = cur;
+              break;
+          }
+        }
+        if (cur === msg.length) {
+          brk = end;
+        }
+        if (endinreturn) {
+          beg.push(msg.substring(bg, brk));
+        } else {
+          var s = msg.substring(bg, brk + 1).replace(/^\s+/, "");
+          beg.push(s);
+        }
+        bg = brk + 1;
+        j = Math.max(j, beg[i].length);
+      }
+    } else {
+      for (var i = 0;i < beg.length;i++) {
+        linel = Math.min((Mx.width - 2 * GBorder) / Mx.text_w - 2, Math.max(linel, beg[i].length));
+      }
+    }
+    var lines = beg.length;
+    if (lines > 6) {
+      center = false;
+    }
+    var cur = 0;
+    var winlines = Math.max(1, Mx.height / Mx.text_h);
+    var lastline = Math.min(lines, cur + winlines - 1);
+    var xss = (linel + 2) * Mx.text_w;
+    var yss = (lastline - cur + 1) * Mx.text_h;
+    var xs = xss + 2 * GBorder;
+    var ys = yss + 2 * GBorder;
+    if (!xpos) {
+      xpos = Mx.xpos;
+    }
+    if (!ypos) {
+      ypos = Mx.ypos;
+    }
+    var xc = Math.max(Mx.l, Math.min(xpos, Mx.r - xs));
+    var yc = Math.max(Mx.t, Math.min(ypos, Mx.b - ys));
+    var xcc = xc + GBorder;
+    var ycc = yc + GBorder;
+    mx.widgetbox(Mx, xc, yc, xs, ys, xcc, ycc, 0, "");
+    var j = ycc + Mx.text_h / 3;
+    var i = xcc + Mx.text_w;
+    while (cur < lastline) {
+      j += Mx.text_h;
+      if (center) {
+        i = xc + xs / 2 - beg[cur].length * Mx.text_w / 2;
+      }
+      mx.text(Mx, i, j, beg[cur]);
+      cur++;
+    }
+  };
+  mx.draw_round_box = function(Mx, color, x, y, w, h, fill_opacity, fill_color, radius) {
+    var ctx = Mx.active_canvas.getContext("2d");
+    if (!radius) {
+      radius = 5;
+    }
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    if (fill_opacity !== undefined && fill_opacity > 0) {
+      var oldAlpha = ctx.globalAlpha;
+      ctx.globalAlpha = fill_opacity;
+      if (fill_color) {
+        ctx.fillStyle = fill_color;
+      } else {
+        ctx.fillStyle = color;
+      }
+      ctx.fill();
+      ctx.globalAlpha = oldAlpha;
+    }
   };
   mx.draw_box = function(Mx, color, x, y, w, h, fill_opacity, fill_color) {
     var ctx = Mx.active_canvas.getContext("2d");
@@ -4947,8 +4991,8 @@ window.mx = window.mx || {};
     var ctx = Mx.canvas.getContext("2d");
     var ctx_wid = Mx.wid_canvas.getContext("2d");
     if (Mx.font && Mx.font.width === width) {
-      ctx.font = Mx.text_h + "px " + Mx.font.font;
-      ctx_wid.font = Mx.text_h + "px " + Mx.font.font;
+      ctx.font = Mx.font.font;
+      ctx_wid.font = Mx.font.font;
     } else {
       var font = "Courier New, monospace";
       var text_h = 1;
@@ -4960,7 +5004,7 @@ window.mx = window.mx || {};
         Mx.text_w = font_size.width;
         Mx.text_h = text_h;
       } while (Mx.text_w < width);
-      Mx.font = {font:font, width:width};
+      Mx.font = {font:text_h + "px " + font, width:width};
     }
   };
   mx.textline = function(Mx, xstart, ystart, xend, yend, style) {
@@ -5194,7 +5238,11 @@ window.mx = window.mx || {};
       }
       if (flags.grid && flags.grid !== "y") {
         if (!flags.gridStyle) {
-          flags.gridStyle = {mode:"dashed", on:1, off:3};
+          if (mx.LEGACY_RENDER) {
+            flags.gridStyle = {mode:"dashed", on:1, off:3};
+          } else {
+            flags.gridStyle = {"color":Mx.xwms, mode:"dashed", on:1, off:3};
+          }
         }
         mx.textline(Mx, i, iscb, i, isct, flags.gridStyle);
       } else {
@@ -5347,14 +5395,31 @@ window.mx = window.mx || {};
           ctx.fillStyle = Mx.xwfg;
           ctx.fillText(" " + item.text + " ", xcc + Mx.text_w * 2, y + yb / 2);
         } else {
-          ctx.fillStyle = Mx.xwlo;
-          ctx.fillRect(xcc, y, xss, yb);
-          ctx.beginPath();
-          ctx.moveTo(xcc, y + 0.5);
-          ctx.lineTo(xcc + xss, y + 0.5);
-          ctx.stroke();
-          if (item.selected) {
-            mx.shadowbox(Mx, xcc - 1, y, xss + 2, yb, 1, 2, "", 0);
+          if (mx.LEGACY_RENDER) {
+            ctx.fillStyle = Mx.xwlo;
+            ctx.fillRect(xcc, y, xss, yb);
+            ctx.beginPath();
+            ctx.moveTo(xcc, y + 0.5);
+            ctx.lineTo(xcc + xss, y + 0.5);
+            ctx.stroke();
+            if (item.selected) {
+              mx.shadowbox(Mx, xcc - 1, y, xss + 2, yb, 1, 2, "", 0.75);
+            }
+          } else {
+            ctx.save();
+            ctx.globalAlpha = 0.75;
+            if (item.selected) {
+              ctx.fillStyle = Mx.xwts;
+            } else {
+              ctx.fillStyle = Mx.xwlo;
+            }
+            ctx.fillRect(xcc, y, xss, yb);
+            ctx.restore();
+            ctx.strokeStyle = Mx.bg;
+            ctx.beginPath();
+            ctx.moveTo(xcc, y + 0.5);
+            ctx.lineTo(xcc + xss, y + 0.5);
+            ctx.stroke();
           }
           ctx.textBaseline = "middle";
           ctx.textAlign = "left";
@@ -5591,7 +5656,7 @@ window.mx = window.mx || {};
   };
   mx.widgetbox = function(Mx, x, y, w, h, inx, iny, inw, inh, name) {
     var GBorder = 3;
-    mx.shadowbox(Mx, x, y, w, h, 1, 2, "", 0);
+    mx.shadowbox(Mx, x, y, w, h, 1, 2, "", 0.75);
     if (name) {
       var length = name.length;
       length = Math.min(length, w / Mx.text_w);
@@ -5603,8 +5668,16 @@ window.mx = window.mx || {};
     }
     if (inw > 0 && inh > 0) {
       var ctx = Mx.active_canvas.getContext("2d");
-      ctx.fillStyle = Mx.bg;
-      ctx.fillRect(inx, iny, inw, inh);
+      if (mx.LEGACY_RENDER) {
+        ctx.fillStyle = Mx.bg;
+        ctx.fillRect(inx, iny, inw, inh);
+      } else {
+        ctx.save();
+        ctx.globalAlpha = 0.1;
+        ctx.fillStyle = Mx.bg;
+        ctx.fillRect(inx, iny, inw, inh);
+        ctx.restore();
+      }
     }
   };
   mx.text = function(Mx, x, y, lbl, color) {
@@ -5616,6 +5689,7 @@ window.mx = window.mx || {};
     }
     ctx.textBaseline = "bottom";
     ctx.textAlign = "left";
+    ctx.font = Mx.font.font;
     if (color === undefined) {
       ctx.fillStyle = Mx.fg;
     } else {
@@ -5983,7 +6057,7 @@ window.mx = window.mx || {};
     }
     return s;
   };
-  mx.shadowbox = function(Mx, x, y, w, h, shape, func, label) {
+  mx.legacy_shadowbox = function(Mx, x, y, w, h, shape, func, label) {
     var length = label.length;
     var xt = 0;
     var yt = 0;
@@ -6071,6 +6145,118 @@ window.mx = window.mx || {};
       yt = y + m.trunc((h + 0.7 * Mx.text_h) / 2);
       ctx.fillText(label, xt, yt);
     }
+  };
+  mx.sigplot_shadowbox = function(Mx, x, y, w, h, shape, func, label, alpha) {
+    var ctx = Mx.active_canvas.getContext("2d");
+    var length = label.length;
+    var color = func < 0 ? Mx.xwts : Mx.xwbs;
+    alpha = alpha || 1;
+    var pix = [];
+    for (var cnt = 0;cnt < 11;cnt++) {
+      pix[cnt] = {x:0, y:0};
+    }
+    switch(shape) {
+      case mx.L_ArrowLeft:
+      ;
+      case mx.L_ArrowRight:
+      ;
+      case mx.L_ArrowUp:
+      ;
+      case mx.L_ArrowDown:
+        var pix = mx.chevron(shape, x, y, w, h);
+        ctx.fillStyle = func > 0 ? Mx.xwts : Mx.xwbs;
+        fill_poly(ctx, pix.slice(0, 6));
+        break;
+      default:
+        mx.draw_round_box(Mx, color, x, y, w, h, alpha, Mx.xwbg, 5, Mx.xwbs);
+        break;
+    }
+    ctx.fillStyle = Mx.xwfg;
+    ctx.textBaseline = "alphabetic";
+    var fill = !(func === 1 || func === -1);
+    if (fill && length > 0) {
+      length = Math.min(length, m.trunc(w / Mx.text_w));
+      length = Math.max(length, 1);
+      var xt = x + m.trunc((w - length * Mx.text_w) / 2);
+      var yt = y + m.trunc((h + 0.7 * Mx.text_h) / 2);
+      ctx.fillText(label, xt, yt);
+    }
+  };
+  if (mx.LEGACY_RENDER) {
+    mx.shadowbox = mx.legacy_shadowbox;
+  } else {
+    mx.shadowbox = mx.sigplot_shadowbox;
+  }
+  mx.chevron = function(shape, x, y, w, h, e) {
+    var q = Math.min(w, h);
+    if (!e) {
+      e = q * 0.25;
+    }
+    var pix = [];
+    for (var cnt = 0;cnt < 6;cnt++) {
+      pix[cnt] = {x:0, y:0};
+    }
+    var x_offset = m.trunc((w - q) / 2 + q / 4 - e / (2 * 1.414));
+    var y_offset = m.trunc((h - q) / 2 + q / 4 - e / (2 * 1.414));
+    switch(shape) {
+      case mx.L_ArrowLeft:
+        pix[0].x = x + x_offset;
+        pix[0].y = y + m.trunc(q / 2);
+        pix[1].x = x + x_offset + m.trunc(q / 2);
+        pix[1].y = y;
+        pix[2].x = x + x_offset + m.trunc(q / 2 + e / 1.414);
+        pix[2].y = y + m.trunc(e / 1.414);
+        pix[3].x = x + x_offset + m.trunc(2 * e / 1.414);
+        pix[3].y = y + m.trunc(q / 2);
+        pix[4].x = x + x_offset + m.trunc(q / 2 + e / 1.414);
+        pix[4].y = y + h - m.trunc(e / 1.414);
+        pix[5].x = x + x_offset + m.trunc(q / 2);
+        pix[5].y = y + q;
+        break;
+      case mx.L_ArrowRight:
+        pix[0].x = x + w - x_offset;
+        pix[0].y = y + m.trunc(q / 2);
+        pix[1].x = x + w - x_offset - m.trunc(q / 2);
+        pix[1].y = y;
+        pix[2].x = x + w - x_offset - m.trunc(q / 2 + e / 1.414);
+        pix[2].y = y + m.trunc(e / 1.414);
+        pix[3].x = x + w - x_offset - m.trunc(2 * e / 1.414);
+        pix[3].y = y + m.trunc(q / 2);
+        pix[4].x = x + w - x_offset - m.trunc(q / 2 + e / 1.414);
+        pix[4].y = y + h - m.trunc(e / 1.414);
+        pix[5].x = x + w - x_offset - m.trunc(q / 2);
+        pix[5].y = y + q;
+        break;
+      case mx.L_ArrowUp:
+        pix[0].x = x + m.trunc(q / 2);
+        pix[0].y = y + y_offset;
+        pix[1].x = x;
+        pix[1].y = y + y_offset + m.trunc(q / 2);
+        pix[2].x = x + m.trunc(e / 1.414);
+        pix[2].y = y + y_offset + m.trunc(q / 2 + e / 1.414);
+        pix[3].x = x + m.trunc(q / 2);
+        pix[3].y = y + y_offset + m.trunc(2 * e / 1.414);
+        pix[4].x = x + w - m.trunc(e / 1.414);
+        pix[4].y = y + y_offset + m.trunc(q / 2 + e / 1.414);
+        pix[5].x = x + q;
+        pix[5].y = y + y_offset + m.trunc(q / 2);
+        break;
+      case mx.L_ArrowDown:
+        pix[0].x = x + m.trunc(q / 2);
+        pix[0].y = y + h - y_offset;
+        pix[1].x = x;
+        pix[1].y = y + h - y_offset - m.trunc(q / 2);
+        pix[2].x = x + m.trunc(e / 1.414);
+        pix[2].y = y + h - y_offset - m.trunc(q / 2 + e / 1.414);
+        pix[3].x = x + m.trunc(q / 2);
+        pix[3].y = y + h - y_offset - m.trunc(2 * e / 1.414);
+        pix[4].x = x + w - m.trunc(e / 1.414);
+        pix[4].y = y + h - y_offset - m.trunc(q / 2 + e / 1.414);
+        pix[5].x = x + q;
+        pix[5].y = y + h - y_offset - m.trunc(q / 2);
+        break;
+    }
+    return pix;
   };
   mx.ifevent = function(Mx, mouseEvent) {
     Mx.button_press = 0;
@@ -6177,7 +6363,7 @@ window.mx = window.mx || {};
         mx.shadowbox(Mx, xcc, ycc, arrow, yss - 1, mx.L_ArrowLeft, 2, "", 0);
         mx.shadowbox(Mx, xcc + xss - arrow, ycc, arrow - 1, yss, mx.L_ArrowRight, 2, "", 0);
       }
-      if (Mx.legacyRender) {
+      if (mx.LEGACY_RENDER) {
         mx.draw_line(Mx, Mx.fg, xcc + sv.a1, y, xcc + sv.a2, y);
         mx.shadowbox(Mx, xcc + p1, ycc, sw + 1, yss, 1, 2, "", 0);
       } else {
@@ -6186,7 +6372,10 @@ window.mx = window.mx || {};
         lingrad.addColorStop(0.5, Mx.xwts);
         lingrad.addColorStop(1, Mx.xwbs);
         mx.draw_line(Mx, lingrad, xcc + sv.a1, y, xcc + sv.a2, y, 1);
-        mx.shadowbox(Mx, xcc + p1, ycc, sw + 1, yss, 1, 2, "", 0);
+        var lingrad = ctx.createLinearGradient(0, ycc, 0, ycc + yss);
+        lingrad.addColorStop(0.1, Mx.xwts);
+        lingrad.addColorStop(0.75, Mx.xwbs);
+        mx.draw_round_box(Mx, Mx.xwbg, xcc + p1, ycc, sw + 1, yss, 1, lingrad, 8, Mx.xwbs);
       }
     } else {
       x = xcc + m.trunc(xss / 2);
@@ -6199,7 +6388,7 @@ window.mx = window.mx || {};
         mx.shadowbox(Mx, xcc, ycc, xss - 1, arrow, mx.L_ArrowUp, 2, "", 0);
         mx.shadowbox(Mx, xcc, ycc + yss - arrow, xss - 1, arrow, mx.L_ArrowDown, 2, "", 0);
       }
-      if (Mx.legacyRender) {
+      if (mx.LEGACY_RENDER) {
         mx.draw_line(Mx, Mx.fg, x, ycc + sv.a1, x, ycc + sv.a2);
         mx.shadowbox(Mx, xcc, ycc + p1, xss, sw + 1, 1, 2, "", 0);
       } else {
@@ -6207,8 +6396,11 @@ window.mx = window.mx || {};
         lingrad.addColorStop(0, Mx.xwbs);
         lingrad.addColorStop(0.5, Mx.xwts);
         lingrad.addColorStop(1, Mx.xwbs);
-        mx.draw_line(Mx, lingrad, x, ycc + sv.a1, x, ycc + sv.a2);
-        mx.shadowbox(Mx, xcc, ycc + p1, xss, sw + 1, 1, 2, "", 0);
+        mx.draw_line(Mx, lingrad, x, ycc + sv.a1, x, ycc + sv.a2, 1);
+        var lingrad = ctx.createLinearGradient(xcc, 0, xcc + xss, 0);
+        lingrad.addColorStop(0.1, Mx.xwts);
+        lingrad.addColorStop(0.75, Mx.xwbs);
+        mx.draw_round_box(Mx, Mx.xwbg, xcc - 1, ycc + p1, xss, sw + 1, 1, lingrad, 8, Mx.xwbs);
       }
     }
     sv.s1 = s1;
@@ -6519,27 +6711,43 @@ window.mx = window.mx || {};
     if (buf.height <= 1 || Math.abs(ymax - ymin) === 0) {
       return;
     }
-    var rx = (buf.width - 1) / (xmax - xmin);
-    var sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
-    var sw = Math.min(buf.width, buf.width - Math.floor((xmax - view_xmax) * rx) - sx);
-    var ry = (buf.height - 1) / (ymax - ymin);
-    var sy = Math.max(0, Math.floor((view_ymin - ymin) * ry));
-    var sh = Math.min(buf.height, buf.height - Math.floor((ymax - view_ymax) * ry) - sy);
-    var ul;
-    var lr;
+    var rx = buf.width / (xmax - xmin + 1);
+    var ry = buf.height / (ymax - ymin);
+    view_xmin = Math.floor(view_xmin * rx) / rx;
+    view_xmax = Math.floor(view_xmax * rx) / rx;
+    view_ymin = Math.floor(view_ymin * ry) / ry;
+    view_ymax = Math.ceil(view_ymax * ry) / ry;
+    var ul, lr;
+    var sy, sx, sw, sh;
     if (Mx.origin === 1) {
+      sy = Math.max(0, Math.floor((ymax - view_ymax) * ry));
+      sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
+      sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
+      sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
       ul = mx.real_to_pixel(Mx, view_xmin, view_ymax);
       lr = mx.real_to_pixel(Mx, view_xmax, view_ymin);
     } else {
       if (Mx.origin === 2) {
+        sy = Math.max(0, Math.floor((ymax - view_ymax) * ry));
+        sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
+        sx = Math.max(0, Math.ceil((view_xmin - xmin) * rx));
+        sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
         ul = mx.real_to_pixel(Mx, view_xmax, view_ymax);
         lr = mx.real_to_pixel(Mx, view_xmin, view_ymin);
       } else {
         if (Mx.origin === 3) {
+          sy = Math.max(0, Math.ceil((view_ymin - ymin) * ry));
+          sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
+          sx = Math.max(0, Math.ceil((view_xmin - xmin) * rx));
+          sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
           ul = mx.real_to_pixel(Mx, view_xmax, view_ymin);
           lr = mx.real_to_pixel(Mx, view_xmin, view_ymax);
         } else {
           if (Mx.origin === 4) {
+            sy = Math.max(0, Math.ceil((view_ymin - ymin) * ry));
+            sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
+            sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
             ul = mx.real_to_pixel(Mx, view_xmin, view_ymin);
             lr = mx.real_to_pixel(Mx, view_xmax, view_ymax);
           }
@@ -6549,7 +6757,12 @@ window.mx = window.mx || {};
     var iw = lr.x - ul.x;
     var ih = lr.y - ul.y;
     var ctx = Mx.active_canvas.getContext("2d");
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(Mx.l, Mx.t, Mx.r - Mx.l, Mx.b - Mx.t);
+    ctx.clip();
     renderImage(Mx, ctx, buf, opacity, smoothing, ul.x, ul.y, iw, ih, sx, sy, sw, sh);
+    ctx.restore();
   };
 })(window.mx, window.m);
 (function(sigplot, mx, m, undefined) {
@@ -6659,6 +6872,9 @@ window.mx = window.mx || {};
       return;
     }
     this.position = (this.position + tle) % this.size;
+    if (this.plot._Gx.autol > 1) {
+      this.plot.rescale();
+    }
   }, get_data:function(xmin, xmax) {
     var Gx = this.plot._Gx;
     var HCB = this.hcb;
@@ -6757,6 +6973,18 @@ window.mx = window.mx || {};
     if (hdrmod) {
       for (var k in hdrmod) {
         this.hcb[k] = hdrmod[k];
+        if (k === "type") {
+          this.hcb["class"] = hdrmod[k] / 1E3;
+        }
+      }
+      if (hdrmod.subsize) {
+        if (this.hcb["class"] === 2) {
+          m.force1000(this.hcb);
+          this.size = this.hcb.subsize;
+          this.position = null;
+          this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+          this.ybuf = new ArrayBuffer(this.ybufn);
+        }
       }
       var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1);
       this.xmin = Math.min(this.hcb.xstart, d);
@@ -7221,6 +7449,19 @@ window.mx = window.mx || {};
       return;
     }
     if (this.drawmode === "falling") {
+      this.hcb.ystart += this.hcb.ydelta;
+      this.ystart = this.hcb.ystart;
+      this.ymin = this.hcb.ystart - this.hcb.ydelta * this.lps;
+      this.ymax = this.hcb.ystart;
+    } else {
+      if (this.drawmode === "rising") {
+        this.hcb.ystart += this.hcb.ydelta;
+        this.ystart = this.hcb.ystart;
+        this.ymin = this.hcb.ystart - this.hcb.ydelta * this.lps;
+        this.ymax = this.hcb.ystart;
+      }
+    }
+    if (this.drawmode === "falling") {
       this.position = 0;
       this.buf.set(this.buf.subarray(0, (this.lps - 1) * this.hcb.subsize * this.hcb.spa), this.hcb.subsize * this.hcb.spa);
       if (this.img) {
@@ -7343,6 +7584,12 @@ window.mx = window.mx || {};
     if (this.drawmode === "scrolling") {
       this.position = (this.position + 1) % this.lps;
     }
+    if (Mx.level === 0) {
+      Gx.panymin = this.ymin;
+      Gx.panymax = this.ymax;
+      Mx.stk[0].ymin = this.ymin;
+      Mx.stk[0].ymax = this.ymax;
+    }
   }, get_data:function() {
     var HCB = this.hcb;
     if (!this.buf) {
@@ -7374,11 +7621,25 @@ window.mx = window.mx || {};
       this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
       this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
       this.img = undefined;
+      if (this.drawmode === "falling") {
+        this.plot._Mx.origin = 1;
+        this.preferred_origin = 1;
+      } else {
+        this.plot._Mx.origin = 4;
+        this.preferred_origin = 4;
+      }
     }
   }, push:function(data, hdrmod, sync) {
     if (hdrmod) {
       for (var k in hdrmod) {
         this.hcb[k] = hdrmod[k];
+        if (k === "type") {
+          this.hcb["class"] = hdrmod[k] / 1E3;
+        }
+      }
+      if (hdrmod.subsize) {
+        this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+        this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
       }
       var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1);
       this.xmin = Math.min(this.hcb.xstart, d);
@@ -7644,7 +7905,7 @@ window.mx = window.mx || {};
     if (this.img) {
       mx.draw_image(Mx, this.img, this.xmin, this.ymin, this.xmax, this.ymax, this.opacity, Gx.rasterSmoothing);
     }
-    if (this.position) {
+    if (this.position !== null && this.drawmode === "scrolling") {
       var pnt = mx.real_to_pixel(Mx, 0, this.position * this.ydelta);
       if (pnt.y > Mx.t && pnt.y < Mx.b) {
         mx.draw_line(Mx, "white", Mx.l, pnt.y, Mx.r, pnt.y);
@@ -7662,11 +7923,7 @@ window.mx = window.mx || {};
     } else {
       layer.name = "layer_" + Gx.lyr.length;
     }
-    for (var layerOption in layerOptions) {
-      if (layer[layerOption] !== undefined) {
-        layer[layerOption] = layerOptions[layerOption];
-      }
-    }
+    layer.change_settings(layerOptions);
     plot.add_layer(layer);
   };
 })(window.sigplot = window.sigplot || {}, mx, m);
@@ -7674,7 +7931,7 @@ window.sigplot = window.sigplot || {};
 (function(sigplot, mx, m) {
   var KEYPRESS_HELP = "Keypress Table:\n" + "--------------\n" + "?    - Main help box.\n" + "A    - Toggle display x,y readouts:\n" + "       (absc) -> (index) -> (1/absc) -> (time).\n" + "B    - Toggle LM Drag Mode:\n" + "       (box) -> (horizontal) -> (vertical).\n" + "C    - Toggle controls.\n" + "L    - Toggle legend.\n" + "M    - Pops up main menu\n" + "R    - Toggle display specs (x/y readout)\n" + "S    - Toggle display specs and axes.\n" + "T    - Popup box with timecode value at mouse.\n" + 
   "X    - Popup box with X value at mouse.\n" + "Y    - Popup box with Y value at mouse.\n" + "F    - Toggle fullscreen.\n";
-  var MAIN_HELP = "To zoom, press and drag the left mouse (LM) over the region of interest and release. " + "To unzoom, press right mouse (RM).  Press the middle mouse (MM) button or press the " + "key 'M' to bring up the menu.  Information about keypresses and what they do can be found" + "by selecting 'Keypress Info' from the main menu.";
+  var MAIN_HELP = "To zoom, press and drag the left mouse (LM) over the region of interest and release. " + "To unzoom, press right mouse (RM).  Press the middle mouse (MM) button or press the " + "by selecting 'Keypress Info' from the main menu.";
   sigplot.browserIsCompatible = function browserIsCompatible() {
     var test_canvas = document.createElement("canvas");
     var hascanvas = test_canvas.getContext ? true : false;
@@ -7722,8 +7979,8 @@ window.sigplot = window.sigplot || {};
         evt.ypos = ypos;
         evt.x = Gx.retx;
         evt.y = Gx.rety;
-        var canceled = !mx.dispatchEvent(Mx, evt);
-        if (canceled) {
+        var executeDefault = mx.dispatchEvent(Mx, evt);
+        if (!executeDefault) {
           return;
         }
         if (Gx.cross) {
@@ -7807,8 +8064,8 @@ window.sigplot = window.sigplot || {};
         evt.x = Gx.retx;
         evt.y = Gx.rety;
         evt.which = event.which;
-        var canceled = !mx.dispatchEvent(Mx, evt);
-        if (canceled) {
+        var executeDefault = mx.dispatchEvent(Mx, evt);
+        if (!executeDefault) {
           return false;
         }
         var inPan = inPanRegion(plot);
@@ -7869,6 +8126,9 @@ window.sigplot = window.sigplot || {};
                   mx.rubberbox(Mx, rubberbox_cb(plot), Gx.default_rubberbox_mode, select_style, zoom_style);
                 }
               }
+              if (Gx.always_show_marker || Gx.show_marker) {
+                plot.redraw();
+              }
             }
           } else {
             if (event.which === 2) {
@@ -7921,8 +8181,8 @@ window.sigplot = window.sigplot || {};
         evt.x = Gx.retx;
         evt.y = Gx.rety;
         evt.which = event.which;
-        var canceled = !mx.dispatchEvent(Mx, evt);
-        if (!canceled) {
+        var executeDefault = mx.dispatchEvent(Mx, evt);
+        if (executeDefault) {
           if (event.which === 3) {
             event.preventDefault();
             plot.unzoom(1);
@@ -7934,8 +8194,8 @@ window.sigplot = window.sigplot || {};
                 evt.initEvent("showmenu", true, true);
                 evt.x = event.x || event.clientX;
                 evt.y = event.y || event.clientY;
-                var cancelled = !mx.dispatchEvent(Mx, evt);
-                if (!cancelled) {
+                var executeDefault = mx.dispatchEvent(Mx, evt);
+                if (executeDefault) {
                   if (event.stopPropagation) {
                     event.stopPropagation();
                   }
@@ -8180,7 +8440,16 @@ window.sigplot = window.sigplot || {};
                                   sigplot_show_timecode(plot);
                                 } else {
                                   if (keyCode === 109) {
-                                    sigplot_mainmenu(plot);
+                                    if (!Gx.nomenu) {
+                                      var evt = document.createEvent("Event");
+                                      evt.initEvent("showmenu", true, true);
+                                      evt.x = Mx.x;
+                                      evt.y = Mx.y;
+                                      var executeDefault = mx.dispatchEvent(Mx, evt);
+                                      if (executeDefault) {
+                                        sigplot_mainmenu(plot);
+                                      }
+                                    }
                                   } else {
                                     if (keyCode === 63) {
                                       mx.message(Mx, MAIN_HELP);
@@ -8191,6 +8460,11 @@ window.sigplot = window.sigplot || {};
                                       } else {
                                         if (keyCode === 9 && event.ctrlKey) {
                                           plot.change_settings({invert:null});
+                                        } else {
+                                          if (keyCode === 107) {
+                                            Gx.show_marker = !Gx.show_marker;
+                                            plot.redraw();
+                                          }
                                         }
                                       }
                                     }
@@ -8565,6 +8839,10 @@ window.sigplot = window.sigplot || {};
     var ws = new WebSocket(wsurl, "plot-data");
     ws.binaryType = "arraybuffer";
     var plot = this;
+    if (!overrides) {
+      overrides = {};
+    }
+    overrides.pipe = true;
     var hcb = m.initialize(null, overrides);
     hcb.ws = ws;
     var layer_n = this.overlay_bluefile(hcb, layerOptions);
@@ -8574,16 +8852,16 @@ window.sigplot = window.sigplot || {};
       return function(evt) {
         if (evt.data instanceof ArrayBuffer) {
           var data = hcb.createArray(evt.data);
-          plot.reload(layer_n, data);
+          plot.push(layer_n, data);
         } else {
           if (typeof evt.data === "string") {
             var Gx = plot._Gx;
-            var hdr = Gx.HCB[Gx.lyr[layer_n].hcb];
-            var newHdr = JSON.parse(evt.data);
-            for (var field in newHdr) {
-              hdr[field] = newHdr[field];
+            var hdr = Gx.lyr[layer_n].hcb;
+            if (!hdr) {
+              m.log.warning("Couldn't find header for layer " + layer_n);
             }
-            hcb.size = undefined;
+            var newHdr = JSON.parse(evt.data);
+            plot.push(layer_n, [], newHdr);
           }
         }
       };
@@ -8837,6 +9115,7 @@ window.sigplot = window.sigplot || {};
       Mx.stk[Mx.level] = zstk;
     }
     Gx.inContinuousZoom = continuous;
+    this.inZoom = true;
     var evt = document.createEvent("Event");
     evt.initEvent("zoom", true, true);
     evt.level = Mx.level;
@@ -8846,6 +9125,7 @@ window.sigplot = window.sigplot || {};
     evt.xmax = Mx.stk[Mx.level].xmax;
     evt.ymax = Mx.stk[Mx.level].ymax;
     mx.dispatchEvent(Mx, evt);
+    this.inZoom = false;
     this.refresh();
   }, unzoom:function(levels) {
     var Mx = this._Mx;
@@ -8865,6 +9145,7 @@ window.sigplot = window.sigplot || {};
       levels -= 1;
     }
     Gx.inContinuousZoom = false;
+    this.inZoom = true;
     var evt = document.createEvent("Event");
     evt.initEvent("unzoom", true, true);
     evt.level = Mx.level;
@@ -8873,24 +9154,34 @@ window.sigplot = window.sigplot || {};
     evt.xmax = Mx.stk[Mx.level].xmax;
     evt.ymax = Mx.stk[Mx.level].ymax;
     mx.dispatchEvent(Mx, evt);
+    this.inZoom = false;
     this.refresh();
   }, mimic:function(other, mask) {
     var self = this;
     if (!mask) {
-      mask = {};
+      throw "mimic must be called with at least one event mask";
     }
     if (mask.zoom) {
       other.addListener("zoom", function(event) {
+        if (self.inZoom) {
+          return;
+        }
         self.zoom({x:event.xmin, y:event.ymin}, {x:event.xmax, y:event.ymax}, event.inContinuousZoom);
       });
     } else {
       if (mask.xzoom) {
         other.addListener("zoom", function(event) {
+          if (self.inZoom) {
+            return;
+          }
           self.zoom({x:event.xmin, y:undefined}, {x:event.xmax, y:undefined}, event.inContinuousZoom);
         });
       } else {
         if (mask.yzoom) {
           other.addListener("zoom", function(event) {
+            if (self.inZoom) {
+              return;
+            }
             self.zoom({x:undefined, y:event.ymin}, {x:undefined, y:event.ymax}, event.inContinuousZoom);
           });
         }
@@ -8898,7 +9189,28 @@ window.sigplot = window.sigplot || {};
     }
     if (mask.unzoom) {
       other.addListener("unzoom", function(event) {
-        self.unzoom(1);
+        if (self.inZoom) {
+          return;
+        }
+        if (event.level < self._Mx.level) {
+          self.unzoom(self._Mx.level - event.level);
+        }
+      });
+    }
+    if (mask.pan || mask.xpan) {
+      other.addListener("xpan", function(event) {
+        if (self.inPan) {
+          return;
+        }
+        updateViewbox(self, event.xmin, event.xmax, "X");
+      });
+    }
+    if (mask.pan || mask.ypan) {
+      other.addListener("ypan", function(event) {
+        if (self.inPan) {
+          return;
+        }
+        updateViewbox(self, event.ymin, event.ymax, "Y");
       });
     }
   }, redraw:function() {
@@ -8913,6 +9225,9 @@ window.sigplot = window.sigplot || {};
       Gx.cross_xpos = undefined;
       Gx.cross_ypos = undefined;
       draw_crosshairs(this);
+      if (Gx.always_show_marker || Gx.show_marker) {
+        draw_marker(this);
+      }
     }
   }, refresh:function() {
     var self = this;
@@ -9135,6 +9450,9 @@ window.sigplot = window.sigplot || {};
     Gx.cross_xpos = undefined;
     Gx.cross_ypos = undefined;
     draw_crosshairs(this);
+    if (Gx.always_show_marker || Gx.show_marker) {
+      draw_marker(this);
+    }
   }};
   var SPINNER_OPTS = {lines:13, length:7, width:4, radius:10, corners:1, rotate:0, color:"#FFF", speed:1, trail:60, shadow:false, hwaccel:false, className:"spinner", zIndex:2E9, top:"auto", left:"auto"};
   var cxm = ["Ma", "Ph", "Re", "Im", "IR", "Lo", "L2"];
@@ -9810,6 +10128,21 @@ window.sigplot = window.sigplot || {};
         }, opacity, undefined, undefined, undefined);
       }}]};
     };
+    var VIEW_MENU = {text:"View...", menu:{title:"VIEW", items:[{text:"Reset", handler:function() {
+      plot.unzoom();
+    }}, {text:"Y Axis", style:"separator"}, {text:"Expand Range", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_EXPAND, "YPAN");
+    }}, {text:"Shrink Range", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_SHRINK, "YPAN");
+    }}, {text:"Expand Full", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_FULL, "YPAN");
+    }}, {text:"X Axis", style:"separator"}, {text:"Expand Range", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_EXPAND, "XPAN");
+    }}, {text:"Shrink Range", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_SHRINK, "XPAN");
+    }}, {text:"Expand Full", handler:function() {
+      middleClickScrollMenuAction(plot, mx.SB_FULL, "XPAN");
+    }}]}};
     var TRACES_MENU = {text:"Traces...", menu:function() {
       var Gx = plot._Gx;
       var tracemenu = {title:"TRACE", items:[]};
@@ -9863,7 +10196,7 @@ window.sigplot = window.sigplot || {};
         mx.addEventListener(Mx, "mousedown", plot.onmousedown, false);
       }
       plot.refresh();
-    }, items:[REFRESH_ITEM, CONTROLS_MENU, CXMODE_MENU, SCALING_MENU, GRID_MENU, SETTINGS_MENU, COLORMAP_MENU, TRACES_MENU, FILES_MENU, PLUGINS_MENU, KEYPRESSINFO_ITEM, EXIT_ITEM]};
+    }, items:[REFRESH_ITEM, CONTROLS_MENU, CXMODE_MENU, SCALING_MENU, VIEW_MENU, GRID_MENU, SETTINGS_MENU, COLORMAP_MENU, TRACES_MENU, FILES_MENU, PLUGINS_MENU, KEYPRESSINFO_ITEM, EXIT_ITEM]};
     mx.menu(Mx, MAINMENU);
   }
   function rubberbox_cb(plot) {
@@ -9890,6 +10223,7 @@ window.sigplot = window.sigplot || {};
                 evt.y = Gx.ymrk;
                 evt.w = undefined;
                 evt.h = undefined;
+                evt.shift = event.shiftKey;
                 mx.dispatchEvent(Mx, evt);
               }
             }
@@ -9908,6 +10242,7 @@ window.sigplot = window.sigplot || {};
           evt.y = re.y;
           evt.w = Math.abs(rwh.x - re.x);
           evt.h = Math.abs(rwh.y - re.y);
+          evt.shift = event.shiftKey;
           mx.dispatchEvent(Mx, evt);
         }
       }
@@ -9975,6 +10310,7 @@ window.sigplot = window.sigplot || {};
     Gx.xdata = false;
     Gx.note = "";
     Gx.hold = 0;
+    Gx.always_show_marker = o.always_show_marker || false;
     m.vstype("D");
     if (!o.inputs) {
       basefile(plot, false);
@@ -10236,6 +10572,12 @@ window.sigplot = window.sigplot || {};
       var plugin = Gx.plugins[plugin_index].impl;
       if (plugin.refresh) {
         canvas = Gx.plugins[plugin_index].canvas;
+        if (canvas.width !== plot._Mx.canvas.width) {
+          canvas.width = plot._Mx.canvas.width;
+        }
+        if (canvas.height !== plot._Mx.canvas.height) {
+          canvas.height = plot._Mx.canvas.height;
+        }
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         Gx.plugins[plugin_index].impl.refresh(canvas);
         ctx.drawImage(canvas, 0, 0);
@@ -10380,6 +10722,27 @@ window.sigplot = window.sigplot || {};
           Gx.cross_ypos = Mx.ypos;
         }
       }
+    }
+  }
+  function draw_marker(plot) {
+    var Gx = plot._Gx;
+    var Mx = plot._Mx;
+    if (Gx.xmrk !== null && Gx.ymrk !== null) {
+      var ctx = Mx.active_canvas.getContext("2d");
+      ctx.beginPath();
+      ctx.strokeStyle = Mx.xwfg;
+      ctx.fillStyle = Mx.xwfg;
+      var pix = mx.real_to_pixel(Mx, Gx.xmrk, Gx.ymrk);
+      ctx.arc(pix.x, pix.y, 2, 0, 360);
+      ctx.stroke();
+      ctx.textBaseline = "alphabetic";
+      ctx.textAlign = "left";
+      ctx.fillStyle = Mx.fg;
+      ctx.font = Mx.font.font;
+      var text = "x:" + mx.format_g(Gx.xmrk, 6, 3, true);
+      ctx.fillText(text, pix.x + 5, pix.y - 5);
+      text = "y:" + mx.format_g(Gx.ymrk, 6, 3, true);
+      ctx.fillText(text, pix.x + 5, pix.y - 5 + Mx.text_h);
     }
   }
   function changephunits(plot, newphunits) {
@@ -10578,6 +10941,16 @@ window.sigplot = window.sigplot || {};
           Gx.ymin = Math.min(Gx.ymin, ymin);
           Gx.ymax = Math.max(Gx.ymax, ymax);
         }
+        this.inPan = true;
+        var evt = document.createEvent("Event");
+        evt.initEvent("ypan", true, true);
+        evt.level = Mx.level;
+        evt.xmin = Mx.stk[Mx.level].xmin;
+        evt.ymin = Mx.stk[Mx.level].ymin;
+        evt.xmax = Mx.stk[Mx.level].xmax;
+        evt.ymax = Mx.stk[Mx.level].ymax;
+        mx.dispatchEvent(Mx, evt);
+        this.inPan = false;
         plot.refresh();
         SIGPLOT_PAN = true;
       }
@@ -10611,6 +10984,16 @@ window.sigplot = window.sigplot || {};
           Gx.xmin = Mx.stk[1].xmin;
           Gx.xmax = Mx.stk[1].xmax;
         }
+        this.inPan = true;
+        var evt = document.createEvent("Event");
+        evt.initEvent("xpan", true, true);
+        evt.level = Mx.level;
+        evt.xmin = Mx.stk[Mx.level].xmin;
+        evt.ymin = Mx.stk[Mx.level].ymin;
+        evt.xmax = Mx.stk[Mx.level].xmax;
+        evt.ymax = Mx.stk[Mx.level].ymax;
+        mx.dispatchEvent(Mx, evt);
+        this.inPan = false;
         plot.refresh();
         SIGPLOT_PAN = true;
       }
@@ -10654,6 +11037,22 @@ window.sigplot = window.sigplot || {};
     scrollbar.srange = max - min;
     mx.redrawScrollbar(scrollbar, Mx, undefined);
     updateViewbox(plot, scrollbar.smin, scrollbar.smin + scrollbar.srange, scrollAction.slice(0, 1));
+    this.inPan = true;
+    var evt = document.createEvent("Event");
+    if (scrollAction === "XPAN") {
+      evt.initEvent("xpan", true, true);
+    } else {
+      if (scrollAction === "YPAN") {
+        evt.initEvent("ypan", true, true);
+      }
+    }
+    evt.level = Mx.level;
+    evt.xmin = Mx.stk[Mx.level].xmin;
+    evt.ymin = Mx.stk[Mx.level].ymin;
+    evt.xmax = Mx.stk[Mx.level].xmax;
+    evt.ymax = Mx.stk[Mx.level].ymax;
+    mx.dispatchEvent(Mx, evt);
+    this.inPan = false;
     scrollbar.action = 0;
     plot.refresh();
   }
@@ -10820,14 +11219,16 @@ window.sigplot = window.sigplot || {};
     mx.text(Mx, Mx.text_w, iy, chara);
     iy = Math.floor(Mx.height - 0.5 * Mx.text_h);
     mx.text(Mx, Mx.text_w, iy, charb);
-    if (k < Mx.width) {
-      if (Gx.cntrls > 0) {
-        mx.text(Mx, k, iy, "C");
-      } else {
-        mx.text(Mx, k, iy, " ");
+    if (mx.LEGACY_RENDER) {
+      if (k < Mx.width) {
+        if (Gx.cntrls > 0) {
+          mx.text(Mx, k, iy, "C");
+        } else {
+          mx.text(Mx, k, iy, " ");
+        }
       }
     }
-    var x = 49 * Mx.text_w - 1;
+    var x = 49 * Mx.text_w - 3;
     var y = Mx.height - Mx.text_h * 2.5;
     var w = Mx.text_w;
     var h = Mx.text_h * 2;
@@ -11026,6 +11427,22 @@ window.sigplot = window.sigplot || {};
     scrollbar.scale = 2;
     mx.scroll(Mx, scrollbar, mx.XW_COMMAND, undefined, scrollbar);
     updateViewbox(plot, scrollbar.smin, scrollbar.smin + scrollbar.srange, direction.slice(0, 1));
+    this.inPan = true;
+    var evt = document.createEvent("Event");
+    if (direction === "XPAN") {
+      evt.initEvent("xpan", true, true);
+    } else {
+      if (direction === "YPAN") {
+        evt.initEvent("ypan", true, true);
+      }
+    }
+    evt.level = Mx.level;
+    evt.xmin = Mx.stk[Mx.level].xmin;
+    evt.ymin = Mx.stk[Mx.level].ymin;
+    evt.xmax = Mx.stk[Mx.level].xmax;
+    evt.ymax = Mx.stk[Mx.level].ymax;
+    mx.dispatchEvent(Mx, evt);
+    this.inPan = false;
   }
   function updateViewbox(plot, newMin, newMax, axis) {
     var Mx = plot._Mx;

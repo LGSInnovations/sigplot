@@ -1,7 +1,7 @@
 {
   "name": "sigplot",
   "description": "Fast interactive plotting for signal processing applications",
-  "version": "1.1.1",
+  "version": "1.3.0rc2",
   "license": "LGPL",
   "homepage": "http://demo.axiosengineering.com/sigplot",
   "private": true,
