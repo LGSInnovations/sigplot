@@ -446,15 +446,25 @@
                     ctx.textAlign = "left";
                     ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
                     ctx.font = Mx.font.font;
-                    var text = mx.format_g(this.position, 6, 3, true);
-                    ctx.fillText(text, this.location + 5, Mx.t + 10);
+                    var text = mx.format_g(this.position, 6, 3, true).trim();
+                    var text_w = ctx.measureText(text).width;
+                    if ((this.location + 5 + text_w) > Mx.r) {
+                        ctx.textAlign = "right";
+                        ctx.fillText(text, this.location - 5, Mx.t + 10);
+                    } else {
+                        ctx.fillText(text, this.location + 5, Mx.t + 10);
+                    }
                 } else if (this.options.direction === "horizontal") {
                     ctx.textBaseline = "alphabetic";
                     ctx.textAlign = "left";
                     ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
                     ctx.font = Mx.font.font;
-                    var text = mx.format_g(this.position, 6, 3, true);
-                    ctx.fillText(text, Mx.l + 10, this.location - 5);
+                    var text = mx.format_g(this.position, 6, 3, true).trim();
+                    if ((this.location - Mx.text_h - 5) > Mx.t) {
+                        ctx.fillText(text, Mx.l + 10, this.location - 5);
+                    } else {
+                        ctx.fillText(text, Mx.l + 10, this.location + 5 + Mx.text_h);
+                    }
                 } else if (this.options.direction === "both") {
                     // TODO
                 }
