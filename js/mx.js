@@ -4810,21 +4810,35 @@ window.mx = window.mx || {};
         var yymin = stk4.ymin;
         var yscl = 1.0 / stk4.yscl;
 
-        var clipped = ((x > stk4.xmax) || (x < stk4.xmin) || (y > stk4.ymin) || (y < stk4.ymax));
+        var clipped_x = false;
+        var clipped_y = false;
 
-        if (clip) {
-            x = Math.min(x, stk4.xmax);
-            y = Math.max(x, stk4.xmin);
-            y = Math.min(y, stk4.ymin);
-            y = Math.max(y, stk4.ymax);
+        if (x !== null) {
+            clipped_x = ((x > stk4.xmax) || (x < stk4.xmin));
+            if (clip) {
+                x = Math.min(x, stk4.xmax);
+                x = Math.max(x, stk4.xmin);
+            }
+            x = Math.round((x - xxmin) * xscl) + left;
+        }
+        if (y !== null) {
+            clipped_y = ((y > stk4.ymin) || (y < stk4.ymax));
+            if (clip) {
+                y = Math.min(y, stk4.ymin);
+                y = Math.max(y, stk4.ymax);
+            }
+            y = Math.round((y - yymin) * yscl) + top;
         }
 
-        var x = Math.round((x - xxmin) * xscl) + left;
-        var y = Math.round((y - yymin) * yscl) + top;
+        x = Math.round(x);
+        y = Math.round(y);
+
         return {
             x: x,
             y: y,
-            clipped: clipped
+            clipped_x: clipped_x,
+            clipped_y: clipped_y,
+            clipped: (clipped_x || clipped_y)
         };
     };
 
