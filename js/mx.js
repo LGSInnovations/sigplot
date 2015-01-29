@@ -4184,6 +4184,7 @@ window.mx = window.mx || {};
      * @private
      */
     mx.format_g = function(num, w, d, leading_nonzero) {
+        var w = Math.min(w, d + 7);
         var f = Math.abs(num).toString();
 
         var decloc = f.indexOf(".");
@@ -4223,8 +4224,8 @@ window.mx = window.mx || {};
                     f = f.slice(0, d + 2);
                 }
             } else if (decloc > d) {
-                var exp = Math.max(0, f.length - d - 2);
-                f = f[0] + "." + f.slice(1, 9);
+                var exp = Math.max(0, decloc - 1);
+                f = f[0] + "." + f.slice(1, d + 1);
             } else {
                 f = f.slice(0, d + 2);
             }
