@@ -1739,14 +1739,16 @@ window.sigplot = window.sigplot || {};
             var Gx = this._Gx;
             var Mx = this._Mx;
 
-            Gx.lyr.push(layer);
-
             // Notify listeners that a file was overlayed
             var evt = document.createEvent('Event');
-            evt.initEvent('file_overlayed', true, true);
-            evt.index = Gx.lyr.length - 1; // the new index of the layer
+            evt.initEvent('lyradd', true, true);
+            evt.index = Gx.lyr.length; // the new index of the layer
             evt.name = layer.name; // the name of the layer
-            mx.dispatchEvent(Mx, evt);
+            evt.layer = layer;
+            var executeDefault = mx.dispatchEvent(Mx, evt);
+            if (executeDefault) {
+                Gx.lyr.push(layer);
+            }
         },
 
         get_layer: function(n) {
@@ -4892,6 +4894,13 @@ window.sigplot = window.sigplot || {};
         }
 
         Gx.lyr[n].draw();
+
+        var evt = document.createEvent('Event');
+        evt.initEvent('lyrdraw', true, true);
+        evt.index = n;
+        evt.name = Gx.lyr[n].name; // the name of the layer
+        evt.layer = Gx.lyr[n];
+        mx.dispatchEvent(Mx, evt);
     }
 
     /**
@@ -4900,12 +4909,21 @@ window.sigplot = window.sigplot || {};
      */
     function delete_layer(plot, n) {
         var Gx = plot._Gx;
+        var Mx = plot._Mx;
         //if (n < Gx.modlayer) Gx.modlayer = Gx.modlayer - 1;
         //if (n < Gx.modsource) Gx.modsource = Gx.modsource - 1;
-        var topbs;
-        if (Gx.lyr[n].display) {
-            topbs = n;
+
+        // Notify listeners that a layer is about to be deleted
+        var evt = document.createEvent('Event');
+        evt.initEvent('lyrdel', true, true);
+        evt.index = n;
+        evt.name = Gx.lyr[n].name; // the name of the layer
+        evt.layer = Gx.lyr[n];
+        var executeDefault = mx.dispatchEvent(Mx, evt);
+        if (!executeDefault) {
+            return; // Delete was prevented
         }
+
         Gx.lyr[n].ybufn = 0;
         Gx.lyr[n].ybuf = null;
         if (n < Gx.lyr.length - 1) {
