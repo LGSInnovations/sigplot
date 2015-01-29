@@ -932,9 +932,24 @@ window.sigplot = window.sigplot || {};
                             return;
                         }
 
+                        var keyCode = getKeyCode(event);
+
+                        // Since the mouse is in the plot area, send a keypress event
+                        var evt = document.createEvent('Event');
+                        evt.initEvent('plotkeypress', true, true);
+                        evt.keyCode = keyCode;
+                        evt.shiftKey = event.shiftKey;
+                        evt.ctrlKey = event.ctrlKey;
+                        evt.altKey = event.altKey;
+                        evt.metaKey = event.metaKey;
+                        var executeDefault = mx.dispatchEvent(Mx, evt);
+                        if (!executeDefault) {
+                            return;
+                        }
+
                         // Only respond to keypresses if the mouse is
                         // in the plot area....
-                        var keyCode = getKeyCode(event);
+
                         if (keyCode === 97) { // 'a'
                             Gx.iabsc = (Gx.iabsc + 1) % 4;
                             // It's kinda up in the air if changing the 'specs'
