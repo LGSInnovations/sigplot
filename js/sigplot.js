@@ -4599,6 +4599,7 @@ window.sigplot = window.sigplot || {};
 
         Gx.cross = o.cross === undefined ? false : o.cross;
         Gx.grid = o.nogrid === undefined ? true : !o.nogrid;
+        Gx.fillStyle = o.fillStyle;
         Gx.gridBackground = o.gridBackground;
         Gx.gridStyle = o.gridStyle;
         Gx.wheelZoom = o.wheelZoom;
