@@ -626,9 +626,9 @@ window.mx = window.mx || {};
      * @private
      */
     mx.setbgfg = function(Mx, bg, fg, xi) {
-        Mx.bg = bg;
-        Mx.fg = fg;
-        Mx.xi = xi;
+        Mx.bg = tinycolor(bg).toHexString();
+        Mx.fg = tinycolor(fg).toHexString();
+        Mx.xi = tinycolor(xi).toHexString();
 
         if ((tinycolor.equals(Mx.bg, "black")) && (tinycolor.equals(Mx.fg, "white"))) { ///mmm
             Mx.xwfg = Mx.fg; // X-Widget Foreground color
