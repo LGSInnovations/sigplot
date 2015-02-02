@@ -7,16 +7,17 @@
 		"cleverLinks"     : false,
 		"monospaceLinks"  : false,
 		"default"         : {
-			"outputSourceFiles" : true
+			"outputSourceFiles" : false
 		},
+		"outputSourcePath" : false,
 		"systemName"      : "SigPlot",
 		"footer"          : "",
 		"copyright"       : "DocStrap Copyright © 2012-2013 The contributors to the JSDoc3 and DocStrap projects.",
 		"navType"         : "vertical",
 		"theme"           : "readable",
-		"linenums"        : true,
+		"linenums"        : false,
 		"collapseSymbols" : false,
-		"inverseNav"      : true
+		"inverseNav"      : true,
 	},
 	"markdown"  : {
 		"parser"   : "gfm",
