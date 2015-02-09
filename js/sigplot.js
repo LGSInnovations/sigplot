@@ -4155,6 +4155,41 @@ window.sigplot = window.sigplot || {};
             }
         };
 
+        var SAVE_MENU = {
+            text: "Save as...",
+            menu: {
+                title: "SAVE AS",
+                items: [{
+                    text: "PNG",
+                    handler: function() {
+                        var img = plot._Mx.active_canvas.toDataURL("image/png");
+                        var link = document.createElement("a");
+                        link.href = img;
+                        link.download = "SigPlot." + (new Date()).getTime() + ".png";
+                        link.click();
+                    }
+                }, {
+                    text: "JPG",
+                    handler: function() {
+                        var img = plot._Mx.active_canvas.toDataURL("image/jpg");
+                        var link = document.createElement("a");
+                        link.href = img;
+                        link.download = "SigPlot." + (new Date()).getTime() + ".jpg";
+                        link.click();
+                    }
+                }, {
+                    text: "SVG",
+                    handler: function() {
+                        var img = plot._Mx.active_canvas.toDataURL("image/svg");
+                        var link = document.createElement("a");
+                        link.href = img;
+                        link.download = "SigPlot." + (new Date()).getTime() + ".svg";
+                        link.click();
+                    }
+                }]
+            }
+        };
+
         var REFRESH_ITEM = {
             text: "Refresh" // no handler, just let the finalizer deal with
                 // it
@@ -4192,7 +4227,7 @@ window.sigplot = window.sigplot || {};
             },
             items: [REFRESH_ITEM, CONTROLS_MENU, CXMODE_MENU, SCALING_MENU, VIEW_MENU,
                 GRID_MENU, SETTINGS_MENU, COLORMAP_MENU, TRACES_MENU, FILES_MENU,
-                PLUGINS_MENU, KEYPRESSINFO_ITEM, EXIT_ITEM
+                PLUGINS_MENU, KEYPRESSINFO_ITEM, SAVE_MENU, EXIT_ITEM
             ]
         };
 
