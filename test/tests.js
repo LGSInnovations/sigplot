@@ -1033,6 +1033,23 @@ interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?',  function()
         plot.overlay_array(ramp,{file_name: "ramp"});
 });
 
+interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 4096; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        file_name: "ramp",
+        xstart: 999996296.08025432,
+        xdelta: 0.637054443359375,
+        format: "SF",
+    });
+});
+
 interactiveTest('reload', 'Do you see a pulse scrolling right?',  function() {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
