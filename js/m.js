@@ -609,10 +609,17 @@ window.m = window.m || {};
      */
     // ~= M$LABEL
     m.label = function(units, mult) {
+        var u = ["Unknown", "U"];
 
-        var u = UNITS[units];
-        if (u === undefined) {
-            return "";
+        if (typeof units === "string") {
+            u = [units, null];
+        } else if (Array.isArray(units)) {
+            u = units;
+        } else {
+            u = UNITS[units];
+            if (u === undefined) {
+                u = ["Unknown", "U"];
+            }
         }
         var prefix = "?";
         if (mult === 1.0e3) {
@@ -634,7 +641,12 @@ window.m = window.m || {};
         } else if (mult === 1) {
             prefix = "";
         }
-        return u[0] + " (" + prefix + u[1] + ")";
+
+        if (u[1]) {
+            return u[0] + " (" + prefix + u[1] + ")";
+        } else {
+            return u[0];
+        }
     };
 
     /** 
