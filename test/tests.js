@@ -195,7 +195,7 @@ asyncTest('int data', function() {
 
                 equal( hdr.ystart, undefined);
                 equal( hdr.yelta, undefined);
-                equal( hdr.yunits, undefined);
+                equal( hdr.yunits, 0);
 
 
                 strictEqual( hdr.data_start, 512.0, "correct data_start");
@@ -249,7 +249,7 @@ asyncTest('double data', function() {
 
                 equal( hdr.ystart, undefined);
                 equal( hdr.yelta, undefined);
-                equal( hdr.yunits, undefined);
+                equal( hdr.yunits, 0);
 
 
                 strictEqual( hdr.data_start, 512.0, "correct data_start");
@@ -302,7 +302,7 @@ asyncTest('complex float data', function() {
 
                 equal( hdr.ystart, undefined);
                 equal( hdr.yelta, undefined);
-                equal( hdr.yunits, undefined);
+                equal( hdr.yunits, 0);
 
 
                 strictEqual( hdr.data_start, 512.0, "correct data_start");
@@ -1047,6 +1047,55 @@ interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis?',
         xstart: 999996296.08025432,
         xdelta: 0.637054443359375,
         format: "SF",
+    });
+});
+
+interactiveTest('sigplot xtimecode', 'Do you see a timecode xaxis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 4096; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        file_name: "ramp",
+        format: "SF",
+        xunits: 4
+    });
+});
+
+interactiveTest('sigplot ytimecode', 'Do you see a timecode yaxis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 31449600; i < 31449600 + 4096; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        file_name: "ramp",
+        format: "SF",
+        yunits: 4
+    });
+});
+
+interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (Ka) vs. CustomX"?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        file_name: "ramp"
+    }, {
+        xlab: "CustomX",
+        ylab: ["CustomY", "a"]
     });
 });
 
