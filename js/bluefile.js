@@ -235,6 +235,7 @@
                 this.xstart = dvhdr.getFloat64(0x100, littleEndianHdr);
                 this.xdelta = dvhdr.getFloat64(0x100 + 8, littleEndianHdr);
                 this.xunits = dvhdr.getInt32(0x100 + 16, littleEndianHdr);
+                this.yunits = dvhdr.getInt32(0x100 + 40, littleEndianHdr);
                 this.subsize = 1;
             } else if (this["class"] === 2) {
                 this.xstart = dvhdr.getFloat64(0x100, littleEndianHdr);
