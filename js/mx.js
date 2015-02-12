@@ -2867,13 +2867,38 @@ window.mx = window.mx || {};
             fmul = 1.0;
         }
 
-        var sp;
+        // Figure out how many characters can fit between tics
+        var xlbl_maxlen = Math.min(12, Math.round(fact * xTIC.dtic) / Mx.text_w);
+
+        // The sp flag decides if all tics should be labeled, or just the first tic.
+        // in LEGACY rendering when sp=0 you should get one tic at the start 
+        // that then displays like XPOS += tic-delta
+        //
+        // The original logic basically says, if the tic-delta (i.e. dtic) is very small
+        // relative to the first tic, only render the first tic.  Specifically:
+        //    sp = (Math.abs(xTIC.dtic) / Math.max(Math.abs(xTIC.dtic1), Math.abs(xTIC.dtic)) > 1.0e-6);
+        //
+        // However, it's probably more important to decide this based off the significant digits of the
+        // tic labels.  In other words, if the tics cannot be labeled uniquely then you need to make sp=0.
+        var sp = 1;
+        var x;
+        var xlbl = "";
         if (xticlabels) {
             if (xtimecode) {
-                // TODO
+                // TODO this logic is supposed to be different in xtimecode mode but for now
+                // let's use the legacy logic
                 sp = (Math.abs(xTIC.dtic) / Math.max(Math.abs(xTIC.dtic1), Math.abs(xTIC.dtic)) > 1.0e-6);
             } else {
-                sp = (Math.abs(xTIC.dtic) / Math.max(Math.abs(xTIC.dtic1), Math.abs(xTIC.dtic)) > 1.0e-6);
+                // Ensure that all of the tic labels will render uniquely
+                var last_xlbl;
+                for (x = xTIC.dtic1; x <= stk1.xmax; x = x + xTIC.dtic) {
+                    xlbl = mx.format_f(x * fmul, xlbl_maxlen, xlbl_maxlen / 2);
+                    if (xlbl === last_xlbl) {
+                        sp = 0;
+                        break;
+                    }
+                    last_xlbl = xlbl;
+                }
             }
         }
         if (xTIC.dtic === 0) {
@@ -2881,8 +2906,8 @@ window.mx = window.mx || {};
         }
 
         var i;
-        var xlbl = "";
-        for (var x = xTIC.dtic1; x <= stk1.xmax; x = x + xTIC.dtic) {
+        xlbl = "";
+        for (x = xTIC.dtic1; x <= stk1.xmax; x = x + xTIC.dtic) {
             i = iscl + Math.round(fact * (x - stk1.xmin)) + 2;
             if (i < iscl) {
                 continue;
@@ -2905,9 +2930,9 @@ window.mx = window.mx || {};
                     xlbl = "";
                     if (xtimecode) {
                         // TODO
-                        xlbl = mx.format_f(x * fmul, 12, 6);
+                        xlbl = mx.format_f(x * fmul, xlbl_maxlen, xlbl_maxlen / 2);
                     } else {
-                        xlbl = mx.format_f(x * fmul, 12, 6);
+                        xlbl = mx.format_f(x * fmul, xlbl_maxlen, xlbl_maxlen / 2);
                     }
                     xlbl = trimlabel(xlbl, true);
                     var itexti = Math.round(xlbl.length / 2) * Mx.text_w;
