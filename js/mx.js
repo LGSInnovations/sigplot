@@ -3059,7 +3059,7 @@ window.mx = window.mx || {};
                         if (flags.inside) {
                             i = Math.floor(Math.max(iscl + itext, i));
                         }
-                        mx.text(Mx, i - itext, jtext, xlbl);
+                        mx.text(Mx, i - itext, jtext, xlbl + " +\u0394 " + (xTIC.dtic * fmul));
                     }
                 }
             }
