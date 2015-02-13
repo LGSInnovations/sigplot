@@ -2751,7 +2751,7 @@ window.mx = window.mx || {};
      * @param ndiv
      */
     // ~= MX$TICS
-    mx.tics = function(dmin, dmax, ndiv) {
+    mx.tics = function(dmin, dmax, ndiv, timecode) {
         var dtic = 1;
         var dtic1 = dmin;
 
@@ -2778,16 +2778,47 @@ window.mx = window.mx || {};
 
         var ddf = df * Math.pow(10.0, (-nsig));
         sig = Math.pow(10.0, nsig);
-        if (ddf < 1.75) {
-            dtic = sig;
-        } else if (ddf < 2.25) {
-            dtic = 2.0 * sig;
-        } else if (ddf < 3.5) {
-            dtic = 2.50 * sig;
-        } else if (ddf < 7.0) {
-            dtic = 5.0 * sig;
+        var dft = ddf * sig;
+        // If timecode has been requested and it looks like
+        // timecode
+        if (timecode && (dft >= 5.0 && dft <= 59.5 * 3600 * 24)) {
+            var dscl;
+            if (dft < 17.5) {
+                dscl = 5.0; // align to 5 sec tics
+            } else if (dft < 37.5) {
+                dscl = 15.0; // align to 15 sec tics
+            } else if (dft < 4.5 * 60) {
+                dscl = 60.0; // 1 minute tics
+            } else if (dft < 17.5 * 60) {
+                dscl = 5.0 * 60; // and so on
+            } else if (dft < 37.5 * 60) {
+                dscl = 15.0 * 60;
+            } else if (dft < 2.0 * 3600) {
+                dscl = 1.0 * 3600;
+            } else if (dft < 4.5 * 3600) {
+                dscl = 3.0 * 3600;
+            } else if (dft < 9.0 * 3600) {
+                dscl = 6.0 * 3600;
+            } else if (dft < 1.5 * 3600 * 24) {
+                dscl = 12.0 * 3600;
+            } else if (dft < 6.0 * 3600 * 24) {
+                dscl = 1.0 * 3600 * 24; // 1 day
+            } else {
+                dscl = 1.0 * 3600 * 24 * 7; // 1 week
+            }
+            dtic = Math.round(dft / dscl) * dscl;
         } else {
-            dtic = 10.0 * sig;
+            if (ddf < 1.75) {
+                dtic = sig;
+            } else if (ddf < 2.25) {
+                dtic = 2.0 * sig;
+            } else if (ddf < 3.5) {
+                dtic = 2.50 * sig;
+            } else if (ddf < 7.0) {
+                dtic = 5.0 * sig;
+            } else {
+                dtic = 10.0 * sig;
+            }
         }
 
         // redefine dmin and dmax to line up on 'nice' boundaries
