@@ -54,36 +54,41 @@ QUnit.module('m', {
 });
 
 test('m sec2tod test', function() {
-	/* Test #1 */
-	var secs = 43200;
-	equal(m.sec2tod(secs),"12:00:00:00");
-	/* Test #2 */
-	var secs = 86399;
-	equal(m.sec2tod(secs),"23:59:59:00");
-	/* Test #3 */
-	var secs = 86400;
-	equal(m.sec2tod(secs),"1::00:00:00:00");
-	/* Test #4 */
-	var secs = 86401;
-	equal(m.sec2tod(secs),"1::00:00:01:00");
-	/* Test #5 */
-	var secs = 86400+43200;
-	equal(m.sec2tod(secs),"1::12:00:00:00");
-	/* Test #6 */
-	var secs = 31535999;
-	equal(m.sec2tod(secs),"364::23:59:59:00");
-	/* Test #7 */
-	var secs = 31536000;
-	equal(m.sec2tod(secs),"1951:00:01::00:00:00:00");
-	/* Test #8 */
-	var secs = -31535999;
-	equal(m.sec2tod(secs),"-364::23:59:59:00");
-	/* Test #9 */
-	var secs = -31536000;
-	equal(m.sec2tod(secs),"1949:00:01::00:00:00:00");
-	/* Test #10 */
-	var secs = -31536001;
-	equal(m.sec2tod(secs),"1948:11:31::23:59:59:00");
+    var secs = 0;
+    equal(m.sec2tod(0), "00:00:00");
+    equal(m.sec2tod(1), "00:00:01");
+    equal(m.sec2tod(60), "00:01:00");
+    equal(m.sec2tod(3600), "01:00:00");
+    equal(m.sec2tod(43200), "12:00:00");
+    equal(m.sec2tod(86399), "23:59:59");
+    equal(m.sec2tod(86400), "24:00:00");
+    equal(m.sec2tod(86401), "1::00:00:01");
+    equal(m.sec2tod(86400 + 43200), "1::12:00:00");
+    equal(m.sec2tod(31535999), "364::23:59:59");
+    equal(m.sec2tod(31536000), "1951:01:01::00:00:00");
+    equal(m.sec2tod(-31535999), "-364::23:59:59");
+    equal(m.sec2tod(-31536000), "1949:01:01::00:00:00");
+    equal(m.sec2tod(-31536001), "1948:12:31::23:59:59");
+
+    equal(m.sec2tod(0.5), "00:00:00.500000");
+    equal(m.sec2tod(-0.5), "-0::00:00:00.500000");
+    equal(m.sec2tod(86400.5), "1::00:00:00.500000");
+    equal(m.sec2tod(86401.5), "1::00:00:01.500000");
+    equal(m.sec2tod(86400.5), "1::00:00:00.500000");
+    equal(m.sec2tod(31535999.5), "364::23:59:59.500000");
+    equal(m.sec2tod(-31535999.5), "-364::23:59:59.500000");
+    equal(m.sec2tod(-31536000.5), "1948:12:31::23:59:59.500000");
+    equal(m.sec2tod(-31536001.5), "1948:12:31::23:59:58.500000");
+
+    equal(m.sec2tod(0.5, true), "00:00:00.5");
+    equal(m.sec2tod(-0.5, true), "-0::00:00:00.5");
+    equal(m.sec2tod(86400.5, true), "1::00:00:00.5");
+    equal(m.sec2tod(86401.5, true), "1::00:00:01.5");
+    equal(m.sec2tod(86400.5, true), "1::00:00:00.5");
+    equal(m.sec2tod(31535999.5, true), "364::23:59:59.5");
+    equal(m.sec2tod(-31535999.5, true), "-364::23:59:59.5");
+    equal(m.sec2tod(-31536000.5, true), "1948:12:31::23:59:59.5");
+    equal(m.sec2tod(-31536001.5, true), "1948:12:31::23:59:58.5");
 
 });
 
