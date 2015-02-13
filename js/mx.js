@@ -3079,6 +3079,10 @@ window.mx = window.mx || {};
                     k = i + jtext + Mx.text_h;
                     if ((k > isct && k < iscb)) {
                         if (ylbl.substring(sep + 7, sep + 9) !== "00") {
+                            // add the .00 which is safe to do unconditionally because
+                            // we truncate on the following line and we know that
+                            // sec2tod either returns no decimal places or 6 decimal places
+                            ylbl = ylbl + ".00";
                             mx.text(Mx, itext, k, ylbl.substring(sep + 7, sep + 12));
                         }
                     }
