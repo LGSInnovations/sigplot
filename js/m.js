@@ -1048,7 +1048,7 @@ window.m = window.m || {};
      *
      */
 
-    m.sec2tod = function(sec) {
+    m.sec2tod = function(sec, trim_trailing_zeros) {
         var tod = "";
         var j1950 = Date.UTC(1950, 0, 1); //From 1950 to 1970
         var j1950Date = new Date(j1950); //debug var
@@ -1068,40 +1068,58 @@ window.m = window.m || {};
                 // hh:mm:ss
                 var millisecs = midnightToday.getTime() + (sec * 1000);
                 var d = new Date(millisecs);
-                tod = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+                tod = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+            } else if (sec === 86400) {
+                tod = "24:00:00";
             } else if (sec < diffYearSecs) {
                 // ddd:hh:mm:ss
                 var days = sec / diffDaySecs;
                 days = [days > 0 ? Math.floor(days) : Math.ceil(days)];
                 var d = new Date((sec * 1000) + midnightToday.getTime());
-                tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+                tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
             } else {
                 // convert to j1950
-                var secMilli = sec * 1000 + j1950;
+                var secMilli = Math.floor(sec * 1000) + j1950;
                 d = new Date(secMilli);
-                tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth()) + ":" + pad2(d.getUTCDate()) + "::" +
-                    pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes()) + ":" + pad2(d.getUTCSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+                tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth() + 1) + ":" + pad2(d.getUTCDate()) + "::" +
+                    pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes()) + ":" + pad2(d.getUTCSeconds());
             }
         } else {
             if (sec > negDiffYearSecs) {
                 // -ddd:hh:mm:ss
                 var days = sec / diffDaySecs;
-                days = [days <= 0 ? Math.ceil(days) : Math.floor(days)];
+                days = (days <= 0) ? Math.ceil(days) : Math.floor(days);
                 var d = new Date(Math.abs(sec * 1000) + midnightToday.getTime());
-                tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+                if (days === 0) {
+                    days = "-0";
+                } else {
+                    days = days.toString();
+                }
+                tod = days + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
             } else {
                 // convert to j1950
-                var secMilli = sec * 1000 + j1950;
+                var secMilli = Math.floor(sec * 1000) + j1950;
                 d = new Date(secMilli);
-                tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth()) + ":" + pad2(d.getUTCDate()) + "::" +
-                    pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes()) + ":" + pad2(d.getUTCSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+                tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth() + 1) + ":" + pad2(d.getUTCDate()) + "::" +
+                    pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes()) + ":" + pad2(d.getUTCSeconds());
             }
         }
 
         if ((sec % 1) !== 0) {
-            tod += "." + (sec % 1).toPrecision(6).slice(2, 8);
+            tod += "." + Math.abs(sec % 1).toPrecision(6).slice(2, 8);
         }
 
+        if (trim_trailing_zeros) {
+            var dloc = tod.indexOf(".");
+            var zloc = -1;
+            // If there is a 'decimal point'
+            if (dloc !== -1) {
+                zloc = tod.substr(dloc, tod.length).indexOf("0");
+            }
+            if (zloc !== -1) {
+                tod = tod.substr(0, dloc + zloc);
+            }
+        }
         return tod;
 
     };
