@@ -2912,13 +2912,15 @@ window.mx = window.mx || {};
         }
 
         // form nice tickmarks
-        var xtimecode;
-        if (xlab === 1) { //time-based tics
+        var xtimecode = false;
+        if (xlab === 4) { //time-based tics
             xtimecode = true;
-        } else {
-            xtimecode = false;
         }
+
         var ytimecode = false;
+        if (ylab === 4) { //time-based tics
+            ytimecode = true;
+        }
 
 
         var xTIC = {
@@ -2933,10 +2935,8 @@ window.mx = window.mx || {};
         if (xdiv < 0) {
             xTIC.dtic1 = stk1.xmin;
             xTIC.dtic = (stk1.xmin - stk1.xmax) / xdiv;
-        } else if (xtimecode) {
-            xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv);
         } else {
-            xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv);
+            xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv, xtimecode);
         }
 
 
@@ -2947,10 +2947,8 @@ window.mx = window.mx || {};
         if (ydiv < 0) {
             yTIC.dtic1 = stk1.ymin;
             yTIC.dtic = (stk1.ymin - stk1.ymax) / ydiv;
-        } else if (ytimecode) {
-            // TODO
         } else {
-            yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv);
+            yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv, ytimecode);
         }
         var ymult = 1.0;
         if (!ytimecode) {
@@ -3037,9 +3035,9 @@ window.mx = window.mx || {};
         var xlbl = "";
         if (xticlabels) {
             if (xtimecode) {
-                // TODO this logic is supposed to be different in xtimecode mode but for now
-                // let's use the legacy logic
-                sp = (Math.abs(xTIC.dtic) / Math.max(Math.abs(xTIC.dtic1), Math.abs(xTIC.dtic)) > 1.0e-6);
+                xlbl = m.sec2tod(xTIC.dtic1);
+                // If the label is no longer than half of the total width display multiple labels
+                sp = (xlbl.length * Mx.text_w < (iscr - iscl) / 2);
             } else {
                 // Ensure that all of the tic labels will render uniquely
                 var last_xlbl;
@@ -3058,6 +3056,7 @@ window.mx = window.mx || {};
         }
 
         var i;
+        ix = 0;
         xlbl = "";
         for (x = xTIC.dtic1; x <= stk1.xmax; x = x + xTIC.dtic) {
             i = iscl + Math.round(fact * (x - stk1.xmin)) + 2;
@@ -3088,28 +3087,32 @@ window.mx = window.mx || {};
             }
             if (xticlabels) {
                 if (sp) {
-                    xlbl = "";
+                    xlbl = null;
                     if (xtimecode) {
-                        // TODO
-                        xlbl = mx.format_f(x * fmul, xlbl_maxlen, xlbl_maxlen / 2);
+                        // If we have enough space to draw the next tic label
+                        if (i > ix) {
+                            xlbl = m.sec2tod(x, true);
+                            ix = i + (Mx.text_w * (xlbl.length + 1));
+                        }
                     } else {
                         xlbl = mx.format_f(x * fmul, xlbl_maxlen, xlbl_maxlen / 2);
+                        xlbl = trimlabel(xlbl, true);
                     }
-                    xlbl = trimlabel(xlbl, true);
-                    var itexti = Math.round(xlbl.length / 2) * Mx.text_w;
-                    if (flags.inside) {
-                        i = Math.max(iscl + itexti, i);
-                        i = Math.min(iscr - itexti, i);
+                    if (xlbl) {
+                        var itexti = Math.round(xlbl.length / 2) * Mx.text_w;
+                        if (flags.inside) {
+                            i = Math.max(iscl + itexti, i);
+                            i = Math.min(iscr - itexti, i);
+                        }
+                        mx.text(Mx, i - itexti, jtext, xlbl);
                     }
-                    mx.text(Mx, i - itexti, jtext, xlbl);
                 } else if (x === xTIC.dtic1) {
                     if (xtimecode) {
-                        // TODO
-                        xlbl = (xTIC.dtic1 * fmul).toString();
+                        xlbl = m.sec2tod(x, true);
                         if (flags.inside) {
                             i = Math.floor(Math.max(iscl + itext, i));
                         }
-                        mx.text(Mx, i - itext, jtext, xlbl);
+                        mx.text(Mx, i - itext, jtext, xlbl + " +\u0394 " + m.sec2tod(xTIC.dtic));
                     } else {
                         xlbl = (xTIC.dtic1 * fmul).toString();
                         if (flags.inside) {
@@ -3159,6 +3162,7 @@ window.mx = window.mx || {};
                 return (val >= stk1.ymax);
             };
         }
+        var ylbl;
         for (var y = yTIC.dtic1; endtic(y); y = y + yTIC.dtic) {
             i = iscb + Math.round(fact * (y - stk1.ymin)) - 2;
             if (i > iscb) {
@@ -3183,9 +3187,37 @@ window.mx = window.mx || {};
                     ((i < isct + Mx.text_h) || (i > iscb - Mx.text_h * 2))) {
                     // out of range for inside labels
                 } else if (ytimecode) {
-                    // TODO
+                    ylbl = m.sec2tod(y); // don't trim zeros because we use them later
+                    // y-axis timecodes
+                    // use three lines
+                    // YYYY:MM:DD
+                    // HH:MM
+                    // SS.factional
+                    var k = i + jtext - Mx.text_h;
+                    var sep = ylbl.indexOf("::");
+                    if (sep !== -1) {
+                        if (k > isct && k < iscb) {
+                            // it the label has space, draw it
+                            mx.text(Mx, itext, k, ylbl.substring(0, sep));
+                        }
+                        sep += 1; // adjust for the next stage
+                    }
+                    // The draw the primary portion
+                    mx.text(Mx, itext, Math.min(iscb, i + jtext), ylbl.substring(sep + 1, sep + 6));
+                    // Finally the sections portion if it fits on the screen
+                    // and is necessary
+                    k = i + jtext + Mx.text_h;
+                    if ((k > isct && k < iscb)) {
+                        if (ylbl.substring(sep + 7, sep + 9) !== "00") {
+                            // add the .00 which is safe to do unconditionally because
+                            // we truncate on the following line and we know that
+                            // sec2tod either returns no decimal places or 6 decimal places
+                            ylbl = ylbl + ".00";
+                            mx.text(Mx, itext, k, ylbl.substring(sep + 7, sep + 12));
+                        }
+                    }
                 } else {
-                    var ylbl = mx.format_f(y * fmul, 12, 6);
+                    ylbl = mx.format_f(y * fmul, 12, 6);
                     ylbl = trimlabel(ylbl, flags.inside);
                     mx.text(Mx, itext, Math.min(iscb, i + jtext), ylbl);
                 }
