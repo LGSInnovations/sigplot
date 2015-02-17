@@ -1442,6 +1442,10 @@ window.sigplot = window.sigplot || {};
                 updateViewbox(this, Mx.stk[0].xmin, settings.xmax, "X");
             }
 
+            if (settings.note !== undefined) {
+                Gx.note = settings.note;
+            }
+
             this.refresh();
             if (settings.pan !== undefined) { // refactor - new code to handle
                 // disappearing specs
