@@ -2509,9 +2509,8 @@ window.sigplot = window.sigplot || {};
                             width: i,
                             height: i
                         };
-                        mx
-                            .shadowbox(Mx, Mx.width - Gx.lbtn, 2, i, i, 1,
-                                2, 'L');
+                        mx.shadowbox(Mx, Mx.width - Gx.lbtn, 2, i, i, 1,
+                            2, 'L');
                     }
                     display_specs(this);
                 }

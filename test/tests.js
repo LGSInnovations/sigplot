@@ -1084,6 +1084,64 @@ interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() 
     });
 });
 
+interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_href("dat/sin.tmp", null, {
+        name: "x"
+    });
+});
+
+interactiveTest('sigplot penny 1d legend default', 'Do you see a penny with properly labeled legend?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_href("dat/penny.prm", null, {
+        layerType: sigplot.Layer1D
+    });
+});
+
+interactiveTest('sigplot penny 1d legend string override', 'Do you see a penny with properly labeled legend?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_href("dat/penny.prm", null, {
+        layerType: sigplot.Layer1D,
+        name: "abc"
+    });
+});
+
+interactiveTest('sigplot penny 1d legend multiple', 'Do you see a penny with properly labeled legend?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_href("dat/penny.prm", null, {
+        layerType: sigplot.Layer1D,
+        name: ["one", "two", "three"]
+    });
+});
+
 interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
@@ -1142,7 +1200,10 @@ interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
     }
-    plot.overlay_href("dat/sin.tmp", null, {xlab: 4, ylab: ["CustomY", "a"]});
+    plot.overlay_href("dat/sin.tmp", null, {
+        xlab: 4,
+        ylab: ["CustomY", "a"]
+    });
 });
 
 interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (Ka) vs. CustomX (KU)"?', function() {
