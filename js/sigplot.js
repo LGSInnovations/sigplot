@@ -5517,8 +5517,25 @@ window.sigplot = window.sigplot || {};
             return;
         }
 
-        var chara = "y: " + mx.format_g(Gx.arety, 16, 9, true) + " dy: " + mx.format_g(Gx.drety, 16, 9) + " L=" + Mx.level + " " + cxm[Gx.cmode - 1];
-        var charb = "x: " + mx.format_g(Gx.aretx, 16, 9, true) + " dx: " + mx.format_g(Gx.dretx, 16, 9) + " " + cam[Gx.iabsc];
+        var xval,yval,xdelta,ydelta;
+        // TODO handle xfmt/yfmt using m.d2a_form equivalent 
+        if ((Gx.iabsc === 0) && (Gx.ylab === 4)) {
+            yval = (m.sec2tspec(Gx.arety) + "                ").substring(0,16);
+            ydelta = (m.sec2tspec(Gx.drety, "delta") + "                ").substring(0,16);
+        } else {
+            yval = mx.format_g(Gx.arety, 16, 9, true);
+            ydelta = mx.format_g(Gx.drety, 16, 9);
+        }
+        if ((Gx.iabsc === 0) && (Gx.xlab === 4)) {
+            xval = (m.sec2tspec(Gx.aretx) + "                ").substring(0,16);
+            xdelta = (m.sec2tspec(Gx.dretx, "delta") + "                ").substring(0,16);
+        } else {
+            xval = mx.format_g(Gx.aretx, 16, 9, true);
+            xdelta = mx.format_g(Gx.dretx, 16, 9);
+        }
+
+        var chara = "y: " + yval + " dy: " + ydelta + " L=" + Mx.level + " " + cxm[Gx.cmode - 1];
+        var charb = "x: " + xval + " dx: " + xdelta + " " + cam[Gx.iabsc];
         if (Gx.iabsc === 3) {
             if (Gx.dretx === 0.0) {
                 chara = chara.substr(0, 20) + "sl: Inf             " + chara.substr(40, chara.length);
