@@ -1127,6 +1127,28 @@ window.m = window.m || {};
     };
 
     /**
+     * 0.0 - 86400 == m.sec2tod
+     * >86400 then modulo 86400
+     *   if modulo <= 0 return m.sec2tod(modulo)+86400
+     *   if module <
+     */
+    m.sec2tspec = function(sec, mode, trim_trailing_zeros) {
+        mode = mode || "";
+        if (sec >= 0 && sec <= 86400) {
+            return m.sec2tod(sec, trim_trailing_zeros);
+        } else {
+            sec = sec % 86400;
+            if (mode !== "delta" && sec <= 0) {
+                return m.sec2tod(sec + 86400, trim_trailing_zeros);
+            } else if (mode === "delta" && sec <= 0) {
+                return "-" + m.sec2tod(-1 * sec, trim_trailing_zeros);
+            } else {
+                return m.sec2tod(sec, trim_trailing_zeros);
+            }
+        }
+    };
+
+    /**
      * @param 	{number}	sec		Number of seconds.
      * @return	{string}	tod		Time of day
      */
