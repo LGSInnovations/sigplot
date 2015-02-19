@@ -713,6 +713,10 @@
             n2 = Math.min(num_rows, 16 - Gx.lyr.length);
         }
 
+        // Extract the layer_name before enter the loop
+        var layer_name_override = layerOptions["name"];
+        delete layerOptions["name"];
+
         for (var i = n1; i < n2; i++) {
             // This is logic from within sigplot.for LOAD_FILES
             var layer = new sigplot.Layer1D(plot);
@@ -724,15 +728,31 @@
 
             // Provide the layer name
             if (hcb["class"] === 2) {
-                if (hcb.file_name) {
-                    layer.name = m.trim_name(hcb.file_name);
-                } else {
-                    layer.name = "layer_" + Gx.lyr.length;
+                if (layer_name_override !== undefined) {
+                    // If you get an array of names, pull the name
+                    // from this list...if we run out of names before
+                    // we run out of layers fall back
+                    if (Array.isArray(layer_name_override)) {
+                        layer.name = layer_name_override[i];
+                    } else {
+                        layer.name = layer_name_override;
+                        layer.name = layer.name + "." + mx.pad((i + 1).toString(), 3, "0");
+                    }
                 }
-                layer.name = layer.name + "." + mx.pad((i + 1).toString(), 3, "0");
+                // If a name hasn't been assigned yet
+                if (!layer.name) {
+                    if (hcb.file_name) {
+                        layer.name = m.trim_name(hcb.file_name);
+                    } else {
+                        layer.name = "layer_" + Gx.lyr.length;
+                    }
+                    layer.name = layer.name + "." + mx.pad((i + 1).toString(), 3, "0");
+                }
                 layer.offset = i * hcb.subsize;
             } else {
-                if (hcb.file_name) {
+                if (layer_name_override !== undefined) {
+                    layer.name = layer_name_override;
+                } else if (hcb.file_name) {
                     layer.name = m.trim_name(hcb.file_name);
                 } else {
                     layer.name = "layer_" + Gx.lyr.length;
