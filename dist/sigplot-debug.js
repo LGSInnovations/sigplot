@@ -966,6 +966,7 @@ if (!window.Float64Array) {
         this.xstart = dvhdr.getFloat64(256, littleEndianHdr);
         this.xdelta = dvhdr.getFloat64(256 + 8, littleEndianHdr);
         this.xunits = dvhdr.getInt32(256 + 16, littleEndianHdr);
+        this.yunits = dvhdr.getInt32(256 + 40, littleEndianHdr);
         this.subsize = 1;
       } else {
         if (this["class"] === 2) {
@@ -2971,9 +2972,18 @@ window.m = window.m || {};
     return filename;
   };
   m.label = function(units, mult) {
-    var u = UNITS[units];
-    if (u === undefined) {
-      return "";
+    var u = ["Unknown", "U"];
+    if (typeof units === "string") {
+      u = [units, null];
+    } else {
+      if (Array.isArray(units)) {
+        u = units;
+      } else {
+        u = UNITS[units];
+        if (u === undefined) {
+          u = ["Unknown", "U"];
+        }
+      }
     }
     var prefix = "?";
     if (mult === 1E3) {
@@ -3011,7 +3021,11 @@ window.m = window.m || {};
         }
       }
     }
-    return u[0] + " (" + prefix + u[1] + ")";
+    if (u[1]) {
+      return u[0] + " (" + prefix + u[1] + ")";
+    } else {
+      return u[0];
+    }
   };
   var VECTOR = {MV:"F", MS:"F", nbpt:4, view:undefined};
   m.vstype = function(ctype) {
@@ -3241,7 +3255,7 @@ window.m = window.m || {};
   function pad2(number) {
     return(number < 10 ? "0" : "") + number;
   }
-  m.sec2tod = function(sec) {
+  m.sec2tod = function(sec, trim_trailing_zeros) {
     var tod = "";
     var j1950 = Date.UTC(1950, 0, 1);
     var j1950Date = new Date(j1950);
@@ -3259,35 +3273,71 @@ window.m = window.m || {};
       if (sec < diffDaySecs) {
         var millisecs = midnightToday.getTime() + sec * 1E3;
         var d = new Date(millisecs);
-        tod = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+        tod = pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
       } else {
-        if (sec < diffYearSecs) {
-          var days = sec / diffDaySecs;
-          days = [days > 0 ? Math.floor(days) : Math.ceil(days)];
-          var d = new Date(sec * 1E3 + midnightToday.getTime());
-          tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+        if (sec === 86400) {
+          tod = "24:00:00";
         } else {
-          var secMilli = sec * 1E3 + j1950;
-          d = new Date(secMilli);
-          tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth()) + ":" + pad2(d.getUTCDate()) + "::" + pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes()) + ":" + pad2(d.getUTCSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+          if (sec < diffYearSecs) {
+            var days = sec / diffDaySecs;
+            days = [days > 0 ? Math.floor(days) : Math.ceil(days)];
+            var d = new Date(sec * 1E3 + midnightToday.getTime());
+            tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+          } else {
+            var secMilli = Math.floor(sec * 1E3) + j1950;
+            d = new Date(secMilli);
+            tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth() + 1) + ":" + pad2(d.getUTCDate()) + "::" + pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes()) + ":" + pad2(d.getUTCSeconds());
+          }
         }
       }
     } else {
       if (sec > negDiffYearSecs) {
         var days = sec / diffDaySecs;
-        days = [days <= 0 ? Math.ceil(days) : Math.floor(days)];
+        days = days <= 0 ? Math.ceil(days) : Math.floor(days);
         var d = new Date(Math.abs(sec * 1E3) + midnightToday.getTime());
-        tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+        if (days === 0) {
+          days = "-0";
+        } else {
+          days = days.toString();
+        }
+        tod = days + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
       } else {
-        var secMilli = sec * 1E3 + j1950;
+        var secMilli = Math.floor(sec * 1E3) + j1950;
         d = new Date(secMilli);
-        tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth()) + ":" + pad2(d.getUTCDate()) + "::" + pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes()) + ":" + pad2(d.getUTCSeconds()) + ":" + pad2(d.getUTCMilliseconds());
+        tod = d.getUTCFullYear() + ":" + pad2(d.getUTCMonth() + 1) + ":" + pad2(d.getUTCDate()) + "::" + pad2(d.getUTCHours()) + ":" + pad2(d.getUTCMinutes()) + ":" + pad2(d.getUTCSeconds());
       }
     }
     if (sec % 1 !== 0) {
-      tod += "." + (sec % 1).toPrecision(6).slice(2, 8);
+      tod += "." + Math.abs(sec % 1).toPrecision(6).slice(2, 8);
+    }
+    if (trim_trailing_zeros) {
+      var dloc = tod.indexOf(".");
+      var zloc = -1;
+      if (dloc !== -1) {
+        zloc = tod.substr(dloc, tod.length).indexOf("0");
+      }
+      if (zloc !== -1) {
+        tod = tod.substr(0, dloc + zloc);
+      }
     }
     return tod;
+  };
+  m.sec2tspec = function(sec, mode, trim_trailing_zeros) {
+    mode = mode || "";
+    if (sec >= 0 && sec <= 86400) {
+      return m.sec2tod(sec, trim_trailing_zeros);
+    } else {
+      sec = sec % 86400;
+      if (mode !== "delta" && sec <= 0) {
+        return m.sec2tod(sec + 86400, trim_trailing_zeros);
+      } else {
+        if (mode === "delta" && sec <= 0) {
+          return "-" + m.sec2tod(-1 * sec, trim_trailing_zeros);
+        } else {
+          return m.sec2tod(sec, trim_trailing_zeros);
+        }
+      }
+    }
   };
   m.sec2tod_j1970 = function(sec) {
     var tod = "";
@@ -4982,7 +5032,7 @@ window.mx = window.mx || {};
     }
     draw_line(ctx, xstart, ystart, xend, yend, style, style.color, style.width);
   };
-  mx.tics = function(dmin, dmax, ndiv) {
+  mx.tics = function(dmin, dmax, ndiv, timecode) {
     var dtic = 1;
     var dtic1 = dmin;
     if (dmax === dmin) {
@@ -5000,19 +5050,66 @@ window.mx = window.mx || {};
     }
     var ddf = df * Math.pow(10, -nsig);
     sig = Math.pow(10, nsig);
-    if (ddf < 1.75) {
-      dtic = sig;
-    } else {
-      if (ddf < 2.25) {
-        dtic = 2 * sig;
+    var dft = ddf * sig;
+    if (timecode && (dft >= 5 && dft <= 59.5 * 3600 * 24)) {
+      var dscl;
+      if (dft < 17.5) {
+        dscl = 5;
       } else {
-        if (ddf < 3.5) {
-          dtic = 2.5 * sig;
+        if (dft < 37.5) {
+          dscl = 15;
         } else {
-          if (ddf < 7) {
-            dtic = 5 * sig;
+          if (dft < 4.5 * 60) {
+            dscl = 60;
           } else {
-            dtic = 10 * sig;
+            if (dft < 17.5 * 60) {
+              dscl = 5 * 60;
+            } else {
+              if (dft < 37.5 * 60) {
+                dscl = 15 * 60;
+              } else {
+                if (dft < 2 * 3600) {
+                  dscl = 1 * 3600;
+                } else {
+                  if (dft < 4.5 * 3600) {
+                    dscl = 3 * 3600;
+                  } else {
+                    if (dft < 9 * 3600) {
+                      dscl = 6 * 3600;
+                    } else {
+                      if (dft < 1.5 * 3600 * 24) {
+                        dscl = 12 * 3600;
+                      } else {
+                        if (dft < 6 * 3600 * 24) {
+                          dscl = 1 * 3600 * 24;
+                        } else {
+                          dscl = 1 * 3600 * 24 * 7;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      dtic = Math.round(dft / dscl) * dscl;
+    } else {
+      if (ddf < 1.75) {
+        dtic = sig;
+      } else {
+        if (ddf < 2.25) {
+          dtic = 2 * sig;
+        } else {
+          if (ddf < 3.5) {
+            dtic = 2.5 * sig;
+          } else {
+            if (ddf < 7) {
+              dtic = 5 * sig;
+            } else {
+              dtic = 10 * sig;
+            }
           }
         }
       }
@@ -5086,24 +5183,21 @@ window.mx = window.mx || {};
       mx.textline(Mx, iscr, iscb, iscl, iscb);
       mx.textline(Mx, iscl, iscb, iscl, isct);
     }
-    var xtimecode;
-    if (xlab === 1) {
+    var xtimecode = false;
+    if (xlab === 4) {
       xtimecode = true;
-    } else {
-      xtimecode = false;
     }
     var ytimecode = false;
+    if (ylab === 4) {
+      ytimecode = true;
+    }
     var xTIC = {dtic:0, dtic1:0};
     var yTIC = {dtic:0, dtic1:0};
     if (xdiv < 0) {
       xTIC.dtic1 = stk1.xmin;
       xTIC.dtic = (stk1.xmin - stk1.xmax) / xdiv;
     } else {
-      if (xtimecode) {
-        xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv);
-      } else {
-        xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv);
-      }
+      xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv, xtimecode);
     }
     var xmult = 1;
     if (!xtimecode) {
@@ -5113,10 +5207,7 @@ window.mx = window.mx || {};
       yTIC.dtic1 = stk1.ymin;
       yTIC.dtic = (stk1.ymin - stk1.ymax) / ydiv;
     } else {
-      if (ytimecode) {
-      } else {
-        yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv);
-      }
+      yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv, ytimecode);
     }
     var ymult = 1;
     if (!ytimecode) {
@@ -5180,20 +5271,33 @@ window.mx = window.mx || {};
     } else {
       fmul = 1;
     }
-    var sp;
+    var xlbl_maxlen = Math.min(12, Math.round(fact * xTIC.dtic) / Mx.text_w);
+    var sp = 1;
+    var x;
+    var xlbl = "";
     if (xticlabels) {
       if (xtimecode) {
-        sp = Math.abs(xTIC.dtic) / Math.max(Math.abs(xTIC.dtic1), Math.abs(xTIC.dtic)) > 1E-6;
+        xlbl = m.sec2tod(xTIC.dtic1);
+        sp = xlbl.length * Mx.text_w < (iscr - iscl) / 2;
       } else {
-        sp = Math.abs(xTIC.dtic) / Math.max(Math.abs(xTIC.dtic1), Math.abs(xTIC.dtic)) > 1E-6;
+        var last_xlbl;
+        for (x = xTIC.dtic1;x <= stk1.xmax;x = x + xTIC.dtic) {
+          xlbl = mx.format_f(x * fmul, xlbl_maxlen, xlbl_maxlen / 2);
+          if (xlbl === last_xlbl) {
+            sp = 0;
+            break;
+          }
+          last_xlbl = xlbl;
+        }
       }
     }
     if (xTIC.dtic === 0) {
       xTIC.dtic = stk1.xmax - xTIC.dtic1 + 1;
     }
     var i;
-    var xlbl = "";
-    for (var x = xTIC.dtic1;x <= stk1.xmax;x = x + xTIC.dtic) {
+    ix = 0;
+    xlbl = "";
+    for (x = xTIC.dtic1;x <= stk1.xmax;x = x + xTIC.dtic) {
       i = iscl + Math.round(fact * (x - stk1.xmin)) + 2;
       if (i < iscl) {
         continue;
@@ -5209,33 +5313,38 @@ window.mx = window.mx || {};
       }
       if (xticlabels) {
         if (sp) {
-          xlbl = "";
+          xlbl = null;
           if (xtimecode) {
-            xlbl = mx.format_f(x * fmul, 12, 6);
+            if (i > ix) {
+              xlbl = m.sec2tod(x, true);
+              ix = i + Mx.text_w * (xlbl.length + 1);
+            }
           } else {
-            xlbl = mx.format_f(x * fmul, 12, 6);
+            xlbl = mx.format_f(x * fmul, xlbl_maxlen, xlbl_maxlen / 2);
+            xlbl = trimlabel(xlbl, true);
           }
-          xlbl = trimlabel(xlbl, true);
-          var itexti = Math.round(xlbl.length / 2) * Mx.text_w;
-          if (flags.inside) {
-            i = Math.max(iscl + itexti, i);
-            i = Math.min(iscr - itexti, i);
+          if (xlbl) {
+            var itexti = Math.round(xlbl.length / 2) * Mx.text_w;
+            if (flags.inside) {
+              i = Math.max(iscl + itexti, i);
+              i = Math.min(iscr - itexti, i);
+            }
+            mx.text(Mx, i - itexti, jtext, xlbl);
           }
-          mx.text(Mx, i - itexti, jtext, xlbl);
         } else {
           if (x === xTIC.dtic1) {
             if (xtimecode) {
-              xlbl = (xTIC.dtic1 * fmul).toString();
+              xlbl = m.sec2tod(x, true);
               if (flags.inside) {
                 i = Math.floor(Math.max(iscl + itext, i));
               }
-              mx.text(Mx, i - itext, jtext, xlbl);
+              mx.text(Mx, i - itext, jtext, xlbl + " +\u0394 " + m.sec2tod(xTIC.dtic));
             } else {
               xlbl = (xTIC.dtic1 * fmul).toString();
               if (flags.inside) {
                 i = Math.floor(Math.max(iscl + itext, i));
               }
-              mx.text(Mx, i - itext, jtext, xlbl);
+              mx.text(Mx, i - itext, jtext, xlbl + " +\u0394 " + xTIC.dtic * fmul);
             }
           }
         }
@@ -5278,6 +5387,7 @@ window.mx = window.mx || {};
         return val >= stk1.ymax;
       };
     }
+    var ylbl;
     for (var y = yTIC.dtic1;endtic(y);y = y + yTIC.dtic) {
       i = iscb + Math.round(fact * (y - stk1.ymin)) - 2;
       if (i > iscb) {
@@ -5296,8 +5406,25 @@ window.mx = window.mx || {};
         if (flags.inside && (i < isct + Mx.text_h || i > iscb - Mx.text_h * 2)) {
         } else {
           if (ytimecode) {
+            ylbl = m.sec2tod(y);
+            var k = i + jtext - Mx.text_h;
+            var sep = ylbl.indexOf("::");
+            if (sep !== -1) {
+              if (k > isct && k < iscb) {
+                mx.text(Mx, itext, k, ylbl.substring(0, sep));
+              }
+              sep += 1;
+            }
+            mx.text(Mx, itext, Math.min(iscb, i + jtext), ylbl.substring(sep + 1, sep + 6));
+            k = i + jtext + Mx.text_h;
+            if (k > isct && k < iscb) {
+              if (ylbl.substring(sep + 7, sep + 9) !== "00") {
+                ylbl = ylbl + ".00";
+                mx.text(Mx, itext, k, ylbl.substring(sep + 7, sep + 12));
+              }
+            }
           } else {
-            var ylbl = mx.format_f(y * fmul, 12, 6);
+            ylbl = mx.format_f(y * fmul, 12, 6);
             ylbl = trimlabel(ylbl, flags.inside);
             mx.text(Mx, itext, Math.min(iscb, i + jtext), ylbl);
           }
@@ -7110,24 +7237,40 @@ window.mx = window.mx || {};
       var num_rows = hcb.size / hcb.subsize;
       n2 = Math.min(num_rows, 16 - Gx.lyr.length);
     }
+    var layer_name_override = layerOptions["name"];
+    delete layerOptions["name"];
     for (var i = n1;i < n2;i++) {
       var layer = new sigplot.Layer1D(plot);
       layer.init(hcb, layerOptions);
       var n = Gx.lyr.length % mixc.length;
       layer.color = mx.getcolor(Mx, m.Mc.colormap[3], mixc[n]);
       if (hcb["class"] === 2) {
-        if (hcb.file_name) {
-          layer.name = m.trim_name(hcb.file_name);
-        } else {
-          layer.name = "layer_" + Gx.lyr.length;
+        if (layer_name_override !== undefined) {
+          if (Array.isArray(layer_name_override)) {
+            layer.name = layer_name_override[i];
+          } else {
+            layer.name = layer_name_override;
+            layer.name = layer.name + "." + mx.pad((i + 1).toString(), 3, "0");
+          }
         }
-        layer.name = layer.name + "." + mx.pad((i + 1).toString(), 3, "0");
+        if (!layer.name) {
+          if (hcb.file_name) {
+            layer.name = m.trim_name(hcb.file_name);
+          } else {
+            layer.name = "layer_" + Gx.lyr.length;
+          }
+          layer.name = layer.name + "." + mx.pad((i + 1).toString(), 3, "0");
+        }
         layer.offset = i * hcb.subsize;
       } else {
-        if (hcb.file_name) {
-          layer.name = m.trim_name(hcb.file_name);
+        if (layer_name_override !== undefined) {
+          layer.name = layer_name_override;
         } else {
-          layer.name = "layer_" + Gx.lyr.length;
+          if (hcb.file_name) {
+            layer.name = m.trim_name(hcb.file_name);
+          } else {
+            layer.name = "layer_" + Gx.lyr.length;
+          }
         }
         layer.offset = 0;
       }
@@ -8526,6 +8669,9 @@ window.sigplot = window.sigplot || {};
     }
     if (settings.xmax !== undefined) {
       updateViewbox(this, Mx.stk[0].xmin, settings.xmax, "X");
+    }
+    if (settings.note !== undefined) {
+      Gx.note = settings.note;
     }
     this.refresh();
     if (settings.pan !== undefined) {
@@ -10941,8 +11087,23 @@ window.sigplot = window.sigplot || {};
     if (Gx.autohide_readout && (!plot.mouseOnCanvas && !Gx.panning)) {
       return;
     }
-    var chara = "y: " + mx.format_g(Gx.arety, 16, 9, true) + " dy: " + mx.format_g(Gx.drety, 16, 9) + " L=" + Mx.level + " " + cxm[Gx.cmode - 1];
-    var charb = "x: " + mx.format_g(Gx.aretx, 16, 9, true) + " dx: " + mx.format_g(Gx.dretx, 16, 9) + " " + cam[Gx.iabsc];
+    var xval, yval, xdelta, ydelta;
+    if (Gx.iabsc === 0 && Gx.ylab === 4) {
+      yval = (m.sec2tspec(Gx.arety) + "                ").substring(0, 16);
+      ydelta = (m.sec2tspec(Gx.drety, "delta") + "                ").substring(0, 16);
+    } else {
+      yval = mx.format_g(Gx.arety, 16, 9, true);
+      ydelta = mx.format_g(Gx.drety, 16, 9);
+    }
+    if (Gx.iabsc === 0 && Gx.xlab === 4) {
+      xval = (m.sec2tspec(Gx.aretx) + "                ").substring(0, 16);
+      xdelta = (m.sec2tspec(Gx.dretx, "delta") + "                ").substring(0, 16);
+    } else {
+      xval = mx.format_g(Gx.aretx, 16, 9, true);
+      xdelta = mx.format_g(Gx.dretx, 16, 9);
+    }
+    var chara = "y: " + yval + " dy: " + ydelta + " L=" + Mx.level + " " + cxm[Gx.cmode - 1];
+    var charb = "x: " + xval + " dx: " + xdelta + " " + cam[Gx.iabsc];
     if (Gx.iabsc === 3) {
       if (Gx.dretx === 0) {
         chara = chara.substr(0, 20) + "sl: Inf             " + chara.substr(40, chara.length);

@@ -879,6 +879,7 @@ if (!window.Float64Array) {
         this.xstart = dvhdr.getFloat64(256, littleEndianHdr);
         this.xdelta = dvhdr.getFloat64(256 + 8, littleEndianHdr);
         this.xunits = dvhdr.getInt32(256 + 16, littleEndianHdr);
+        this.yunits = dvhdr.getInt32(256 + 40, littleEndianHdr);
         this.subsize = 1;
       } else {
         if (this["class"] === 2) {
