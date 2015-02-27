@@ -256,7 +256,9 @@
         },
 
         reload: function(data, hdrmod) {
-
+            if (this.hcb.pipe) {
+                throw "reload cannot be used with pipe, use push instead";
+            }
             var axis_change = (this.hcb.dview.length !== data.length) || hdrmod;
             if (hdrmod) {
                 for (var k in hdrmod) {
@@ -274,6 +276,9 @@
             var xmax = this.xmax;
 
             if (axis_change) {
+                if (this.hcb["class"] === 2) {
+                    m.force1000(this.hcb);
+                }
                 var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1.0);
                 this.xmin = Math.min(this.hcb.xstart, d);
                 this.xmax = Math.max(this.hcb.xstart, d);
@@ -715,7 +720,7 @@
         // it's own layer
         var n1 = 0;
         var n2 = 1;
-        if (hcb["class"] === 2) {
+        if ((hcb["class"] === 2) && (hcb.size > 0)) {
             var num_rows = hcb.size / hcb.subsize;
             n2 = Math.min(num_rows, 16 - Gx.lyr.length);
         }

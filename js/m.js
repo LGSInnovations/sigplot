@@ -393,7 +393,17 @@ window.m = window.m || {};
         for (var field in overrides) {
             hcb[field] = overrides[field];
         }
+
+        // Force type 2000 is subsize is specified
+        if (hcb["subsize"] > 1) {
+            hcb.type = 2000;
+        }
         hcb["class"] = hcb.type / 1000;
+        // If this is a type 2000 , subsize *must* be provided
+        if ((hcb["class"] === 2) && (overrides["subsize"] === undefined)) {
+            throw "subsize must be provided with type 2000 files";
+        }
+
 
         if (!overrides.pipe) {
             hcb.setData(data);
@@ -421,8 +431,8 @@ window.m = window.m || {};
             if ((hcb.size) && (!hcb.pipe)) {
                 hcb.size = hcb.subsize * hcb.size;
             } else {
-                // assume the size is 1
-                hcb.size = hcb.subsize;
+                // assume the size is 0
+                hcb.size = 0;
             }
             hcb.bpe = hcb.bpe / hcb.subsize;
             hcb.ape = 1;
