@@ -1099,7 +1099,7 @@ interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() 
     });
 });
 
-interactiveTest('sigplot penny 1d legend default', 'Do you see a penny with properly labeled legend?', function() {
+interactiveTest('sigplot penny 1d legend default', 'Do you see a 1d penny with properly labeled legend (default)?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -1113,7 +1113,7 @@ interactiveTest('sigplot penny 1d legend default', 'Do you see a penny with prop
     });
 });
 
-interactiveTest('sigplot penny 1d legend string override', 'Do you see a penny with properly labeled legend?', function() {
+interactiveTest('sigplot penny 1d legend string override', 'Do you see a penny with properly labeled legend (abc)?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -1128,7 +1128,7 @@ interactiveTest('sigplot penny 1d legend string override', 'Do you see a penny w
     });
 });
 
-interactiveTest('sigplot penny 1d legend multiple', 'Do you see a penny with properly labeled legend?', function() {
+interactiveTest('sigplot penny 1d legend multiple', 'Do you see a penny with properly labeled legend (one, two, three)?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -1192,7 +1192,7 @@ interactiveTest('sigplot ytimecode', 'Do you see a timecode yaxis?', function() 
     });
 });
 
-interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (Ka) vs. CustomX (KU)"?', function() {
+interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (a) vs. Time code format"?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -1207,7 +1207,7 @@ interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY
     });
 });
 
-interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (Ka) vs. CustomX (KU)"?', function() {
+interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (Ka) vs. CustomX"?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
