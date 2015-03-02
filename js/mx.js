@@ -5353,7 +5353,7 @@ window.mx = window.mx || {};
         // Ensure we are on buffer pixel boundaries, later we use clipping
         // to constrain to the proper area
         view_xmin = Math.floor(view_xmin * rx) / rx;
-        view_xmax = Math.floor(view_xmax * rx) / rx;
+        view_xmax = Math.ceil(view_xmax * rx) / rx;
         view_ymin = Math.floor(view_ymin * ry) / ry;
         view_ymax = Math.ceil(view_ymax * ry) / ry;
 
@@ -5399,6 +5399,10 @@ window.mx = window.mx || {};
 
         var iw = lr.x - ul.x;
         var ih = lr.y - ul.y;
+
+        // Always include at least one pixel from the source
+        sw = Math.max(1, sw);
+        sh = Math.max(1, sh);
 
         //render the buffered canvas onto the original canvas element
         var ctx = Mx.active_canvas.getContext("2d");
