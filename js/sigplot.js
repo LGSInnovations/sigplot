@@ -213,6 +213,12 @@ window.sigplot = window.sigplot || {};
      * @param {Number}
      *            options.ydiv the number of divisions on the Y axis
      *
+     * @param {Number}
+     *            options.zmin the minimum range to display on the Z axis
+     *
+     * @param {Number}
+     *            options.zmax the maximum range to display on the Z axis
+     *
      * @param {Boolean}
      *            options.yinv invert the y-axis
      *
@@ -1481,6 +1487,26 @@ window.sigplot = window.sigplot || {};
 
             if (settings.xmax !== undefined) {
                 updateViewbox(this, Mx.stk[0].xmin, settings.xmax, "X");
+            }
+
+            if (settings.zmin !== undefined) {
+                Gx.zmin = settings.zmin;
+                Gx.autoz = (Gx.autoz & 2);
+            }
+
+            if (settings.zmax !== undefined) {
+                Gx.zmax = settings.zmax;
+                Gx.autoz = (Gx.autoz & 1);
+            }
+
+            if (settings.autoz !== undefined) {
+                Gx.autoz = settings.autoz;
+                if (((Gx.autoz & 1) !== 0)) {
+                    Gx.zmin = undefined;
+                }
+                if (((Gx.autoz & 2) !== 0)) {
+                    Gx.zmax = undefined;
+                }
             }
 
             if (settings.note !== undefined) {
@@ -3183,6 +3209,75 @@ window.sigplot = window.sigplot || {};
                     handler: function() {
                         Gx.autox = 3;
                     }
+                }, {
+                    text: "Z Axis",
+                    style: "separator"
+                }, {
+                    text: "Parameters...",
+                    checked: (Gx.autoz === 0),
+                    handler: function() {
+                        Gx.autoz = 0;
+
+                        var nextPrompt = function() {
+                            setupPrompt(
+                                plot,
+                                "Z Axis Max:",
+                                mx.floatValidator,
+                                function(finalValue) {
+                                    if (parseFloat(finalValue) !== Gx.zmax) {
+                                        // Only update if different
+                                        // value
+                                        if (finalValue === "") {
+                                            finalValue = 0;
+                                        }
+                                        plot.change_settings({
+                                            zmax: finalValue
+                                        });
+                                    }
+                                }, Gx.zmax,
+                                undefined, undefined, undefined);
+                        };
+
+                        setupPrompt(
+                            plot,
+                            "Z Axis Min:",
+                            mx.floatValidator,
+                            function(finalValue) {
+                                if (parseFloat(finalValue) !== Gx.zmin) {
+                                    if (finalValue === "") {
+                                        finalValue = 0;
+                                    }
+                                    plot.change_settings({
+                                        zmin: finalValue
+                                    });
+                                }
+                            }, Gx.zmin, undefined,
+                            undefined, nextPrompt);
+                    }
+                }, {
+                    text: "Min Auto",
+                    checked: (Gx.autoz === 1),
+                    handler: function() {
+                        plot.change_settings({
+                            autoz: 1
+                        });
+                    }
+                }, {
+                    text: "Max Auto",
+                    checked: (Gx.autoz === 2),
+                    handler: function() {
+                        plot.change_settings({
+                            autoz: 2
+                        });
+                    }
+                }, {
+                    text: "Full Auto",
+                    checked: (Gx.autoz === 3),
+                    handler: function() {
+                        plot.change_settings({
+                            autoz: 3
+                        });
+                    }
                 }]
             }
         };
@@ -4341,6 +4436,10 @@ window.sigplot = window.sigplot || {};
         Gx.ymax = o.ymax === undefined ? 0.0 : o.ymax;
         var haveymin = (o.ymin !== undefined);
         var haveymax = (o.ymax !== undefined);
+        Gx.zmin = o.zmin;
+        Gx.zmax = o.zmax;
+        var havezmin = (o.zmin !== undefined);
+        var havezmax = (o.zmax !== undefined);
 
         if (o.colors !== undefined) {
             mx.setbgfg(Mx, o.colors.bg, o.colors.fg, Mx.xi);
@@ -4513,6 +4612,16 @@ window.sigplot = window.sigplot || {};
             }
             if (!haveymax) {
                 Gx.autoy += 2;
+            }
+        }
+        Gx.autoz = o.autoz === undefined ? -1 : o.autoz;
+        if (Gx.autoz < 0) {
+            Gx.autoz = 0;
+            if (!havezmin) {
+                Gx.autoz += 1;
+            }
+            if (!havezmax) {
+                Gx.autoz += 2;
             }
         }
         Gx.autol = o.autol === undefined ? -1 : o.autol;
@@ -4690,8 +4799,6 @@ window.sigplot = window.sigplot || {};
             Gx.xstart = 0.0;
             Gx.xdelta = 1.0;
             Gx.autol = -1;
-            Gx.zmin = undefined;
-            Gx.zmax = undefined;
             Mx.origin = 1;
         }
 

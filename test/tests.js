@@ -1423,11 +1423,35 @@ interactiveTest('sigplot penny', 'Do you see a raster of a penny', function() {
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
 
-    var ramp = [];
-    for (var i = 0; i < 1024; i++) {
-        ramp.push(i);
-    }
     plot.overlay_href("dat/penny.prm");
+});
+
+interactiveTest('sigplot penny (scaled)', 'Manually scale the Z-axis, does it work?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        zmin: 50,
+        zmax: 100
+    });
+    notEqual(plot, null);
+
+    equal(plot._Gx.zmin, 50);
+    equal(plot._Gx.zmax, 100);
+    equal(plot._Gx.autoz, 0);
+
+    plot.overlay_href("dat/penny.prm", function() {
+        equal(plot._Gx.zmin, 50);
+        equal(plot._Gx.zmax, 100);
+
+        plot.change_settings({
+            zmin: 25
+        });
+        equal(plot._Gx.zmin, 50);
+
+        plot.change_settings({
+            zmax: 1000
+        });
+        equal(plot._Gx.zmax, 1000);
+    });
 });
 
 interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function() {

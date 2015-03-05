@@ -258,13 +258,20 @@
                 }
             }
 
+            var zmin, zmax;
             if (Gx.autol === 1) {
-                Gx.zmin = min;
-                Gx.zmax = max;
+                zmin = min;
+                zmax = max;
             } else if (Gx.autol > 1) {
                 var fac = 1.0 / (Math.max(Gx.autol, 1));
-                Gx.zmin = Gx.zmin * fac + min * (1.0 - fac);
-                Gx.zmax = Gx.zmax * fac + max * (1.0 - fac);
+                zmin = Gx.zmin * fac + min * (1.0 - fac);
+                zmax = Gx.zmax * fac + max * (1.0 - fac);
+            }
+            if (((Gx.autoz & 1) !== 0)) {
+                Gx.zmin = zmin;
+            }
+            if (((Gx.autoz & 2) !== 0)) {
+                Gx.zmax = zmax;
             }
 
             if (this.img) {
@@ -315,8 +322,17 @@
 
             if (settings.cmode !== undefined) {
                 this.img = undefined;
-                Gx.zmin = undefined;
-                Gx.zmax = undefined;
+                if (((Gx.autoz & 1) !== 0)) {
+                    Gx.zmin = undefined;
+                }
+                if (((Gx.autoz & 2) !== 0)) {
+                    Gx.zmax = undefined;
+                }
+            }
+            if ((settings.zmin !== undefined) ||
+                (settings.zmax !== undefined) ||
+                (settings.autoz !== undefined)) {
+                this.img = undefined;
             }
             if (settings.cmap !== undefined) {
                 this.img = undefined;
@@ -525,15 +541,19 @@
                 }
             }
 
-            if (Gx.zmin !== undefined) {
-                Gx.zmin = Math.min(Gx.zmin, min);
-            } else {
-                Gx.zmin = min;
+            if (((Gx.autoz & 1) !== 0)) {
+                if (Gx.zmin !== undefined) {
+                    Gx.zmin = Math.min(Gx.zmin, min);
+                } else {
+                    Gx.zmin = min;
+                }
             }
-            if (Gx.zmax !== undefined) {
-                Gx.zmax = Math.min(Gx.zmax, max);
-            } else {
-                Gx.zmax = max;
+            if (((Gx.autoz & 2) !== 0)) {
+                if (Gx.zmax !== undefined) {
+                    Gx.zmax = Math.min(Gx.zmax, max);
+                } else {
+                    Gx.zmax = max;
+                }
             }
 
             this.img = mx.create_image(Mx, this.zbuf, this.hcb.subsize, this.lps, Gx.zmin, Gx.zmax);
