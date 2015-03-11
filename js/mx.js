@@ -5361,7 +5361,7 @@ window.mx = window.mx || {};
         if ((buf.height <= 1) || Math.abs(ymax - ymin) === 0) {
             return;
         }
-        var rx = buf.width / (xmax - xmin + 1);
+        var rx = buf.width / (xmax - xmin);
         var ry = buf.height / (ymax - ymin);
 
         // Ensure we are on buffer pixel boundaries, later we use clipping

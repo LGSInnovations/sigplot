@@ -1480,6 +1480,33 @@ interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function()
     }, 100);
 });
 
+interactiveTest('raster (small xdelta)', 'Do you see the expected raster?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        autol: 5,
+    });
+
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25,
+        xdelta: 0.0009
+    });
+
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
+
 interactiveTest('zoomed scrolling raster', 'Do you see a scrolling raster with no render errors?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
