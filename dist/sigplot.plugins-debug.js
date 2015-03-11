@@ -212,6 +212,14 @@
             } else {
               self.set_highlight(false);
             }
+          } else {
+            if (self.options.direction === "both") {
+              if (Math.abs(self.location.x - evt.xpos) < lineWidth + 5 && Math.abs(self.location.y - evt.ypos) < lineWidth + 5) {
+                self.set_highlight(true);
+              } else {
+                self.set_highlight(false);
+              }
+            }
           }
         }
         return;
@@ -223,7 +231,14 @@
       } else {
         if (self.options.direction === "horizontal") {
           self.location = evt.ypos;
-          self.location = pos.y;
+          self.position = pos.y;
+        } else {
+          if (self.options.direction === "both") {
+            self.location.x = evt.xpos;
+            self.position.x = pos.x;
+            self.location.y = evt.ypos;
+            self.position.y = pos.y;
+          }
         }
       }
       self.plot.redraw();
@@ -255,27 +270,54 @@
             self.dragging = true;
             evt.preventDefault();
           }
+        } else {
+          if (self.options.direction === "both") {
+            if (Math.abs(self.location.x - evt.xpos) < lineWidth + 5 && Math.abs(self.location.y - evt.ypos) < lineWidth + 5) {
+              self.dragging = true;
+              evt.preventDefault();
+            }
+          }
         }
       }
     };
     this.plot.addListener("mdown", this.onmousedown);
     this.onmouseup = function(evt) {
+      if (!self.dragging) {
+        return;
+      }
       self.dragging = false;
       var evt = document.createEvent("Event");
+      evt.source = self;
       evt.initEvent("slidertag", true, true);
-      evt.location = self.location;
-      evt.position = self.position;
+      if (self.options.direction === "both") {
+        evt.location = self.location ? JSON.parse(JSON.stringify(self.location)) : undefined;
+        evt.position = self.position ? JSON.parse(JSON.stringify(self.position)) : undefined;
+      } else {
+        evt.location = self.location;
+        evt.position = self.position;
+      }
       var canceled = !mx.dispatchEvent(Mx, evt);
       var evt = document.createEvent("Event");
       evt.initEvent("sliderdrag", true, true);
-      evt.location = self.location;
-      evt.position = self.position;
+      if (self.options.direction === "both") {
+        evt.location = self.location ? JSON.parse(JSON.stringify(self.location)) : undefined;
+        evt.position = self.position ? JSON.parse(JSON.stringify(self.position)) : undefined;
+      } else {
+        evt.location = self.location;
+        evt.position = self.position;
+      }
       var canceled = !mx.dispatchEvent(Mx, evt);
     };
     document.addEventListener("mouseup", this.onmouseup, false);
   }, addListener:function(what, callback) {
     var Mx = this.plot._Mx;
-    mx.addEventListener(Mx, what, callback, false);
+    var self = this;
+    var wrapped_cb = function(evt) {
+      if (evt.source === self) {
+        return callback(evt);
+      }
+    };
+    mx.addEventListener(Mx, what, wrapped_cb, false);
   }, removeListener:function(what, callback) {
     var Mx = this.plot._Mx;
     mx.removeEventListener(Mx, what, callback, false);
@@ -288,24 +330,48 @@
     if (this.dragging) {
       return;
     }
-    if (this.position === position) {
-      return;
+    if (this.options.direction === "both") {
+      if (this.position !== undefined && (this.position.x === position.x && this.position.y === position.y)) {
+        return;
+      }
+    } else {
+      if (this.position === position) {
+        return;
+      }
     }
     this.set_highlight(false);
     var Mx = this.plot._Mx;
-    this.position = position;
-    var pxl = mx.real_to_pixel(Mx, this.position, this.position);
+    if (this.options.direction === "both") {
+      this.position = position ? JSON.parse(JSON.stringify(position)) : undefined;
+    } else {
+      this.position = position;
+    }
+    var pxl;
+    if (this.options.direction === "both") {
+      pxl = mx.real_to_pixel(Mx, this.position.x, this.position.y);
+    } else {
+      pxl = mx.real_to_pixel(Mx, this.position, this.position);
+    }
     if (this.options.direction === "vertical") {
       this.location = pxl.x;
     } else {
       if (this.options.direction === "horizontal") {
         this.location = pxl.y;
+      } else {
+        if (this.options.direction === "both") {
+          this.location = {x:pxl.x, y:pxl.y};
+        }
       }
     }
     var evt = document.createEvent("Event");
     evt.initEvent("slidertag", true, true);
-    evt.location = this.location;
-    evt.position = this.position;
+    if (this.options.direction === "both") {
+      evt.location = this.location ? JSON.parse(JSON.stringify(this.location)) : undefined;
+      evt.position = this.position ? JSON.parse(JSON.stringify(this.position)) : undefined;
+    } else {
+      evt.location = this.location;
+      evt.position = this.position;
+    }
     var canceled = !mx.dispatchEvent(Mx, evt);
     if (canceled) {
       return;
@@ -315,24 +381,48 @@
     if (this.dragging) {
       return;
     }
-    if (this.location === location) {
-      return;
+    if (this.options.direction === "both") {
+      if (this.location !== undefined && (this.location.x === location.x && this.location.y === location.y)) {
+        return;
+      }
+    } else {
+      if (this.location === location) {
+        return;
+      }
     }
     this.set_highlight(false);
     var Mx = this.plot._Mx;
-    this.location = location;
-    var pos = mx.pixel_to_real(Mx, location, location);
+    if (this.options.direction === "both") {
+      this.location = location ? JSON.parse(JSON.stringify(location)) : undefined;
+    } else {
+      this.location = location;
+    }
+    var pos;
+    if (this.options.direction === "both") {
+      pos = mx.pixel_to_real(Mx, location.x, location.y);
+    } else {
+      pos = mx.pixel_to_real(Mx, location, location);
+    }
     if (this.options.direction === "vertical") {
       this.position = pos.x;
     } else {
       if (this.options.direction === "horizontal") {
-        this.location = pos.y;
+        this.position = pos.y;
+      } else {
+        if (this.options.direction === "both") {
+          this.position = {x:pos.x, y:pos.y};
+        }
       }
     }
     var evt = document.createEvent("Event");
     evt.initEvent("slidertag", true, true);
-    evt.location = this.location;
-    evt.position = this.position;
+    if (this.options.direction === "both") {
+      evt.location = this.location ? JSON.parse(JSON.stringify(this.location)) : undefined;
+      evt.position = this.position ? JSON.parse(JSON.stringify(this.position)) : undefined;
+    } else {
+      evt.location = this.location;
+      evt.position = this.position;
+    }
     var canceled = !mx.dispatchEvent(Mx, evt);
     if (canceled) {
       return;
@@ -357,7 +447,12 @@
     if (this.dragging || this.highlight) {
       ctx.lineWidth = Math.ceil(ctx.lineWidth * 1.2);
     }
-    var pxl = mx.real_to_pixel(Mx, this.position, this.position);
+    var pxl;
+    if (this.options.direction === "both") {
+      pxl = mx.real_to_pixel(Mx, this.position.x, this.position.y);
+    } else {
+      pxl = mx.real_to_pixel(Mx, this.position, this.position);
+    }
     if (this.options.direction === "vertical") {
       if (pxl.x < Mx.l || pxl.x > Mx.r) {
         return;
@@ -369,6 +464,14 @@
           return;
         }
         this.location = pxl.y;
+      } else {
+        if (this.options.direction === "both") {
+          if (pxl.x < Mx.l || (pxl.x > Mx.r || (pxl.y < Mx.t || pxl.y > Mx.b))) {
+            return;
+          }
+          this.location.x = pxl.x;
+          this.location.y = pxl.y;
+        }
       }
     }
     if (this.options.direction === "vertical") {
@@ -382,6 +485,16 @@
         ctx.moveTo(Mx.l, this.location + 0.5);
         ctx.lineTo(Mx.r, this.location + 0.5);
         ctx.stroke();
+      } else {
+        if (this.options.direction === "both") {
+          ctx.beginPath();
+          ctx.moveTo(Mx.l, this.location.y + 0.5);
+          ctx.lineTo(Mx.r, this.location.y + 0.5);
+          ctx.closePath();
+          ctx.moveTo(this.location.x + 0.5, Mx.t);
+          ctx.lineTo(this.location.x + 0.5, Mx.b);
+          ctx.stroke();
+        }
       }
     }
   }, dispose:function() {
