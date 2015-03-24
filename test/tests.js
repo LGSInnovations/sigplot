@@ -1418,6 +1418,83 @@ interactiveTest('complex scrolling line', 'Do you see a scrolling random data pl
     }, 100);
 });
 
+interactiveTest('autoy with all zeros', 'Does the autoscaling properly work?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        autoy: 3
+    });
+    notEqual(plot, null);
+
+    var random = [];
+    var zeros = [];
+    for (var i = 0; i <= 1000; i += 1) {
+        random.push(Math.random());
+        zeros.push(0);
+    }
+
+    var zeros_lyr = plot.overlay_array(zeros);
+    var rand1_lyr = plot.overlay_array(zeros);
+    var rand2_lyr = plot.overlay_array(zeros);
+
+    var iter = 1;
+    ifixture.interval = window.setInterval(function() {
+        plot.reload(zeros_lyr, zeros, {});
+
+        for (var i = 0; i <= 1000; i += 1) {
+            random[i] = iter * Math.random();
+        }
+        plot.reload(rand1_lyr, random, {});
+        for (var i = 0; i <= 1000; i += 1) {
+            random[i] = -1 * iter * Math.random();
+        }
+        plot.reload(rand2_lyr, random, {});
+
+        iter += 1;
+    }, 500);
+});
+
+interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly work?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        autol: 2,
+        autoy: 3
+    });
+    notEqual(plot, null);
+
+    var random = [];
+    var zeros = [];
+    for (var i = 0; i <= 1000; i += 1) {
+        random.push(Math.random());
+        zeros.push(0);
+    }
+
+    var zeros_lyr = plot.overlay_pipe({}, {
+        framesize: 1000
+    });
+    var rand1_lyr = plot.overlay_pipe({}, {
+        framesize: 1000
+    });
+    var rand2_lyr = plot.overlay_pipe({}, {
+        framesize: 1000
+    });
+
+    var iter = 1;
+    ifixture.interval = window.setInterval(function() {
+        plot.push(zeros_lyr, zeros);
+
+        for (var i = 0; i <= 1000; i += 1) {
+            random[i] = iter * Math.random();
+        }
+        plot.push(rand1_lyr, random);
+        for (var i = 0; i <= 1000; i += 1) {
+            random[i] = -1 * iter * Math.random();
+        }
+        plot.push(rand2_lyr, random);
+
+        iter += 1;
+    }, 500);
+});
+
 interactiveTest('sigplot penny', 'Do you see a raster of a penny', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
