@@ -358,15 +358,18 @@
 
         push: function(data, hdrmod, sync) {
             if (hdrmod) {
+                // If the subsize changes, we need to invalidate the buffer
+                if ((hdrmod.subsize) && (hdrmod.subsize !== this.hcb.subsize)) {
+                    this.hcb.subsize = hdrmod.subsize;
+                    this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+                    this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+                }
+
                 for (var k in hdrmod) {
                     this.hcb[k] = hdrmod[k];
                     if (k === "type") {
                         this.hcb["class"] = hdrmod[k] / 1000;
                     }
-                }
-                if (hdrmod.subsize) {
-                    this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
-                    this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
                 }
 
                 var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1.0);
