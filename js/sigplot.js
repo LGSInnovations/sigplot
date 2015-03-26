@@ -47,6 +47,7 @@ window.sigplot = window.sigplot || {};
         "B    - Toggle LM Drag Mode:\n" +
         "       (box) -> (horizontal) -> (vertical).\n" +
         "C    - Toggle controls.\n" +
+        "K    - Show Marker.\n" +
         "L    - Toggle legend.\n" +
         "M    - Pops up main menu\n" +
         "R    - Toggle display specs (x/y readout)\n" +
