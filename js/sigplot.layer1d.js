@@ -740,7 +740,7 @@
 
             // Provide a default color for the layer
             var n = (Gx.lyr.length) % mixc.length;
-            layer.color = mx.getcolor(Mx, m.Mc.colormap[3], mixc[n]);
+            layer.color = mx.getcolor(Mx, m.Mc.colormap[3].colors, mixc[n]);
 
             // Provide the layer name
             if (hcb["class"] === 2) {

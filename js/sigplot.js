@@ -1433,7 +1433,7 @@ window.sigplot = window.sigplot || {};
                     Gx.cmap = settings.cmap; // TODO support string lookup
                 }
 
-                mx.colormap(Mx, m.Mc.colormap[Gx.cmap], Gx.ncolors);
+                setup_cmap(this, Gx.cmap);
             }
 
             if (settings.yinv !== undefined) {
@@ -2812,6 +2812,53 @@ window.sigplot = window.sigplot || {};
      * @memberOf sigplot
      * @private
      */
+    function setup_cmap(plot, cmap) {
+        var Gx = plot._Gx;
+        var Mx = plot._Mx;
+
+        // If a color map array was provided make a custom map
+        if (Array.isArray(cmap)) {
+            var custom_cmap = {
+                name: "Custom",
+                colors: cmap
+            };
+            if (m.Mc.colormap[m.Mc.colormap.length - 1].name === "Custom") {
+                m.Mc.colormap[m.Mc.colormap.length - 1].colors = cmap;
+            } else {
+                m.Mc.colormap.push(custom_cmap);
+            }
+            Gx.cmap = m.Mc.colormap.length - 1;
+        } else if (typeof cmap === "string") {
+            Gx.cmap = -1;
+            for (var xc = 0; xc < m.Mc.colormap.length; xc++) {
+                if (m.Mc.colormap[xc].name === cmap) {
+                    Gx.cmap = xc;
+                    break;
+                }
+            }
+        } else {
+            Gx.cmap = cmap;
+        }
+
+        if (Gx.ncolors < 0) {
+            Gx.ncolors = -1 * Gx.ncolors;
+            Gx.cmap = Math.max(1, Gx.cmap);
+        }
+        if ((Gx.cmap < 0) || (Gx.cmap > m.Mc.colormap.length)) {
+            if (Gx.cmode === 2) {
+                Gx.cmap = 2; // wheel
+            } else {
+                Gx.cmap = 1; // ramp
+            }
+        }
+
+        mx.colormap(Mx, m.Mc.colormap[Gx.cmap].colors, Gx.ncolors);
+    }
+
+    /**
+     * @memberOf sigplot
+     * @private
+     */
     function sigplot_show_x(plot) {
         var Gx = plot._Gx;
         var Mx = plot._Mx;
@@ -3703,49 +3750,25 @@ window.sigplot = window.sigplot || {};
             text: "Colormap...",
             menu: {
                 title: "COLORMAP",
-                items: [{
-                    text: "Greyscale",
-                    checked: (Gx.cmap === 0),
-                    handler: function() {
-                        plot.change_settings({
-                            cmap: 0
-                        });
-                    }
-                }, {
-                    text: "Ramp Colormap",
-                    checked: (Gx.cmap === 1),
-                    handler: function() {
-                        plot.change_settings({
-                            cmap: 1
-                        });
-                    }
-                }, {
-                    text: "Color Wheel",
-                    checked: (Gx.cmap === 2),
-                    handler: function() {
-                        plot.change_settings({
-                            cmap: 2
-                        });
-                    }
-                }, {
-                    text: "Spectrum",
-                    checked: (Gx.cmap === 3),
-                    handler: function() {
-                        plot.change_settings({
-                            cmap: 3
-                        });
-                    }
-                }, {
-                    text: "Sunset",
-                    checked: (Gx.cmap === 4),
-                    handler: function() {
-                        plot.change_settings({
-                            cmap: 4
-                        });
-                    }
-                }]
+                items: []
             }
         };
+
+        var colormap_handler = function(item) {
+            plot.change_settings({
+                cmap: this.cmap
+            });
+        };
+
+        for (var xc = 0; xc < m.Mc.colormap.length; xc++) {
+            var menuitem = {
+                text: m.Mc.colormap[xc].name,
+                cmap: xc,
+                checked: (Gx.cmap === xc),
+                handler: colormap_handler
+            };
+            COLORMAP_MENU.menu.items.push(menuitem);
+        }
 
         var traceoptionsmenu = function(index) {
             return {
@@ -4675,21 +4698,14 @@ window.sigplot = window.sigplot || {};
         mx.set_font(Mx, Math.min(7, Mx.width / 64));
 
         Gx.ncolors = o.ncolors === undefined ? 16 : o.ncolors;
-        Gx.cmap = o.xc === undefined ? -1 : o.xc;
-        if (Gx.ncolors < 0) {
-            Gx.ncolors = -1 * Gx.ncolors;
-            Gx.cmap = Math.max(1, Gx.cmap);
-        }
-        if ((Gx.cmap < 1) || (Gx.cmap > 5)) {
-            if (Gx.cmode === 2) {
-                Gx.cmap = 2; // wheel
-            } else {
-                Gx.cmap = 1; // ramp
-            }
+        Gx.cmap = null;
+        if (o.cmap) {
+            Gx.cmap = o.cmap;
+        } else {
+            Gx.cmap = o.xc === undefined ? -1 : o.xc;
         }
 
-        mx.colormap(Mx, m.Mc.colormap[Gx.cmap], Gx.ncolors);
-
+        setup_cmap(plot, Gx.cmap);
 
         // TODO setup annotate, boxes and points facilities
 

@@ -159,202 +159,201 @@ window.m = window.m || {};
         //	call to MX$COLORMAP.
 
         // There are 4 colormap tables stored in the environment: A GREYSCALE,
-        // COLORRAMP, COLORWHEEL, or COLORSPECTRUM.  The specific values that
+        // COLORRAMP, COLORWHEEL, COLORSPECTRUM, or SUNSET.  The specific values that
         // are listed here are from xcolordef.prm (use the XCOLORMAP widget).
         //
         // The actual values are a result of tribal knowledge and years of experience
-        colormap: [
-            [ // GREYSCALE
-                {
-                    pos: 0,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 60,
-                    red: 50,
-                    green: 50,
-                    blue: 50
-                }, {
-                    pos: 100,
-                    red: 100,
-                    green: 100,
-                    blue: 100
-                }, {
-                    pos: 100,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }
-            ],
-            [ // COLORRAMP
-                {
-                    pos: 0,
-                    red: 0,
-                    green: 0,
-                    blue: 15
-                }, {
-                    pos: 10,
-                    red: 0,
-                    green: 0,
-                    blue: 50
-                }, {
-                    pos: 31,
-                    red: 0,
-                    green: 65,
-                    blue: 75
-                }, {
-                    pos: 50,
-                    red: 0,
-                    green: 85,
-                    blue: 0
-                }, {
-                    pos: 70,
-                    red: 75,
-                    green: 80,
-                    blue: 0
-                }, {
-                    pos: 83,
-                    red: 100,
-                    green: 60,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 100,
-                    green: 0,
-                    blue: 0
-                }
-            ],
-            [ // COLORWHEEL
-                {
-                    pos: 0,
-                    red: 100,
-                    green: 100,
-                    blue: 0
-                }, {
-                    pos: 20,
-                    red: 0,
-                    green: 80,
-                    blue: 40
-                }, {
-                    pos: 30,
-                    red: 0,
-                    green: 100,
-                    blue: 100
-                }, {
-                    pos: 50,
-                    red: 10,
-                    green: 10,
-                    blue: 0
-                }, {
-                    pos: 65,
-                    red: 100,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 88,
-                    red: 100,
-                    green: 40,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 100,
-                    green: 100,
-                    blue: 0
-                }
-            ],
-            [ // COLORSPECTRUM
-                {
-                    pos: 0,
-                    red: 0,
-                    green: 75,
-                    blue: 0
-                }, {
-                    pos: 22,
-                    red: 0,
-                    green: 90,
-                    blue: 90
-                }, {
-                    pos: 37,
-                    red: 0,
-                    green: 0,
-                    blue: 85
-                }, {
-                    pos: 49,
-                    red: 90,
-                    green: 0,
-                    blue: 85
-                }, {
-                    pos: 68,
-                    red: 90,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 80,
-                    red: 90,
-                    green: 90,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 95,
-                    green: 95,
-                    blue: 95
-                }
-            ],
-            [ // SUNSET
-                {
-                    pos: 0,
-                    red: 10,
-                    green: 0,
-                    blue: 23
-                }, {
-                    pos: 18,
-                    red: 34,
-                    green: 0,
-                    blue: 60
-                }, {
-                    pos: 36,
-                    red: 58,
-                    green: 20,
-                    blue: 47
-                }, {
-                    pos: 55,
-                    red: 74,
-                    green: 20,
-                    blue: 28
-                }, {
-                    pos: 72,
-                    red: 90,
-                    green: 43,
-                    blue: 0
-                }, {
-                    pos: 87,
-                    red: 100,
-                    green: 72,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 100,
-                    green: 100,
-                    blue: 76
-                }
-            ]
-        ]
+        colormap: [{
+            name: "Greyscale",
+            colors: [{
+                pos: 0,
+                red: 0,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 60,
+                red: 50,
+                green: 50,
+                blue: 50
+            }, {
+                pos: 100,
+                red: 100,
+                green: 100,
+                blue: 100
+            }, {
+                pos: 100,
+                red: 0,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 0,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 0,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 0,
+                green: 0,
+                blue: 0
+            }]
+        }, {
+            name: "Ramp Colormap",
+            colors: [{
+                pos: 0,
+                red: 0,
+                green: 0,
+                blue: 15
+            }, {
+                pos: 10,
+                red: 0,
+                green: 0,
+                blue: 50
+            }, {
+                pos: 31,
+                red: 0,
+                green: 65,
+                blue: 75
+            }, {
+                pos: 50,
+                red: 0,
+                green: 85,
+                blue: 0
+            }, {
+                pos: 70,
+                red: 75,
+                green: 80,
+                blue: 0
+            }, {
+                pos: 83,
+                red: 100,
+                green: 60,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 100,
+                green: 0,
+                blue: 0
+            }]
+        }, {
+            name: "Color Wheel",
+            colors: [{
+                pos: 0,
+                red: 100,
+                green: 100,
+                blue: 0
+            }, {
+                pos: 20,
+                red: 0,
+                green: 80,
+                blue: 40
+            }, {
+                pos: 30,
+                red: 0,
+                green: 100,
+                blue: 100
+            }, {
+                pos: 50,
+                red: 10,
+                green: 10,
+                blue: 0
+            }, {
+                pos: 65,
+                red: 100,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 88,
+                red: 100,
+                green: 40,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 100,
+                green: 100,
+                blue: 0
+            }]
+        }, {
+            name: "Spectrum",
+            colors: [{
+                pos: 0,
+                red: 0,
+                green: 75,
+                blue: 0
+            }, {
+                pos: 22,
+                red: 0,
+                green: 90,
+                blue: 90
+            }, {
+                pos: 37,
+                red: 0,
+                green: 0,
+                blue: 85
+            }, {
+                pos: 49,
+                red: 90,
+                green: 0,
+                blue: 85
+            }, {
+                pos: 68,
+                red: 90,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 80,
+                red: 90,
+                green: 90,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 95,
+                green: 95,
+                blue: 95
+            }]
+        }, {
+            name: "Sunset",
+            colors: [{
+                pos: 0,
+                red: 10,
+                green: 0,
+                blue: 23
+            }, {
+                pos: 18,
+                red: 34,
+                green: 0,
+                blue: 60
+            }, {
+                pos: 36,
+                red: 58,
+                green: 20,
+                blue: 47
+            }, {
+                pos: 55,
+                red: 74,
+                green: 20,
+                blue: 28
+            }, {
+                pos: 72,
+                red: 90,
+                green: 43,
+                blue: 0
+            }, {
+                pos: 87,
+                red: 100,
+                green: 72,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 100,
+                green: 100,
+                blue: 76
+            }]
+        }]
     };
 
     /** Pipe Size 

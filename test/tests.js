@@ -1503,6 +1503,83 @@ interactiveTest('sigplot penny', 'Do you see a raster of a penny', function() {
     plot.overlay_href("dat/penny.prm");
 });
 
+interactiveTest('sigplot b&w penny 1', 'Do you see a b&w penny', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xc: 0
+    });
+    notEqual(plot, null);
+
+    plot.overlay_href("dat/penny.prm");
+});
+
+interactiveTest('sigplot b&w penny 2', 'Do you see a b&w penny', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        cmap: "Greyscale"
+    });
+    notEqual(plot, null);
+
+    plot.overlay_href("dat/penny.prm");
+});
+
+interactiveTest('sigplot b&w penny 3', 'Do you see a b&w penny', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.overlay_href("dat/penny.prm");
+    plot.change_settings({
+        cmap: "Greyscale"
+    });
+});
+
+interactiveTest('sigplot (custom cmap) penny', 'Do you see a red penny', function() {
+    var container = document.getElementById('plot');
+    var colors = [{
+        pos: 0,
+        red: 0,
+        green: 0,
+        blue: 0
+    }, {
+        pos: 60,
+        red: 50,
+        green: 0,
+        blue: 0
+    }, {
+        pos: 100,
+        red: 100,
+        green: 0,
+        blue: 0
+    }, {
+        pos: 100,
+        red: 0,
+        green: 0,
+        blue: 0
+    }, {
+        pos: 100,
+        red: 0,
+        green: 0,
+        blue: 0
+    }, {
+        pos: 100,
+        red: 0,
+        green: 0,
+        blue: 0
+    }, {
+        pos: 100,
+        red: 0,
+        green: 0,
+        blue: 0
+    }];
+    var plot = new sigplot.Plot(container, {
+        cmap: colors
+    });
+    notEqual(plot, null);
+
+    plot.overlay_href("dat/penny.prm");
+});
+
 interactiveTest('sigplot penny (scaled)', 'Manually scale the Z-axis, does it work?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {

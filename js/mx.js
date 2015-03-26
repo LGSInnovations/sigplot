@@ -5229,7 +5229,7 @@ window.mx = window.mx || {};
 
         if (!Mx.pixel || Mx.pixel.length === 0) {
             m.log.warn("COLORMAP not initialized, defaulting to foreground");
-            mx.colormap(Mx, m.Mc.colormap[1], 16);
+            mx.colormap(Mx, m.Mc.colormap[1].colors, 16);
         }
 
         var fscale = 1;
@@ -5296,7 +5296,7 @@ window.mx = window.mx || {};
 
         if (!Mx.pixel || Mx.pixel.length === 0) {
             m.log.warn("COLORMAP not initialized, defaulting to foreground");
-            mx.colormap(Mx, m.Mc.colormap[1], 16);
+            mx.colormap(Mx, m.Mc.colormap[1].colors, 16);
         }
 
         var w;
