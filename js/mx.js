@@ -313,7 +313,9 @@ window.mx = window.mx || {};
                                 yo = Mx.t;
                                 yl = Mx.b;
                             } // else "box"
-                            old_warpbox.func(event, xo, yo, xl, yl, old_warpbox.style.return_value);
+                            old_warpbox.func(event, xo, yo, xl, yl,
+                                old_warpbox.style.return_value,
+                                old_warpbox.mode);
                         }
                     }
 
@@ -1194,247 +1196,255 @@ window.mx = window.mx || {};
         // 		rmode = false;
         // }
 
-        switch (symbol) {
-            case mx.L_CircleSymbol:
-                for (i = 0; i < npix; i++) {
-                    // Move x and y to center of circle - not upper-left of bounding rectangle (aka offset by radius)
-                    var x_center = pixx[i];
-                    var y_center = pixy[i];
+        if (typeof symbol === "function") {
+            for (i = 0; i < npix; i++) {
+                var x_center = pixx[i];
+                var y_center = pixy[i];
+                symbol(ctx, i, x_center, y_center);
+            }
+        } else {
+            switch (symbol) {
+                case mx.L_CircleSymbol:
+                    for (i = 0; i < npix; i++) {
+                        // Move x and y to center of circle - not upper-left of bounding rectangle (aka offset by radius)
+                        var x_center = pixx[i];
+                        var y_center = pixy[i];
 
-                    ctx.beginPath();
+                        ctx.beginPath();
+                        if (fill) {
+                            // TODO Postscript support:
+                            //					if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Dot fill");
+                            ctx.arc(x_center, y_center, r, 0, 360); // draw arc
+                            ctx.fill(); // fill in the area of the arc
+                        } else {
+                            // TODO Postscript support:
+                            //					if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Dot S");
+
+                            // TODO Commented out XOR-related stuff for now
+                            // if (rmode && (gc = G.gcr)) {
+                            //	  x_center += r;
+                            //    y_center += r;
+                            // }
+                            ctx.arc(x_center, y_center, r, 0, 360);
+                            ctx.stroke(); // just draw the arc's outline
+                        }
+                    }
+                    break;
+                case mx.L_SquareSymbol:
                     if (fill) {
                         // TODO Postscript support:
-                        //					if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Dot fill");
-                        ctx.arc(x_center, y_center, r, 0, 360); // draw arc
-                        ctx.fill(); // fill in the area of the arc
+                        //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "sq fill");
+                        for (i = 0; i < npix; i++) {
+                            fill_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
+                        }
                     } else {
                         // TODO Postscript support:
-                        //					if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Dot S");
-
+                        //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "sq S");
+                        for (i = 0; i < npix; i++) {
+                            draw_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
+                        }
                         // TODO Commented out XOR-related stuff for now
-                        // if (rmode && (gc = G.gcr)) {
-                        //	  x_center += r;
-                        //    y_center += r;
+                        // if (rmode && (gc=G.gcr)) {
+                        // 		++r; d += 2;
+                        //      for (i = 0; i < npix; i++)
+                        //      	draw_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
                         // }
-                        ctx.arc(x_center, y_center, r, 0, 360);
-                        ctx.stroke(); // just draw the arc's outline
                     }
-                }
-                break;
-            case mx.L_SquareSymbol:
-                if (fill) {
+                    break;
+                case mx.L_PixelSymbol:
                     // TODO Postscript support:
-                    //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "sq fill");
-                    for (i = 0; i < npix; i++) {
-                        fill_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
+                    //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, rr, "Dot S");
+                    d = 1; // d = 2*GMaxLines; // TODO Do we care about a maximum number of lines?
+                    for (i = 0; i < npix; i += d) {
+                        // No native way to draw just a pixel - so use a circle instead
+                        ctx.beginPath();
+                        ctx.arc(pixx[i], pixy[i], 1, 0, 2 * Math.PI, true);
+                        ctx.fill();
                     }
-                } else {
+                    break;
+                case mx.L_ITriangleSymbol:
+                    r = -r; // TODO Refactor without switch fall-through?
+                    /* jshint -W086 */
+                case mx.L_TriangleSymbol:
+                    /* jshint +W086 */
+                    d = m.trunc(r * 1.5);
+                    x = m.trunc(r * 0.80);
+
+                    // Coordinates of just the triangle itself
+                    tri[1].x = -x;
+                    tri[1].y = d;
+                    tri[2].x = x * 2;
+                    tri[2].y = 0;
+                    tri[3].x = -x;
+                    tri[3].y = -d;
+
+                    var tempTri = []; // XPoint array of size 4
+                    for (var cnt = 0; cnt < 4; cnt++) { // initializing 4 points in the array
+                        tempTri[cnt] = {
+                            x: 0,
+                            y: 0
+                        };
+                    }
+
+                    if (fill) {
+                        // TODO Postscript support:
+                        //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Tri fill");
+                        for (i = 0; i < npix; i++) {
+                            tempTri[0].x = pixx[i];
+                            tempTri[0].y = pixy[i] - r;
+
+                            // Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
+                            tempTri[1].x = tempTri[0].x + tri[1].x;
+                            tempTri[1].y = tempTri[0].y + tri[1].y;
+                            tempTri[2].x = tempTri[1].x + tri[2].x;
+                            tempTri[2].y = tempTri[1].y + tri[2].y;
+                            tempTri[3].x = tempTri[2].x + tri[3].x;
+                            tempTri[3].y = tempTri[2].y + tri[3].y;
+
+                            fill_poly(ctx, tempTri);
+                        }
+                    } else {
+                        // TODO Postscript support:
+                        //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Tri S");
+                        for (i = 0; i < npix; i++) {
+                            tempTri[0].x = pixx[i];
+                            tempTri[0].y = pixy[i] - r;
+
+                            // Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
+                            tempTri[1].x = tempTri[0].x + tri[1].x;
+                            tempTri[1].y = tempTri[0].y + tri[1].y;
+                            tempTri[2].x = tempTri[1].x + tri[2].x;
+                            tempTri[2].y = tempTri[1].y + tri[2].y;
+                            tempTri[3].x = tempTri[2].x + tri[3].x;
+                            tempTri[3].y = tempTri[2].y + tri[3].y;
+
+                            draw_poly(ctx, tempTri);
+                        }
+                        //				 if (rmode && (gc = G.gcr)) {
+                        //				 		if (r >= 0) { 
+                        //							++r; ++x; d += 2; 
+                        //						} else { 
+                        //							--r; --x; d -= 2; 
+                        //						}
+                        //						tri[1].x = -x;
+                        //						tri[1].y = d;
+                        //						tri[2].x = x * 2;
+                        //						tri[2].y = 0;
+                        //						tri[3].x = -x;
+                        //						tri[3].y = -d;
+                        //		
+                        //				 		for (i = 0; i < npix; i++) {
+                        //							tempTri[0].x = pixx[i];
+                        //							tempTri[0].y = pixy[i] - r;
+                        //				
+                        //							// Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
+                        //							tempTri[1].x = tempTri[0].x + tri[1].x;
+                        //							tempTri[1].y = tempTri[0].y + tri[1].y;
+                        //							tempTri[2].x = tempTri[1].x + tri[2].x;
+                        //							tempTri[2].y = tempTri[1].y + tri[2].y;
+                        //							tempTri[3].x = tempTri[2].x + tri[3].x;
+                        //							tempTri[3].y = tempTri[2].y + tri[3].y;
+                        //
+                        //				 			draw_poly(ctx, tempTri);
+                        //				 		}
+                        //				 }
+                    }
+                    break;
+                case mx.L_PlusSymbol:
                     // TODO Postscript support:
-                    //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "sq S");
+                    //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
                     for (i = 0; i < npix; i++) {
-                        draw_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
+                        x = pixx[i];
+                        y = pixy[i];
+                        draw_line(ctx, x, y + r, x, y - r);
+                        draw_line(ctx, x + r, y, x - r, y);
+                    }
+                    //			if (rmode && (gc = G.gcr)) {
+                    //				for (i = 0; i < npix; i++) {
+                    //					x = pixx[i] - 1;
+                    //					y = pixy[i] + 1;
+                    //					draw_line(ctx, x, y + r, x, y - r);
+                    //					draw_line(ctx, x + r, y, x - r, y);  
+                    //				}
+                    //			}
+                    break;
+                case mx.L_HLineSymbol:
+                    // TODO Postscript support:
+                    //                     if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
+                    for (i = 0; i < npix; i++) {
+                        x = pixx[i];
+                        y = pixy[i];
+                        draw_line(ctx, x + r, y, x - r, y);
+                    }
+                    //                     if (rmode && (gc = G.gcr)) {
+                    //                             for (i = 0; i < npix; i++) {
+                    //                                     x = pixx[i] - 1;
+                    //                                     y = pixy[i] + 1;
+                    //                                     draw_line(ctx, x, y + r, x, y - r);
+                    //                                     draw_line(ctx, x + r, y, x - r, y);  
+                    //                             }
+                    //                     }
+                    break;
+                case mx.L_VLineSymbol:
+                    // TODO Postscript support:
+                    //                     if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
+                    for (i = 0; i < npix; i++) {
+                        x = pixx[i];
+                        y = pixy[i];
+                        draw_line(ctx, x, y + r, x, y - r);
+                    }
+                    //                     if (rmode && (gc = G.gcr)) {
+                    //                             for (i = 0; i < npix; i++) {
+                    //                                     x = pixx[i] - 1;
+                    //                                     y = pixy[i] + 1;
+                    //                                     draw_line(ctx, x, y + r, x, y - r);
+                    //                                     draw_line(ctx, x + r, y, x - r, y);  
+                    //                             }
+                    //                     }
+                    break;
+                case mx.L_XSymbol:
+                    // TODO Postscript support:
+                    //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "XSym S");
+                    for (i = 0; i < npix; i++) {
+                        x = pixx[i];
+                        y = pixy[i];
+                        draw_line(ctx, x - r, y - r, x + r, y + r);
+                        draw_line(ctx, x + r, y - r, x - r, y + r);
                     }
                     // TODO Commented out XOR-related stuff for now
-                    // if (rmode && (gc=G.gcr)) {
-                    // 		++r; d += 2;
-                    //      for (i = 0; i < npix; i++)
-                    //      	draw_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
-                    // }
-                }
-                break;
-            case mx.L_PixelSymbol:
-                // TODO Postscript support:
-                //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, rr, "Dot S");
-                d = 1; // d = 2*GMaxLines; // TODO Do we care about a maximum number of lines?
-                for (i = 0; i < npix; i += d) {
-                    // No native way to draw just a pixel - so use a circle instead
-                    ctx.beginPath();
-                    ctx.arc(pixx[i], pixy[i], 1, 0, 2 * Math.PI, true);
-                    ctx.fill();
-                }
-                break;
-            case mx.L_ITriangleSymbol:
-                r = -r; // TODO Refactor without switch fall-through?
-                /* jshint -W086 */
-            case mx.L_TriangleSymbol:
-                /* jshint +W086 */
-                d = m.trunc(r * 1.5);
-                x = m.trunc(r * 0.80);
-
-                // Coordinates of just the triangle itself
-                tri[1].x = -x;
-                tri[1].y = d;
-                tri[2].x = x * 2;
-                tri[2].y = 0;
-                tri[3].x = -x;
-                tri[3].y = -d;
-
-                var tempTri = []; // XPoint array of size 4
-                for (var cnt = 0; cnt < 4; cnt++) { // initializing 4 points in the array
-                    tempTri[cnt] = {
-                        x: 0,
-                        y: 0
-                    };
-                }
-
-                if (fill) {
-                    // TODO Postscript support:
-                    //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Tri fill");
-                    for (i = 0; i < npix; i++) {
-                        tempTri[0].x = pixx[i];
-                        tempTri[0].y = pixy[i] - r;
-
-                        // Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
-                        tempTri[1].x = tempTri[0].x + tri[1].x;
-                        tempTri[1].y = tempTri[0].y + tri[1].y;
-                        tempTri[2].x = tempTri[1].x + tri[2].x;
-                        tempTri[2].y = tempTri[1].y + tri[2].y;
-                        tempTri[3].x = tempTri[2].x + tri[3].x;
-                        tempTri[3].y = tempTri[2].y + tri[3].y;
-
-                        fill_poly(ctx, tempTri);
+                    //			if (rmode && (gc = G.gcr)) {
+                    //				d = r - 1; ++r;
+                    //				for (i = 0; i < npix; i++) {
+                    //					x = pixx[i];
+                    //					y = pixy[i];
+                    //					draw_line(ctx, x - r, y - d, x + d, y + r);
+                    //					draw_line(ctx, x + d, y - r, x - r, y + d);
+                    //				}
+                    //			}
+                    break;
+                default:
+                    c = symbol;
+                    r = m.trunc(Mx.text_w / 2); //tbd
+                    // TODO Postscript support:      
+                    //			if (f_PostScript) {
+                    //				char astr[80];
+                    //				sprintf(astr, "(%c) Char", c);
+                    //				mx_psdraw_objects(ic, pix, npix, r, astr);
+                    //			}
+                    if (fill && !rmode) {
+                        for (i = 0; i < npix; i++) {
+                            ctx.fillText(c.substring(0, 2), pixx[i] - r, pixy[i] + r); // TODO Does this cover it? Do we need to also fill in a rectangle behind 
+                        }
                     }
-                } else {
-                    // TODO Postscript support:
-                    //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Tri S");
-                    for (i = 0; i < npix; i++) {
-                        tempTri[0].x = pixx[i];
-                        tempTri[0].y = pixy[i] - r;
-
-                        // Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
-                        tempTri[1].x = tempTri[0].x + tri[1].x;
-                        tempTri[1].y = tempTri[0].y + tri[1].y;
-                        tempTri[2].x = tempTri[1].x + tri[2].x;
-                        tempTri[2].y = tempTri[1].y + tri[2].y;
-                        tempTri[3].x = tempTri[2].x + tri[3].x;
-                        tempTri[3].y = tempTri[2].y + tri[3].y;
-
-                        draw_poly(ctx, tempTri);
-                    }
-                    //				 if (rmode && (gc = G.gcr)) {
-                    //				 		if (r >= 0) { 
-                    //							++r; ++x; d += 2; 
-                    //						} else { 
-                    //							--r; --x; d -= 2; 
-                    //						}
-                    //						tri[1].x = -x;
-                    //						tri[1].y = d;
-                    //						tri[2].x = x * 2;
-                    //						tri[2].y = 0;
-                    //						tri[3].x = -x;
-                    //						tri[3].y = -d;
-                    //		
-                    //				 		for (i = 0; i < npix; i++) {
-                    //							tempTri[0].x = pixx[i];
-                    //							tempTri[0].y = pixy[i] - r;
-                    //				
-                    //							// Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
-                    //							tempTri[1].x = tempTri[0].x + tri[1].x;
-                    //							tempTri[1].y = tempTri[0].y + tri[1].y;
-                    //							tempTri[2].x = tempTri[1].x + tri[2].x;
-                    //							tempTri[2].y = tempTri[1].y + tri[2].y;
-                    //							tempTri[3].x = tempTri[2].x + tri[3].x;
-                    //							tempTri[3].y = tempTri[2].y + tri[3].y;
-                    //
-                    //				 			draw_poly(ctx, tempTri);
-                    //				 		}
-                    //				 }
-                }
-                break;
-            case mx.L_PlusSymbol:
-                // TODO Postscript support:
-                //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
-                for (i = 0; i < npix; i++) {
-                    x = pixx[i];
-                    y = pixy[i];
-                    draw_line(ctx, x, y + r, x, y - r);
-                    draw_line(ctx, x + r, y, x - r, y);
-                }
-                //			if (rmode && (gc = G.gcr)) {
-                //				for (i = 0; i < npix; i++) {
-                //					x = pixx[i] - 1;
-                //					y = pixy[i] + 1;
-                //					draw_line(ctx, x, y + r, x, y - r);
-                //					draw_line(ctx, x + r, y, x - r, y);  
-                //				}
-                //			}
-                break;
-            case mx.L_HLineSymbol:
-                // TODO Postscript support:
-                //                     if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
-                for (i = 0; i < npix; i++) {
-                    x = pixx[i];
-                    y = pixy[i];
-                    draw_line(ctx, x + r, y, x - r, y);
-                }
-                //                     if (rmode && (gc = G.gcr)) {
-                //                             for (i = 0; i < npix; i++) {
-                //                                     x = pixx[i] - 1;
-                //                                     y = pixy[i] + 1;
-                //                                     draw_line(ctx, x, y + r, x, y - r);
-                //                                     draw_line(ctx, x + r, y, x - r, y);  
-                //                             }
-                //                     }
-                break;
-            case mx.L_VLineSymbol:
-                // TODO Postscript support:
-                //                     if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
-                for (i = 0; i < npix; i++) {
-                    x = pixx[i];
-                    y = pixy[i];
-                    draw_line(ctx, x, y + r, x, y - r);
-                }
-                //                     if (rmode && (gc = G.gcr)) {
-                //                             for (i = 0; i < npix; i++) {
-                //                                     x = pixx[i] - 1;
-                //                                     y = pixy[i] + 1;
-                //                                     draw_line(ctx, x, y + r, x, y - r);
-                //                                     draw_line(ctx, x + r, y, x - r, y);  
-                //                             }
-                //                     }
-                break;
-            case mx.L_XSymbol:
-                // TODO Postscript support:
-                //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "XSym S");
-                for (i = 0; i < npix; i++) {
-                    x = pixx[i];
-                    y = pixy[i];
-                    draw_line(ctx, x - r, y - r, x + r, y + r);
-                    draw_line(ctx, x + r, y - r, x - r, y + r);
-                }
-                // TODO Commented out XOR-related stuff for now
-                //			if (rmode && (gc = G.gcr)) {
-                //				d = r - 1; ++r;
-                //				for (i = 0; i < npix; i++) {
-                //					x = pixx[i];
-                //					y = pixy[i];
-                //					draw_line(ctx, x - r, y - d, x + d, y + r);
-                //					draw_line(ctx, x + d, y - r, x - r, y + d);
-                //				}
-                //			}
-                break;
-            default:
-                c = symbol;
-                r = m.trunc(Mx.text_w / 2); //tbd
-                // TODO Postscript support:      
-                //			if (f_PostScript) {
-                //				char astr[80];
-                //				sprintf(astr, "(%c) Char", c);
-                //				mx_psdraw_objects(ic, pix, npix, r, astr);
-                //			}
-                if (fill && !rmode) {
-                    for (i = 0; i < npix; i++) {
-                        ctx.fillText(c.substring(0, 2), pixx[i] - r, pixy[i] + r); // TODO Does this cover it? Do we need to also fill in a rectangle behind 
-                    }
-                }
-                // TODO Commented out XOR-related stuff for now
-                //			else {
-                //				ctx.textBaseline = "alphabetic"; // TODO Verify this is necessary
-                //				for (i = 0; i < npix; i++) {
-                //					ctx.fillText(c.substring(0,2), pixx[i] - r, pixy[i] + r);
-                //				}
-                //			}
-                break;
+                    // TODO Commented out XOR-related stuff for now
+                    //			else {
+                    //				ctx.textBaseline = "alphabetic"; // TODO Verify this is necessary
+                    //				for (i = 0; i < npix; i++) {
+                    //					ctx.fillText(c.substring(0,2), pixx[i] - r, pixy[i] + r);
+                    //				}
+                    //			}
+                    break;
+            } // end switch (symbol)
         }
     };
 

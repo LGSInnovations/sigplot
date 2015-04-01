@@ -4362,7 +4362,7 @@ window.sigplot = window.sigplot || {};
      * @private
      */
     function rubberbox_cb(plot) {
-        return function(event, xo, yo, xl, yl, action) {
+        return function(event, xo, yo, xl, yl, action, mode) {
             var Gx = plot._Gx;
             var Mx = plot._Mx;
 
@@ -4377,7 +4377,15 @@ window.sigplot = window.sigplot || {};
                     // mousedown/mousemove/mouseup so
                     // don't make insanely small zooms...instead treat them as a
                     // click
-                    if ((w < 2) && (h < 2)) {
+                    var isZoom = false;
+                    if (mode === "horizontal") {
+                        isZoom = (w > 2);
+                    } else if (mode === "vertical") {
+                        isZoom = (h > 2);
+                    } else {
+                        isZoom = ((w > 2) && (h > 2));
+                    }
+                    if (!isZoom) {
                         var inCenter = inPanCenterRegion(plot);
                         if (inCenter.inCenterRegion) {
                             // console.log("!!!MOUSEUP in
