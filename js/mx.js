@@ -313,7 +313,9 @@ window.mx = window.mx || {};
                                 yo = Mx.t;
                                 yl = Mx.b;
                             } // else "box"
-                            old_warpbox.func(event, xo, yo, xl, yl, old_warpbox.style.return_value);
+                            old_warpbox.func(event, xo, yo, xl, yl,
+                                old_warpbox.style.return_value,
+                                old_warpbox.mode);
                         }
                     }
 
