@@ -516,11 +516,14 @@ window.sigplot = window.sigplot || {};
                     }
                 } else { // Mouse not in a pan region, handle other cases
                     if (event.which === 1) {
-                        var lButtonPressed = coordsInRectangle(Mx.xpos,
-                            Mx.ypos, Gx.legendBtnLocation.x,
-                            Gx.legendBtnLocation.y,
-                            Gx.legendBtnLocation.width,
-                            Gx.legendBtnLocation.height);
+                        var lButtonPressed = false;
+                        if (Gx.legendBtnLocation) {
+                            lButtonPressed = coordsInRectangle(Mx.xpos,
+                                Mx.ypos, Gx.legendBtnLocation.x,
+                                Gx.legendBtnLocation.y,
+                                Gx.legendBtnLocation.width,
+                                Gx.legendBtnLocation.height);
+                        }
 
                         if (lButtonPressed) {
                             plot.change_settings({
@@ -1334,29 +1337,6 @@ window.sigplot = window.sigplot || {};
                 } else {
                     Gx.legend = settings.legend;
                 }
-                draw_accessories(this, -1);
-
-                var i = Gx.lbtn - 2;
-                if (Gx.show_readout) {
-                    Gx.legendBtnLocation = {
-                        x: this._Mx.width - Gx.lbtn,
-                        y: 2,
-                        width: i,
-                        height: i
-                    };
-                    mx.shadowbox(this._Mx, this._Mx.width - Gx.lbtn, 2, i, i,
-                        1, -1, 'L');
-                } else {
-                    Gx.legendBtnLocation = {
-                        x: this._Mx.width - Gx.lbtn,
-                        y: 2,
-                        width: i,
-                        height: i
-                    };
-                    mx.shadowbox(this._Mx, this._Mx.width - Gx.lbtn, 2, i, i,
-                        1, 1, 'L');
-                }
-                draw_accessories(this, 1);
             }
 
             if (settings.pan !== undefined) {
@@ -2559,6 +2539,8 @@ window.sigplot = window.sigplot || {};
                             2, 'L');
                     }
                     display_specs(this);
+                } else {
+                    Gx.legendBtnLocation = null;
                 }
             } else if (Gx.grid && Gx.sections >= 0) {
                 var drawaxis_flags = {
@@ -4730,12 +4712,7 @@ window.sigplot = window.sigplot || {};
         Gx.wheelZoom = o.wheelZoom;
         Gx.wheelZoomPercent = o.wheelZoomPercent;
         Gx.legend = o.legend === undefined ? false : o.legend;
-        Gx.legendBtnLocation = {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0
-        };
+        Gx.legendBtnLocation = null;
         Gx.pan = o.nopan === undefined ? true : !o.nopan;
         Gx.nomenu = o.nomenu === undefined ? false : o.nomenu;
 
