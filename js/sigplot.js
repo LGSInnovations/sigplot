@@ -5103,11 +5103,14 @@ window.sigplot = window.sigplot || {};
         var Mx = plot._Mx;
 
         if (Gx.xmrk !== null && Gx.ymrk !== null) {
+            var pix = mx.real_to_pixel(Mx, Gx.xmrk, Gx.ymrk);
+            if (pix.clipped) {
+                return;
+            }
             var ctx = Mx.active_canvas.getContext("2d");
             ctx.beginPath();
             ctx.strokeStyle = Mx.xwfg;
             ctx.fillStyle = Mx.xwfg;
-            var pix = mx.real_to_pixel(Mx, Gx.xmrk, Gx.ymrk);
             ctx.arc(pix.x, pix.y, 2, 0, 360);
             ctx.stroke(); // just draw the arc's outline
 
