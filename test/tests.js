@@ -1085,7 +1085,7 @@ interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() 
     });
 });
 
-interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() {
+interactiveTest('sigplot ramp', 'Do you see a sin wave?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
