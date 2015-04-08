@@ -1133,6 +1133,22 @@ interactiveTest('sigplot custom symbol', 'Do you see custom symbols?', function(
     });
 });
 
+interactiveTest('sigplot custom xmult', 'Do you see the x-axis in "hecto-" units (0-40)?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xmult: 100
+    });
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_href("dat/sin.tmp", null, {
+        name: "x",
+    });
+});
+
 interactiveTest('sigplot penny 1d legend default', 'Do you see a 1d penny with properly labeled legend (default)?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
