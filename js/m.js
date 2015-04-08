@@ -633,25 +633,35 @@ window.m = window.m || {};
             }
         }
         var prefix = "?";
-        if (mult === 1.0e3) {
-            prefix = 'K';
-        } else if (mult === 1.0e-3) {
-            prefix = 'm';
-        } else if (mult === 1.0e6) {
-            prefix = 'M';
-        } else if (mult === 1.0e-6) {
-            prefix = 'u';
-        } else if (mult === 1.0e9) {
-            prefix = 'G';
-        } else if (mult === 1.0e-9) {
-            prefix = 'n';
-        } else if (mult === 1.0e12) {
-            prefix = 'T';
-        } else if (mult === 1.0e-12) {
-            prefix = 'p';
-        } else if (mult === 1) {
+        /* jshint -W116 */
+        if (mult == 1) {
             prefix = "";
+        } else if (mult == 10) {
+            prefix = 'da';
+        } else if (mult == 0.1) {
+            prefix = 'd';
+        } else if (mult == 100) {
+            prefix = 'h';
+        } else if (mult == 0.01) {
+            prefix = 'c';
+        } else if (mult == 1.0e3) {
+            prefix = 'K';
+        } else if (mult == 1.0e-3) {
+            prefix = 'm';
+        } else if (mult == 1.0e6) {
+            prefix = 'M';
+        } else if (mult == 1.0e-6) {
+            prefix = 'u';
+        } else if (mult == 1.0e9) {
+            prefix = 'G';
+        } else if (mult == 1.0e-9) {
+            prefix = 'n';
+        } else if (mult == 1.0e12) {
+            prefix = 'T';
+        } else if (mult == 1.0e-12) {
+            prefix = 'p';
         }
+        /* jshint +W116 */
 
         if (u[1]) {
             return u[0] + " (" + prefix + u[1] + ")";
