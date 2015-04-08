@@ -2950,9 +2950,11 @@ window.mx = window.mx || {};
         }
 
 
-        var xmult = 1.0;
-        if (!xtimecode) {
-            xmult = mx.mult(stk1.xmin, stk1.xmax);
+        var _xmult = 1.0;
+        if (flags.xmult) { // if xmult was provided
+            _xmult = flags.xmult;
+        } else if (!xtimecode) {
+            _xmult = mx.mult(stk1.xmin, stk1.xmax);
         }
         if (ydiv < 0) {
             yTIC.dtic1 = stk1.ymin;
@@ -2960,9 +2962,11 @@ window.mx = window.mx || {};
         } else {
             yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv, ytimecode);
         }
-        var ymult = 1.0;
-        if (!ytimecode) {
-            ymult = mx.mult(stk1.ymin, stk1.ymax);
+        var _ymult = 1.0;
+        if (flags.ymult) { // if ymult was provided
+            _ymult = flags.ymult;
+        } else if (!ytimecode) {
+            _ymult = mx.mult(stk1.ymin, stk1.ymax);
         }
 
         var xticlabels = !flags.noxtlab;
@@ -2983,10 +2987,10 @@ window.mx = window.mx || {};
         if (iy > 0) {
             var ly = 0;
             if (!flags.noyplab) {
-                ylabel = m.label(ylab, ymult);
+                ylabel = m.label(ylab, _ymult);
             }
             if (!flags.noxplab) {
-                xlabel = m.label(xlab, xmult);
+                xlabel = m.label(xlab, _xmult);
             }
         }
 
@@ -3021,8 +3025,8 @@ window.mx = window.mx || {};
         }
 
         var fmul;
-        if (xmult !== 0) {
-            fmul = 1.0 / xmult;
+        if (_xmult !== 0) {
+            fmul = 1.0 / _xmult;
         } else {
             fmul = 1.0;
         }
@@ -3154,8 +3158,8 @@ window.mx = window.mx || {};
         } else {
             fact = -height / 1.0;
         }
-        if (ymult !== 0) {
-            fmul = 1.0 / ymult;
+        if (_ymult !== 0) {
+            fmul = 1.0 / _ymult;
         } else {
             fmul = 1;
         }

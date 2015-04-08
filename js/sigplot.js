@@ -2510,6 +2510,12 @@ window.sigplot = window.sigplot || {};
                     if (Gx.gridStyle) {
                         drawaxis_flags.gridStyle = Gx.gridStyle;
                     }
+                    if (Gx.xmult) {
+                        drawaxis_flags.xmult = Gx.xmult;
+                    }
+                    if (Gx.ymult) {
+                        drawaxis_flags.ymult = Gx.ymult;
+                    }
                     mx.drawaxis(Mx, Gx.xdiv, Gx.ydiv, xlab, ylab,
                         drawaxis_flags);
                 } //else {
@@ -2700,8 +2706,10 @@ window.sigplot = window.sigplot || {};
         this.panymax = 0.0;
         this.xmin = 0.0;
         this.xmax = 0.0;
+        this.xmult = undefined;
         this.ymin = 0.0;
         this.ymax = 0.0;
+        this.ymult = undefined;
         this.zmin = undefined;
         this.zmax = undefined;
         this.dbmin = 0.0;
@@ -4608,6 +4616,8 @@ window.sigplot = window.sigplot || {};
                 Gx.xmax = Gx.xstart + Gx.xdelta * (Gx.xmax - 1.0);
             }
         }
+        Gx.xmult = o.xmult;
+        Gx.ymult = o.xmult;
         Gx.autox = o.autox === undefined ? -1 : o.autox;
         if (Gx.autox < 0) {
             Gx.autox = 0;
