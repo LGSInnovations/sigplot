@@ -357,18 +357,30 @@
         },
 
         push: function(data, hdrmod, sync) {
+            var rescale = false;
+            var timestamp = null;
             if (hdrmod) {
+                // handle timestamps in a unique manner
+                if (hdrmod.timestamp) {
+                    timestamp = hdrmod.timestamp;
+                    delete hdrmod["timestamp"];
+                }
+
                 // If the subsize changes, we need to invalidate the buffer
                 if ((hdrmod.subsize) && (hdrmod.subsize !== this.hcb.subsize)) {
                     this.hcb.subsize = hdrmod.subsize;
                     this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
                     this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+                    rescale = true;
                 }
 
                 for (var k in hdrmod) {
-                    this.hcb[k] = hdrmod[k];
-                    if (k === "type") {
-                        this.hcb["class"] = hdrmod[k] / 1000;
+                    if (this.hcb[k] !== hdrmod[k]) {
+                        this.hcb[k] = hdrmod[k];
+                        if (k === "type") {
+                            this.hcb["class"] = hdrmod[k] / 1000;
+                        }
+                        rescale = true;
                     }
                 }
 
@@ -389,9 +401,24 @@
                 }
             }
 
+            if ((this.hcb.yunits === 1) || (this.hcb.yunits === 4)) {
+                if ((!this.hcb["timecode"]) && (timestamp)) {
+                    // if we don't have a timecode set, we can use
+                    // the timestamp and reset ystart
+                    this.hcb.timecode = m.j1970toj1950(timestamp);
+                    this.hcb.ystart = 0;
+                    rescale = true;
+                } else {
+                    // otherwise, we need to look at timecode, ystart,
+                    // and ydelta to see if the timestamp indicates
+                    // any data drops...and then zero-fill accordingly
+                    // TODO
+                }
+            }
+
             m.filad(this.hcb, data, sync);
 
-            return hdrmod ? true : false;
+            return rescale;
 
         },
 

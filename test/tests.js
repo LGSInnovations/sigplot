@@ -1574,6 +1574,30 @@ interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly wo
     }, 500);
 });
 
+interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 July 4th for one hour (use "t" to check)?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var framesize = 128;
+    var height = 60 * 60; // one hour
+
+    var ramp = [];
+    for (var j = 0; j < height; j += 1) {
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+    }
+
+    plot.overlay_array(ramp, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        yunits: 4,
+        timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
+    });
+});
+
 interactiveTest('sigplot penny', 'Do you see a raster of a penny', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
@@ -1802,6 +1826,70 @@ interactiveTest('falling raster', 'Do you see a falling raster?', function() {
     }, 100);
 });
 
+interactiveTest('falling raster (timecode)', 'Do you see a falling raster that starts at 2014 July 4th?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        autol: 5
+    });
+
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.5, // two frames a second
+        yunits: 4,
+        timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
+    }, {
+        drawmode: "falling"
+    });
+
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 500);
+});
+
+interactiveTest('falling raster (timestamp)', 'Do you see a falling raster that starts at 2014 July 4th?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        autol: 5
+    });
+
+    var framesize = 128;
+    var now = new Date("2014-07-04T00:00:00Z")
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.5, // two frames a second
+        yunits: 4,
+    }, {
+        drawmode: "falling"
+    });
+
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp, {
+            timestamp: now
+        });
+        now.setSeconds(now.getSeconds() + 0.5);
+
+    }, 500);
+});
+
 interactiveTest('rising raster', 'Do you see a rising raster?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
@@ -1828,6 +1916,70 @@ interactiveTest('rising raster', 'Do you see a rising raster?', function() {
         }
         plot.push(0, ramp);
     }, 100);
+});
+
+interactiveTest('rising raster (timecode)', 'Do you see a rising raster that starts at 2014 July 4th?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        autol: 5
+    });
+
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.5, // two frames a second
+        yunits: 4,
+        timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
+    }, {
+        drawmode: "rising"
+    });
+
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 500);
+});
+
+interactiveTest('rising raster (timestamp)', 'Do you see a rising raster that starts at 2014 July 4th?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        autol: 5
+    });
+
+    var framesize = 128;
+    var now = new Date("2014-07-04T00:00:00Z")
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.5, // two frames a second
+        yunits: 4,
+    }, {
+        drawmode: "rising"
+    });
+
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp, {
+            timestamp: now
+        });
+        now.setSeconds(now.getSeconds() + 0.5);
+
+    }, 500);
 });
 
 interactiveTest('raster changing xstart', 'Do you see a falling raster that stays the same while the axis shifts?', function() {
