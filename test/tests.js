@@ -1027,6 +1027,38 @@ test('sigplot resize raster larger height', function() {
     }
 });
 
+test('sigplot change raster LPS', function() {
+    var container = document.getElementById('plot');
+
+    equal(container.childNodes.length, 0);
+    equal(fixture.childNodes.length, 1);
+
+    var plot = new sigplot.Plot(container);
+    notEqual(plot, null);
+
+    var zeros = [];
+    for (var i = 0; i <= 128; i += 1) {
+        zeros.push(0.0);
+    }
+
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 128,
+        lps: 100,
+        pipe: true
+    });
+    notEqual(plot.get_layer(0), null);
+    strictEqual(plot.get_layer(0).lps, 100);
+    plot.push(0, zeros, {
+        lps: 200
+    }, true);
+    setInterval(function() {
+            strictEqual(plot.get_layer(0).lps, 200);
+        },
+        100
+    );
+});
+
 QUnit.module('sigplot-interactive', {
     setup: function() {
         ifixture.innerHTML = '';
@@ -1832,6 +1864,62 @@ interactiveTest('raster changing xstart', 'Do you see a falling raster that stay
         xstart += xstart_chng;
         plot.push(0, ramp, {
             xstart: xstart
+        });
+    }, 500);
+});
+
+interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with alternating cursor speed every 10 seconds?', function() {
+    var container = document.getElementById('plot');
+    var initialLps = 50;
+    var alternateLps = 200;
+    var lpsVals = [initialLps, alternateLps];
+    var currentLps = lpsVals[0];
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        autol: 5,
+    });
+
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        xstart: 0,
+        ydelta: 0.25,
+        lps: initialLps
+    });
+
+    var toggleLps = function() {
+        if (plot.get_layer(0).lps === lpsVals[0]) {
+            currentLps = lpsVals[1];
+        } else {
+            currentLps = lpsVals[0];
+        }
+        plot.deoverlay(0);
+        plot.overlay_pipe({
+            type: 2000,
+            subsize: framesize,
+            file_name: "ramp",
+            xstart: 0,
+            ydelta: 0.25
+        });
+    };
+
+    strictEqual(plot.get_layer(0).lps, initialLps)
+    var count = 0;
+    ifixture.interval = window.setInterval(function() {
+        count++;
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        if (count % 20 === 0) {
+            toggleLps();
+        }
+        plot.push(0, ramp, {
+            lps: currentLps
         });
     }, 500);
 });

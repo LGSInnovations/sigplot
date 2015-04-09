@@ -90,14 +90,14 @@
                 this.frame = 0;
 
 
-                this.lps = Math.ceil(Math.max(1, (Mx.b - Mx.t)));
+                this.lps = this.hcb.lps || Math.ceil(Math.max(1, (Mx.b - Mx.t)));
                 m.addPipeWriteListener(this.hcb, function() {
                     self._onpipewrite();
                 });
                 this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
                 this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
             } else {
-                this.lps = Math.ceil(hcb.size);
+                this.lps = this.hcb.lps || Math.ceil(hcb.size);
             }
 
             this.offset = 0;
@@ -383,6 +383,10 @@
                 var d = this.hcb.ystart + this.hcb.ydelta * (this.lps - 1.0);
                 this.ymin = Math.min(this.hcb.ystart, d);
                 this.ymax = Math.max(this.hcb.ystart, d);
+
+                if (hdrmod.lps) {
+                    this.hcb.lps = hdrmod.lps;
+                }
             }
 
             m.filad(this.hcb, data, sync);
@@ -587,7 +591,7 @@
             var HCB = this.hcb;
 
             if (this.hcb.pipe) {
-                var lps = Math.ceil(Math.max(1, (Mx.b - Mx.t)));
+                var lps = this.hcb.lps || Math.ceil(Math.max(1, (Mx.b - Mx.t)));
                 if ((lps !== this.lps) && this.buf) {
                     var new_buf = this.hcb.createArray(null, 0, lps * this.hcb.subsize * this.hcb.spa);
                     var new_zbuf = new sigplot.PointArray(lps * this.hcb.subsize);
