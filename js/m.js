@@ -1153,6 +1153,14 @@ window.m = window.m || {};
     };
 
     /**
+     * The offset to convert midnight Jan 1st 1970 to 
+     * midnight Jan 1st 1950.
+     *
+     * @private
+     */
+    var j1950offset = (20.0 * 365.0 + 5.0) * (24 * 3600);
+
+    /**
      * 0.0 - 86400 == m.sec2tod
      * >86400 then modulo 86400
      *   if modulo <= 0 return m.sec2tod(modulo)+86400
@@ -1194,7 +1202,6 @@ window.m = window.m || {};
             tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
         } else {
             // convert to j1950
-            var j1950offset = (20.0 * 365.0 + 5.0) * (24 * 3600);
             d = new Date((sec - j1950offset) * 1000);
             tod = d.getFullYear() + ":" + pad2(d.getMonth()) + ":" + pad2(d.getDate()) + "::" +
                 pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
@@ -1203,6 +1210,18 @@ window.m = window.m || {};
             tod += "." + (sec % 1).toPrecision(6).slice(2, 8);
         }
         return tod;
+    };
+
+    m.j1970toj1950 = function(t) {
+        if (t.getTime !== undefined) {
+            return ((t.getTime() / 1000) + j1950offset);
+        } else {
+            return (t + j1950offset);
+        }
+    };
+
+    m.j1950toj1970 = function(t) {
+        return (t - j1950offset);
     };
 
     /**
