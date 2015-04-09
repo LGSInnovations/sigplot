@@ -166,15 +166,17 @@
                 return;
             }
 
-            if (this.drawmode === "falling") {
+            // if we aren't scrolling, than update the values
+            // so that the axis scrolls with the data.  The below
+            // code might seem counter intuitive, but given the
+            // the behavior of other rendering code it is configured
+            // to have ymin always be the history (i.e prior to ystart)
+            // and ystart is always the relative "now" which is equivalent
+            // to ymax
+            if (this.drawmode !== "scrolling") {
                 this.hcb.ystart += this.hcb.ydelta;
                 this.ystart = this.hcb.ystart;
-                this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps)); // the top of the plot is older than the current ystart
-                this.ymax = this.hcb.ystart;
-            } else if (this.drawmode === "rising") {
-                this.hcb.ystart += this.hcb.ydelta;
-                this.ystart = this.hcb.ystart;
-                this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps)); // the top of the plot is older than the current ystart
+                this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps));
                 this.ymax = this.hcb.ystart;
             }
 
