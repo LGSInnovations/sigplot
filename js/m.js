@@ -1126,7 +1126,14 @@ window.m = window.m || {};
             }
         }
 
-        if ((sec % 1) !== 0) {
+        // violate legacy behavior, include full precision always
+        // even if we are on a full second boundary, otherwise
+        // on rising/falling rasters it can look like the display
+        // is flickering
+        var fractional = (sec % 1);
+        if (fractional === 0.0) {
+            tod += ".000000";
+        } else {
             tod += "." + Math.abs(sec % 1).toPrecision(6).slice(2, 8);
         }
 
