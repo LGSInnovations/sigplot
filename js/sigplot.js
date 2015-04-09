@@ -2877,8 +2877,10 @@ window.sigplot = window.sigplot || {};
         if (Gx.lyr.length > 0) {
             //var hcb = Gx.HCB[Gx.lyr[0].hcb];
             var hcb = Gx.lyr[0].hcb; // mmm-TODO-needs investigation
-            if (hcb.xunits === 1) {
-                mx.message(Mx, "Time = " + m.sec2tod(hcb.timecode + Gx.retx));
+            if ((hcb["class"] === 1) && ((hcb.xunits === 1) || (hcb.xunits === 4))) {
+                mx.message(Mx, "Time = " + m.sec2tod(hcb.timecode + Gx.retx), true);
+            } else if ((hcb["class"] === 2) && ((hcb.yunits === 1) || (hcb.yunits === 4))) {
+                mx.message(Mx, "Time = " + m.sec2tod(hcb.timecode + Gx.rety), true);
             } else {
                 mx.message(Mx, "Time = UNK");
             }
