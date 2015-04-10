@@ -1052,11 +1052,8 @@ test('sigplot change raster LPS', function() {
     plot.push(0, zeros, {
         lps: 200
     }, true);
-    setInterval(function() {
-            strictEqual(plot.get_layer(0).lps, 200);
-        },
-        100
-    );
+    plot._refresh();
+    strictEqual(plot.get_layer(0).lps, 200);
 });
 
 QUnit.module('sigplot-interactive', {
