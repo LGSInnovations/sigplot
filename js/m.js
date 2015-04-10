@@ -1153,7 +1153,7 @@ window.m = window.m || {};
     };
 
     /**
-     * The offset to convert midnight Jan 1st 1970 to 
+     * The offset to convert midnight Jan 1st 1970 to
      * midnight Jan 1st 1950.
      *
      * @private
