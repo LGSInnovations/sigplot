@@ -2252,7 +2252,10 @@ interactiveTest('annotations', 'Do you see a text annotation at the correct loca
         x: -0.5,
         y: -0.5,
         value: "-0.5,-0.5",
-        popup: "c"
+        popup: "c",
+        onclick: function() {
+            alert("you clicked me");
+        }
     });
     annotations.add_annotation({
         x: -0.5,

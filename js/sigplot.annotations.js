@@ -119,6 +119,7 @@
                             self.set_highlight(false, [annotation]);
                             need_refresh = true;
                         }
+                        annotation.selected = undefined;
                     }
                 }
 
@@ -130,12 +131,32 @@
             this.plot.addListener("mmove", this.onmousemove);
 
             this.onmousedown = function(evt) {
-                // TODO mark annotations as selected
+                for (var i = 0; i < self.annotations.length; i++) {
+                    // leverage the fact that annotation.highlight is
+                    // set when the mouse is over the annotation
+                    if (self.annotations[i].highlight) {
+                        self.annotations[i].selected = true;
+                    }
+                }
             };
             this.plot.addListener("mdown", this.onmousedown);
 
             this.onmouseup = function(evt) {
-                // TODO if the annotation is still selected emit an event
+                for (var i = 0; i < self.annotations.length; i++) {
+                    // leverage the fact that annotation.highlight is
+                    // set when the mouse is over the annotation
+                    if (self.annotations[i].selected) {
+                        // Issue a highlight event
+                        var evt = document.createEvent('Event');
+                        evt.initEvent('annotationclick', true, true);
+                        evt.annotation = self.annotations[i];
+                        var executeDefault = mx.dispatchEvent(self.plot._Mx, evt);
+                        if ((executeDefault) && (self.annotations[i].onclick)) {
+                            self.annotations[i].onclick();
+                        }
+                    }
+                    self.annotations[i].selected = undefined;
+                }
             };
             document.addEventListener("mouseup", this.onmouseup, false);
         },
