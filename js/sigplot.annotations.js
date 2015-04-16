@@ -31,6 +31,9 @@
             this.options.display = true;
         }
 
+        this.options.textBaseline = this.options.textBaseline || "alphabetic";
+        this.options.textAlign = this.options.textAlign || "left";
+
         this.annotations = [];
     };
 
@@ -272,8 +275,8 @@
                         annotation.height = ctx.measureText("M").width; // approximation of height
 
                         // Render the text
-                        ctx.textBaseline = "alphabetic";
-                        ctx.textAlign = "left";
+                        ctx.textBaseline = annotation.textBaseline || self.options.textBaseline;
+                        ctx.textAlign = annotation.textAlign || self.options.textAlign;
                         ctx.fillText(annotation.value, pxl.x, pxl.y);
                     }
 

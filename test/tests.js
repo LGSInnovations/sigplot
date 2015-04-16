@@ -2258,7 +2258,9 @@ interactiveTest('annotations', 'Do you see a text annotation at the correct loca
         x: -0.5,
         y: 0.5,
         value: "-0.5,0.5",
-        popup: "d"
+        popup: "d",
+        textBaseline: "middle",
+        textAlign: "center"
     });
     annotations.add_annotation({
         x: 0.5,
