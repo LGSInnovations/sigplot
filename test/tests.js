@@ -2602,3 +2602,203 @@ interactiveTest('lots of annotations', 'Does the plot still seem smooth?', funct
         plot.push(0, ramp);
     }, 100);
 });
+
+interactiveTest('vertical accordion', 'Do you see a vertical accordion from 450 to 550 Hz?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var zeros = [];
+    for (var i = 0; i <= 1000; i++) {
+        zeros.push(0);
+    }
+
+    plot.overlay_array(zeros, {});
+
+    var accordion = new sigplot.AccordionPlugin({
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "vertical",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    plot.add_plugin(accordion, 1);
+    accordion.set_center(500);
+    accordion.set_width(100);
+
+});
+
+interactiveTest('horizontal accordion', 'Do you see a horizontal accordion from -0.5 to 0.5?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var zeros = [];
+    for (var i = 0; i <= 1000; i++) {
+        zeros.push(0);
+    }
+
+    plot.overlay_array(zeros, {});
+
+    var accordion = new sigplot.AccordionPlugin({
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "horizontal",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    plot.add_plugin(accordion, 1);
+    accordion.set_center(0);
+    accordion.set_width(1);
+
+});
+
+interactiveTest('vertical accordion relative placement', 'Do you see a centered vertical accordion one tenth the width of the plot?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var zeros = [];
+    for (var i = 0; i <= 1000; i++) {
+        zeros.push(0);
+    }
+
+    plot.overlay_array(zeros, {});
+
+    var accordion = new sigplot.AccordionPlugin({
+        mode: "relative",
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "vertical",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    plot.add_plugin(accordion, 1);
+    accordion.set_center(0.5);
+    accordion.set_width(0.1);
+
+});
+
+interactiveTest('horizontal accordion relative placement', 'Do you see a centered horizontal accordion one tenth the width of the plot?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var zeros = [];
+    for (var i = 0; i <= 1000; i++) {
+        zeros.push(0);
+    }
+
+    plot.overlay_array(zeros, {});
+
+    var accordion = new sigplot.AccordionPlugin({
+        mode: "relative",
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "horizontal",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    plot.add_plugin(accordion, 1);
+    accordion.set_center(0.5);
+    accordion.set_width(0.1);
+
+});
+
+interactiveTest('horizontal and vertical accordions absolute placement zoom', 'Do the accordions stay at the same Real World Coordinates when you zoom?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var zeros = [];
+    for (var i = 0; i <= 1000; i++) {
+        zeros.push(0);
+    }
+
+    plot.overlay_array(zeros, {});
+
+    var vert_accordion = new sigplot.AccordionPlugin({
+        mode: "absolute",
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "vertical",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    var horiz_accordion = new sigplot.AccordionPlugin({
+        mode: "absolute",
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "horizontal",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    plot.add_plugin(vert_accordion, 1);
+    plot.add_plugin(horiz_accordion, 2);
+    vert_accordion.set_center(500);
+    vert_accordion.set_width(100);
+    horiz_accordion.set_center(0);
+    horiz_accordion.set_width(0.5);
+
+});
+
+interactiveTest('horizontal and vertical accordions relative placement zoom', 'Do the accordions stay at the same pixel location when you zoom?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var zeros = [];
+    for (var i = 0; i <= 1000; i++) {
+        zeros.push(0);
+    }
+
+    plot.overlay_array(zeros, {});
+
+    var vert_accordion = new sigplot.AccordionPlugin({
+        mode: "relative",
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "vertical",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    var horiz_accordion = new sigplot.AccordionPlugin({
+        mode: "relative",
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "horizontal",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    plot.add_plugin(vert_accordion, 1);
+    plot.add_plugin(horiz_accordion, 2);
+    vert_accordion.set_center(0.5);
+    vert_accordion.set_width(0.1);
+    horiz_accordion.set_center(0.5);
+    horiz_accordion.set_width(0.1);
+
+});

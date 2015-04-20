@@ -45,6 +45,16 @@
             this.options.direction = "vertical";
         }
 
+        /**
+         * In absolute mode, center and width are expressed in
+         * real wold coordinates. In relative mode, center and width
+         * are expressed as percentages (0 to 1.0) of the width or
+         * height of the plot at the current zoom level
+         */
+        if (this.options.mode === undefined) {
+            this.options.mode = "absolute";
+        }
+
         this.center = undefined; // In real units
         this.width = undefined; // In real units
 
@@ -119,10 +129,18 @@
                     var pos = mx.pixel_to_real(Mx, evt.xpos, evt.ypos);
                     if (self.options.direction === "vertical") {
                         self.center_location = evt.xpos;
-                        self.center = pos.x;
+                        if (self.options.mode === 'absolute') {
+                            self.center = pos.x;
+                        } else if (self.options.mode === 'relative') {
+                            self.center = (evt.xpos - Mx.l) / (Mx.r - Mx.l);
+                        }
                     } else if (self.options.direction === "horizontal") {
                         self.center_location = evt.ypos;
-                        self.center = pos.y;
+                        if (self.options.mode === 'absolute') {
+                            self.center = pos.y;
+                        } else if (self.options.mode === 'relative') {
+                            self.center = (evt.ypos - Mx.t) / (Mx.b - Mx.t);
+                        }
                     }
                 }
 
@@ -130,9 +148,17 @@
                     // If we are dragging, update the slider location
                     var pos = mx.pixel_to_real(Mx, evt.xpos, evt.ypos);
                     if (self.options.direction === "vertical") {
-                        self.width = 2 * Math.abs(self.center - pos.x);
+                        if (self.options.mode === 'absolute') {
+                            self.width = 2 * Math.abs(self.center - pos.x);
+                        } else if (self.options.mode === 'relative') {
+                            self.width = (2 * Math.abs(self.center_location - evt.xpos)) / (Mx.r - Mx.l);
+                        }
                     } else if (self.options.direction === "horizontal") {
-                        self.width = 2 * Math.abs(self.center - pos.y);
+                        if (self.options.mode === 'absolute') {
+                            self.width = 2 * Math.abs(self.center - pos.y);
+                        } else if (self.options.mode === 'relative') {
+                            self.width = (2 * Math.abs(self.center_location - evt.ypos)) / (Mx.b - Mx.t);
+                        }
                     }
                 }
 
@@ -276,9 +302,42 @@
             var ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            var center_pxl = mx.real_to_pixel(Mx, this.center, this.center);
-            var pxl_1 = mx.real_to_pixel(Mx, this.center - (this.width / 2), this.center - (this.width / 2));
-            var pxl_2 = mx.real_to_pixel(Mx, this.center + (this.width / 2), this.center + (this.width / 2));
+            var center_pxl;
+            if (this.options.mode === "absolute") {
+                center_pxl = mx.real_to_pixel(Mx, this.center, this.center);
+            } else if (this.options.mode === "relative") {
+                if (this.options.direction === "vertical") {
+                    var c = Mx.stk[0].x1 + (Mx.stk[0].x2 - Mx.stk[0].x1) * this.center;
+                    center_pxl = mx.real_to_pixel(Mx,
+                        mx.pixel_to_real(Mx, c, c).x,
+                        mx.pixel_to_real(Mx, c, c).y
+                    );
+                } else if (this.options.direction === "horizontal") {
+                    var c = Mx.stk[0].y1 + (Mx.stk[0].y2 - Mx.stk[0].y1) * this.center;
+                    center_pxl = mx.real_to_pixel(Mx,
+                        mx.pixel_to_real(Mx, c, c).x,
+                        mx.pixel_to_real(Mx, c, c).y
+                    );
+                }
+            }
+
+            var pxl_1, pxl_2;
+
+            if (this.options.mode === "absolute") {
+                pxl_1 = mx.real_to_pixel(Mx, this.center - (this.width / 2), this.center - (this.width / 2));
+                pxl_2 = mx.real_to_pixel(Mx, this.center + (this.width / 2), this.center + (this.width / 2));
+            } else if (this.options.mode === 'relative') {
+                var w = Mx.stk[0].x2 - Mx.stk[0].x1;
+                var h = Mx.stk[0].y2 - Mx.stk[0].y1;
+                pxl_1 = {
+                    x: center_pxl.x - (this.width * w / 2),
+                    y: center_pxl.y - (this.width * h / 2)
+                };
+                pxl_2 = {
+                    x: center_pxl.x + (this.width * w / 2),
+                    y: center_pxl.y + (this.width * h / 2)
+                };
+            }
 
             if (this.options.direction === "vertical") {
                 this.center_location = center_pxl.x;
@@ -290,7 +349,7 @@
                 this.loc_2 = Math.min(Mx.b, pxl_1.y);
             }
 
-            if (this.options.shade_area && ((this.loc_2 - this.loc_1) > 0)) {
+            if (this.options.shade_area && (Math.abs(this.loc_2 - this.loc_1) > 0)) {
                 var oldAlpha = ctx.globalAlpha;
                 ctx.globalAlpha = (this.options.fill_style.opacity !== undefined) ? this.options.fill_style.opacity : 0.4;
                 ctx.fillStyle = (this.options.fill_style.fillStyle !== undefined) ? this.options.fill_style.fillStyle : Mx.hi;
