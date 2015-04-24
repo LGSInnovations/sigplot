@@ -2659,17 +2659,23 @@ interactiveTest('horizontal accordion', 'Do you see a horizontal accordion from 
 
 });
 
-interactiveTest('vertical accordion relative placement', 'Do you see a centered vertical accordion one tenth the width of the plot?', function() {
+interactiveTest('vertical accordion relative placement', "Do you see a vertical accordion that doesn't move as the axis shifts?", function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
 
-    var zeros = [];
-    for (var i = 0; i <= 1000; i++) {
-        zeros.push(0);
-    }
+    plot.change_settings({
+        autol: 5
+    });
 
-    plot.overlay_array(zeros, {});
+    var framesize = 128;
+    plot.overlay_array({
+            type: 2000,
+            subsize: framesize,
+            file_name: "zeros",
+            xstart: -64
+        },
+        {layerType: sigplot.Layer1D});
 
     var accordion = new sigplot.AccordionPlugin({
         mode: "relative",
@@ -2686,19 +2692,46 @@ interactiveTest('vertical accordion relative placement', 'Do you see a centered 
     accordion.set_center(0.5);
     accordion.set_width(0.1);
 
+
+    var xstart = 0;
+    var xstart_chng = 16;
+    ifixture.interval = window.setInterval(function() {
+        var zeros = [];
+        for (var i = 0; i < framesize; i += 1) {
+            zeros.push(0);
+        }
+        if (Math.abs(xstart) >= 64) {
+            xstart_chng = xstart_chng * -1;
+        }
+        xstart += xstart_chng;
+        plot.reload(0, zeros, {
+            xstart: xstart
+        });
+    }, 500);
+
 });
 
-interactiveTest('horizontal accordion relative placement', 'Do you see a centered horizontal accordion one tenth the width of the plot?', function() {
+interactiveTest('horizontal accordion relative placement', 'Do you see a horizontal accordion that does not move with the data?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
 
-    var zeros = [];
-    for (var i = 0; i <= 1000; i++) {
-        zeros.push(0);
+    var framesize = 128;
+    plot.change_settings({
+        autol: 5
+    });
+
+    var ramp = [];
+    for (var i = 0; i < framesize; i += 1) {
+        ramp.push(i+1);
     }
 
-    plot.overlay_array(zeros, {});
+    plot.overlay_pipe({
+            type: 2000,
+            subsize: framesize,
+            file_name: "ramp",
+            xstart: 0
+        });
 
     var accordion = new sigplot.AccordionPlugin({
         mode: "relative",
@@ -2714,7 +2747,11 @@ interactiveTest('horizontal accordion relative placement', 'Do you see a centere
     plot.add_plugin(accordion, 1);
     accordion.set_center(0.5);
     accordion.set_width(0.1);
+    var count = 0;
 
+    ifixture.interval = window.setInterval(function() {
+        plot.push(0, ramp);
+    }, 100);
 });
 
 interactiveTest('horizontal and vertical accordions absolute placement zoom', 'Do the accordions stay at the same Real World Coordinates when you zoom?', function() {
