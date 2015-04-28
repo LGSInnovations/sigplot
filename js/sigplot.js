@@ -1601,8 +1601,10 @@ window.sigplot = window.sigplot || {};
          *            optional changes to the file header
          * @param {boolean} [sync=false]
          *            optional dispatch onpipewrite syncronously
+         * @param {boolean} [rsync=false]
+         *            optional dispatch refresh syncronously
          */
-        push: function(n, data, hdrmod, sync) {
+        push: function(n, data, hdrmod, sync, rsync) {
             var Mx = this._Mx;
             var Gx = this._Gx;
             if ((n < 0) || (n >= Gx.lyr.length)) {
@@ -1621,7 +1623,11 @@ window.sigplot = window.sigplot || {};
                 });
             }
 
-            this.refresh();
+            if (rsync) {
+                this._refresh();
+            } else {
+                this.refresh();
+            }
         },
 
         /**
