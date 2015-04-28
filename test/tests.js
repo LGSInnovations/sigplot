@@ -2349,7 +2349,7 @@ interactiveTest('annotations custom popup', 'Do you see an popup when you hover 
     });
 });
 
-interactiveTest('annotations shift', 'Do you see a text annotation the remain at the correct locations while the axis shifts?', function() {
+interactiveTest('annotations shift', 'Do you see a text annotation that remains at the correct locations while the axis shifts?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -2603,17 +2603,16 @@ interactiveTest('lots of annotations', 'Does the plot still seem smooth?', funct
     }, 100);
 });
 
-interactiveTest('vertical accordion', 'Do you see a vertical accordion from 450 to 550 Hz?', function() {
+interactiveTest('vertical accordion', 'Do you see a vertical accordion that stays centered at zero as the axis shifts', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
 
+    var framesize = 500;
     var zeros = [];
-    for (var i = 0; i <= 1000; i++) {
+    for (var i = 0; i < framesize; i += 1) {
         zeros.push(0);
     }
-
-    plot.overlay_array(zeros, {});
 
     var accordion = new sigplot.AccordionPlugin({
         draw_center_line: true,
@@ -2625,37 +2624,88 @@ interactiveTest('vertical accordion', 'Do you see a vertical accordion from 450 
         }
     });
 
-    plot.add_plugin(accordion, 1);
-    accordion.set_center(500);
-    accordion.set_width(100);
-
-});
-
-interactiveTest('horizontal accordion', 'Do you see a horizontal accordion from -0.5 to 0.5?', function() {
-    var container = document.getElementById('plot');
-    var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
-
-    var zeros = [];
-    for (var i = 0; i <= 1000; i++) {
-        zeros.push(0);
-    }
-
-    plot.overlay_array(zeros, {});
-
-    var accordion = new sigplot.AccordionPlugin({
-        draw_center_line: true,
-        shade_area: true,
-        draw_edge_lines: true,
-        direction: "horizontal",
-        edge_line_style: {
-            strokeStyle: "#FF2400"
-        }
+    plot.overlay_array(zeros, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "zeros",
+        xstart: -250,
+        xdelta: 1
+    }, {
+        layerType: sigplot.Layer1D
     });
 
     plot.add_plugin(accordion, 1);
     accordion.set_center(0);
-    accordion.set_width(1);
+    accordion.set_width(50);
+
+    var xstart = -250;
+    var xstart_chng = 25;
+    ifixture.interval = window.setInterval(function() {
+        if (xstart < -450 || xstart >= -25) {
+            xstart_chng = xstart_chng * -1;
+        }
+        xstart += xstart_chng;
+        plot.reload(0, zeros, {
+            xstart: xstart
+        });
+    }, 500);
+});
+
+interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at zero and each multiple of 80, scrolling with the data?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {nogrid: true});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        autol: 5
+    });
+
+    var framesize = 128;
+    plot.overlay_pipe(
+        {type: 2000,
+            subsize: framesize,
+            file_name: "ramp",
+            ydelta: 0.25
+        },
+        {
+            drawmode: 'rising'
+        }
+    );
+
+    var acc;
+
+    var accordion = function(y) {
+        acc = new sigplot.AccordionPlugin({
+            draw_center_line: true,
+            shade_area: true,
+            draw_edge_lines: true,
+            direction: "horizontal",
+            edge_line_style: {
+                strokeStyle: "#FF2400"
+            }
+        });
+        acc.set_center(y);
+        acc.set_width(0.25 * 50);
+        return acc;
+    }
+
+    plot.add_plugin(accordion(0), 1);
+
+    var row = 0;
+    ifixture.interval = window.setInterval(function() {
+        var zeros = [];
+        for (var i = 0; i < framesize; i+= 1) {
+            zeros.push(0);
+        }
+        row += 1;
+        if (row % (80 / 0.25) === 0) {
+            var y = (row * 0.25);
+            plot.remove_plugin(acc);
+            plot.deoverlay(1);
+            plot.add_plugin(accordion(y), 1);
+        }
+        plot.push(0, zeros);
+    }, 100);
 
 });
 
@@ -2669,13 +2719,14 @@ interactiveTest('vertical accordion relative placement', "Do you see a vertical 
     });
 
     var framesize = 128;
-    plot.overlay_array({
-            type: 2000,
-            subsize: framesize,
-            file_name: "zeros",
-            xstart: -64
-        },
-        {layerType: sigplot.Layer1D});
+    plot.overlay_array(null, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "zeros",
+        xstart: -64
+    }, {
+        layerType: sigplot.Layer1D
+    });
 
     var accordion = new sigplot.AccordionPlugin({
         mode: "relative",
@@ -2711,9 +2762,9 @@ interactiveTest('vertical accordion relative placement', "Do you see a vertical 
 
 });
 
-interactiveTest('horizontal accordion relative placement', 'Do you see a horizontal accordion that does not move with the data?', function() {
+interactiveTest('horizontal accordion relative placement', "Do you see a horizontal accordion that doesn't move with the data?", function() {
     var container = document.getElementById('plot');
-    var plot = new sigplot.Plot(container, {});
+    var plot = new sigplot.Plot(container, {nogrid: true});
     notEqual(plot, null);
 
     var framesize = 128;
@@ -2721,16 +2772,18 @@ interactiveTest('horizontal accordion relative placement', 'Do you see a horizon
         autol: 5
     });
 
-    var ramp = [];
+    var zeros = [];
     for (var i = 0; i < framesize; i += 1) {
-        ramp.push(i+1);
+        zeros.push(0);
     }
 
     plot.overlay_pipe({
             type: 2000,
             subsize: framesize,
-            file_name: "ramp",
-            xstart: 0
+            file_name: "zeros"
+        },
+        {
+            drawmode: 'rising'
         });
 
     var accordion = new sigplot.AccordionPlugin({
@@ -2750,7 +2803,7 @@ interactiveTest('horizontal accordion relative placement', 'Do you see a horizon
     var count = 0;
 
     ifixture.interval = window.setInterval(function() {
-        plot.push(0, ramp);
+        plot.push(0, zeros);
     }, 100);
 });
 
