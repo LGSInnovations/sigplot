@@ -474,8 +474,6 @@
 
             qmax = mxmn.smax;
             qmin = mxmn.smin;
-            n1 = mxmn.imax;
-            n2 = mxmn.imin;
 
             var yran = qmax - qmin;
             if (yran < 0.0) {
@@ -507,7 +505,11 @@
                 }
             }
 
-            return npts;
+            return {
+                num: npts,
+                start: n1,
+                end: n2
+            };
         },
 
         draw: function() {
@@ -588,13 +590,22 @@
                 // sigplot_prep fills in this.xptr and this.yptr (both sigplot.PointArray)
                 // with the data to be plotted
 
-                var npts = this.prep(xmin, xmax);
-                if (npts > 0) {
+                var pts = this.prep(xmin, xmax);
+                if (pts.num > 0) {
                     if (segment) {
                         // TODO
                     } else {
-                        mx.trace(Mx, ic, new sigplot.PointArray(this.xptr), new sigplot.PointArray(
-                            this.yptr), npts, 1, line, symbol, rad, traceoptions);
+                        mx.trace(Mx,
+                            ic,
+                            new sigplot.PointArray(this.xptr),
+                            new sigplot.PointArray(this.yptr),
+                            pts.num,
+                            pts.start,
+                            1,
+                            line,
+                            symbol,
+                            rad,
+                            traceoptions);
                     }
                 }
 
@@ -603,7 +614,7 @@
                         xmin = xmax;
                     } else {
                         if (Gx.index) {
-                            xmin = xmin + npts;
+                            xmin = xmin + pts.num;
                         } else {
                             if (xdelta >= 0) {
                                 xmin = xmin + (this.size * xdelta);

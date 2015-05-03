@@ -1152,13 +1152,47 @@ interactiveTest('sigplot custom symbol', 'Do you see custom symbols?', function(
     }
 
     var ramp = [];
-    for (var i = 0; i < 1024; i++) {
+    for (var i = 0; i < 20; i++) {
         ramp.push(i);
     }
-    plot.overlay_href("dat/sin.tmp", null, {
+    plot.overlay_array(ramp, null, {
         name: "x",
         symbol: custom_symbol,
         line: 0
+    });
+});
+
+interactiveTest('sigplot custom symbol-line', 'Do you see custom symbols?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    function custom_symbol(ctx, i, x, y) {
+        console.log("sym", i, x, y);
+        var n = (i % 3);
+        if (n === 0) {
+            ctx.strokeStyle = "red";
+            ctx.fillStyle = "red";
+        } else if (n === 1) {
+            ctx.strokeStyle = "green";
+            ctx.fillStyle = "green";
+        } else if (n === 2) {
+            ctx.strokeStyle = "blue";
+            ctx.fillStyle = "blue";
+        }
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, 360);
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    var ramp = [];
+    for (var i = 0; i < 20; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, null, {
+        name: "x",
+        symbol: custom_symbol
     });
 });
 
