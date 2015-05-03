@@ -2687,7 +2687,9 @@ interactiveTest('vertical accordion', 'Do you see a vertical accordion that stay
 
 interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at zero and each multiple of 80, scrolling with the data?', function() {
     var container = document.getElementById('plot');
-    var plot = new sigplot.Plot(container, {nogrid: true});
+    var plot = new sigplot.Plot(container, {
+        nogrid: true
+    });
     notEqual(plot, null);
 
     plot.change_settings({
@@ -2695,16 +2697,14 @@ interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at ze
     });
 
     var framesize = 128;
-    plot.overlay_pipe(
-        {type: 2000,
-            subsize: framesize,
-            file_name: "ramp",
-            ydelta: 0.25
-        },
-        {
-            drawmode: 'rising'
-        }
-    );
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    }, {
+        drawmode: 'rising'
+    });
 
     var acc;
 
@@ -2728,7 +2728,7 @@ interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at ze
     var row = 0;
     ifixture.interval = window.setInterval(function() {
         var zeros = [];
-        for (var i = 0; i < framesize; i+= 1) {
+        for (var i = 0; i < framesize; i += 1) {
             zeros.push(0);
         }
         row += 1;
@@ -2798,7 +2798,9 @@ interactiveTest('vertical accordion relative placement', "Do you see a vertical 
 
 interactiveTest('horizontal accordion relative placement', "Do you see a horizontal accordion that doesn't move with the data?", function() {
     var container = document.getElementById('plot');
-    var plot = new sigplot.Plot(container, {nogrid: true});
+    var plot = new sigplot.Plot(container, {
+        nogrid: true
+    });
     notEqual(plot, null);
 
     var framesize = 128;
@@ -2812,13 +2814,12 @@ interactiveTest('horizontal accordion relative placement', "Do you see a horizon
     }
 
     plot.overlay_pipe({
-            type: 2000,
-            subsize: framesize,
-            file_name: "zeros"
-        },
-        {
-            drawmode: 'rising'
-        });
+        type: 2000,
+        subsize: framesize,
+        file_name: "zeros"
+    }, {
+        drawmode: 'rising'
+    });
 
     var accordion = new sigplot.AccordionPlugin({
         mode: "relative",
