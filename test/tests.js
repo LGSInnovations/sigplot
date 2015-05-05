@@ -1614,7 +1614,59 @@ interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 Ju
     notEqual(plot, null);
 
     var framesize = 128;
-    var height = 60 * 60; // one hour
+    var height = 100;
+
+    var ramp = [];
+    for (var j = 0; j < height; j += 1) {
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+    }
+
+    plot.overlay_array(ramp, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+    });
+});
+
+interactiveTest('raster (smoothing)', 'Is the following raster smoothed?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        rasterSmoothing: true
+    });
+
+    var framesize = 200;
+    var height = 100;
+
+    var ramp = [];
+    for (var j = 0; j < height; j += 1) {
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+    }
+
+    plot.overlay_array(ramp, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+    });
+});
+
+interactiveTest('raster (smart-smoothing)', 'Is the following raster smoothed until zoomed?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        rasterSmoothing: 3.0
+    });
+
+    var framesize = 200;
+    var height = 100;
 
     var ramp = [];
     for (var j = 0; j < height; j += 1) {

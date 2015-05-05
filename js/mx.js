@@ -5274,6 +5274,16 @@ window.mx = window.mx || {};
         sw = Math.max(1, sw);
         sh = Math.max(1, sh);
 
+        // See if smart smoothing is requested
+        if (typeof smoothing === "number") {
+            // calculate the ratio of displayed pixels over
+            // displayed data-points
+            var ratio = (Mx.r - Mx.l) / sw;
+            // if the ratio is greater than the smoothing value
+            // turn on smoothing
+            smoothing = (ratio <= smoothing);
+        }
+
         //render the buffered canvas onto the original canvas element
         var ctx = Mx.active_canvas.getContext("2d");
         ctx.save();
