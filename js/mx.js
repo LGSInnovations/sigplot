@@ -1932,7 +1932,7 @@ window.mx = window.mx || {};
     // When CTRL is pressed, alt_style is used
     //
     mx.rubberbox = function(Mx, func, mode, def_style, alt_style) {
-        mx.warpbox(Mx, Mx.xpos, Mx.ypos, Mx.xpos, Mx.ypos, 0, Mx.width, 0, Mx.width, func, mode, def_style, alt_style);
+        mx.warpbox(Mx, Mx.xpos, Mx.ypos, Mx.xpos, Mx.ypos, 0, Mx.width, 0, Mx.height, func, mode, def_style, alt_style);
     };
 
     /**
