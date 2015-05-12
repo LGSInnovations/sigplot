@@ -61,6 +61,7 @@
         this.center_location = undefined; // In pixels
         this.loc_1 = undefined; // In pixels
         this.loc_2 = undefined;
+        this.visible = true;
     };
 
     sigplot.AccordionPlugin.prototype = {
@@ -288,7 +289,7 @@
         },
 
         refresh: function(canvas) {
-            if (!this.plot) {
+            if (!this.plot || !this.visible) {
                 return;
             }
             if (!this.options.display) {
@@ -415,6 +416,15 @@
             }
 
 
+        },
+
+        set_visible: function(isVisible) {
+            this.visible = isVisible;
+            this.plot.redraw();
+        },
+
+        set_mode: function(mode) {
+            this.options.mode = mode;
         },
 
         dispose: function() {
