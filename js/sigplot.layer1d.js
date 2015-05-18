@@ -358,30 +358,41 @@
             var qmax = this.xmax;
             var n1, n2;
             var mxmn;
+            // xsub isn't really used yet, so it can largely be ignored
             if ((Gx.cmode === 5) || (this.xsub > 0)) {
                 if (npts <= 0) {
+                    // This is a degenerate case when there are no points
                     qmin = Gx.panxmin;
                     qmax = Gx.panxmax;
                 } else if (Gx.cmode !== 5) {
+                    // Largely unused code since xsub isn't used
                     this.xpoint = new sigplot.PointArray(this.xbuf);
                 } else if (this.cx) {
+                    // This is the pre-dominate condition
                     m.vmov(dbuf, skip, this.xpoint, 1, npts);
                 } else if (this.line !== 0) {
+                    // If we have been asked to plot Real vs. Imaginary
+                    // for real data and there is a line being drawn
+                    // we take the min x and max x and then plot it
+                    // later on against the first two ypoints...it's
+                    // not clear if this is correct or not, but since
+                    // it's a degenerate case it is tolerated
                     mxmn = m.vmxmn(dbuf, npts);
                     this.xpoint[0] = mxmn.smax;
                     this.xpoint[1] = mxmn.smin;
-                    n1 = mxmn.imax;
-                    n2 = mxmn.imin;
+                    n1 = 0;
+                    n2 = 2;
                     npts = 2;
                 } else {
+                    // Otherwise we just plot the y-values
                     this.xpoint = dbuf;
                 }
                 if (npts > 0) {
                     mxmn = m.vmxmn(this.xpoint, npts);
                     qmax = mxmn.smax;
                     qmin = mxmn.smin;
-                    n1 = mxmn.imax;
-                    n2 = mxmn.imin;
+                    n1 = 0;
+                    n2 = npts;
                 }
             } else if (npts > 0) {
                 var xstart = this.xstart;
