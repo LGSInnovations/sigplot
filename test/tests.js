@@ -20,7 +20,9 @@ function interactiveTest(testName, msg, callback) {
     if (!ifixture) return;
 
     var wrapped_callback = function() {
+        QUnit.start();
         callback();
+        QUnit.stop();
 
         var toolbar = document.getElementById("qunit-testrunner-toolbar");
         var question = document.createElement("div")
