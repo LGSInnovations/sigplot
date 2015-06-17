@@ -342,7 +342,11 @@
             var skip = this.skip;
 
             if (npts === 0) {
-                return;
+                return {
+                    num: 0,
+                    start: 0,
+                    end: 0
+                };
             }
 
             if (npts * sigplot.PointArray.BYTES_PER_ELEMENT > this.pointbufsize) {

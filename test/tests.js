@@ -1130,6 +1130,47 @@ interactiveTest('sigplot ramp', 'Do you see a sin wave?', function() {
     });
 });
 
+interactiveTest('empty array', 'Do you see a plot with two pulses?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.overlay_array([], {
+        type: 2000,
+        subsize: 1000,
+        file_name: "data1"
+    }, {
+        layerType: sigplot.Layer1D
+    });
+
+    plot.overlay_array([], {
+        type: 2000,
+        subsize: 1000,
+        file_name: "data2"
+    }, {
+        layerType: sigplot.Layer1D
+    });
+
+    var pulse1 = []
+    var pulse2 = []
+    for (var i = 0; i < 1000; i++) {
+        if ((i < 490) || (i > 510)) {
+            pulse1.push(0)
+        } else {
+            pulse1.push(10.0)
+        }
+        if ((i < 240) || (i > 260)) {
+            pulse2.push(0)
+        } else {
+            pulse2.push(10.0)
+        }
+    }
+    plot.reload(0, pulse1);
+    plot.reload(1, pulse2)
+
+
+});
+
 interactiveTest('sigplot custom symbol', 'Do you see custom symbols?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
