@@ -1820,7 +1820,7 @@ window.sigplot = window.sigplot || {};
             // And then loading a file.
             changemode(this, Gx.cmode);
 
-            if (!basefiles) {
+            if (!basefiles && !layerOptions.expand) {
                 for (var n = newlayer; n < Gx.lyr.length; n++) {
                     draw_layer(this, n);
                 }

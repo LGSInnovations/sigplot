@@ -1385,6 +1385,51 @@ interactiveTest('sigplot ytimecode', 'Do you see a timecode yaxis?', function() 
     });
 });
 
+interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        autox: 3,
+        autoy: 3,
+        cmode: "IR",
+        type: 2000,
+        xlab: 1,
+        ylab: 44,
+        expand: true
+    });
+
+    function plot2(plot) {
+        plot.overlay_array([1, 2, 2, 3, 3, 4, 4, 5], {
+            subsize: 4,
+            type: 2000,
+            format: "CD",
+            xdelta: 7.01200008392334,
+            xstart: 1435763625.898,
+            xunits: 1,
+            yunits: 44
+        }, {
+            layerType: sigplot.Layer1D,
+            expand: true
+        })
+    }
+
+    function plot1(plot) {
+        plot.overlay_array([0, 0, 1, 1, 2, 2, 3, 3], {
+            subsize: 4,
+            type: 2000,
+            format: "CD",
+            xdelta: 7.01200008392334,
+            xstart: 1435763625.898,
+            xunits: 1,
+            yunits: 44
+        }, {
+            layerType: sigplot.Layer1D,
+            expand: true
+        });
+    }
+    plot1(plot);
+    plot2(plot);
+});
+
 interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (a) vs. Time code format"?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
