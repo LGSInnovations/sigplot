@@ -269,6 +269,9 @@
             if (hdrmod) {
                 for (var k in hdrmod) {
                     this.hcb[k] = hdrmod[k];
+                    if (k === "xstart" || k === "xdelta") {
+                        axis_change = true;
+                    }
                 }
             }
             this.hcb.setData(data);

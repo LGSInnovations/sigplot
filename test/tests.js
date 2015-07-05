@@ -1449,6 +1449,46 @@ interactiveTest('reload', 'Do you see a pulse scrolling right?', function() {
     }, 100);
 });
 
+interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimecode axis?', function() {
+    var epochDelta = 631152000000.0;
+    var currentTime = (new Date().getTime() + epochDelta) / 1000;
+
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var pulse = [];
+    var pulse_width = 5;
+    var pulse_position = 0;
+    for (var i = 0; i < 1000; i++) {
+        if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+            pulse.push(10.0);
+        } else {
+            pulse.push(-10.0);
+        }
+    }
+    plot.overlay_array(pulse, {
+        type: 1000,
+        xstart: currentTime,
+        xunits: 4
+    });
+
+    ifixture.interval = window.setInterval(function() {
+        pulse_position = (pulse_position + 1) % 1000;
+        for (var i = 0; i < 1000; i++) {
+            if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+                pulse[i] = 10.0;
+            } else {
+                pulse[i] = -10.0;
+            }
+        }
+        currentTime = currentTime + 1
+        plot.reload(0, pulse, {
+            xstart: currentTime
+        });
+    }, 100);
+});
+
 interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
