@@ -2960,7 +2960,9 @@ window.mx = window.mx || {};
                             i = Math.max(iscl + itexti, i);
                             i = Math.min(iscr - itexti, i);
                         }
-                        mx.text(Mx, i - itexti, jtext, xlbl);
+                        if (i - itexti >= 0) {
+                            mx.text(Mx, i - itexti, jtext, xlbl);
+                        }
                     }
                 } else if (x === xTIC.dtic1) {
                     if (xtimecode) {
