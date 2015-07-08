@@ -1058,6 +1058,40 @@ test('sigplot change raster LPS', function() {
     strictEqual(plot.get_layer(0).lps, 200);
 });
 
+test('Add and remove plugins', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var zeros = [];
+    for (var i = 0; i <= 128; i += 1) {
+        zeros.push(0.0);
+    }
+
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 128,
+        lps: 100,
+        pipe: true
+    });
+
+    var accordion = new sigplot.AccordionPlugin({
+        draw_center_line: true,
+        shade_area: true,
+        draw_edge_lines: true,
+        direction: "vertical",
+        edge_line_style: {
+            strokeStyle: "#FF2400"
+        }
+    });
+
+    equal(plot._Gx.plugins.length, 0, "Expected zero plugins");
+    plot.add_plugin(accordion, 1);
+    equal(plot._Gx.plugins.length, 1, "Expected one plugin");
+    plot.remove_plugin(accordion);
+    equal(plot._Gx.plugins.length, 0, "Expected zero plugins");
+});
+
 QUnit.module('sigplot-interactive', {
     setup: function() {
         ifixture.innerHTML = '';
@@ -1495,7 +1529,7 @@ interactiveTest('reload', 'Do you see a pulse scrolling right?', function() {
 });
 
 interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimecode axis?', function() {
-    var epochDelta = 631152000000.0;
+    var epochDelta = (20.0 * 365.0 + 5.0) * (24 * 3600 * 1000);
     var currentTime = (new Date().getTime() + epochDelta) / 1000;
 
     var container = document.getElementById('plot');
@@ -1527,9 +1561,9 @@ interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimeco
                 pulse[i] = -10.0;
             }
         }
-        currentTime = currentTime + 1
+        currentTime = (new Date().getTime() + epochDelta) / 1000;
         plot.reload(0, pulse, {
-            xstart: currentTime
+            xstart: currentTime + 1
         });
     }, 100);
 });

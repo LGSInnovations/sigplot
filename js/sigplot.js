@@ -1098,7 +1098,8 @@ window.sigplot = window.sigplot || {};
          *            the plugin object
          */
         remove_plugin: function(plugin) {
-            for (var i = 0; i < this._Gx.plugins.length; i++) {
+            var i = this._Gx.plugins.length;
+            while (i--) {
                 if (this._Gx.plugins[i].impl === plugin) {
                     if (plugin.dispose) {
                         plugin.dispose();
@@ -1106,6 +1107,7 @@ window.sigplot = window.sigplot || {};
                     if (this._Gx.plugins[i].canvas.parentNode) {
                         this._Gx.plugins[i].canvas.parentNode.removeElement(this._Gx.plugins[i].canvas);
                     }
+                    this._Gx.plugins.splice(i, 1);
                 }
             }
             this._Gx.plugins.sort(function(a, b) {
