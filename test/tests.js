@@ -1603,6 +1603,36 @@ interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)
     }, 100);
 });
 
+interactiveTest('zoom-xdelta', 'Does this look correct?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1000; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        type: 1000,
+        xstart: -500
+    });
+
+    plot.zoom({
+        x: -250,
+        y: 5
+    }, {
+        x: 250,
+        y: -5
+    })
+
+    plot.reload(0, ramp, {
+        xstart: 0,
+        xdelta: 50
+    });
+
+    plot.unzoom()
+});
+
 interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis shifts?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});

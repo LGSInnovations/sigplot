@@ -2129,6 +2129,13 @@ window.sigplot = window.sigplot || {};
                 Mx.level = Mx.stk.length - 1;
                 levels -= 1;
             }
+
+            // If we are back at level 0, then
+            // rescale
+            if (Mx.level === 0) {
+                this.rescale();
+            }
+
             // After any unzooms you can no longer remain in
             // continuous zoom
             Gx.inContinuousZoom = false;
