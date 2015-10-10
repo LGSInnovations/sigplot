@@ -195,6 +195,12 @@ window.sigplot = window.sigplot || {};
      *            "zoom" (default) = zoom to the selected area "box" = trigger
      *            an mtag action on the selected area
      *
+     * @param {String}
+     *            options.rightclick_rubberbox_mode controls the behavior of the rubberbox
+     *            "zoom" = zoom to the selected area "box" = trigger
+     *            an mtag action on the selected area.  By default is null to disable
+     *            right-click boxes
+     *
      * @param {Number}
      *            options.line the line type to draw 0 = None, 1 = Verticals, 2 =
      *            Horizontals, 3 (default) = Connecting
@@ -515,7 +521,7 @@ window.sigplot = window.sigplot || {};
                         }
                     }
                 } else { // Mouse not in a pan region, handle other cases
-                    if (event.which === 1) {
+                    if (event.which === 1 || event.which === 3) {
                         var lButtonPressed = false;
                         if (Gx.legendBtnLocation) {
                             lButtonPressed = coordsInRectangle(Mx.xpos,
@@ -530,18 +536,6 @@ window.sigplot = window.sigplot || {};
                                 legend: !Gx.legend
                             }); // toggle the legend
                         } else {
-                            // In normal sigplot a mark is not set when drawing a
-                            // box
-                            // but it seems useful to have the specs dx and dy
-                            // show you
-                            // how big your zoom box is...so this implementation
-                            // sets the
-                            // mark on mousedown....
-                            //
-                            // TODO - reset the marks to their original values
-                            // after the zoom is complete
-                            Gx.xmrk = Gx.retx;
-                            Gx.ymrk = Gx.rety;
                             display_specs(plot);
 
                             // Styles for rubberbox
@@ -556,27 +550,33 @@ window.sigplot = window.sigplot || {};
                                 return_value: "select"
                             };
 
-                            if (Gx.default_rubberbox_action === "zoom") {
-                                mx.rubberbox(Mx, rubberbox_cb(plot),
-                                    Gx.default_rubberbox_mode, zoom_style,
-                                    select_style);
-                            } else if (Gx.default_rubberbox_action === "select") {
-                                mx.rubberbox(Mx, rubberbox_cb(plot),
-                                    Gx.default_rubberbox_mode,
-                                    select_style, zoom_style);
-                            } // otherwise rubber-box is considered disabled
-
-                            if (Gx.always_show_marker || Gx.show_marker) {
-                                plot.redraw();
+                            if (event.which === 1) {
+                                if (Gx.default_rubberbox_action === "zoom") {
+                                    mx.rubberbox(Mx, rubberbox_cb(plot, event.which),
+                                        Gx.default_rubberbox_mode, zoom_style,
+                                        select_style);
+                                } else if (Gx.default_rubberbox_action === "select") {
+                                    mx.rubberbox(Mx, rubberbox_cb(plot, event.which),
+                                        Gx.default_rubberbox_mode,
+                                        select_style, zoom_style);
+                                } // otherwise rubber-box is considered disabled
+                            } else if (event.which === 3) {
+                                if (Gx.default_rightclick_rubberbox_action === "zoom") {
+                                    mx.rubberbox(Mx, rubberbox_cb(plot, event.which),
+                                        Gx.default_rightclick_rubberbox_mode, zoom_style,
+                                        select_style);
+                                } else if (Gx.default_rightclick_rubberbox_action === "select") {
+                                    mx.rubberbox(Mx, rubberbox_cb(plot, event.which),
+                                        Gx.default_rightclick_rubberbox_mode,
+                                        select_style, zoom_style);
+                                } // otherwise right-click rubber-box is considered disabled
                             }
                         }
                     } else if (event.which === 2) {
                         if (!Gx.nomenu) {
                             sigplot_mainmenu(plot);
                         }
-                    } // else if (event.which === 3) {
-                    // Nothing yet
-                    //}
+                    }
                 }
                 return false;
             };
@@ -626,10 +626,15 @@ window.sigplot = window.sigplot || {};
 
         this.mouseup = (function(plot) {
             return function(event) {
-                event.preventDefault(); // mouse down on the canvas should never do a browser default action
+                event.preventDefault(); // mouse up on the canvas should never do a browser default action
 
                 var Gx = plot._Gx;
                 var Mx = plot._Mx;
+
+                if (Mx.warpbox) {
+                    // if we are in a warpbox, it will handle the mouseup
+                    return;
+                }
 
                 // Update Mx event fields
                 mx.ifevent(plot._Mx, event);
@@ -642,14 +647,37 @@ window.sigplot = window.sigplot || {};
                 evt.y = Gx.rety;
                 evt.which = event.which;
                 var executeDefault = mx.dispatchEvent(Mx, evt);
-                if (executeDefault) {
-                    if (event.which === 3) { // unzoom only happens on
-                        // right-clicks on plot
-                        // unzoom/expand
-                        event.preventDefault();
 
-                        plot.unzoom(1);
-                        plot.refresh();
+                if (executeDefault) {
+                    if (event.which === 1) {
+                        // If we are in the pan region, perform the pan
+                        // otherwise emit an mtag
+                        var inCenter = inPanCenterRegion(plot);
+                        if (inCenter.inCenterRegion) {
+                            if (inCenter.command !== ' ') {
+                                pan(plot, inCenter.command, 0, event); // pan
+                            }
+                        } else if (Gx.cntrls === 1) {
+                            // Update the mark
+                            Gx.xmrk = Gx.retx;
+                            Gx.ymrk = Gx.rety;
+
+                            var mtagevt = document.createEvent('Event');
+                            mtagevt.initEvent('mtag', true, true);
+                            mtagevt.x = Gx.xmrk;
+                            mtagevt.y = Gx.ymrk;
+                            mtagevt.xpos = event.x || event.clientX;
+                            mtagevt.ypos = event.y || event.clientY;
+                            mtagevt.w = undefined;
+                            mtagevt.h = undefined;
+                            mtagevt.shift = event.shiftKey;
+                            mx.dispatchEvent(Mx, mtagevt);
+
+                            // Refresh to draw the new marker position
+                            if (Gx.always_show_marker || Gx.show_marker) {
+                                plot.redraw();
+                            }
+                        }
                     } else if (event.which === 2) {
                         if (Gx.nomenu) {
                             // Send an event so that a custom menu can be displayed
@@ -681,6 +709,13 @@ window.sigplot = window.sigplot || {};
                                 document.addEventListener("mouseup", emit_hidemenu, false);
                             }
                         }
+                    } else if (event.which === 3) { // unzoom only happens on
+                        // right-clicks on plot
+                        // unzoom/expand
+                        event.preventDefault();
+
+                        plot.unzoom(1);
+                        plot.refresh();
                     }
                 }
 
@@ -1197,6 +1232,12 @@ window.sigplot = window.sigplot || {};
          *            settings.rubberbox_mode
          *
          * @param {String}
+         *            settings.rightclick_rubberbox_action
+         *
+         * @param {String}
+         *            settings.rightclick_rubberbox_mode
+         *
+         * @param {String}
          *            settings.wheelscroll_mode_natural
          *
          * @param {String}
@@ -1387,6 +1428,14 @@ window.sigplot = window.sigplot || {};
 
             if (settings.rubberbox_mode !== undefined) {
                 Gx.default_rubberbox_mode = settings.rubberbox_mode;
+            }
+
+            if (settings.rightclick_rubberbox_action !== undefined) {
+                Gx.default_rightclick_rubberbox_action = settings.rightclick_rubberbox_action;
+            }
+
+            if (settings.rightclick_rubberbox_mode !== undefined) {
+                Gx.default_rightclick_rubberbox_mode = settings.rightclick_rubberbox_mode;
             }
 
             if (settings.wheelscroll_mode_natural !== undefined) {
@@ -3436,9 +3485,27 @@ window.sigplot = window.sigplot || {};
                             }
                         }, {
                             text: "LM Drag (Disabled)",
-                            checked: Gx.default_rubberbox_action === undefined,
+                            checked: Gx.default_rubberbox_action === null,
                             handler: function() {
-                                Gx.default_rubberbox_action = undefined;
+                                Gx.default_rubberbox_action = null;
+                            }
+                        }, {
+                            text: "RM Drag (Zoom)",
+                            checked: Gx.default_rightclick_rubberbox_action === "zoom",
+                            handler: function() {
+                                Gx.default_rightclick_rubberbox_action = "zoom";
+                            }
+                        }, {
+                            text: "RM Drag (Select)",
+                            checked: Gx.default_rightclick_rubberbox_action === "select",
+                            handler: function() {
+                                Gx.default_rightclick_rubberbox_action = "select";
+                            }
+                        }, {
+                            text: "RM Drag (Disabled)",
+                            checked: Gx.default_rightclick_rubberbox_action === null,
+                            handler: function() {
+                                Gx.default_rightclick_rubberbox_action = null;
                             }
                         }, {
                             text: "Mode...",
@@ -4399,7 +4466,7 @@ window.sigplot = window.sigplot || {};
      * @memberOf sigplot
      * @private
      */
-    function rubberbox_cb(plot) {
+    function rubberbox_cb(plot, triggerEvent) {
         return function(event, xo, yo, xl, yl, action, mode) {
             var Gx = plot._Gx;
             var Mx = plot._Mx;
@@ -4409,61 +4476,46 @@ window.sigplot = window.sigplot || {};
             var w = Math.abs(xl - xo);
             var h = Math.abs(yl - yo);
 
-            if ((action === undefined) || (action === "zoom")) {
-                if (event.which === 1) {
-                    // On some browsers, a click will actually be sent as
-                    // mousedown/mousemove/mouseup so
-                    // don't make insanely small zooms...instead treat them as a
-                    // click
-                    var isZoom = false;
-                    if (mode === "horizontal") {
-                        isZoom = (w > 2);
-                    } else if (mode === "vertical") {
-                        isZoom = (h > 2);
-                    } else {
-                        isZoom = ((w > 2) && (h > 2));
-                    }
-                    if (!isZoom) {
-                        var inCenter = inPanCenterRegion(plot);
-                        if (inCenter.inCenterRegion) {
-                            // console.log("!!!MOUSEUP in
-                            // PAN_CENTER_REGION!!!");
-                            // event.preventDefault(); // TODO Necessary?
-                            if (inCenter.command !== ' ') {
-                                pan(plot, inCenter.command, 0, event); // pan
-                            }
-                        } else if (Gx.cntrls === 1) {
-                            var evt = document.createEvent('Event');
-                            evt.initEvent('mtag', true, true);
-                            evt.x = Gx.xmrk;
-                            evt.y = Gx.ymrk;
-                            evt.xpos = x;
-                            evt.ypos = y;
-                            evt.w = undefined;
-                            evt.h = undefined;
-                            evt.shift = event.shiftKey;
-                            mx.dispatchEvent(Mx, evt);
-                        }
-                        return;
-                    }
+            var takeAction = false;
+            if (event.which === triggerEvent) {
+                // On some browsers, a click will actually be sent as
+                // mousedown/mousemove/mouseup so
+                // don't make insanely small zooms...instead treat them as a
+                // click
+                if (mode === "horizontal") {
+                    takeAction = (w > 2);
+                } else if (mode === "vertical") {
+                    takeAction = (h > 2);
+                } else {
+                    takeAction = ((w > 2) && (h > 2));
+                }
+            }
+
+            if (!takeAction) {
+                // The mouse didn't shift enough to be considered
+                // as a rubberbox action so treat it as mouseup
+                plot.mouseup(event);
+            } else {
+                // action === null is disabled, but undefined is default
+                if ((action === undefined) || (action === "zoom")) {
                     plot.pixel_zoom(xo, yo, xl, yl);
                     plot.refresh();
+                } else if (action === "select") {
+                    var evt = document.createEvent('Event');
+                    evt.initEvent('mtag', true, true);
+                    var re = pixel_to_real(plot, x, y);
+                    var rwh = pixel_to_real(plot, x + w, y + h);
+                    evt.x = re.x;
+                    evt.y = re.y;
+                    evt.xpos = x;
+                    evt.ypos = y;
+                    evt.w = Math.abs(rwh.x - re.x);
+                    evt.h = Math.abs(rwh.y - re.y);
+                    evt.wpxl = w;
+                    evt.hpxl = h;
+                    evt.shift = event.shiftKey;
+                    mx.dispatchEvent(Mx, evt);
                 }
-            } else if (action === "select") {
-                var evt = document.createEvent('Event');
-                evt.initEvent('mtag', true, true);
-                var re = pixel_to_real(plot, x, y);
-                var rwh = pixel_to_real(plot, x + w, y + h);
-                evt.x = re.x;
-                evt.y = re.y;
-                evt.xpos = x;
-                evt.ypos = y;
-                evt.w = Math.abs(rwh.x - re.x);
-                evt.h = Math.abs(rwh.y - re.y);
-                evt.wpxl = w;
-                evt.hpxl = h;
-                evt.shift = event.shiftKey;
-                mx.dispatchEvent(Mx, evt);
             }
         };
     }
@@ -4751,6 +4803,8 @@ window.sigplot = window.sigplot || {};
 
         Gx.default_rubberbox_mode = o.rubberbox_mode === undefined ? "box" : o.rubberbox_mode;
         Gx.default_rubberbox_action = o.rubberbox_action === undefined ? "zoom" : o.rubberbox_action;
+        Gx.default_rightclick_rubberbox_mode = o.rightclick_rubberbox_mode === undefined ? "box" : o.rightclick_rubberbox_mode;
+        Gx.default_rightclick_rubberbox_action = o.rightclick_rubberbox_action === undefined ? null : o.rightclick_rubberbox_action;
 
         Gx.cross = o.cross === undefined ? false : o.cross;
         Gx.grid = o.nogrid === undefined ? true : !o.nogrid;
@@ -5770,10 +5824,20 @@ window.sigplot = window.sigplot || {};
         // transform into realworld coordinates
         // is already done by the mousemove listener
         // adjust for abscissa mode
-        Gx.aretx = Gx.retx;
-        Gx.arety = Gx.rety;
-        Gx.dretx = Gx.retx - Gx.xmrk;
-        Gx.drety = Gx.rety - Gx.ymrk;
+        if (Mx.warpbox) {
+            var re = pixel_to_real(plot, Mx.warpbox.xo, Mx.warpbox.yo);
+            var rwh = pixel_to_real(plot, Mx.warpbox.xl, Mx.warpbox.yl);
+
+            Gx.aretx = re.x;
+            Gx.arety = re.y;
+            Gx.dretx = rwh.x - re.x;
+            Gx.drety = rwh.y - re.y;
+        } else {
+            Gx.aretx = Gx.retx;
+            Gx.arety = Gx.rety;
+            Gx.dretx = Gx.retx - Gx.xmrk;
+            Gx.drety = Gx.rety - Gx.ymrk;
+        }
 
         if ((Gx.cmode === 5) && (Gx.iabsc === 1)) {
             Gx.iabsc = 2;

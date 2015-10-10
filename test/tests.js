@@ -3302,3 +3302,35 @@ interactiveTest('clear boxes', 'Do you see one box?', function() {
     }, 1000)
 
 });
+
+interactiveTest('right-click zoom', 'Can you zoom with right-click and mark with left-click?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        rightclick_rubberbox_action: "zoom",
+        rubberbox_action: null,
+        always_show_marker: true
+    });
+    notEqual(plot, null);
+
+});
+
+interactiveTest('right-click select', 'Can you select with right-click, zoom with left-click, and mark with left-click?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        rightclick_rubberbox_action: "select",
+        rightclick_rubberbox_mode: "horizontal",
+        rubberbox_action: "zoom",
+        always_show_marker: true
+    });
+    notEqual(plot, null);
+
+});
+
+interactiveTest('zoom-keep-marker', 'Does zooming not change the marker, but shows box size in the specs area?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        always_show_marker: true
+    });
+    notEqual(plot, null);
+
+});

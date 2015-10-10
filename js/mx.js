@@ -299,7 +299,7 @@ window.mx = window.mx || {};
                     var old_warpbox = Mx.warpbox;
                     Mx.warpbox = undefined;
 
-                    if (event.which === 1) {
+                    if (event.which === 1 || event.which === 3) {
                         if (old_warpbox.func) {
                             var xo = old_warpbox.xo;
                             var yo = old_warpbox.yo;
