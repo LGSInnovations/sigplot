@@ -2586,7 +2586,8 @@ interactiveTest('annotations', 'Do you see a text annotation at the correct loca
         value: "0.5,-0.5 (small green)",
         color: "green",
         font: "15px monospace",
-        popup: "e"
+        popup: "e",
+        popupTextColor: "red"
     });
 
 });

@@ -303,7 +303,7 @@
 
 
                     if (annotation.highlight && annotation.popup) {
-                        mx.render_message_box(Mx, annotation.popup, pxl.x + 5, pxl.y + 5);
+                        mx.render_message_box(Mx, annotation.popup, pxl.x + 5, pxl.y + 5, annotation.popupTextColor);
                     }
                 }
 

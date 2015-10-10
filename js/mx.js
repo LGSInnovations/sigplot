@@ -2285,7 +2285,7 @@ window.mx = window.mx || {};
         });
     };
 
-    mx.render_message_box = function(Mx, msg, xpos, ypos) {
+    mx.render_message_box = function(Mx, msg, xpos, ypos, textColor) {
         var GBorder = 3;
 
         // Unlike MX$MESSAGE, this implementaion if the message
@@ -2394,7 +2394,7 @@ window.mx = window.mx || {};
             if (center) {
                 i = xc + xs / 2 - ((beg[cur].length * Mx.text_w) / 2);
             }
-            mx.text(Mx, i, j, beg[cur]);
+            mx.text(Mx, i, j, beg[cur], textColor);
             cur++;
         }
     };
