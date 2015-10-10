@@ -3209,3 +3209,49 @@ interactiveTest('horizontal and vertical accordions relative placement zoom', 'D
     horiz_accordion.set_width(0.1);
 
 });
+
+interactiveTest('boxes', 'Do you see a boxes?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var boxes = new sigplot.BoxesPlugin();
+    plot.add_plugin(boxes);
+
+    boxes.add_box({
+        x: 0,
+        y: 0,
+        w: .1,
+        h: .1,
+        text: "0,0"
+    });
+
+    boxes.add_box({
+        x: 0.5,
+        y: 0.5,
+        w: .1,
+        h: .1,
+        text: "0.5,0.5",
+        fill: true
+    });
+
+    boxes.add_box({
+        x: -0.5,
+        y: -0.5,
+        w: .1,
+        h: .1,
+        text: "-0.5,-0.5",
+        fillStyle: "green"
+    });
+
+    boxes.add_box({
+        x: 0.5,
+        y: -0.5,
+        w: .1,
+        h: .1,
+        text: "0.5,-0.5",
+        fillStyle: "red",
+        alpha: 0.25
+    });
+
+});

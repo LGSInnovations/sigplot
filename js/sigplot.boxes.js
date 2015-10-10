@@ -120,6 +120,12 @@
                     y += 0.5;
                 }
 
+                if (box.fillStyle || box.fill) {
+                    ctx.globalAlpha = box.alpha || 0.5;
+                    ctx.fillStyle = box.fillStyle || ctx.strokeStyle;
+                    ctx.fillRect(x, y, w, h);
+                    ctx.globalAlpha = 1;
+                }
                 ctx.strokeRect(x,
                     y,
                     w,
