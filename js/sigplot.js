@@ -4872,15 +4872,17 @@ window.sigplot = window.sigplot || {};
             var plugin = Gx.plugins[plugin_index].impl;
             if (plugin.refresh) {
                 canvas = Gx.plugins[plugin_index].canvas;
-                if (canvas.width !== plot._Mx.canvas.width) {
-                    canvas.width = plot._Mx.canvas.width;
+                if (canvas.height !== 0 && canvas.width !== 0) {
+                    if (canvas.width !== plot._Mx.canvas.width) {
+                        canvas.width = plot._Mx.canvas.width;
+                    }
+                    if (canvas.height !== plot._Mx.canvas.height) {
+                        canvas.height = plot._Mx.canvas.height;
+                    }
+                    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+                    Gx.plugins[plugin_index].impl.refresh(canvas);
+                    ctx.drawImage(canvas, 0, 0);
                 }
-                if (canvas.height !== plot._Mx.canvas.height) {
-                    canvas.height = plot._Mx.canvas.height;
-                }
-                canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-                Gx.plugins[plugin_index].impl.refresh(canvas);
-                ctx.drawImage(canvas, 0, 0);
             }
             plugin_index = plugin_index + 1;
         }
