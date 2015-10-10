@@ -78,6 +78,11 @@
             return this.boxes.length;
         },
 
+        clear_boxes: function() {
+            this.boxes = [];
+            this.plot.redraw();
+        },
+
         refresh: function(canvas) {
             if (!this.options.display) {
                 return;

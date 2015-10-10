@@ -3255,3 +3255,33 @@ interactiveTest('boxes', 'Do you see a boxes?', function() {
     });
 
 });
+
+interactiveTest('clear boxes', 'Do you see one box?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var boxes = new sigplot.BoxesPlugin();
+    plot.add_plugin(boxes);
+
+    boxes.add_box({
+        x: 0,
+        y: 0,
+        w: .1,
+        h: .1,
+        text: "I should be gone soon..."
+    });
+
+    window.setTimeout(function() {
+        boxes.clear_boxes();
+        boxes.add_box({
+            x: 0.5,
+            y: 0.5,
+            w: .1,
+            h: .1,
+            text: "You should see me",
+        });
+
+    }, 1000)
+
+});
