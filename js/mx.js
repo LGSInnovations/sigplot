@@ -2983,7 +2983,7 @@ window.mx = window.mx || {};
         }
 
         // Add y-tick marks
-        if (flags.yonright) {
+        if (flags.yonright) { // TODO - yonright probably doesn't work
             if (flags.inside) {
                 itext = Math.min(iscr - 6 * Mx.text_w, Mx.width - 5 * Mx.text_w);
             } else {
