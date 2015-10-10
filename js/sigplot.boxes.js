@@ -165,7 +165,7 @@
 
         dispose: function() {
             this.plot = undefined;
-            this.boxes = undefined;
+            this.boxes = [];
         }
     };
 
