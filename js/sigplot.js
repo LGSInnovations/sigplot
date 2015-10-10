@@ -2363,9 +2363,22 @@ window.sigplot = window.sigplot || {};
             Gx.pthk = Mx.text_w * 1.5;
 
             if (Gx.specs) {
+                var ytimecode = false;
+                if (Gx.ylab === 4) { //time-based tics
+                    ytimecode = true;
+                }
                 // Set left and right edges
                 if (Gx.show_y_axis === true) {
                     Mx.l = Mx.text_w * 6;
+                    if (ytimecode) {
+                        // If we are in ytimecode, determine if we need the extra
+                        // space to hold the entire YYYY:MM:DD
+                        var need_full_ymd = ((Math.abs(Mx.stk[0].ymin) >= 31536000) ||
+                            (Math.abs(Mx.stk[0].ymax) >= 31536000));
+                        if (need_full_ymd) {
+                            Mx.l = Mx.text_w * 11;
+                        }
+                    }
                 } else {
                     Mx.l = 1;
                 }

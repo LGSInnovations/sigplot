@@ -1419,6 +1419,23 @@ interactiveTest('sigplot ytimecode', 'Do you see a timecode yaxis?', function() 
     });
 });
 
+interactiveTest('sigplot ytimecode w/dates', 'Do you see a timecode yaxis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    var now = Date.now() / 1000;
+    for (var i = now; i < now + 2000; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        file_name: "ramp",
+        format: "SF",
+        yunits: 4
+    });
+});
+
 interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {

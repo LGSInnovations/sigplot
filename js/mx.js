@@ -2993,7 +2993,7 @@ window.mx = window.mx || {};
             if (flags.inside) {
                 itext = Math.max(0, iscl + Mx.text_w);
             } else {
-                itext = Math.max(0, Math.floor(iscl - 5.5 * Mx.text_w));
+                itext = Math.max(0, Math.floor(iscl - (Mx.l - 0.5) * Mx.text_w));
             }
         }
         jtext = 0.4 * Mx.text_h;
