@@ -55,9 +55,9 @@
             }(this));
 
             return {
-                text: "Annotations...",
+                text: "Boxes...",
                 menu: {
-                    title: "ANNOTATIONS",
+                    title: "BOXES",
                     items: [{
                         text: "Display",
                         checked: this.options.display,
