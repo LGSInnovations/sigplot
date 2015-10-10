@@ -174,7 +174,7 @@
      */
     var _applySupportsTypedArray = true;
     try {
-        var uintbuf = new UInt8Array(new ArrayBuffer(4));
+        var uintbuf = new Uint8Array(new ArrayBuffer(4));
         uintbuf[0] = 66;
         uintbuf[1] = 76;
         uintbuf[2] = 85;
