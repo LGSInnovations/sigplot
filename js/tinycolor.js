@@ -1020,19 +1020,6 @@
         return false;
     }
 
-    // Node: Export function
-    if (typeof module !== "undefined" && module.exports) {
-        module.exports = tinycolor;
-    }
-    // AMD/requirejs: Define the module
-    else if (typeof define !== "undefined") {
-        define(function() {
-            return tinycolor;
-        });
-    }
-    // Browser: Expose to window
-    else {
-        root.tinycolor = tinycolor;
-    }
+    root.tinycolor = tinycolor;
 
 })(this);
