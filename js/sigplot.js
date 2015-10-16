@@ -1604,7 +1604,7 @@ window.sigplot = window.sigplot || {};
          * @param {Object} hdrmod
          *            optional changes to the file header
          */
-        reload: function(n, data, hdrmod) {
+        reload: function(n, data, hdrmod, rsync) {
             var Mx = this._Mx;
             var Gx = this._Gx;
             if ((n < 0) || (n >= Gx.lyr.length)) {
@@ -1625,7 +1625,11 @@ window.sigplot = window.sigplot || {};
                 }, xbnds.xmin, xbnds.xmax);
             }
 
-            this.refresh();
+            if (rsync) {
+                this._refresh();
+            } else {
+                this.refresh();
+            }
 
         },
 
