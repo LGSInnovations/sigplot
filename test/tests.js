@@ -97,6 +97,14 @@ QUnit.module('mx', {
     teardown: function() {}
 });
 
+test('mx format_f', function() {
+    // the toFixed() function is limited to 0-20
+    equal(mx.format_f(1.0, 0, -1), "1");
+    equal(mx.format_f(1.0, 0, 21), "1.00000000000000000000");
+    equal(mx.format_f(1.0, 0, 1), "1.0");
+    equal(mx.format_f(1.0, 0, 20), "1.00000000000000000000");
+});
+
 test('mx real_to_pixel test', function() {
     var Mx = {
         origin: 1,

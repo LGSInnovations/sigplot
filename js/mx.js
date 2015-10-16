@@ -4112,12 +4112,13 @@ window.mx = window.mx || {};
      *
      * Behave like fortran format code
      * fs.d
-     * @param num
-     * @param s
-     * @param d
+     * @param num the number to format
+     * @param s the width of digits
+     * @param d number of digits after the decimal
      * @private
      */
     mx.format_f = function(num, s, d) {
+        d = Math.max(Math.min(d, 20), 0);
         var f = num.toFixed(d).toString();
         f = mx.pad(f, (s + d), " ");
         return f;
