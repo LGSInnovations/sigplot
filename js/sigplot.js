@@ -1856,7 +1856,13 @@ window.sigplot = window.sigplot || {};
                     sigplot.Layer2D.overlay(this, hcb, layerOptions);
                 }
             } else {
-                layerOptions.layerType.overlay(this, hcb, layerOptions);
+                if (layerOptions.layerType === "1D") {
+                    sigplot.Layer1D.overlay(this, hcb, layerOptions);
+                } else if (layerOptions.layerType === "2D") {
+                    sigplot.Layer2D.overlay(this, hcb, layerOptions);
+                } else {
+                    layerOptions.layerType.overlay(this, hcb, layerOptions);
+                }
             }
 
             // TODO - do we want to alert like the XM plot did?
