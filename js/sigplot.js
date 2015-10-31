@@ -4949,6 +4949,16 @@ window.sigplot = window.sigplot || {};
             var plugin = Gx.plugins[plugin_index].impl;
             if (plugin.refresh) {
                 canvas = Gx.plugins[plugin_index].canvas;
+
+                // Ensure the plugin canvas has the same size as the plot
+                if (canvas.width !== plot._Mx.canvas.width) {
+                    canvas.width = plot._Mx.canvas.width;
+                }
+                if (canvas.height !== plot._Mx.canvas.height) {
+                    canvas.height = plot._Mx.canvas.height;
+                }
+
+                // If the plugin canvas is visible, draw it
                 if (canvas.height !== 0 && canvas.width !== 0) {
                     if (canvas.width !== plot._Mx.canvas.width) {
                         canvas.width = plot._Mx.canvas.width;
