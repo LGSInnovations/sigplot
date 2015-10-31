@@ -1100,6 +1100,60 @@ test('Add and remove plugins', function() {
     equal(plot._Gx.plugins.length, 0, "Expected zero plugins");
 });
 
+test('Plugins still exist after plot and canvas height and width are 0', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.change_settings({
+        xmin: -4,
+        xmax: 10
+    });
+
+    var positions = [0.0, 5.0, 9.0, 3.0];
+    for (var pos = 0; pos < positions.length; ++pos) {
+        var slider = new sigplot.SliderPlugin({
+            style: {
+                strokeStyle: "#FF0000"
+            }
+        });
+        plot.add_plugin(slider, 1);
+        slider.set_position(positions[pos]);
+    }
+
+    plot.checkresize();
+
+    equal(plot._Gx.plugins.length, 4, "Expected 4 slider plugins");
+    equal(plot._Mx.canvas.height, container.clientHeight, "Expected plot canvas height to be container width");
+    equal(plot._Mx.canvas.width, container.clientWidth, "Expected plot canvas width to be container height");
+    for (var pos = 0; pos < positions.length; ++pos) {
+        equal(plot._Gx.plugins[pos].canvas.height, plot._Mx.canvas.height, "Expected #" + pos + " slider plugin height to be plot height");
+        equal(plot._Gx.plugins[pos].canvas.width, plot._Mx.canvas.width, "Expected #" + pos + " slider plugin width to be plot width");
+    }
+
+    container.style.display = "none";
+    plot.checkresize();
+    plot._refresh(); // force syncronous refresh
+    equal(plot._Mx.canvas.height, 0, "Expected plot canvas height to be 0");
+    equal(plot._Mx.canvas.width, 0, "Expected plot canvas width to be 0");
+
+    for (var pos = 0; pos < positions.length; ++pos) {
+        equal(plot._Gx.plugins[pos].canvas.height, 0, "Expected #" + pos + " slider plugin height to be 0");
+        equal(plot._Gx.plugins[pos].canvas.width, 0, "Expected #" + pos + " slider plugin width to be 0");
+    }
+
+    container.style.display = "block";
+    plot.checkresize();
+    plot._refresh(); // force syncronous refresh
+    equal(plot._Mx.canvas.height, container.clientHeight, "Expected plot canvas height to be container width");
+    equal(plot._Mx.canvas.width, container.clientWidth, "Expected plot canvas width to be container height");
+
+    for (var pos = 0; pos < positions.length; ++pos) {
+        equal(plot._Gx.plugins[pos].canvas.height, plot._Mx.canvas.height, "Expected #" + pos + " slider plugin height to be plot height");
+        equal(plot._Gx.plugins[pos].canvas.width, plot._Mx.canvas.width, "Expected #" + pos + " slider plugin width to be plot width");
+    }
+});
+
 QUnit.module('sigplot-interactive', {
     setup: function() {
         ifixture.innerHTML = '';
