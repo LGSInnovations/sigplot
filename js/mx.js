@@ -1476,11 +1476,6 @@ window.mx = window.mx || {};
             var colors;
             if ((options) && (options.highlight)) {
                 colors = [];
-                colors.push({
-                    start: left,
-                    color: color
-                });
-
                 for (var sn = 0; sn < options.highlight.length; sn++) {
                     if (options.highlight[sn].xstart >= xmax) {
                         continue;
@@ -1496,6 +1491,36 @@ window.mx = window.mx || {};
                         var rxs = Math.round((xs - xxmin) * xscl) + left;
                         var rxe = Math.round((xe - xxmin) * xscl) + left;
 
+                        for (var cn = colors.length - 1; cn >= 0; cn--) {
+                            // This highlight overlaps the entire range of a previous
+                            // highlight...we can thus remove the color
+                            if ((rxs <= colors[cn].start) && (rxe >= color[cn].end)) {
+                                colors.splice(cn, 1);
+                            }
+                            // This highlight splits a previous highlight...we need
+                            // to create a new color range
+                            else if ((rxs >= colors[cn].start) && (rxe <= color[cn].end)) {
+                                colors.push({
+                                    start: rxe,
+                                    end: color[cn].end,
+                                    color: colors[cn].color
+                                });
+                                colors[cn].end = rxs;
+
+                            }
+                            // This highlight overlaps partially
+                            else if ((rxs <= colors[cn].start) && (rxe >= colors[cn].start)) {
+                                colors[cn].start = rxe;
+                            } else if ((rxs <= colors[cn].end) && (rxe >= colors[cn].end)) {
+                                colors[cn].end = rxs;
+                            }
+
+                            // See if this colors is still valid
+                            if (colors[cn].end <= colors[cn].start) {
+                                colors.splice(cn, 1);
+                            }
+                        }
+
                         colors.push({
                             start: rxs,
                             end: rxe,
@@ -1503,6 +1528,13 @@ window.mx = window.mx || {};
                         });
                     }
                 }
+
+                // The first color is the start of the plot
+                // in the base-line color
+                colors.push({
+                    start: left,
+                    color: color
+                });
 
                 colors.sort(function(a, b) {
                     return a.start - b.start;
@@ -1821,6 +1853,7 @@ window.mx = window.mx || {};
             colors = [colors];
         }
 
+        // Find the first valid color (expects colors to be sorted)
         for (var n = 0; n < colors.length; n++) {
             if ((colors[n].end != null) && (colors[n].end < x)) {
                 colors.remove(n);

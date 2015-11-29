@@ -3396,3 +3396,148 @@ interactiveTest('zoom-keep-marker', 'Does zooming not change the marker, but sho
     notEqual(plot, null);
 
 });
+
+interactiveTest('overlapping_highlights', 'Do you see an unbroken yellow line with red on each end?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1000; i++) {
+        ramp.push(i);
+    }
+    var layer = plot.overlay_array(ramp, {
+        file_name: "ramp"
+    });
+
+    plot.get_layer(layer).add_highlight({
+        xstart: 400,
+        xend: 600,
+        color: "red"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 600,
+        xend: 800,
+        color: "red"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 450,
+        xend: 550,
+        color: "yellow"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 550,
+        xend: 650,
+        color: "yellow"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 650,
+        xend: 750,
+        color: "yellow"
+    });
+
+});
+
+interactiveTest('overlapping_highlights', 'Do you see an unbroken red line?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1000; i++) {
+        ramp.push(i);
+    }
+    var layer = plot.overlay_array(ramp, {
+        file_name: "ramp"
+    });
+
+    plot.get_layer(layer).add_highlight({
+        xstart: 450,
+        xend: 550,
+        color: "yellow"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 550,
+        xend: 650,
+        color: "yellow"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 650,
+        xend: 750,
+        color: "yellow"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 400,
+        xend: 600,
+        color: "red"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 600,
+        xend: 800,
+        color: "red"
+    });
+
+});
+
+interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow highlights?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1000; i++) {
+        ramp.push(i);
+    }
+    var layer = plot.overlay_array(ramp, {
+        file_name: "ramp"
+    });
+
+    // Create various overlap conditions
+    plot.get_layer(layer).add_highlight({
+        xstart: 375,
+        xend: 450,
+        color: "yellow"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 450,
+        xend: 537,
+        color: "yellow"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 537,
+        xend: 700,
+        color: "yellow"
+    });
+
+    plot.get_layer(layer).add_highlight({
+        xstart: 400,
+        xend: 425,
+        color: "red"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 450,
+        xend: 475,
+        color: "red"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 500,
+        xend: 525,
+        color: "red"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 550,
+        xend: 575,
+        color: "red"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 600,
+        xend: 625,
+        color: "red"
+    });
+    plot.get_layer(layer).add_highlight({
+        xstart: 650,
+        xend: 675,
+        color: "red"
+    });
+
+});
