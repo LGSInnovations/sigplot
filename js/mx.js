@@ -1494,15 +1494,15 @@ window.mx = window.mx || {};
                         for (var cn = colors.length - 1; cn >= 0; cn--) {
                             // This highlight overlaps the entire range of a previous
                             // highlight...we can thus remove the color
-                            if ((rxs <= colors[cn].start) && (rxe >= color[cn].end)) {
+                            if ((rxs <= colors[cn].start) && (rxe >= colors[cn].end)) {
                                 colors.splice(cn, 1);
                             }
                             // This highlight splits a previous highlight...we need
                             // to create a new color range
-                            else if ((rxs >= colors[cn].start) && (rxe <= color[cn].end)) {
+                            else if ((rxs >= colors[cn].start) && (rxe <= colors[cn].end)) {
                                 colors.push({
                                     start: rxe,
-                                    end: color[cn].end,
+                                    end: colors[cn].end,
                                     color: colors[cn].color
                                 });
                                 colors[cn].end = rxs;
