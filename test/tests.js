@@ -1922,7 +1922,7 @@ interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 Ju
     notEqual(plot, null);
 
     var framesize = 128;
-    var height = 100;
+    var height = 120;
 
     var ramp = [];
     for (var j = 0; j < height; j += 1) {
@@ -1935,6 +1935,9 @@ interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 Ju
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
+        ydelta: .5,
+        yunits: 4,
+        timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
     });
 });
 
