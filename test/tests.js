@@ -2099,7 +2099,7 @@ interactiveTest('sigplot penny (scaled)', 'Manually scale the Z-axis, does it wo
         plot.change_settings({
             zmin: 25
         });
-        equal(plot._Gx.zmin, 50);
+        equal(plot._Gx.zmin, 25);
 
         plot.change_settings({
             zmax: 1000
