@@ -1077,11 +1077,8 @@ window.m = window.m || {};
         var j1949Date = new Date(j1949); //debug var
         var d = new Date();
         var midnightToday = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-        var midnightTomorrow = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, 0);
-        var midnightJan = new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0);
-        var midnightDec = new Date(d.getFullYear() + 1, 0, 1, 0, 0, 0);
-        var diffDaySecs = (midnightTomorrow - midnightToday) / 1000; //    86400 secs = 24*60*60
-        var diffYearSecs = (midnightDec - midnightJan) / 1000; // 31536000 secs = 365*24*60*60
+        var diffDaySecs = 86400; //    86400 secs = 24*60*60
+        var diffYearSecs = 31536000; // 31536000 secs = 365*24*60*60
         var negDiffYearSecs = -1 * diffYearSecs; //-31536000 secs
 
         if (sec >= 0) {
