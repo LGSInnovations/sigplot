@@ -386,21 +386,24 @@
                     }
                 }
 
-                var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1.0);
-                this.xmin = Math.min(this.hcb.xstart, d);
-                this.xmax = Math.max(this.hcb.xstart, d);
-                this.xdelta = this.hcb.xdelta;
-                this.xstart = this.hcb.xstart;
-
-                this.ystart = this.hcb.ystart;
-                this.ydelta = this.hcb.ydelta;
-                var d = this.hcb.ystart + this.hcb.ydelta * (this.lps - 1.0);
-                this.ymin = Math.min(this.hcb.ystart, d);
-                this.ymax = Math.max(this.hcb.ystart, d);
-
                 if (hdrmod.lps) {
-                    this.hcb.lps = hdrmod.lps;
+                    this.lps = hdrmod.lps;
                 }
+
+                if (rescale) {
+                    var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1.0);
+                    this.xmin = Math.min(this.hcb.xstart, d);
+                    this.xmax = Math.max(this.hcb.xstart, d);
+                    this.xdelta = this.hcb.xdelta;
+                    this.xstart = this.hcb.xstart;
+
+                    this.ystart = this.hcb.ystart;
+                    this.ydelta = this.hcb.ydelta;
+                    var d = this.hcb.ystart + this.hcb.ydelta * (this.lps - 1.0);
+                    this.ymin = Math.min(this.hcb.ystart, d);
+                    this.ymax = Math.max(this.hcb.ystart, d);
+                }
+
             }
 
             if ((this.hcb.yunits === 1) || (this.hcb.yunits === 4)) {
