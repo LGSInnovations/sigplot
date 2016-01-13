@@ -159,202 +159,201 @@ window.m = window.m || {};
         //	call to MX$COLORMAP.
 
         // There are 4 colormap tables stored in the environment: A GREYSCALE,
-        // COLORRAMP, COLORWHEEL, or COLORSPECTRUM.  The specific values that
+        // COLORRAMP, COLORWHEEL, COLORSPECTRUM, or SUNSET.  The specific values that
         // are listed here are from xcolordef.prm (use the XCOLORMAP widget).
         //
         // The actual values are a result of tribal knowledge and years of experience
-        colormap: [
-            [ // GREYSCALE
-                {
-                    pos: 0,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 60,
-                    red: 50,
-                    green: 50,
-                    blue: 50
-                }, {
-                    pos: 100,
-                    red: 100,
-                    green: 100,
-                    blue: 100
-                }, {
-                    pos: 100,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 0,
-                    green: 0,
-                    blue: 0
-                }
-            ],
-            [ // COLORRAMP
-                {
-                    pos: 0,
-                    red: 0,
-                    green: 0,
-                    blue: 15
-                }, {
-                    pos: 10,
-                    red: 0,
-                    green: 0,
-                    blue: 50
-                }, {
-                    pos: 31,
-                    red: 0,
-                    green: 65,
-                    blue: 75
-                }, {
-                    pos: 50,
-                    red: 0,
-                    green: 85,
-                    blue: 0
-                }, {
-                    pos: 70,
-                    red: 75,
-                    green: 80,
-                    blue: 0
-                }, {
-                    pos: 83,
-                    red: 100,
-                    green: 60,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 100,
-                    green: 0,
-                    blue: 0
-                }
-            ],
-            [ // COLORWHEEL
-                {
-                    pos: 0,
-                    red: 100,
-                    green: 100,
-                    blue: 0
-                }, {
-                    pos: 20,
-                    red: 0,
-                    green: 80,
-                    blue: 40
-                }, {
-                    pos: 30,
-                    red: 0,
-                    green: 100,
-                    blue: 100
-                }, {
-                    pos: 50,
-                    red: 10,
-                    green: 10,
-                    blue: 0
-                }, {
-                    pos: 65,
-                    red: 100,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 88,
-                    red: 100,
-                    green: 40,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 100,
-                    green: 100,
-                    blue: 0
-                }
-            ],
-            [ // COLORSPECTRUM
-                {
-                    pos: 0,
-                    red: 0,
-                    green: 75,
-                    blue: 0
-                }, {
-                    pos: 22,
-                    red: 0,
-                    green: 90,
-                    blue: 90
-                }, {
-                    pos: 37,
-                    red: 0,
-                    green: 0,
-                    blue: 85
-                }, {
-                    pos: 49,
-                    red: 90,
-                    green: 0,
-                    blue: 85
-                }, {
-                    pos: 68,
-                    red: 90,
-                    green: 0,
-                    blue: 0
-                }, {
-                    pos: 80,
-                    red: 90,
-                    green: 90,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 95,
-                    green: 95,
-                    blue: 95
-                }
-            ],
-            [ // SUNSET
-                {
-                    pos: 0,
-                    red: 10,
-                    green: 0,
-                    blue: 23
-                }, {
-                    pos: 18,
-                    red: 34,
-                    green: 0,
-                    blue: 60
-                }, {
-                    pos: 36,
-                    red: 58,
-                    green: 20,
-                    blue: 47
-                }, {
-                    pos: 55,
-                    red: 74,
-                    green: 20,
-                    blue: 28
-                }, {
-                    pos: 72,
-                    red: 90,
-                    green: 43,
-                    blue: 0
-                }, {
-                    pos: 87,
-                    red: 100,
-                    green: 72,
-                    blue: 0
-                }, {
-                    pos: 100,
-                    red: 100,
-                    green: 100,
-                    blue: 76
-                }
-            ]
-        ]
+        colormap: [{
+            name: "Greyscale",
+            colors: [{
+                pos: 0,
+                red: 0,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 60,
+                red: 50,
+                green: 50,
+                blue: 50
+            }, {
+                pos: 100,
+                red: 100,
+                green: 100,
+                blue: 100
+            }, {
+                pos: 100,
+                red: 0,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 0,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 0,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 0,
+                green: 0,
+                blue: 0
+            }]
+        }, {
+            name: "Ramp Colormap",
+            colors: [{
+                pos: 0,
+                red: 0,
+                green: 0,
+                blue: 15
+            }, {
+                pos: 10,
+                red: 0,
+                green: 0,
+                blue: 50
+            }, {
+                pos: 31,
+                red: 0,
+                green: 65,
+                blue: 75
+            }, {
+                pos: 50,
+                red: 0,
+                green: 85,
+                blue: 0
+            }, {
+                pos: 70,
+                red: 75,
+                green: 80,
+                blue: 0
+            }, {
+                pos: 83,
+                red: 100,
+                green: 60,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 100,
+                green: 0,
+                blue: 0
+            }]
+        }, {
+            name: "Color Wheel",
+            colors: [{
+                pos: 0,
+                red: 100,
+                green: 100,
+                blue: 0
+            }, {
+                pos: 20,
+                red: 0,
+                green: 80,
+                blue: 40
+            }, {
+                pos: 30,
+                red: 0,
+                green: 100,
+                blue: 100
+            }, {
+                pos: 50,
+                red: 10,
+                green: 10,
+                blue: 0
+            }, {
+                pos: 65,
+                red: 100,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 88,
+                red: 100,
+                green: 40,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 100,
+                green: 100,
+                blue: 0
+            }]
+        }, {
+            name: "Spectrum",
+            colors: [{
+                pos: 0,
+                red: 0,
+                green: 75,
+                blue: 0
+            }, {
+                pos: 22,
+                red: 0,
+                green: 90,
+                blue: 90
+            }, {
+                pos: 37,
+                red: 0,
+                green: 0,
+                blue: 85
+            }, {
+                pos: 49,
+                red: 90,
+                green: 0,
+                blue: 85
+            }, {
+                pos: 68,
+                red: 90,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 80,
+                red: 90,
+                green: 90,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 95,
+                green: 95,
+                blue: 95
+            }]
+        }, {
+            name: "Sunset",
+            colors: [{
+                pos: 0,
+                red: 10,
+                green: 0,
+                blue: 23
+            }, {
+                pos: 18,
+                red: 34,
+                green: 0,
+                blue: 60
+            }, {
+                pos: 36,
+                red: 58,
+                green: 20,
+                blue: 47
+            }, {
+                pos: 55,
+                red: 74,
+                green: 20,
+                blue: 28
+            }, {
+                pos: 72,
+                red: 90,
+                green: 43,
+                blue: 0
+            }, {
+                pos: 87,
+                red: 100,
+                green: 72,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 100,
+                green: 100,
+                blue: 76
+            }]
+        }]
     };
 
     /** Pipe Size 
@@ -393,7 +392,17 @@ window.m = window.m || {};
         for (var field in overrides) {
             hcb[field] = overrides[field];
         }
+
+        // Force type 2000 is subsize is specified
+        if (hcb["subsize"] > 1) {
+            hcb.type = 2000;
+        }
         hcb["class"] = hcb.type / 1000;
+        // If this is a type 2000 , subsize *must* be provided
+        if ((hcb["class"] === 2) && (overrides["subsize"] === undefined)) {
+            throw "subsize must be provided with type 2000 files";
+        }
+
 
         if (!overrides.pipe) {
             hcb.setData(data);
@@ -421,8 +430,8 @@ window.m = window.m || {};
             if ((hcb.size) && (!hcb.pipe)) {
                 hcb.size = hcb.subsize * hcb.size;
             } else {
-                // assume the size is 1
-                hcb.size = hcb.subsize;
+                // assume the size is 0
+                hcb.size = 0;
             }
             hcb.bpe = hcb.bpe / hcb.subsize;
             hcb.ape = 1;
@@ -438,7 +447,9 @@ window.m = window.m || {};
      * @return	{number}	ngot		Number of received data
      */
     m.grab = function(hcb, bufview, start, nget) {
-        if (!hcb.dview) { return 0; }
+        if (!hcb.dview) {
+            return 0;
+        }
 
         // TODO reformat
         if (hcb.format[0] === 'C') {
@@ -467,7 +478,7 @@ window.m = window.m || {};
      * Append data buffer to file specified in the bluefile header control block.
      * @param	{header}	hcb		Bluefile header control block
      * @param	{array}		data		Data buffer
-     * @param   {boolean}       [sync=false]    dispatch onpipewrite syncronously 
+     * @param   {boolean}       [sync=false]    dispatch onpipewrite syncronously
      */
     m.filad = function(hcb, data, sync) {
         if (hcb.data_free < data.length) {
@@ -478,13 +489,13 @@ window.m = window.m || {};
         if (eidx > hcb.dview.length) {
             var head = hcb.dview.length - sidx;
             var tail = data.length - head;
-	    if (data.subarray) {
-              hcb.dview.set(data.subarray(0, head), sidx);
-              hcb.dview.set(data.subarray(head, data.length), 0);
-	    } else {
-              hcb.dview.set(data.slice(0, head), sidx);
-              hcb.dview.set(data.slice(head, data.length), 0);
-	    }
+            if (data.subarray) {
+                hcb.dview.set(data.subarray(0, head), sidx);
+                hcb.dview.set(data.subarray(head, data.length), 0);
+            } else {
+                hcb.dview.set(data.slice(0, head), sidx);
+                hcb.dview.set(data.slice(head, data.length), 0);
+            }
             hcb.in_byte = (tail * hcb.dview.BYTES_PER_ELEMENT);
         } else {
             hcb.dview.set(data, sidx);
@@ -521,34 +532,34 @@ window.m = window.m || {};
      */
     // WARNING - nget is number of scalars...which differs from the normal API
     m.grabx = function(hcb, dview, nget, offset) {
-	var navail = hcb.dview.length - hcb.data_free;
-	if (offset === undefined) {
-		offset = 0;
-	}
-	if (!nget) {
-		nget = Math.min(dview.length-offset, navail);
-	} else if (nget > dview.length-offset) {
-		throw "m.grabx : nget larger then available buffer space";
-	}
-	if (nget < 0) {
-		throw "m.grabx : nget cannot be negative";
-	}
-	if (nget > navail) {
-		return 0;
-	}
+        var navail = hcb.dview.length - hcb.data_free;
+        if (offset === undefined) {
+            offset = 0;
+        }
+        if (!nget) {
+            nget = Math.min(dview.length - offset, navail);
+        } else if (nget > dview.length - offset) {
+            throw "m.grabx : nget larger then available buffer space";
+        }
+        if (nget < 0) {
+            throw "m.grabx : nget cannot be negative";
+        }
+        if (nget > navail) {
+            return 0;
+        }
 
-	var sidx = hcb.out_byte / hcb.dview.BYTES_PER_ELEMENT;
-	var eidx = (sidx + nget);
-	if (eidx >= hcb.dview.length) {
-		var head = hcb.dview.length - sidx;
-		eidx = eidx - hcb.dview.length;
-		dview.set(hcb.dview.subarray(sidx, hcb.dview.length), offset);
-		dview.set(hcb.dview.subarray(0, eidx), offset+head);
-	} else {
-		dview.set(hcb.dview.subarray(sidx, eidx), offset);
-	}
-	hcb.out_byte = (eidx * hcb.dview.BYTES_PER_ELEMENT) % hcb.buf.byteLength;
-	hcb.data_free += nget;
+        var sidx = hcb.out_byte / hcb.dview.BYTES_PER_ELEMENT;
+        var eidx = (sidx + nget);
+        if (eidx >= hcb.dview.length) {
+            var head = hcb.dview.length - sidx;
+            eidx = eidx - hcb.dview.length;
+            dview.set(hcb.dview.subarray(sidx, hcb.dview.length), offset);
+            dview.set(hcb.dview.subarray(0, eidx), offset + head);
+        } else {
+            dview.set(hcb.dview.subarray(sidx, eidx), offset);
+        }
+        hcb.out_byte = (eidx * hcb.dview.BYTES_PER_ELEMENT) % hcb.buf.byteLength;
+        hcb.data_free += nget;
         var ngot = nget;
         return ngot;
     };
@@ -622,25 +633,35 @@ window.m = window.m || {};
             }
         }
         var prefix = "?";
-        if (mult === 1.0e3) {
-            prefix = 'K';
-        } else if (mult === 1.0e-3) {
-            prefix = 'm';
-        } else if (mult === 1.0e6) {
-            prefix = 'M';
-        } else if (mult === 1.0e-6) {
-            prefix = 'u';
-        } else if (mult === 1.0e9) {
-            prefix = 'G';
-        } else if (mult === 1.0e-9) {
-            prefix = 'n';
-        } else if (mult === 1.0e12) {
-            prefix = 'T';
-        } else if (mult === 1.0e-12) {
-            prefix = 'p';
-        } else if (mult === 1) {
+        /* jshint -W116 */
+        if (mult == 1) {
             prefix = "";
+        } else if (mult == 10) {
+            prefix = 'da';
+        } else if (mult == 0.1) {
+            prefix = 'd';
+        } else if (mult == 100) {
+            prefix = 'h';
+        } else if (mult == 0.01) {
+            prefix = 'c';
+        } else if (mult == 1.0e3) {
+            prefix = 'K';
+        } else if (mult == 1.0e-3) {
+            prefix = 'm';
+        } else if (mult == 1.0e6) {
+            prefix = 'M';
+        } else if (mult == 1.0e-6) {
+            prefix = 'u';
+        } else if (mult == 1.0e9) {
+            prefix = 'G';
+        } else if (mult == 1.0e-9) {
+            prefix = 'n';
+        } else if (mult == 1.0e12) {
+            prefix = 'T';
+        } else if (mult == 1.0e-12) {
+            prefix = 'p';
         }
+        /* jshint +W116 */
 
         if (u[1]) {
             return u[0] + " (" + prefix + u[1] + ")";
@@ -730,7 +751,7 @@ window.m = window.m || {};
             dst[i] = dst[i] * dbscale;
         }
     };
-    
+
     /**
      * Same as vlogscale but computes magnitude squared.
      *
@@ -1056,11 +1077,8 @@ window.m = window.m || {};
         var j1949Date = new Date(j1949); //debug var
         var d = new Date();
         var midnightToday = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-        var midnightTomorrow = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 0, 0, 0, 0);
-        var midnightJan = new Date(d.getFullYear(), 0, 1, 0, 0, 0, 0);
-        var midnightDec = new Date(d.getFullYear() + 1, 0, 1, 0, 0, 0);
-        var diffDaySecs = (midnightTomorrow - midnightToday) / 1000; //    86400 secs = 24*60*60
-        var diffYearSecs = (midnightDec - midnightJan) / 1000; // 31536000 secs = 365*24*60*60
+        var diffDaySecs = 86400; //    86400 secs = 24*60*60
+        var diffYearSecs = 31536000; // 31536000 secs = 365*24*60*60
         var negDiffYearSecs = -1 * diffYearSecs; //-31536000 secs
 
         if (sec >= 0) {
@@ -1105,7 +1123,14 @@ window.m = window.m || {};
             }
         }
 
-        if ((sec % 1) !== 0) {
+        // violate legacy behavior, include full precision always
+        // even if we are on a full second boundary, otherwise
+        // on rising/falling rasters it can look like the display
+        // is flickering
+        var fractional = (sec % 1);
+        if (fractional === 0.0) {
+            tod += ".000000";
+        } else {
             tod += "." + Math.abs(sec % 1).toPrecision(6).slice(2, 8);
         }
 
@@ -1125,6 +1150,14 @@ window.m = window.m || {};
     };
 
     /**
+     * The offset to convert midnight Jan 1st 1970 to
+     * midnight Jan 1st 1950.
+     *
+     * @private
+     */
+    var j1950offset = (20.0 * 365.0 + 5.0) * (24 * 3600);
+
+    /**
      * 0.0 - 86400 == m.sec2tod
      * >86400 then modulo 86400
      *   if modulo <= 0 return m.sec2tod(modulo)+86400
@@ -1137,9 +1170,9 @@ window.m = window.m || {};
         } else {
             sec = sec % 86400;
             if (mode !== "delta" && sec <= 0) {
-                return m.sec2tod(sec+86400, trim_trailing_zeros);
+                return m.sec2tod(sec + 86400, trim_trailing_zeros);
             } else if (mode === "delta" && sec <= 0) {
-                return "-"+m.sec2tod(-1*sec, trim_trailing_zeros);
+                return "-" + m.sec2tod(-1 * sec, trim_trailing_zeros);
             } else {
                 return m.sec2tod(sec, trim_trailing_zeros);
             }
@@ -1153,7 +1186,7 @@ window.m = window.m || {};
 
     m.sec2tod_j1970 = function(sec) {
         var tod = "";
-	var d;
+        var d;
         if ((sec >= 0) && (sec < 86400)) {
             // hh:mm:ss
             d = new Date(sec * 1000);
@@ -1166,7 +1199,6 @@ window.m = window.m || {};
             tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
         } else {
             // convert to j1950
-            var j1950offset = (20.0 * 365.0 + 5.0) * (24 * 3600);
             d = new Date((sec - j1950offset) * 1000);
             tod = d.getFullYear() + ":" + pad2(d.getMonth()) + ":" + pad2(d.getDate()) + "::" +
                 pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
@@ -1175,6 +1207,18 @@ window.m = window.m || {};
             tod += "." + (sec % 1).toPrecision(6).slice(2, 8);
         }
         return tod;
+    };
+
+    m.j1970toj1950 = function(t) {
+        if (t.getTime !== undefined) {
+            return ((t.getTime() / 1000) + j1950offset);
+        } else {
+            return (t + j1950offset);
+        }
+    };
+
+    m.j1950toj1970 = function(t) {
+        return (t - j1950offset);
     };
 
     /**

@@ -1,4 +1,10 @@
-# DocStrap #
+
+
+
+
+[![NPM](https://nodei.co/npm/ink-docstrap.png?downloads=true)](https://nodei.co/npm/ink-docstrap/)
+
+# DocStrap [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/) #
 
 DocStrap is [Bootstrap](http://twitter.github.io/bootstrap/index.html) based template for [JSDoc3](http://usejsdoc.org/).
 In addition, it includes all of the themes from [Bootswatch](http://bootswatch.com/) giving you a great deal of look
@@ -6,9 +12,14 @@ and feel options for your documentation, along with a simple search. Additionall
 you even more flexibility to tweak the template to your needs. It will also make your teeth whiter.
 
 ## New ##
+* Courtesy [whitelynx](https://github.com/whitelynx), you can now also select [sunlight themes](https://github.com/tmont/sunlight/tree/master/src/themes) 
+for code blocks.
+* Read about Google Analytics (tip of the hat to [pocesar](https://github.com/pocesar))
+support and major syntax highlight changes. 
+* As of version 0.4.0, DocStrap only supports the node version of JSDoc and will no longer support the Java version of JSDoc
+* New options in `jsdoc.conf.json` to provide greater control over the output of source files. See `outputSourceFiles` and `sourceRootPath`
+* Several updated components for the development environment
 
-* Quick Search
-* Added to npm registry
 
 ## Features ##
 
@@ -35,34 +46,45 @@ Here are examples of this template with the different Bootswatch themes:
 
 To change your theme, just change it in the `conf.json` file. See below for details.
 ## Ooooh, I want it! How do I get it?##
-First grab the [zip file from github.](https://github.com/terryweiss/docstrap/archive/master.zip) Unzip it
-to your favorite hard drive and ask JSDoc to use it. Like so:
 
-	<path/to/jsdoc>/jsdoc mysourcefiles/* -t <path.to.unzipped>/template -c <path.to.unzipped>/conf.json -d <path.to.output>/
+If you manage your own version of jsdoc:
 
-or:
-
-```
+``` 
+{@lang bash}
 npm install ink-docstrap
 ```
 
-Also take a gander at [JSDoc's command line options](http://usejsdoc.org/about-commandline.html).
+When using [grunt](http://gruntjs.com/), please look at [grunt-jsdoc](https://github.com/krampstudio/grunt-jsdoc) which includes
+docstrap
+
+```  
+{@lang bash}
+npm install grunt-jsdoc 
+```
 
 ## Configuring the template ##
 
 DocStrap ships with a `conf.json` file in the template/ directory. It is just a regular old
 [JSDoc configuration file](http://usejsdoc.org/about-configuring-jsdoc.html), but with the following new options:
-```
+
+``` 
+{@lang javascript}
 "templates": {
-	"systemName"      : "{string}",
-	"footer"          : "{string}",
-	"copyright"       : "{string}",
-	"navType"         : "{vertical|inline}",
-	"theme"           : "{theme}",
-	"linenums"        : {boolean},
-	"collapseSymbols" : {boolean},
-	"inverseNav"      : {boolean}
+	"systemName"            : "{string}",
+	"footer"                : "{string}",
+	"copyright"             :  "{string}",
+	"navType"               : "{vertical|inline}",
+	"theme"                 : "{theme}",
+	"linenums"              : "{boolean}",
+	"collapseSymbols"       : "{boolean}",
+	"inverseNav"            : "{boolean}",
+	"outputSourceFiles"     : "{boolean}" ,
+	"outputSourcePath"      : "{boolean}",
+	"dateFormat"            : "{string}",
+	"highlightTutorialCode" : "{boolean}",
+	"syntaxTheme"           : "{string}"
 }
+
 ```
 ### Options ###
 
@@ -71,7 +93,7 @@ DocStrap ships with a `conf.json` file in the template/ directory. It is just a 
 *   __footer__
 	Any markup want to appear in the footer of each page. This is not processed at all, just printed exactly as you enter it
 *   __copyright__
-	You can add a copyright message below the _footer_ and above the JSDoc timestamp at the bottom of the page
+	You can add a copyright message below the footer and above the JSDoc timestamp at the bottom of the page
 *   __navType__
 	The template uses top level navigation with dropdowns for the contents of each category. On large systems these dropdowns
 	can get large enough to expand beyond the page. To make the dropdowns render wider and stack the entries vertically, set this
@@ -98,9 +120,81 @@ DocStrap ships with a `conf.json` file in the template/ directory. It is just a 
 	If your pages have a large number of symbols, it can be easy to get lost in all the text. If you turn this to `true`
 	all of the symbols in the page will roll their contents up so that you just get a list of symbols that can be expanded
 	and collapsed.
+*   __analytics__ Add a [Google Analytics](http://www.google.com/analytics) code to the template output
+ _e.g._ `"analytics":{"ua":"UA-XXXXX-XXX", "domain":"XXXX"}`
+    * __ua__ The google agent (see Google Analytics help for details)
+    * __domain__ The domain being served. (see Google Analytics help for details)
 *   __inverseNav__
 	Bootstrap navbars come in two flavors, regular and inverse where inverse is generally higher contrast. Set this to `true` to
 	use the inverse header.
+*   __outputSourceFiles__
+	When true, the system will produce source pretty printed file listings with a link from the documentation.
+*	__outputSourcePath__
+	When `outputSourceFiles` is `false`, you may still want to name the file even without a link to the pretty printed output.
+	Set  this to `true` when `outputSourceFiles` is `false`. `outputSourceFiles` when `true` takes precedence over this setting.
+*   __dateFormat__ The date format to use when printing dates. It accepts any format string understood by [moment.js](http://momentjs.com/docs/#/displaying/format/)
+*   __highlightTutorialCode__ Boolean used to determine whether to treat code blocks in "tutorial" markdown as examples and highlight them
+*   __syntaxTheme__ String that determines the theme used for code blocks. Default value is `"default"`. It can be any value supported
+    at [sunlight themes](https://github.com/tmont/sunlight/tree/master/src/themes) which right now consists of...uh...`"default"` and `"dark"`, 
+    but at least you have it if you need it.
+
+## Controlling Syntax Highlighting ##
+Of course this is intended to document JS. But JS often interacts with other languages, most commonly `HTML`, but also any
+language on the server including PHP, C# and other C-like languages. The point is that when you write examples, you may want to
+include other languages to make your examples as expressive as possible. So, DocStrap introduces a new documentation tag
+which can appear inside any example block in source code, or in any fenced code block in markdown: `{@lang languageName}`, where
+_`language`_ can be any of the languages supported by [Sunlight](http://sunlightjs.com/)
+
+Look at this: 
+For an example of this thing in action [this](http://terryweiss.github.io/docstrap/themes/readable/#toc7) )__
+
+
+The syntax for adding the tag is as follows. When in markdown, add the tag on the line just after the \`\`\` fence like so:
+
+\`\`\`
+
+`{@lang language}` 
+
+`This is my code`
+
+\`\`\`
+
+When in a doclet add the tag just after the `@example` tag like this:
+
+`@example {@lang xml}`
+
+`<div>This is the most interesting web site ever</div>`
+
+
+These are the supported languages. 
+ 
+* ActionScript
+* bash 
+* C/C++
+* C♯
+* CSS
+* Diff
+* DOS batch
+* Erlang
+* Haskell
+* httpd (Apache)
+* Java
+* JavaScript
+* Lisp
+* Lua
+* MySQL
+* nginx
+* Objective-C
+* Perl
+* PHP
+* PowerShell
+* Python
+* Ruby
+* Scala
+* T-SQL
+* VB.NET
+* XML (HTML)
+
 
 ## Customizing DocStrap ##
 No template can meet every need and customizing templates is a favorite pastime of....well, no-one, but you may need to anyway.
@@ -109,14 +203,14 @@ Fetch the source using `git` or grab the [zip file from github.](https://github.
 it somewhere. Everything that follows happens in the unzip directory.
 
 Next, prepare the environment:
+     
+    bower install     
 
-    bower install
+and         
+   
+    npm install     
 
-and
-
-    npm install
-
-When that is done, you have all of the tools to start modifying the template. The template, like Bootstrap, used [less](http://lesscss.org/).
+When that is done, you have all of the tools to start modifying the template. The template, like Bootstrap, uses [less](http://lesscss.org/).
 The way it works is that `./styles/main.less` pulls in the bootstrap files uncompiled so that you have access to all of bootstraps mixins, colors,
 etc, that you would want. There are two more files in that directory, `variables.less`, `bootswatch.less`. These are the
 theme files and you can modify them, but keep in mind that if you apply a new theme (see below) those files will be overwritten. It is best
@@ -124,7 +218,7 @@ to keep your changes to the `main.less` file.
 
 To compile your changes to `main.less` and any other files it loads up,
 
-	grunt less
+	grunt less 	
 
 The output is will be put in `./template/static/styles/site.<theme-name>.css`. The next time you create your documentation, it
 will have the new css file included.
@@ -132,7 +226,7 @@ will have the new css file included.
 To apply a different template to the `styles` directory to modify, open up the `conf.json` in the template directory and
 change the `theme` option to the theme you want. Then
 
-	grunt apply
+	grunt apply 
 
 And the new theme will be in `variables.less`, `bootswatch.less`. Don't forget to compile your changes using `grunt apply` to
 get that change into the template.
@@ -145,19 +239,64 @@ Yes! Contribute! Test! Share your ideas! Report Bugs!
 
 ### Contributers ###
 
+*Huge* thanks to all contributors. If your name should be here, but isn't, please let me know
+
 * [marklagendijk](https://github.com/marklagendijk)
 * [michaelward82](https://github.com/michaelward82)
 * [kaustavdm](https://github.com/kaustavdm)
-
-## Roadmap ##
-
-* Integrate Darkstrap
-* Make plain old bootstrap an option (doh!)
-* ~~Jump to source line numbers~~
-* Document publish.js
+* [vmeurisse](https://github.com/vmeurisse)
+* [bmathern](https://github.com/bmathern)
+* [jrkim123us](https://github.com/jrkim123us)
+* [shawke](https://github.com/shawke)
+* [mar10](https://github.com/mar10)
+* [mwcz](https://github.com/mwcz)
+* [pocesar](https://github.com/pocesar)
+* [hyperandroid](https://github.com/hyperandroid)
+* [vmadman](https://github.com/vmadman)
+* [whitelynx](https://github.com/whitelynx)
+* [tswaters](https://github.com/tswaters)
 
 
 ## History ##
+### v0.4.13 ###
+* Issue #68
+
+### v0.4.11 ###
+* Pull Request #59
+
+### v0.4.8 ###
+* Issue #58
+
+### v0.4.7 ###
+* Issue #57
+
+### v0.4.5 ###
+* Issue #55
+* Issue #54
+* Issue #52
+* Issue #51
+* Issue #50
+* Issue #45
+* Issue #44
+
+### v0.4.3 ###
+* Issue #46
+* Issue #46
+* Issue #47
+
+### v0.4.1-1###
+* Issue #44
+* Update documentation
+* Issue #43
+* Issue #42
+* Issue #34
+
+### v0.4.0 ###
+* Issue #41
+* Issue #40
+* Issue #39
+* Issue #36
+* Issue #32
 
 ### v0.3.0 ###
 * Fixed navigation at page top
@@ -195,7 +334,7 @@ DocStrap [is licensed under the MIT license.](https://github.com/terryweiss/docs
 [Sunlight uses the WTFPL](http://sunlightjs.com/)
 
 ## License ##
-DocStrap Copyright (c) 2012-2013Terry Weiss. All rights reserved.
+DocStrap Copyright (c) 2012-2014 Terry Weiss. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

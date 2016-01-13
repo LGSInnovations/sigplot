@@ -80,6 +80,11 @@ window.mx = window.mx || {};
     mx.L_VLineSymbol = 9;
 
     /**
+     * Set to True for a retro look that would make hipsters proud
+     */
+    mx.LEGACY_RENDER = false;
+
+    /**
      * The zoom stack structure object
      * @private
      */
@@ -239,8 +244,8 @@ window.mx = window.mx || {};
         // Colormap
         this.pixel = [];
 
-	// Render Canvas
-	this._renderCanvas = document.createElement("canvas");
+        // Render Canvas
+        this._renderCanvas = document.createElement("canvas");
     }
 
     /**
@@ -294,7 +299,7 @@ window.mx = window.mx || {};
                     var old_warpbox = Mx.warpbox;
                     Mx.warpbox = undefined;
 
-                    if (event.which === 1) {
+                    if (event.which === 1 || event.which === 3) {
                         if (old_warpbox.func) {
                             var xo = old_warpbox.xo;
                             var yo = old_warpbox.yo;
@@ -308,7 +313,9 @@ window.mx = window.mx || {};
                                 yo = Mx.t;
                                 yl = Mx.b;
                             } // else "box"
-                            old_warpbox.func(event, xo, yo, xl, yl, old_warpbox.style.return_value);
+                            old_warpbox.func(event, xo, yo, xl, yl,
+                                old_warpbox.style.return_value,
+                                old_warpbox.mode);
                         }
                     }
 
@@ -329,11 +336,11 @@ window.mx = window.mx || {};
             return function(event) {
                 if (Mx.warpbox) {
                     var keyCode = getKeyCode(event);
-                    if (((keyCode === 17)  || // Ctrl 
-                         (keyCode === 224) || // Mac Command Firefox 
-                         (keyCode === 91)  || // Safari/Chrome Left-command
-                         (keyCode === 93)) &&   // Safari/Chrome Right-command
-                        (Mx.warpbox.style !== Mx.warpbox.alt_style)) { 
+                    if (((keyCode === 17) || // Ctrl 
+                            (keyCode === 224) || // Mac Command Firefox 
+                            (keyCode === 91) || // Safari/Chrome Left-command
+                            (keyCode === 93)) && // Safari/Chrome Right-command
+                        (Mx.warpbox.style !== Mx.warpbox.alt_style)) {
                         Mx.warpbox.style = Mx.warpbox.alt_style;
                         mx.redraw_warpbox(Mx);
                     }
@@ -347,11 +354,11 @@ window.mx = window.mx || {};
             return function(event) {
                 if (Mx.warpbox) {
                     var keyCode = getKeyCode(event);
-                    if (((keyCode === 17)  || // Ctrl 
-                         (keyCode === 224) || // Mac Command Firefox 
-                         (keyCode === 91)  || // Safari/Chrome Left-command
-                         (keyCode === 93)) &&   // Safari/Chrome Right-command
-                        (Mx.warpbox.style !== Mx.warpbox.def_style)) { 
+                    if (((keyCode === 17) || // Ctrl 
+                            (keyCode === 224) || // Mac Command Firefox 
+                            (keyCode === 91) || // Safari/Chrome Left-command
+                            (keyCode === 93)) && // Safari/Chrome Right-command
+                        (Mx.warpbox.style !== Mx.warpbox.def_style)) {
                         Mx.warpbox.style = Mx.warpbox.def_style;
                         mx.redraw_warpbox(Mx);
                     }
@@ -457,8 +464,17 @@ window.mx = window.mx || {};
      * @private
      */
     mx.onWidgetLayer = function(Mx, func) {
+        mx.onCanvas(Mx, Mx.wid_canvas, func);
+    };
+
+    /**
+     * @param Mx
+     * @param func
+     * @private
+     */
+    mx.onCanvas = function(Mx, canvas, func) {
         var current_active = Mx.active_canvas;
-        Mx.active_canvas = Mx.wid_canvas;
+        Mx.active_canvas = canvas;
         try {
             if (func) {
                 return func();
@@ -486,7 +502,9 @@ window.mx = window.mx || {};
      * @private
      */
     mx.render = function(Mx, func) {
-        if (!func) { return; }
+        if (!func) {
+            return;
+        }
 
         var active_canvas = Mx.active_canvas;
 
@@ -610,9 +628,9 @@ window.mx = window.mx || {};
      * @private
      */
     mx.setbgfg = function(Mx, bg, fg, xi) {
-        Mx.bg = bg;
-        Mx.fg = fg;
-        Mx.xi = xi;
+        Mx.bg = tinycolor(bg).toHexString();
+        Mx.fg = tinycolor(fg).toHexString();
+        Mx.xi = tinycolor(xi).toHexString();
 
         if ((tinycolor.equals(Mx.bg, "black")) && (tinycolor.equals(Mx.fg, "white"))) { ///mmm
             Mx.xwfg = Mx.fg; // X-Widget Foreground color
@@ -727,14 +745,22 @@ window.mx = window.mx || {};
         action = Math.abs(mode);
 
         if (ye - ys > xe - xs) {
-            if (Mx.origin < 3) { origin = 2; /* inverted Y scrollbar */ }
-            else { origin = 4; /* normal Y scrollbar */ }
+            if (Mx.origin < 3) {
+                origin = 2; /* inverted Y scrollbar */
+            } else {
+                origin = 4; /* normal Y scrollbar */
+            }
         } else {
-            if (Mx.origin & 2) { origin = 3; /* inverted X scrollbar */ }
-            else { origin = 1; /* normal X scrollbar */ }
+            if (Mx.origin & 2) {
+                origin = 3; /* inverted X scrollbar */
+            } else {
+                origin = 1; /* normal X scrollbar */
+            }
         }
 
-        if (action < 10) { sb = sblocal; /* use local SB structure */ }
+        if (action < 10) {
+            sb = sblocal; /* use local SB structure */
+        }
         if (action < 10 || sb.action === 0) { /* re-init the SB structure */
             mx.scroll(Mx, sb, mx.XW_INIT, undefined, scrollbarState);
             sb.flag = mode;
@@ -804,7 +830,9 @@ window.mx = window.mx || {};
         var srange; // a real_8
         var s; // an int_4
 
-        if (sv === undefined) { return false; /* an mx.SCROLLBAR */ }
+        if (sv === undefined) {
+            return false; /* an mx.SCROLLBAR */
+        }
 
         switch (op) {
             case mx.XW_INIT:
@@ -843,7 +871,9 @@ window.mx = window.mx || {};
                             btn = 5;
                             break;
                     }
-                    if (mouseEvent.type === "mouseup") { btn = -btn; }
+                    if (mouseEvent.type === "mouseup") {
+                        btn = -btn;
+                    }
                 } else if (mouseEvent.type === "mousewheel" || mouseEvent.type === "DOM-MouseScroll") {
                     // TODO Does this case ever happen?
                     if (mouseEvent.wheelDelta && mouseEvent.wheelDelta > 0) {
@@ -862,7 +892,7 @@ window.mx = window.mx || {};
                     /* If scroll wheel, pretend we're on vertical scroll bar */
                     if (btn === 4 || btn === 5) {
                         Mx.xpos = sv.x;
-		    }
+                    }
 
 
                     /* Button !=1,2,4,5 OR NOT on scroll bar */
@@ -870,7 +900,7 @@ window.mx = window.mx || {};
                         Mx.xpos < sv.x || Mx.ypos < sv.y ||
                         Mx.xpos > sv.x + sv.w || Mx.ypos > sv.y + sv.h) {
                         return false;
-		    }
+                    }
                 } else if (btn < 0) {
                     /* Any button release within a repeated action will make us exit */
                     sv.action = sv.repeat_count = 0; // TODO Update scrollbarState's action?
@@ -882,10 +912,14 @@ window.mx = window.mx || {};
                  */
                 if (sv.origin & 1) {
                     s = Mx.xpos - sv.x;
-                    if (sv.origin & 2) { s = sv.w - s; }
+                    if (sv.origin & 2) {
+                        s = sv.w - s;
+                    }
                 } else {
                     s = Mx.ypos - sv.y;
-                    if (sv.origin <= 2) { s = sv.h - s; }
+                    if (sv.origin <= 2) {
+                        s = sv.h - s;
+                    }
                 }
 
                 /*  Determine action */
@@ -907,9 +941,9 @@ window.mx = window.mx || {};
                         case 1:
                             if (s > sv.a1 && s < sv.a2) { /* on scroll trough */
                                 sv.action = (sv.soff > 0) ? mx.SB_PAGEINC : mx.SB_PAGEDEC;
-			    } else { /* on arrows */
+                            } else { /* on arrows */
                                 sv.action = (sv.soff > 0) ? mx.SB_STEPINC : mx.SB_STEPDEC;
-			    }
+                            }
                             break;
                         case 4:
                             sv.action = mx.SB_WHEELUP;
@@ -929,11 +963,11 @@ window.mx = window.mx || {};
                         case mx.SB_FULL:
                             sv.action = sv.repeat_count = 0;
                     }
-		}
+                }
                 /* FALL THROUGH!!! */
                 /* jshint -W086 */
             case mx.XW_COMMAND:
-		/* jshint +W086 */
+                /* jshint +W086 */
 
                 smin = sv.smin;
                 srange = sv.srange;
@@ -957,14 +991,21 @@ window.mx = window.mx || {};
                         break;
                     case mx.SB_EXPAND:
                         srange = srange * sv.scale;
-                        if (smin <= 0 && smin + sv.srange >= 0) { smin *= sv.scale; }
-                        else { smin -= (srange - sv.srange) / 2.0; }
+                        if (smin <= 0 && smin + sv.srange >= 0) {
+                            smin *= sv.scale;
+                        } else {
+                            smin -= (srange - sv.srange) / 2.0;
+                        }
                         break;
                     case mx.SB_SHRINK:
                         srange = srange / sv.scale;
-                        if (smin < 0 && smin + sv.srange >= 0) { smin += srange / sv.scale; /* Plot crosses axis */ }
-                        else if (smin === 0 && smin + sv.srange >= 0) { smin = srange / sv.scale; /* Plot touches axis */ }
-                        else { smin += (sv.srange - srange) / 2.0; /* Plot is completely contained on positive side of axis */ }
+                        if (smin < 0 && smin + sv.srange >= 0) {
+                            smin += srange / sv.scale; /* Plot crosses axis */
+                        } else if (smin === 0 && smin + sv.srange >= 0) {
+                            smin = srange / sv.scale; /* Plot touches axis */
+                        } else {
+                            smin += (sv.srange - srange) / 2.0; /* Plot is completely contained on positive side of axis */
+                        }
                         break;
                         /* The mouse wheel needs to scroll 1 page at a time, if you want an 
 		           application to scroll differently, change sv.page with 
@@ -986,7 +1027,9 @@ window.mx = window.mx || {};
                 }
 
                 if (sv.smin === smin && sv.srange === srange) {
-                    if (sv.action !== mx.SB_DRAG) { sv.action = sv.repeat_count = 0; }
+                    if (sv.action !== mx.SB_DRAG) {
+                        sv.action = sv.repeat_count = 0;
+                    }
                 } else {
                     // UPDATE SCROLLBAR STATE as well
                     sv.smin = scrollbarState.smin = smin;
@@ -1023,7 +1066,9 @@ window.mx = window.mx || {};
     //
     mx.scroll_loc = function(sv, x, y, w, h, origin, scrollbarState) {
         // UPDATE local scrollbar and SCROLLBAR STATE
-        if (sv === undefined) { return; /* mx.SCROLLBAR */ }
+        if (sv === undefined) {
+            return; /* mx.SCROLLBAR */
+        }
         sv.x = scrollbarState.x = x; // int
         sv.y = scrollbarState.y = y; // int
         sv.w = scrollbarState.w = w; // int
@@ -1063,7 +1108,9 @@ window.mx = window.mx || {};
     //
     mx.scroll_vals = function(sv, smin, srange, tmin, trange, step, page, scale, scrollbarState) {
         // UPDATE SCROLLBAR STATE as well
-        if (sv === undefined) { return; /* an mx.SCROLLBAR */ }
+        if (sv === undefined) {
+            return; /* an mx.SCROLLBAR */
+        }
         sv.smin = scrollbarState.smin = smin;
         sv.srange = scrollbarState.srange = srange;
         sv.tmin = scrollbarState.tmin = tmin;
@@ -1085,41 +1132,11 @@ window.mx = window.mx || {};
     //
     // ~= MX$DRAW_SYMBOL
     //
-    mx.draw_symbol = function(Mx, ic, x, y, symbol, rr) {
-        var pixx = new Int32Array(new ArrayBuffer(4 * 1));
-        var pixy = new Int32Array(new ArrayBuffer(4 * 1));
-
-        pixx[0] = x;
-        pixy[0] = y;
-        mx.draw_symbols(Mx, ic, pixx, pixy, 1, symbol, rr);
-    };
-
-    /**
-     * Plot symbols at centers defined by an array of pixels
-     * @param Mx
-     * @param ic
-     * @param pixx
-     * @param pixy
-     * @param npix
-     * @param symbol
-     * @param rr
-     * @private
-     */
-    //
-    // ~= MX$DRAW_SYMBOLS
-    //
-    mx.draw_symbols = function(Mx, ic, pixx, pixy, npix, symbol, rr) {
-        // TODO:
-        // -XOR color support
-        // -PostScript file printing
-
+    mx.draw_symbol = function(Mx, ic, x, y, symbol, rr, n) {
         var ctx = Mx.active_canvas.getContext("2d");
 
-        var i = 0; // int
         var r = 0; // int
         var d = 0; // int
-        var x = 0; // int
-        var y = 0; // int
         var rmode = false; // bool
         var fill = false; // bool
         var tri = []; // XPoint array of size 4
@@ -1140,104 +1157,61 @@ window.mx = window.mx || {};
         ctx.fillStyle = ic;
         ctx.strokeStyle = ic;
 
-        // TODO Commented out XOR for now
-        // Can we just have an input parameter that says whether or not we're in xor mode or not?
-        // if (ic === L_XORColor) { // If chosen color is the L_XORColor...
-        // 		rmode = Mx.rmode;
-        // }
-        // else {
-        // 		rmode = false;
-        // }
-
-        switch (symbol) {
-            case mx.L_CircleSymbol:
-                for (i = 0; i < npix; i++) {
-                    // Move x and y to center of circle - not upper-left of bounding rectangle (aka offset by radius)
-                    var x_center = pixx[i];
-                    var y_center = pixy[i];
-
+        if (typeof symbol === "function") {
+            symbol(ctx, n, x, y);
+        } else {
+            switch (symbol) {
+                case mx.L_CircleSymbol:
                     ctx.beginPath();
                     if (fill) {
-                        // TODO Postscript support:
-                        //					if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Dot fill");
-                        ctx.arc(x_center, y_center, r, 0, 360); // draw arc
+                        ctx.arc(x, y, r, 0, 360); // draw arc
                         ctx.fill(); // fill in the area of the arc
                     } else {
-                        // TODO Postscript support:
-                        //					if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Dot S");
-
-                        // TODO Commented out XOR-related stuff for now
-                        // if (rmode && (gc = G.gcr)) {
-                        //	  x_center += r;
-                        //    y_center += r;
-                        // }
-                        ctx.arc(x_center, y_center, r, 0, 360);
+                        ctx.arc(x, y, r, 0, 360);
                         ctx.stroke(); // just draw the arc's outline
                     }
-                }
-                break;
-            case mx.L_SquareSymbol:
-                if (fill) {
-                    // TODO Postscript support:
-                    //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "sq fill");
-                    for (i = 0; i < npix; i++) {
-                        fill_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
+                    break;
+                case mx.L_SquareSymbol:
+                    if (fill) {
+                        fill_rectangle(ctx, x - r, y - r, d, d);
+                    } else {
+                        draw_rectangle(ctx, x - r, y - r, d, d);
                     }
-                } else {
-                    // TODO Postscript support:
-                    //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "sq S");
-                    for (i = 0; i < npix; i++) {
-                        draw_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
-                    }
-                    // TODO Commented out XOR-related stuff for now
-                    // if (rmode && (gc=G.gcr)) {
-                    // 		++r; d += 2;
-                    //      for (i = 0; i < npix; i++)
-                    //      	draw_rectangle(ctx, pixx[i] - r, pixy[i] - r, d, d);
-                    // }
-                }
-                break;
-            case mx.L_PixelSymbol:
-                // TODO Postscript support:
-                //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, rr, "Dot S");
-                d = 1; // d = 2*GMaxLines; // TODO Do we care about a maximum number of lines?
-                for (i = 0; i < npix; i += d) {
+                    break;
+                case mx.L_PixelSymbol:
+                    d = 1; // d = 2*GMaxLines; // TODO Do we care about a maximum number of lines?
                     // No native way to draw just a pixel - so use a circle instead
                     ctx.beginPath();
-                    ctx.arc(pixx[i], pixy[i], 1, 0, 2 * Math.PI, true);
+                    ctx.arc(x, y, 1, 0, 2 * Math.PI, true);
                     ctx.fill();
-                }
-                break;
-            case mx.L_ITriangleSymbol:
-                r = -r; // TODO Refactor without switch fall-through?
-	    /* jshint -W086 */
-            case mx.L_TriangleSymbol:
-	    /* jshint +W086 */
-                d = m.trunc(r * 1.5);
-                x = m.trunc(r * 0.80);
+                    break;
+                case mx.L_ITriangleSymbol:
+                    r = -r; // TODO Refactor without switch fall-through?
+                    /* jshint -W086 */
+                case mx.L_TriangleSymbol:
+                    /* jshint +W086 */
+                    d = m.trunc(r * 1.5);
+                    x = m.trunc(r * 0.80);
 
-                // Coordinates of just the triangle itself
-                tri[1].x = -x;
-                tri[1].y = d;
-                tri[2].x = x * 2;
-                tri[2].y = 0;
-                tri[3].x = -x;
-                tri[3].y = -d;
+                    // Coordinates of just the triangle itself
+                    tri[1].x = -x;
+                    tri[1].y = d;
+                    tri[2].x = x * 2;
+                    tri[2].y = 0;
+                    tri[3].x = -x;
+                    tri[3].y = -d;
 
-                var tempTri = []; // XPoint array of size 4
-                for (var cnt = 0; cnt < 4; cnt++) { // initializing 4 points in the array
-                    tempTri[cnt] = {
-                        x: 0,
-                        y: 0
-                    };
-                }
+                    var tempTri = []; // XPoint array of size 4
+                    for (var cnt = 0; cnt < 4; cnt++) { // initializing 4 points in the array
+                        tempTri[cnt] = {
+                            x: 0,
+                            y: 0
+                        };
+                    }
 
-                if (fill) {
-                    // TODO Postscript support:
-                    //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Tri fill");
-                    for (i = 0; i < npix; i++) {
-                        tempTri[0].x = pixx[i];
-                        tempTri[0].y = pixy[i] - r;
+                    if (fill) {
+                        tempTri[0].x = x;
+                        tempTri[0].y = y - r;
 
                         // Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
                         tempTri[1].x = tempTri[0].x + tri[1].x;
@@ -1248,13 +1222,9 @@ window.mx = window.mx || {};
                         tempTri[3].y = tempTri[2].y + tri[3].y;
 
                         fill_poly(ctx, tempTri);
-                    }
-                } else {
-                    // TODO Postscript support:
-                    //				if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Tri S");
-                    for (i = 0; i < npix; i++) {
-                        tempTri[0].x = pixx[i];
-                        tempTri[0].y = pixy[i] - r;
+                    } else {
+                        tempTri[0].x = x;
+                        tempTri[0].y = y - r;
 
                         // Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
                         tempTri[1].x = tempTri[0].x + tri[1].x;
@@ -1266,130 +1236,49 @@ window.mx = window.mx || {};
 
                         draw_poly(ctx, tempTri);
                     }
-                    //				 if (rmode && (gc = G.gcr)) {
-                    //				 		if (r >= 0) { 
-                    //							++r; ++x; d += 2; 
-                    //						} else { 
-                    //							--r; --x; d -= 2; 
-                    //						}
-                    //						tri[1].x = -x;
-                    //						tri[1].y = d;
-                    //						tri[2].x = x * 2;
-                    //						tri[2].y = 0;
-                    //						tri[3].x = -x;
-                    //						tri[3].y = -d;
-                    //		
-                    //				 		for (i = 0; i < npix; i++) {
-                    //							tempTri[0].x = pixx[i];
-                    //							tempTri[0].y = pixy[i] - r;
-                    //				
-                    //							// Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
-                    //							tempTri[1].x = tempTri[0].x + tri[1].x;
-                    //							tempTri[1].y = tempTri[0].y + tri[1].y;
-                    //							tempTri[2].x = tempTri[1].x + tri[2].x;
-                    //							tempTri[2].y = tempTri[1].y + tri[2].y;
-                    //							tempTri[3].x = tempTri[2].x + tri[3].x;
-                    //							tempTri[3].y = tempTri[2].y + tri[3].y;
-                    //
-                    //				 			draw_poly(ctx, tempTri);
-                    //				 		}
-                    //				 }
-                }
-                break;
-            case mx.L_PlusSymbol:
-                // TODO Postscript support:
-                //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
-                for (i = 0; i < npix; i++) {
-                    x = pixx[i];
-                    y = pixy[i];
+                    break;
+                case mx.L_PlusSymbol:
                     draw_line(ctx, x, y + r, x, y - r);
                     draw_line(ctx, x + r, y, x - r, y);
-                }
-                //			if (rmode && (gc = G.gcr)) {
-                //				for (i = 0; i < npix; i++) {
-                //					x = pixx[i] - 1;
-                //					y = pixy[i] + 1;
-                //					draw_line(ctx, x, y + r, x, y - r);
-                //					draw_line(ctx, x + r, y, x - r, y);  
-                //				}
-                //			}
-                break;
-            case mx.L_HLineSymbol:
-                // TODO Postscript support:
-                //                     if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
-                for (i = 0; i < npix; i++) {
-                    x = pixx[i];
-                    y = pixy[i];
+                    break;
+                case mx.L_HLineSymbol:
                     draw_line(ctx, x + r, y, x - r, y);
-                }
-                //                     if (rmode && (gc = G.gcr)) {
-                //                             for (i = 0; i < npix; i++) {
-                //                                     x = pixx[i] - 1;
-                //                                     y = pixy[i] + 1;
-                //                                     draw_line(ctx, x, y + r, x, y - r);
-                //                                     draw_line(ctx, x + r, y, x - r, y);  
-                //                             }
-                //                     }
-                break;
-           case mx.L_VLineSymbol:
-                // TODO Postscript support:
-                //                     if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "Plus S");
-                for (i = 0; i < npix; i++) {
-                    x = pixx[i];
-                    y = pixy[i];
+                    break;
+                case mx.L_VLineSymbol:
                     draw_line(ctx, x, y + r, x, y - r);
-                }
-                //                     if (rmode && (gc = G.gcr)) {
-                //                             for (i = 0; i < npix; i++) {
-                //                                     x = pixx[i] - 1;
-                //                                     y = pixy[i] + 1;
-                //                                     draw_line(ctx, x, y + r, x, y - r);
-                //                                     draw_line(ctx, x + r, y, x - r, y);  
-                //                             }
-                //                     }
-                break;
-            case mx.L_XSymbol:
-                // TODO Postscript support:
-                //			if (f_PostScript) mx_psdraw_objects(ic, pix, npix, r, "XSym S");
-                for (i = 0; i < npix; i++) {
-                    x = pixx[i];
-                    y = pixy[i];
+                    break;
+                case mx.L_XSymbol:
                     draw_line(ctx, x - r, y - r, x + r, y + r);
                     draw_line(ctx, x + r, y - r, x - r, y + r);
-                }
-                // TODO Commented out XOR-related stuff for now
-                //			if (rmode && (gc = G.gcr)) {
-                //				d = r - 1; ++r;
-                //				for (i = 0; i < npix; i++) {
-                //					x = pixx[i];
-                //					y = pixy[i];
-                //					draw_line(ctx, x - r, y - d, x + d, y + r);
-                //					draw_line(ctx, x + d, y - r, x - r, y + d);
-                //				}
-                //			}
-                break;
-            default:
-                c = symbol;
-                r = m.trunc(Mx.text_w / 2); //tbd
-                // TODO Postscript support:      
-                //			if (f_PostScript) {
-                //				char astr[80];
-                //				sprintf(astr, "(%c) Char", c);
-                //				mx_psdraw_objects(ic, pix, npix, r, astr);
-                //			}
-                if (fill && !rmode) {
-                    for (i = 0; i < npix; i++) {
-                        ctx.fillText(c.substring(0, 2), pixx[i] - r, pixy[i] + r); // TODO Does this cover it? Do we need to also fill in a rectangle behind 
+                    break;
+                default:
+                    c = symbol;
+                    r = m.trunc(Mx.text_w / 2); //tbd
+                    if (fill && !rmode) {
+                        ctx.fillText(c.substring(0, 2), x - r, y + r); // TODO Does this cover it? Do we need to also fill in a rectangle behind 
                     }
-                }
-                // TODO Commented out XOR-related stuff for now
-                //			else {
-                //				ctx.textBaseline = "alphabetic"; // TODO Verify this is necessary
-                //				for (i = 0; i < npix; i++) {
-                //					ctx.fillText(c.substring(0,2), pixx[i] - r, pixy[i] + r);
-                //				}
-                //			}
-                break;
+                    break;
+            } // end switch (symbol)
+        }
+    };
+
+    /**
+     * Plot symbols at centers defined by an array of pixels
+     * @param Mx
+     * @param ic
+     * @param pixx
+     * @param pixy
+     * @param npix
+     * @param symbol
+     * @param rr
+     * @private
+     */
+    //
+    // ~= MX$DRAW_SYMBOLS
+    //
+    mx.draw_symbols = function(Mx, ic, pixx, pixy, npix, symbol, rr, istart) {
+        for (var i = 0; i < npix; i++) {
+            mx.draw_symbol(Mx, ic, pixx[i], pixy[i], symbol, rr, i + istart);
         }
     };
 
@@ -1457,7 +1346,7 @@ window.mx = window.mx || {};
     //
     // ~= MX$TRACE
     //
-    mx.trace = function(Mx, color, xpoint, ypoint, npts, skip, line, symb, rad, options) {
+    mx.trace = function(Mx, color, xpoint, ypoint, npts, istart, skip, line, symb, rad, options) {
         if ((xpoint === undefined) || (ypoint === undefined)) {
             throw "mx.trace requires xpoint and ypoint";
         }
@@ -1536,7 +1425,6 @@ window.mx = window.mx || {};
         //ymin = ymin - dy;
         //xmax = xmax + dx;
         //ymax = ymax + dy;
-
         // These buffers need to be able to hold 2 times the number of points.
         // if all points are on screen, then we will will need 'n' points
         // if all points are off the screen, then we will need (2*n)-2
@@ -1545,60 +1433,56 @@ window.mx = window.mx || {};
         var pixy = new Int32Array(new ArrayBuffer(bufsize));
 
         var ib = 0;
-        if (line === 0) {
-            for (var n = (skip - 1); n <= npts; n += skip) {
+        if ((line === 0) && (symb !== 0)) {
+            for (var n = (skip - 1); n < npts; n += skip) {
                 var x = xpoint[n];
                 var y = ypoint[n];
                 var lvisible = ((x >= xmin) && (x <= xmax) && (y >= ymin) && (y <= ymax));
                 if (lvisible) {
-                    pixx[ib] = Math.round((x - xxmin) * xscl) + left;
-                    pixy[ib] = Math.round((y - yymin) * yscl) + top;
-                    ib += 1;
+                    pixx[0] = Math.round((x - xxmin) * xscl) + left;
+                    pixy[0] = Math.round((y - yymin) * yscl) + top;
+                    mx.draw_symbol(Mx, color, pixx[0], pixy[0], symb, rad, istart + n);
                 }
             }
-            if (symb !== 0 && ib > 1) { mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad); }
-        } else if (options.vertsym === true) {
-            for (var n = (skip - 1); n <= npts; n += skip) {
+        } else if ((options.vertsym === true) && (symb !== 0)) {
+            for (var n = (skip - 1); n < npts; n += skip) {
                 var x = xpoint[n];
                 var y = ypoint[n];
                 if ((x >= xmin) && (x <= xmax)) {
                     var i = Math.round((x - xxmin) * xscl) + left;
                     mx.draw_line(Mx, color, i, 0, i, Mx.height);
                     if ((y >= ymin) && (y <= ymax)) {
-                        pixx[ib] = i;
-                        pixy[ib] = Math.round((y - yymin) * yscl) + top;
-                        ib += 1;
+                        pixx[0] = i;
+                        pixy[0] = Math.round((y - yymin) * yscl) + top;
+                        mx.draw_symbol(Mx, color, pixx[0], pixy[0], symb, rad, istart + n);
                     }
                 }
             }
-            if (symb !== 0 && ib > 1) { mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad); }
-        } else if (options.horzsym === true) {
-            for (var n = (skip - 1); n <= npts; n += skip) {
+        } else if ((options.horzsym === true) && (symb !== 0)) {
+            for (var n = (skip - 1); n < npts; n += skip) {
                 var x = xpoint[n];
                 var y = ypoint[n];
                 if ((y >= ymin) && (y <= ymax)) {
                     var i = Math.round((y - yymin) * yscl) + top;
                     mx.draw_line(Mx, color, 0, i, Mx.width, i);
                     if ((x >= xmin) && (x <= xmax)) {
-                        pixx[ib] = Math.round((x - xxmin) * xscl) + left;
-                        pixy[ib] = i;
-                        ib += 1;
+                        pixx[0] = Math.round((x - xxmin) * xscl) + left;
+                        pixy[0] = i;
+                        mx.draw_symbol(Mx, color, pixx[0], pixy[0], symb, rad, istart + n);
                     }
                 }
             }
-            if (symb !== 0 && ib > 1) { mx.draw_symbols(Mx, color, pixx.subarray(0), pixy.subarray(0), ib, symb, rad); }
-        } else {
+        } else if (line !== 0) {
             var colors;
             if ((options) && (options.highlight)) {
                 colors = [];
-                colors.push({
-                    start: left,
-                    color: color
-                });
-
                 for (var sn = 0; sn < options.highlight.length; sn++) {
-                    if (options.highlight[sn].xstart >= xmax) { continue; }
-                    if (options.highlight[sn].xend <= xmin) { continue; }
+                    if (options.highlight[sn].xstart >= xmax) {
+                        continue;
+                    }
+                    if (options.highlight[sn].xend <= xmin) {
+                        continue;
+                    }
 
                     var xs = Math.max(options.highlight[sn].xstart, xmin);
                     var xe = Math.min(options.highlight[sn].xend, xmax);
@@ -1607,6 +1491,36 @@ window.mx = window.mx || {};
                         var rxs = Math.round((xs - xxmin) * xscl) + left;
                         var rxe = Math.round((xe - xxmin) * xscl) + left;
 
+                        for (var cn = colors.length - 1; cn >= 0; cn--) {
+                            // This highlight overlaps the entire range of a previous
+                            // highlight...we can thus remove the color
+                            if ((rxs <= colors[cn].start) && (rxe >= colors[cn].end)) {
+                                colors.splice(cn, 1);
+                            }
+                            // This highlight splits a previous highlight...we need
+                            // to create a new color range
+                            else if ((rxs >= colors[cn].start) && (rxe <= colors[cn].end)) {
+                                colors.push({
+                                    start: rxe,
+                                    end: colors[cn].end,
+                                    color: colors[cn].color
+                                });
+                                colors[cn].end = rxs;
+
+                            }
+                            // This highlight overlaps partially
+                            else if ((rxs <= colors[cn].start) && (rxe >= colors[cn].start)) {
+                                colors[cn].start = rxe;
+                            } else if ((rxs <= colors[cn].end) && (rxe >= colors[cn].end)) {
+                                colors[cn].end = rxs;
+                            }
+
+                            // See if this colors is still valid
+                            if (colors[cn].end <= colors[cn].start) {
+                                colors.splice(cn, 1);
+                            }
+                        }
+
                         colors.push({
                             start: rxs,
                             end: rxe,
@@ -1614,6 +1528,13 @@ window.mx = window.mx || {};
                         });
                     }
                 }
+
+                // The first color is the start of the plot
+                // in the base-line color
+                colors.push({
+                    start: left,
+                    color: color
+                });
 
                 colors.sort(function(a, b) {
                     return a.start - b.start;
@@ -1638,7 +1559,9 @@ window.mx = window.mx || {};
                 pixx[ib] = Math.round((x - xxmin) * xscl) + left;
                 pixy[ib] = Math.round((y - yymin) * yscl) + top;
                 ib += 1;
-                if (symb !==0) { mx.draw_symbols(Mx, color, pixx, pixy, 1, symb, rad); }
+                if (symb !== 0) {
+                    mx.draw_symbols(Mx, color, pixx, pixy, 1, symb, rad, istart);
+                }
             } else {
                 ib = 0;
             }
@@ -1695,7 +1618,13 @@ window.mx = window.mx || {};
                                             mx.draw_lines(Mx, colors, pixx.subarray(ie, ib), pixy.subarray(ie, ib), (ib - ie), line, style);
 
                                             if (symb !== 0 && (ib - ie) > 2) {
-                                                mx.draw_symbols(Mx, color, pixx.subarray(ie + 1, ib), pixy.subarray(ie + 1, ib), (ib - ie - 1), symb, rad); // if (symb.ne.0 .and. ib.gt.2) call MX$DRAW_SYMBOLS(ic, pix(2), ib-2, symb, rad)
+                                                mx.draw_symbols(Mx,
+                                                    color,
+                                                    pixx.subarray(ie + 1, ib - 1),
+                                                    pixy.subarray(ie + 1, ib - 1), (ib - ie - 2),
+                                                    symb,
+                                                    rad,
+                                                    istart + n - (ib - ie - 2));
                                             }
                                             ie = ib;
                                         } else {
@@ -1718,7 +1647,21 @@ window.mx = window.mx || {};
                 if (visible) {
                     ie = ie + 1;
                 }
-                if (symb !== 0 && (ib - ie) > 1) { mx.draw_symbols(Mx, color, pixx.subarray(ie, ib), pixy.subarray(ie, ib), (ib - 1), symb, rad); /* TODO is ib-1 correct here?? */ }
+                if (symb !== 0 && (ib - ie) > 1) {
+                    // TODO ib - 1 is used below because
+                    // otherwise the last point has undefined
+                    // for it's x/y coordinates...but this may
+                    // be a bug because it may neglect drawing
+                    // the last data point
+                    mx.draw_symbols(Mx,
+                        color,
+                        pixx.subarray(ie - 1, ib),
+                        pixy.subarray(ie - 1, ib),
+                        ib,
+                        symb,
+                        rad,
+                        n - ib + istart);
+                }
             }
 
             if (options.fillStyle) {
@@ -1910,6 +1853,7 @@ window.mx = window.mx || {};
             colors = [colors];
         }
 
+        // Find the first valid color (expects colors to be sorted)
         for (var n = 0; n < colors.length; n++) {
             if ((colors[n].end != null) && (colors[n].end < x)) {
                 colors.remove(n);
@@ -1923,7 +1867,9 @@ window.mx = window.mx || {};
         ctx.moveTo(x, y);
 
         for (var i = 0; i < npts; i++) {
-	    if ((x === pixx[i]) && (y === pixy[i])) { continue; }
+            if ((x === pixx[i]) && (y === pixy[i])) {
+                continue;
+            }
             x = pixx[i];
             y = pixy[i];
 
@@ -2019,7 +1965,7 @@ window.mx = window.mx || {};
     // When CTRL is pressed, alt_style is used
     //
     mx.rubberbox = function(Mx, func, mode, def_style, alt_style) {
-        mx.warpbox(Mx, Mx.xpos, Mx.ypos, Mx.xpos, Mx.ypos, 0, Mx.width, 0, Mx.width, func, mode, def_style, alt_style);
+        mx.warpbox(Mx, Mx.xpos, Mx.ypos, Mx.xpos, Mx.ypos, 0, Mx.width, 0, Mx.height, func, mode, def_style, alt_style);
     };
 
     /**
@@ -2189,9 +2135,9 @@ window.mx = window.mx || {};
             var canvasInput = new CanvasInput({
                 height: Mx.text_h,
                 fontFamily: fontFamily,
-		/* jshint -W053 */
+                /* jshint -W053 */
                 fontSize: new Number(fontSize),
-		/* jshint +W053 */
+                /* jshint +W053 */
                 backgroundColor: Mx.bg,
                 fontColor: Mx.fg,
                 borderWidth: 0,
@@ -2346,123 +2292,20 @@ window.mx = window.mx || {};
     /**
      * @param Mx
      * @param msg
-     * @param time
+     * @param time - unused?
      * @param xpos
      * @param ypos
      */
     //
     // ~= MX$MESSAGE
     //
-    mx.message = function(Mx, msg, time, xpos, ypos) {
+    mx.message = function(Mx, msg, time, xpos, ypos, type) {
         mx.onWidgetLayer(Mx, function() {
-            var GBorder = 3;
 
-            // Unlike MX$MESSAGE, this implementaion if the message
-            // already contains newlines, the text will placed in the
-            // box as-is.
-            var beg = msg.split(/\r\n|\r|\n/g);
-            var linel = 0;
-            var center;
-            if (beg.length === 1) {
-                beg = [];
-                var MESSWIDTH = 40;
-
-                linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), msg.length);
-                if (linel <= 0) { return; }
-                while ((linel > MESSWIDTH) && (2.5 * Mx.text_h * msg.length < Mx.height * linel)) {
-                    linel -= 5;
-                }
-
-                var cur = 0;
-                var bg = 0;
-                var i = 0;
-                var j = 0;
-                var end = 0;
-                var brk = 0;
-                var beg = [];
-
-                center = true;
-                while (bg < msg.length) {
-                    end = bg + linel - 1;
-                    brk = end = Math.min(end, msg.length - 1);
-                    var endinreturn = false;
-                    for (cur = bg; cur <= end && !endinreturn; cur++) {
-                        switch (msg[cur]) {
-                            case ',':
-                            case ';':
-                            case ' ':
-                            case ':':
-                                brk = cur;
-                                break;
-                            case '-':
-                            case '/':
-                                if (brk !== cur - 1) { brk = cur; }
-                                break;
-                            case '@':
-                            case '\n':
-                            case '\r':
-                                center = false;
-                                endinreturn = true;
-                                brk = cur;
-                                break;
-                        }
-                    }
-                    if (cur === msg.length) { brk = end; }
-                    if (endinreturn) {
-                        beg.push(msg.substring(bg, brk));
-                    } else {
-                        // trim leading space
-                        var s = msg.substring(bg, brk + 1).replace(/^\s+/, "");
-                        beg.push(s);
-                    }
-                    bg = brk + 1;
-                    j = Math.max(j, beg[i].length);
-                }
-            } else {
-                for (var i = 0; i < beg.length; i++) {
-                    linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), Math.max(linel, beg[i].length));
-                }
-            }
-
-            var lines = beg.length;
-            if (lines > 6) {
-                center = false;
-            }
-            var cur = 0;
-            var winlines = Math.max(1, Mx.height / Mx.text_h);
-            var lastline = Math.min(lines, cur + winlines - 1);
-
-            var xss = (linel + 2) * Mx.text_w;
-            var yss = (lastline - cur + 1) * Mx.text_h;
-
-            var xs = xss + 2 * GBorder;
-            var ys = yss + 2 * GBorder;
-            if (!xpos) {
-                xpos = Mx.xpos;
-            }
-            if (!ypos) {
-                ypos = Mx.ypos;
-            }
-            var xc = Math.max(0, Math.min(xpos, Mx.width - xs));
-            var yc = Math.max(0, Math.min(ypos, Mx.height - ys));
-            var xcc = xc + GBorder;
-            var ycc = yc + GBorder;
-
-            mx.widgetbox(Mx, xc, yc, xs, ys, xcc, ycc, 0, "");
-
-            var j = ycc + Mx.text_h / 3;
-            var i = xcc + Mx.text_w;
-            while (cur < lastline) {
-                j += Mx.text_h;
-                if (center) {
-                    i = xc + xs / 2 - ((beg[cur].length * Mx.text_w) / 2);
-                }
-                mx.text(Mx, i, j, beg[cur]);
-                cur++;
-            }
+            mx.render_message_box(Mx, msg, xpos, ypos);
 
             Mx.widget = {
-                type: "ONESHOT",
+                type: type || "ONESHOT",
                 callback: function(event) {
                     if ((event.type === "mousedown") || (event.type === "keydown")) {
                         Mx.widget = null;
@@ -2473,6 +2316,169 @@ window.mx = window.mx || {};
                 }
             };
         });
+    };
+
+    mx.render_message_box = function(Mx, msg, xpos, ypos, textColor) {
+        var GBorder = 3;
+
+        // Unlike MX$MESSAGE, this implementaion if the message
+        // already contains newlines, the text will placed in the
+        // box as-is.
+        var beg = msg.split(/\r\n|\r|\n/g);
+        var linel = 0;
+        var center;
+        if (beg.length === 1) {
+            beg = [];
+            var MESSWIDTH = 40;
+
+            linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), msg.length);
+            if (linel <= 0) {
+                return;
+            }
+            while ((linel > MESSWIDTH) && (2.5 * Mx.text_h * msg.length < Mx.height * linel)) {
+                linel -= 5;
+            }
+
+            var cur = 0;
+            var bg = 0;
+            var i = 0;
+            var j = 0;
+            var end = 0;
+            var brk = 0;
+            var beg = [];
+
+            center = true;
+            while (bg < msg.length) {
+                end = bg + linel - 1;
+                brk = end = Math.min(end, msg.length - 1);
+                var endinreturn = false;
+                for (cur = bg; cur <= end && !endinreturn; cur++) {
+                    switch (msg[cur]) {
+                        case ',':
+                        case ';':
+                        case ' ':
+                        case ':':
+                            brk = cur;
+                            break;
+                        case '-':
+                        case '/':
+                            if (brk !== cur - 1) {
+                                brk = cur;
+                            }
+                            break;
+                        case '@':
+                        case '\n':
+                        case '\r':
+                            center = false;
+                            endinreturn = true;
+                            brk = cur;
+                            break;
+                    }
+                }
+                if (cur === msg.length) {
+                    brk = end;
+                }
+                if (endinreturn) {
+                    beg.push(msg.substring(bg, brk));
+                } else {
+                    // trim leading space
+                    var s = msg.substring(bg, brk + 1).replace(/^\s+/, "");
+                    beg.push(s);
+                }
+                bg = brk + 1;
+                j = Math.max(j, beg[i].length);
+            }
+        } else {
+            for (var i = 0; i < beg.length; i++) {
+                linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), Math.max(linel, beg[i].length));
+            }
+        }
+
+        var lines = beg.length;
+        if (lines > 6) {
+            center = false;
+        }
+        var cur = 0;
+        var winlines = Math.max(1, Mx.height / Mx.text_h);
+        var lastline = Math.min(lines, cur + winlines - 1);
+
+        var xss = (linel + 2) * Mx.text_w;
+        var yss = (lastline - cur + 1) * Mx.text_h;
+
+        var xs = xss + 2 * GBorder;
+        var ys = yss + 2 * GBorder;
+        if (!xpos) {
+            xpos = Mx.xpos;
+        }
+        if (!ypos) {
+            ypos = Mx.ypos;
+        }
+        var xc = Math.max(Mx.l, Math.min(xpos, Mx.r - xs));
+        var yc = Math.max(Mx.t, Math.min(ypos, Mx.b - ys));
+        var xcc = xc + GBorder;
+        var ycc = yc + GBorder;
+
+        mx.widgetbox(Mx, xc, yc, xs, ys, xcc, ycc, 0, "");
+
+        var j = ycc + Mx.text_h / 3;
+        var i = xcc + Mx.text_w;
+        while (cur < lastline) {
+            j += Mx.text_h;
+            if (center) {
+                i = xc + xs / 2 - ((beg[cur].length * Mx.text_w) / 2);
+            }
+            mx.text(Mx, i, j, beg[cur], textColor);
+            cur++;
+        }
+    };
+
+    /**
+     * Based on http://js-bits.blogspot.co.uk/2010/07/canvas-rounded-corner-rectangles.html
+     *
+     * @param Mx
+     * @param color
+     * @param {Number} x
+     * @param {Number} y
+     * @param {Number} w
+     * @param {Number} h
+     * @param fill_opacity
+     * @param fill_color
+     * @param {Number} radius The corner radius. Defaults to 5;
+     */
+    mx.draw_round_box = function(Mx, color, x, y, w, h, fill_opacity, fill_color, radius) {
+        var ctx = Mx.active_canvas.getContext("2d");
+
+        if (!radius) {
+            radius = 5;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+
+        if ((fill_opacity !== undefined) && (fill_opacity > 0)) {
+            var oldAlpha = ctx.globalAlpha;
+            ctx.globalAlpha = fill_opacity;
+            if (fill_color) {
+                ctx.fillStyle = fill_color;
+            } else {
+                ctx.fillStyle = color;
+            }
+            ctx.fill();
+            ctx.globalAlpha = oldAlpha;
+        }
     };
 
     /**
@@ -2498,61 +2504,61 @@ window.mx = window.mx || {};
         } else {
             if (typeof Uint8ClampedArray === 'undefined') {
                 // we don't have typed arrays, so canvas getImageData operations
-		// will be very slow, so use Mx.fg instead
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = Mx.fg;
-		ctx.strokeRect(x, y, w, h);
-	    } else {
-		// TODO switch to using TypedArrays
-		x = Math.floor(x);
-		y = Math.floor(y);
-		w = Math.floor(w);
-		h = Math.floor(h);
+                // will be very slow, so use Mx.fg instead
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = Mx.fg;
+                ctx.strokeRect(x, y, w, h);
+            } else {
+                // TODO switch to using TypedArrays
+                x = Math.floor(x);
+                y = Math.floor(y);
+                w = Math.floor(w);
+                h = Math.floor(h);
 
-		// For now assume xor always uses the base canvas
-		// even if it draws on another canvas
-		var dctx = Mx.canvas.getContext("2d");
+                // For now assume xor always uses the base canvas
+                // even if it draws on another canvas
+                var dctx = Mx.canvas.getContext("2d");
 
-		var imgd = dctx.getImageData(x, y, w, 1);
-		var pix = imgd.data;
-		for (var c = 0; c < imgd.data.length; c++) {
-		    pix[c * 4] = 255 - pix[c * 4]; // red
-		    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
-		    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
-		    pix[c * 4 + 3] = 255; // opacity
-		}
-		ctx.putImageData(imgd, x, y);
+                var imgd = dctx.getImageData(x, y, w, 1);
+                var pix = imgd.data;
+                for (var c = 0; c < imgd.data.length; c++) {
+                    pix[c * 4] = 255 - pix[c * 4]; // red
+                    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
+                    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
+                    pix[c * 4 + 3] = 255; // opacity
+                }
+                ctx.putImageData(imgd, x, y);
 
-		imgd = dctx.getImageData(x, y + h, w, 1);
-		pix = imgd.data;
-		for (var c = 0; c < imgd.data.length; c++) {
-		    pix[c * 4] = 255 - pix[c * 4]; // red
-		    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
-		    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
-		    pix[c * 4 + 3] = 255; // opacity
-		}
-		ctx.putImageData(imgd, x, y + h);
+                imgd = dctx.getImageData(x, y + h, w, 1);
+                pix = imgd.data;
+                for (var c = 0; c < imgd.data.length; c++) {
+                    pix[c * 4] = 255 - pix[c * 4]; // red
+                    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
+                    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
+                    pix[c * 4 + 3] = 255; // opacity
+                }
+                ctx.putImageData(imgd, x, y + h);
 
-		var imgd = dctx.getImageData(x, y, 1, h);
-		var pix = imgd.data;
-		for (var c = 0; c < h; c++) {
-		    pix[c * 4] = 255 - pix[c * 4]; // red
-		    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
-		    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
-		    pix[c * 4 + 3] = 255; // opacity
-		}
-		ctx.putImageData(imgd, x, y);
+                var imgd = dctx.getImageData(x, y, 1, h);
+                var pix = imgd.data;
+                for (var c = 0; c < h; c++) {
+                    pix[c * 4] = 255 - pix[c * 4]; // red
+                    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
+                    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
+                    pix[c * 4 + 3] = 255; // opacity
+                }
+                ctx.putImageData(imgd, x, y);
 
-		imgd = dctx.getImageData(x + w, y, 1, h);
-		pix = imgd.data;
-		for (var c = 0; c < h; c++) {
-		    pix[c * 4] = 255 - pix[c * 4]; // red
-		    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
-		    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
-		    pix[c * 4 + 3] = 255; // opacity
-		}
-		ctx.putImageData(imgd, x + w, y);
-	    }
+                imgd = dctx.getImageData(x + w, y, 1, h);
+                pix = imgd.data;
+                for (var c = 0; c < h; c++) {
+                    pix[c * 4] = 255 - pix[c * 4]; // red
+                    pix[c * 4 + 1] = 255 - pix[c * 4 + 1]; // green
+                    pix[c * 4 + 2] = 255 - pix[c * 4 + 2]; // blue
+                    pix[c * 4 + 3] = 255; // opacity
+                }
+                ctx.putImageData(imgd, x + w, y);
+            }
         }
 
         if ((fill_opacity !== undefined) && (fill_opacity > 0)) {
@@ -2579,8 +2585,8 @@ window.mx = window.mx || {};
 
         if ((Mx.font) && (Mx.font.width === width)) {
             // use the cached font
-            ctx.font = Mx.text_h + "px " + Mx.font.font;
-            ctx_wid.font = Mx.text_h + "px " + Mx.font.font;
+            ctx.font = Mx.font.font;
+            ctx_wid.font = Mx.font.font;
         } else {
             // figure out the font
             var font = "Courier New, monospace";
@@ -2594,7 +2600,7 @@ window.mx = window.mx || {};
                 Mx.text_h = text_h;
             } while (Mx.text_w < width);
             Mx.font = {
-                font: font,
+                font: text_h + "px " + font,
                 width: width
             };
         }
@@ -2819,9 +2825,11 @@ window.mx = window.mx || {};
         }
 
 
-        var xmult = 1.0;
-        if (!xtimecode) {
-            xmult = mx.mult(stk1.xmin, stk1.xmax);
+        var _xmult = 1.0;
+        if (flags.xmult) { // if xmult was provided
+            _xmult = flags.xmult;
+        } else if (!xtimecode) {
+            _xmult = mx.mult(stk1.xmin, stk1.xmax);
         }
         if (ydiv < 0) {
             yTIC.dtic1 = stk1.ymin;
@@ -2829,9 +2837,11 @@ window.mx = window.mx || {};
         } else {
             yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv, ytimecode);
         }
-        var ymult = 1.0;
-        if (!ytimecode) {
-            ymult = mx.mult(stk1.ymin, stk1.ymax);
+        var _ymult = 1.0;
+        if (flags.ymult) { // if ymult was provided
+            _ymult = flags.ymult;
+        } else if (!ytimecode) {
+            _ymult = mx.mult(stk1.ymin, stk1.ymax);
         }
 
         var xticlabels = !flags.noxtlab;
@@ -2852,10 +2862,10 @@ window.mx = window.mx || {};
         if (iy > 0) {
             var ly = 0;
             if (!flags.noyplab) {
-                ylabel = m.label(ylab, ymult);
+                ylabel = m.label(ylab, _ymult);
             }
             if (!flags.noxplab) {
-                xlabel = m.label(xlab, xmult);
+                xlabel = m.label(xlab, _xmult);
             }
         }
 
@@ -2890,8 +2900,8 @@ window.mx = window.mx || {};
         }
 
         var fmul;
-        if (xmult !== 0) {
-            fmul = 1.0 / xmult;
+        if (_xmult !== 0) {
+            fmul = 1.0 / _xmult;
         } else {
             fmul = 1.0;
         }
@@ -2944,11 +2954,20 @@ window.mx = window.mx || {};
             }
             if (flags.grid && flags.grid !== "y") {
                 if (!flags.gridStyle) {
-                    flags.gridStyle = {
-                        mode: "dashed",
-                        on: 1,
-                        off: 3
-                    };
+                    if (mx.LEGACY_RENDER) {
+                        flags.gridStyle = {
+                            mode: "dashed",
+                            on: 1,
+                            off: 3
+                        };
+                    } else {
+                        flags.gridStyle = {
+                            "color": Mx.xwms,
+                            mode: "dashed",
+                            on: 1,
+                            off: 3
+                        };
+                    }
                 }
                 mx.textline(Mx, i, iscb, i, isct, flags.gridStyle);
             } else {
@@ -2974,7 +2993,9 @@ window.mx = window.mx || {};
                             i = Math.max(iscl + itexti, i);
                             i = Math.min(iscr - itexti, i);
                         }
-                        mx.text(Mx, i - itexti, jtext, xlbl);
+                        if (i - itexti >= 0) {
+                            mx.text(Mx, i - itexti, jtext, xlbl);
+                        }
                     }
                 } else if (x === xTIC.dtic1) {
                     if (xtimecode) {
@@ -2995,7 +3016,7 @@ window.mx = window.mx || {};
         }
 
         // Add y-tick marks
-        if (flags.yonright) {
+        if (flags.yonright) { // TODO - yonright probably doesn't work
             if (flags.inside) {
                 itext = Math.min(iscr - 6 * Mx.text_w, Mx.width - 5 * Mx.text_w);
             } else {
@@ -3005,7 +3026,7 @@ window.mx = window.mx || {};
             if (flags.inside) {
                 itext = Math.max(0, iscl + Mx.text_w);
             } else {
-                itext = Math.max(0, Math.floor(iscl - 5.5 * Mx.text_w));
+                itext = Math.max(0, Math.floor(iscl - (Mx.l - 0.5) * Mx.text_w));
             }
         }
         jtext = 0.4 * Mx.text_h;
@@ -3014,8 +3035,8 @@ window.mx = window.mx || {};
         } else {
             fact = -height / 1.0;
         }
-        if (ymult !== 0) {
-            fmul = 1.0 / ymult;
+        if (_ymult !== 0) {
+            fmul = 1.0 / _ymult;
         } else {
             fmul = 1;
         }
@@ -3124,7 +3145,9 @@ window.mx = window.mx || {};
      * @private
      */
     function _menu_redraw(Mx, menu) {
-        if (menu.animationFrameHandle) { return; }
+        if (menu.animationFrameHandle) {
+            return;
+        }
 
         menu.animationFrameHandle = requestAnimFrame(mx.withWidgetLayer(Mx, function() {
             mx.erase_window(Mx);
@@ -3181,19 +3204,32 @@ window.mx = window.mx || {};
                     ctx.fillStyle = Mx.xwfg;
                     ctx.fillText(" " + item.text + " ", xcc + Mx.text_w * 2, y + yb / 2);
                 } else {
-                    ctx.fillStyle = Mx.xwlo;
-                    ctx.fillRect(xcc, y, xss, yb);
-
-                    ctx.beginPath();
-                    ctx.moveTo(xcc, y + 0.5);
-                    ctx.lineTo(xcc + xss, y + 0.5);
-                    ctx.stroke();
-
-                    if (item.selected) {
-                        mx.shadowbox(Mx, xcc - 1, y, xss + 2, yb, 1, 2, "", 0);
+                    if (mx.LEGACY_RENDER) {
+                        ctx.fillStyle = Mx.xwlo;
+                        ctx.fillRect(xcc, y, xss, yb);
+                        ctx.beginPath();
+                        ctx.moveTo(xcc, y + 0.5);
+                        ctx.lineTo(xcc + xss, y + 0.5);
+                        ctx.stroke();
+                        if (item.selected) {
+                            mx.shadowbox(Mx, xcc - 1, y, xss + 2, yb, 1, 2, "", 0.75);
+                        }
+                    } else {
+                        ctx.save();
+                        ctx.globalAlpha = 0.75;
+                        if (item.selected) {
+                            ctx.fillStyle = Mx.xwts;
+                        } else {
+                            ctx.fillStyle = Mx.xwlo;
+                        }
+                        ctx.fillRect(xcc, y, xss, yb);
+                        ctx.restore();
+                        ctx.strokeStyle = Mx.bg;
+                        ctx.beginPath();
+                        ctx.moveTo(xcc, y + 0.5);
+                        ctx.lineTo(xcc + xss, y + 0.5);
+                        ctx.stroke();
                     }
-
-
 
                     ctx.textBaseline = "middle";
                     ctx.textAlign = "left";
@@ -3384,7 +3420,9 @@ window.mx = window.mx || {};
                     for (var i = 0; i < menu.items.length; i++) {
                         var item = menu.items[i];
                         item.selected = false;
-                        if (!item.text) { continue; }
+                        if (!item.text) {
+                            continue;
+                        }
 
                         if (item.text.toUpperCase().indexOf(menu.keypresses) === 0) {
                             if (matches === 0) {
@@ -3473,7 +3511,7 @@ window.mx = window.mx || {};
      */
     mx.widgetbox = function(Mx, x, y, w, h, inx, iny, inw, inh, name) {
         var GBorder = 3;
-        mx.shadowbox(Mx, x, y, w, h, 1, 2, "", 0);
+        mx.shadowbox(Mx, x, y, w, h, 1, 2, "", 0.75);
         if (name) {
             var length = name.length;
             length = Math.min(length, w / Mx.text_w);
@@ -3486,8 +3524,16 @@ window.mx = window.mx || {};
         }
         if (inw > 0 && inh > 0) {
             var ctx = Mx.active_canvas.getContext("2d");
-            ctx.fillStyle = Mx.bg;
-            ctx.fillRect(inx, iny, inw, inh);
+            if (mx.LEGACY_RENDER) {
+                ctx.fillStyle = Mx.bg;
+                ctx.fillRect(inx, iny, inw, inh);
+            } else {
+                ctx.save();
+                ctx.globalAlpha = 0.1;
+                ctx.fillStyle = Mx.bg;
+                ctx.fillRect(inx, iny, inw, inh);
+                ctx.restore();
+            }
         }
     };
 
@@ -3512,6 +3558,7 @@ window.mx = window.mx || {};
         }
         ctx.textBaseline = "bottom";
         ctx.textAlign = "left";
+        ctx.font = Mx.font.font;
         if (color === undefined) {
             ctx.fillStyle = Mx.fg;
         } else {
@@ -3653,46 +3700,46 @@ window.mx = window.mx || {};
         } else if (style.mode === "xor") {
             if (typeof Uint8ClampedArray === 'undefined') {
                 // we don't have typed arrays, so canvas getImageData operations
-		// will be very slow, so use color instead
-		ctx.beginPath();
-		ctx.moveTo(x1, y1);
-		ctx.lineTo(x2, y2);
-		ctx.stroke();
-		ctx.beginPath();
-	    } else {
-		// currently xor-style is only supported for horizontal or vertical lines
-		var w = 0;
-		var h = 0;
-		if (y1 === y2) {
-		    w = Math.abs(x2 - x1);
-		    h = width;
-		    x1 = Math.min(x1, x2);
-		} else if (x1 === x2) {
-		    w = width;
-		    h = Math.abs(y2 - y1);
-		    y1 = Math.min(y1, y2);
-		} else {
-		    throw "Only horizontal and vertical lines can be drawn with XOR";
-		}
+                // will be very slow, so use color instead
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                ctx.beginPath();
+            } else {
+                // currently xor-style is only supported for horizontal or vertical lines
+                var w = 0;
+                var h = 0;
+                if (y1 === y2) {
+                    w = Math.abs(x2 - x1);
+                    h = width;
+                    x1 = Math.min(x1, x2);
+                } else if (x1 === x2) {
+                    w = width;
+                    h = Math.abs(y2 - y1);
+                    y1 = Math.min(y1, y2);
+                } else {
+                    throw "Only horizontal and vertical lines can be drawn with XOR";
+                }
 
-		if ((w === 0) || (h === 0)) {
-		    return;
-		}
+                if ((w === 0) || (h === 0)) {
+                    return;
+                }
 
-		x1 = Math.floor(x1);
-		y1 = Math.floor(y1);
-		var imgd = ctx.getImageData(x1, y1, w, h);
-		var pix = imgd.data;
-		// Loop over each pixel and invert the color.
-		for (var i = 0, n = pix.length; i < n; i += 4) {
-		    pix[i] = 255 - pix[i]; // red
-		    pix[i + 1] = 255 - pix[i + 1]; // green
-		    pix[i + 2] = 255 - pix[i + 2]; // blue
-		    pix[i + 3] = 255; // opacity
-		}
-		ctx.putImageData(imgd, x1, y1);
-		ctx.clearRect(0, 0, 1, 1);
-	    }
+                x1 = Math.floor(x1);
+                y1 = Math.floor(y1);
+                var imgd = ctx.getImageData(x1, y1, w, h);
+                var pix = imgd.data;
+                // Loop over each pixel and invert the color.
+                for (var i = 0, n = pix.length; i < n; i += 4) {
+                    pix[i] = 255 - pix[i]; // red
+                    pix[i + 1] = 255 - pix[i + 1]; // green
+                    pix[i + 2] = 255 - pix[i + 2]; // blue
+                    pix[i + 3] = 255; // opacity
+                }
+                ctx.putImageData(imgd, x1, y1);
+                ctx.clearRect(0, 0, 1, 1);
+            }
         }
     }
 
@@ -4028,6 +4075,7 @@ window.mx = window.mx || {};
      * @private
      */
     mx.format_g = function(num, w, d, leading_nonzero) {
+        var w = Math.min(w, d + 7);
         var f = Math.abs(num).toString();
 
         var decloc = f.indexOf(".");
@@ -4067,8 +4115,8 @@ window.mx = window.mx || {};
                     f = f.slice(0, d + 2);
                 }
             } else if (decloc > d) {
-                var exp = Math.max(0, f.length - d - 2);
-                f = f[0] + "." + f.slice(1, 9);
+                var exp = Math.max(0, decloc - 1);
+                f = f[0] + "." + f.slice(1, d + 1);
             } else {
                 f = f.slice(0, d + 2);
             }
@@ -4097,12 +4145,13 @@ window.mx = window.mx || {};
      *
      * Behave like fortran format code
      * fs.d
-     * @param num
-     * @param s
-     * @param d
+     * @param num the number to format
+     * @param s the width of digits
+     * @param d number of digits after the decimal
      * @private
      */
     mx.format_f = function(num, s, d) {
+        d = Math.max(Math.min(d, 20), 0);
         var f = num.toFixed(d).toString();
         f = mx.pad(f, (s + d), " ");
         return f;
@@ -4133,7 +4182,7 @@ window.mx = window.mx || {};
      * @private
      */
     // ~= MX$SHADOWBOX
-    mx.shadowbox = function(Mx, x, y, w, h, shape, func, label) {
+    mx.legacy_shadowbox = function(Mx, x, y, w, h, shape, func, label) {
         var length = label.length; // Original method declaration includes a length - but it only represents the length of the label
 
         var xt = 0; // Originally an int
@@ -4250,6 +4299,158 @@ window.mx = window.mx || {};
 
     /**
      * @param Mx
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param shape
+     * @param func
+     * @param label
+     * @private
+     */
+    // ~= MX$SHADOWBOX
+    mx.sigplot_shadowbox = function(Mx, x, y, w, h, shape, func, label, alpha) {
+        var ctx = Mx.active_canvas.getContext("2d");
+
+        var length = label.length; // Original method declaration includes a length - but it only represents the length of the label
+
+        var color = (func < 0) ? Mx.xwts : Mx.xwbs;
+
+        alpha = alpha || 1.0;
+
+        var pix = []; // Originally declared as a size 11 XPoint array
+        for (var cnt = 0; cnt < 11; cnt++) { // initializing 11 points in the array
+            pix[cnt] = {
+                x: 0,
+                y: 0
+            };
+        }
+
+
+        switch (shape) {
+            case mx.L_ArrowLeft:
+            case mx.L_ArrowRight:
+            case mx.L_ArrowUp:
+            case mx.L_ArrowDown:
+                var pix = mx.chevron(shape, x, y, w, h);
+                ctx.fillStyle = (func > 0) ? Mx.xwts : Mx.xwbs;
+                fill_poly(ctx, pix.slice(0, 6));
+                break;
+            default:
+                mx.draw_round_box(Mx, color, x, y, w, h, alpha, Mx.xwbg, 5, Mx.xwbs);
+                break;
+        }
+
+        ctx.fillStyle = Mx.xwfg; // Set foreground color
+        ctx.textBaseline = "alphabetic"; // Reset vertical text alignment
+
+        var fill = !(func === 1 || func === -1); // Originally a bool
+        if (fill && length > 0) {
+            length = Math.min(length, m.trunc(w / Mx.text_w));
+            length = Math.max(length, 1);
+            var xt = x + m.trunc((w - length * Mx.text_w) / 2);
+            var yt = y + m.trunc((h + 0.7 * Mx.text_h) / 2);
+            ctx.fillText(label, xt, yt); // Draw a string
+        }
+    };
+
+    if (mx.LEGACY_RENDER) { // TODO new-style conditional
+        mx.shadowbox = mx.legacy_shadowbox;
+    } else {
+        mx.shadowbox = mx.sigplot_shadowbox;
+    }
+
+    mx.chevron = function(shape, x, y, w, h, e) {
+        // Figure out the largest square dimension
+        var q = Math.min(w, h);
+
+        // if the edge width isn't provided use a decent one
+        if (!e) {
+            e = q * 0.25;
+        }
+
+
+
+        // Initialize the pixel array
+        var pix = [];
+        for (var cnt = 0; cnt < 6; cnt++) { // initializing 11 points in the array
+            pix[cnt] = {
+                x: 0,
+                y: 0
+            };
+        }
+
+
+        var x_offset = m.trunc(((w - q) / 2) + (q / 4) - (e / (2 * 1.414)));
+        var y_offset = m.trunc(((h - q) / 2) + (q / 4) - (e / (2 * 1.414)));
+        switch (shape) {
+            case mx.L_ArrowLeft:
+                // Chevron points from the tip around the edge clockwise
+                pix[0].x = x + x_offset;
+                pix[0].y = y + m.trunc(q / 2);
+                pix[1].x = x + x_offset + m.trunc(q / 2);
+                pix[1].y = y;
+                pix[2].x = x + x_offset + m.trunc((q / 2) + (e / 1.414));
+                pix[2].y = y + m.trunc(e / 1.414);
+                pix[3].x = x + x_offset + m.trunc((2 * e) / 1.414);
+                pix[3].y = y + m.trunc(q / 2);
+                pix[4].x = x + x_offset + m.trunc((q / 2) + (e / 1.414));
+                pix[4].y = y + h - m.trunc(e / 1.414);
+                pix[5].x = x + x_offset + m.trunc(q / 2);
+                pix[5].y = y + q;
+                break;
+            case mx.L_ArrowRight:
+                // Chevron points from the tip around the edge clockwise
+                pix[0].x = x + w - x_offset;
+                pix[0].y = y + m.trunc(q / 2);
+                pix[1].x = x + w - x_offset - m.trunc(q / 2);
+                pix[1].y = y;
+                pix[2].x = x + w - x_offset - m.trunc((q / 2) + (e / 1.414));
+                pix[2].y = y + m.trunc(e / 1.414);
+                pix[3].x = x + w - x_offset - m.trunc((2 * e) / 1.414);
+                pix[3].y = y + m.trunc(q / 2);
+                pix[4].x = x + w - x_offset - m.trunc((q / 2) + (e / 1.414));
+                pix[4].y = y + h - m.trunc(e / 1.414);
+                pix[5].x = x + w - x_offset - m.trunc(q / 2);
+                pix[5].y = y + q;
+                break;
+            case mx.L_ArrowUp:
+                // Chevron points from the tip around the edge counter-clockwise
+                pix[0].x = x + m.trunc(q / 2);
+                pix[0].y = y + y_offset;
+                pix[1].x = x;
+                pix[1].y = y + y_offset + m.trunc(q / 2);
+                pix[2].x = x + m.trunc(e / 1.414);
+                pix[2].y = y + y_offset + m.trunc((q / 2) + (e / 1.414));
+                pix[3].x = x + m.trunc(q / 2);
+                pix[3].y = y + y_offset + m.trunc((2 * e) / 1.414);
+                pix[4].x = x + w - m.trunc(e / 1.414);
+                pix[4].y = y + y_offset + m.trunc((q / 2) + (e / 1.414));
+                pix[5].x = x + q;
+                pix[5].y = y + y_offset + m.trunc(q / 2);
+                break;
+            case mx.L_ArrowDown:
+                // Chevron points from the tip around the edge counter-clockwise
+                pix[0].x = x + m.trunc(q / 2);
+                pix[0].y = y + h - y_offset;
+                pix[1].x = x;
+                pix[1].y = y + h - y_offset - m.trunc(q / 2);
+                pix[2].x = x + m.trunc(e / 1.414);
+                pix[2].y = y + h - y_offset - m.trunc((q / 2) + (e / 1.414));
+                pix[3].x = x + m.trunc(q / 2);
+                pix[3].y = y + h - y_offset - m.trunc((2 * e) / 1.414);
+                pix[4].x = x + w - m.trunc(e / 1.414);
+                pix[4].y = y + h - y_offset - m.trunc((q / 2) + (e / 1.414));
+                pix[5].x = x + q;
+                pix[5].y = y + h - y_offset - m.trunc(q / 2);
+                break;
+        }
+
+        return pix;
+    };
+
+    /**
+     * @param Mx
      * @param mouseEvent
      * @private
      */
@@ -4341,11 +4542,17 @@ window.mx = window.mx || {};
             ts1 = sv.a1 + Math.floor(0.5 + (sv.smin - sv.tmin) * dv);
             ts2 = ts1 + Math.floor(0.5 + sv.srange * dv);
 
-            if (ts1 > sv.a2 - sv.swmin) { ts1 = sv.a2 - sv.swmin; }
-            else { ts1 = Math.max(ts1, sv.a1); }
+            if (ts1 > sv.a2 - sv.swmin) {
+                ts1 = sv.a2 - sv.swmin;
+            } else {
+                ts1 = Math.max(ts1, sv.a1);
+            }
 
-            if (ts2 < sv.a1 + sv.swmin) { ts2 = sv.a1 + sv.swmin; }
-            else { ts2 = Math.min(ts2, sv.a2); }
+            if (ts2 < sv.a1 + sv.swmin) {
+                ts2 = sv.a1 + sv.swmin;
+            } else {
+                ts2 = Math.min(ts2, sv.a2);
+            }
 
             return {
                 s1: ts1,
@@ -4389,6 +4596,7 @@ window.mx = window.mx || {};
         xss = sv.w;
         yss = sv.h;
 
+        // horizontal scroll bar
         if (sv.origin & 1) {
             y = ycc + yss / 2;
             if (sv.origin & 2) {
@@ -4403,19 +4611,24 @@ window.mx = window.mx || {};
             }
 
 
-            if (Mx.legacyRender) {
+            if (mx.LEGACY_RENDER) {
                 mx.draw_line(Mx, Mx.fg, xcc + sv.a1, y, xcc + sv.a2, y);
                 mx.shadowbox(Mx, xcc + p1, ycc, sw + 1, yss, 1, 2, "", 0);
             } else {
+                // Veritical gradiant
                 var lingrad = ctx.createLinearGradient(xcc + sv.a1, 0, xcc + sv.a2, 0);
                 lingrad.addColorStop(0, Mx.xwbs);
                 lingrad.addColorStop(0.5, Mx.xwts);
                 lingrad.addColorStop(1, Mx.xwbs);
                 mx.draw_line(Mx, lingrad, xcc + sv.a1, y, xcc + sv.a2, y, 1);
 
-                mx.shadowbox(Mx, xcc + p1, ycc, sw + 1, yss, 1, 2, "", 0); // TODO replace with something cooler
+                var lingrad = ctx.createLinearGradient(0, ycc, 0, ycc + yss);
+                lingrad.addColorStop(0.1, Mx.xwts);
+                lingrad.addColorStop(0.75, Mx.xwbs);
+                mx.draw_round_box(Mx, Mx.xwbg, xcc + p1, ycc, sw + 1, yss, 1, lingrad, 8, Mx.xwbs);
             }
 
+            // else vertical scroll bar
         } else {
             x = xcc + m.trunc(xss / 2);
             if (sv.origin <= 2) {
@@ -4428,17 +4641,21 @@ window.mx = window.mx || {};
                 mx.shadowbox(Mx, xcc, ycc + yss - arrow, xss - 1, arrow, mx.L_ArrowDown, 2, "", 0);
             }
 
-            if (Mx.legacyRender) {
+            if (mx.LEGACY_RENDER) {
                 mx.draw_line(Mx, Mx.fg, x, ycc + sv.a1, x, ycc + sv.a2);
                 mx.shadowbox(Mx, xcc, ycc + p1, xss, sw + 1, 1, 2, "", 0);
             } else {
+                // Horizontal gradiant
                 var lingrad = ctx.createLinearGradient(0, ycc + sv.a1, 0, ycc + sv.a2);
                 lingrad.addColorStop(0, Mx.xwbs);
                 lingrad.addColorStop(0.5, Mx.xwts);
                 lingrad.addColorStop(1, Mx.xwbs);
-                mx.draw_line(Mx, lingrad, x, ycc + sv.a1, x, ycc + sv.a2);
+                mx.draw_line(Mx, lingrad, x, ycc + sv.a1, x, ycc + sv.a2, 1);
 
-                mx.shadowbox(Mx, xcc, ycc + p1, xss, sw + 1, 1, 2, "", 0); // TODO replace with something cooler
+                var lingrad = ctx.createLinearGradient(xcc, 0, xcc + xss, 0);
+                lingrad.addColorStop(0.1, Mx.xwts);
+                lingrad.addColorStop(0.75, Mx.xwbs);
+                mx.draw_round_box(Mx, Mx.xwbg, xcc - 1, ycc + p1, xss, sw + 1, 1, lingrad, 8, Mx.xwbs);
             }
 
         }
@@ -4484,22 +4701,36 @@ window.mx = window.mx || {};
 
         var yymin = stk4.ymin;
         var yscl = 1.0 / stk4.yscl;
-        
-        var clipped = ((x > stk4.xmax) || (x < stk4.xmin) || (y > stk4.ymin) || (y < stk4.ymax));
 
-        if (clip) {
-            x = Math.min(x, stk4.xmax);
-            y = Math.max(x, stk4.xmin);
-            y = Math.min(y, stk4.ymin);
-            y = Math.max(y, stk4.ymax);
+        var clipped_x = false;
+        var clipped_y = false;
+
+        if (x !== null) {
+            clipped_x = ((x > stk4.xmax) || (x < stk4.xmin));
+            if (clip) {
+                x = Math.min(x, stk4.xmax);
+                x = Math.max(x, stk4.xmin);
+            }
+            x = Math.round((x - xxmin) * xscl) + left;
+        }
+        if (y !== null) {
+            clipped_y = ((y > stk4.ymin) || (y < stk4.ymax));
+            if (clip) {
+                y = Math.min(y, stk4.ymin);
+                y = Math.max(y, stk4.ymax);
+            }
+            y = Math.round((y - yymin) * yscl) + top;
         }
 
-        var x = Math.round((x - xxmin) * xscl) + left;
-        var y = Math.round((y - yymin) * yscl) + top;
+        x = Math.round(x);
+        y = Math.round(y);
+
         return {
             x: x,
             y: y,
-            clipped: clipped
+            clipped_x: clipped_x,
+            clipped_y: clipped_y,
+            clipped: (clipped_x || clipped_y)
         };
     };
 
@@ -4555,7 +4786,9 @@ window.mx = window.mx || {};
         for (var n = 0; n < ncolors; n++) {
             Mx.pixel[n] = 0;
             var z = colorp[n];
-            while ((iz < 6) && (Math.floor(z) > map[iz].pos)) { iz++; }
+            while ((iz < 6) && (Math.floor(z) > map[iz].pos)) {
+                iz++;
+            }
             if ((iz === 0) || (z >= map[iz].pos)) {
                 // above, below, or directly on boundry
                 Mx.pixel[n] = {
@@ -4604,7 +4837,7 @@ window.mx = window.mx || {};
      * @param ctx
      *   {context} a canvas 2d context
      * @param buf
-     *   {ArrayBuffer} a buffer of 32-bit image data 
+     *   {ArrayBuffer} a buffer of 32-bit image data
      * @param opacity
      *   the opacity to render the image with
      * @param smoothing
@@ -4617,49 +4850,57 @@ window.mx = window.mx || {};
      *   source width
      * @param sh
      *   source height
-     * @param x 
+     * @param x
      *   optional x canvas dest
-     * @param y 
+     * @param y
      *   optional y canvas dest
-     * @param w 
+     * @param w
      *   optional width
-     * @param h 
+     * @param h
      *   optional height
      */
     function renderImageNoTypedArrays(Mx, ctx, buf, opacity, smoothing, x, y, w, h, sx, sy, sw, sh) {
-	if (sx === undefined) { sx = 0; }
-	if (sy === undefined) { sy = 0; }
-	if (sw === undefined) { sw = buf.width - sx; }
-	if (sh === undefined) { sh = buf.height - sy; }
+        if (sx === undefined) {
+            sx = 0;
+        }
+        if (sy === undefined) {
+            sy = 0;
+        }
+        if (sw === undefined) {
+            sw = buf.width - sx;
+        }
+        if (sh === undefined) {
+            sh = buf.height - sy;
+        }
 
-	// If the source buffer is small enough to be directly rendered, do that
-	Mx._renderCanvas.width = buf.width;
-	Mx._renderCanvas.height = buf.height;
+        // If the source buffer is small enough to be directly rendered, do that
+        Mx._renderCanvas.width = buf.width;
+        Mx._renderCanvas.height = buf.height;
 
-	var imgctx = Mx._renderCanvas.getContext("2d");
-	var imgd = imgctx.createImageData(Mx._renderCanvas.width, Mx._renderCanvas.height);
+        var imgctx = Mx._renderCanvas.getContext("2d");
+        var imgd = imgctx.createImageData(Mx._renderCanvas.width, Mx._renderCanvas.height);
         var buf8 = new Uint8Array(buf);
-	for (var yy=0; yy<buf.height; ++yy) {
-	    for (var xx=0; xx<buf.width; ++xx) {
-		var index = ((yy*buf.width) + xx) * 4;
-		imgd.data[index  ] = buf8[index  ]; // red
-		imgd.data[index+1] = buf8[index+1]; // green
-		imgd.data[index+2] = buf8[index+2]; // blue
-		imgd.data[index+3] = 255; // alpha
-	    }
-	}
-	imgctx.putImageData(imgd, 0, 0);
+        for (var yy = 0; yy < buf.height; ++yy) {
+            for (var xx = 0; xx < buf.width; ++xx) {
+                var index = ((yy * buf.width) + xx) * 4;
+                imgd.data[index] = buf8[index]; // red
+                imgd.data[index + 1] = buf8[index + 1]; // green
+                imgd.data[index + 2] = buf8[index + 2]; // blue
+                imgd.data[index + 3] = 255; // alpha
+            }
+        }
+        imgctx.putImageData(imgd, 0, 0);
 
-	// Render the image to the destination
-	ctx.save();
-	ctx.globalAlpha = opacity;
-	if (!smoothing) {
-	    ctx.imageSmoothingEnabled = false;
-	    ctx.mozImageSmoothingEnabled = false;
-	    ctx.webkitImageSmoothingEnabled = false;
-	}
-	ctx.drawImage(Mx._renderCanvas, sx, sy, sw, sh, x, y, w, h);
-	ctx.restore();
+        // Render the image to the destination
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        if (!smoothing) {
+            ctx.imageSmoothingEnabled = false;
+            ctx.mozImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = false;
+        }
+        ctx.drawImage(Mx._renderCanvas, sx, sy, sw, sh, x, y, w, h);
+        ctx.restore();
     }
 
     /**
@@ -4668,7 +4909,7 @@ window.mx = window.mx || {};
      * @param ctx
      *   {context} a canvas 2d context
      * @param buf
-     *   {ArrayBuffer} a buffer of 32-bit image data 
+     *   {ArrayBuffer} a buffer of 32-bit image data
      * @param opacity
      *   the opacity to render the image with
      * @param smoothing
@@ -4681,54 +4922,62 @@ window.mx = window.mx || {};
      *   source width
      * @param sh
      *   source height
-     * @param x 
+     * @param x
      *   optional x canvas dest
-     * @param y 
+     * @param y
      *   optional y canvas dest
-     * @param w 
+     * @param w
      *   optional width
-     * @param h 
+     * @param h
      *   optional height
      */
     function renderImageTypedArrays(Mx, ctx, buf, opacity, smoothing, x, y, w, h, sx, sy, sw, sh) {
-	if (sx === undefined) { sx = 0; }
-	if (sy === undefined) { sy = 0; }
-	if (sw === undefined) { sw = buf.width - sx; }
-	if (sh === undefined) { sh = buf.height - sy; }
+        if (sx === undefined) {
+            sx = 0;
+        }
+        if (sy === undefined) {
+            sy = 0;
+        }
+        if (sw === undefined) {
+            sw = buf.width - sx;
+        }
+        if (sh === undefined) {
+            sh = buf.height - sy;
+        }
 
         if ((buf.width < 32768) && (buf.height < 32768)) {
             // If the source buffer is small enough to be directly rendered, do that
-	    Mx._renderCanvas.width = buf.width;
-	    Mx._renderCanvas.height = buf.height;
+            Mx._renderCanvas.width = buf.width;
+            Mx._renderCanvas.height = buf.height;
 
-	    var imgctx = Mx._renderCanvas.getContext("2d");
-	    var imgd = imgctx.createImageData(Mx._renderCanvas.width, Mx._renderCanvas.height);
+            var imgctx = Mx._renderCanvas.getContext("2d");
+            var imgd = imgctx.createImageData(Mx._renderCanvas.width, Mx._renderCanvas.height);
 
             // TODO - This may not be portable to all browsers, if not
-	    // we need to choose between this approach and the traditional
-	    // for-loop based approach
+            // we need to choose between this approach and the traditional
+            // for-loop based approach
             var buf8 = new Uint8ClampedArray(buf);
-	    imgd.data.set(buf8);
-	    imgctx.putImageData(imgd, 0, 0);
+            imgd.data.set(buf8);
+            imgctx.putImageData(imgd, 0, 0);
         } else {
             if ((sw < 32768) && (sh < 32768)) {
-	        // The clipped image is small enough to directly render
-		Mx._renderCanvas.width = sw;
-		Mx._renderCanvas.height = sh;
-		scaleImage(Mx._renderCanvas, buf, sx, sy, sw, sh);
-	    } else {
-		// Downscale to twice the destination size
-		Mx._renderCanvas.width = Math.min(w*2, buf.width);
-		Mx._renderCanvas.height = Math.min(h*2, buf.height);
-		scaleImage(Mx._renderCanvas, buf, sx, sy, sw, sh);
-		sw = Mx._renderCanvas.width;
-		sh = Mx._renderCanvas.height;
-	    }
-	    sx = 0;
-	    sy = 0;
+                // The clipped image is small enough to directly render
+                Mx._renderCanvas.width = sw;
+                Mx._renderCanvas.height = sh;
+                scaleImage(Mx._renderCanvas, buf, sx, sy, sw, sh);
+            } else {
+                // Downscale to twice the destination size
+                Mx._renderCanvas.width = Math.min(w * 2, buf.width);
+                Mx._renderCanvas.height = Math.min(h * 2, buf.height);
+                scaleImage(Mx._renderCanvas, buf, sx, sy, sw, sh);
+                sw = Mx._renderCanvas.width;
+                sh = Mx._renderCanvas.height;
+            }
+            sx = 0;
+            sy = 0;
         }
 
-	// Render the image to the destination
+        // Render the image to the destination
         ctx.save();
         ctx.globalAlpha = opacity;
         if (!smoothing) {
@@ -4754,51 +5003,51 @@ window.mx = window.mx || {};
      * @private
      */
     function scaleImage(img, buf, sx, sy, sw, sh) {
-	// Source buffer, expected to have .width and .height elements
-	var src = new Uint32Array(buf);
+        // Source buffer, expected to have .width and .height elements
+        var src = new Uint32Array(buf);
 
-	if (!sw) {
-	    sw = buf.width;
-	}
-	if (!sh) {
-	    sh = buf.height;
-	}
-	if (!sx) {
-	    sx = 0;    
-	}
-	if (!sy) {
-	    sy = 0;    
-	}
+        if (!sw) {
+            sw = buf.width;
+        }
+        if (!sh) {
+            sh = buf.height;
+        }
+        if (!sx) {
+            sx = 0;
+        }
+        if (!sy) {
+            sy = 0;
+        }
 
-	// Cache to avoid get width calls in tight loop
-	var w = img.width;
-	var h = img.height;
+        // Cache to avoid get width calls in tight loop
+        var w = img.width;
+        var h = img.height;
 
-	// Destination element
-	var imgctx = img.getContext("2d");
-	var imgd = imgctx.createImageData(w, h);
-	var ibuf = new ArrayBuffer(imgd.data.length);
-	var buf8 = new Uint8ClampedArray(ibuf);
-	var dest = new Uint32Array(ibuf);
+        // Destination element
+        var imgctx = img.getContext("2d");
+        var imgd = imgctx.createImageData(w, h);
+        var ibuf = new ArrayBuffer(imgd.data.length);
+        var buf8 = new Uint8ClampedArray(ibuf);
+        var dest = new Uint32Array(ibuf);
 
-	// Scaling factor
-	var width_scaling = sw / w;
-	var height_scaling = sh / h;
+        // Scaling factor
+        var width_scaling = sw / w;
+        var height_scaling = sh / h;
 
         // Perform the scaling	
-	var xx = 0;
-	var yy = 0;
-	var jj = 0;
-	for (var i=0; i<dest.length; i++) {
-	    xx = Math.round(Math.floor(i % w) * width_scaling) + sx;
-	    yy = Math.round(Math.floor(i / w) * height_scaling) + sy;
-	    jj = Math.floor((yy*buf.width) + xx);
-	    dest[i] = src[jj];
-	}
+        var xx = 0;
+        var yy = 0;
+        var jj = 0;
+        for (var i = 0; i < dest.length; i++) {
+            xx = Math.round(Math.floor(i % w) * width_scaling) + sx;
+            yy = Math.round(Math.floor(i / w) * height_scaling) + sy;
+            jj = Math.floor((yy * buf.width) + xx);
+            dest[i] = src[jj];
+        }
 
-	// Set the data
-	imgd.data.set(buf8);
-	imgctx.putImageData(imgd, 0, 0);
+        // Set the data
+        imgd.data.set(buf8);
+        imgctx.putImageData(imgd, 0, 0);
     }
 
     var renderImage = (typeof Uint8ClampedArray === 'undefined') ? renderImageNoTypedArrays : renderImageTypedArrays;
@@ -4812,10 +5061,10 @@ window.mx = window.mx || {};
     mx.shift_image_rows = function(Mx, buf, shift) {
         var imgd = new Uint32Array(buf);
         if (shift > 0) { // shift down
-            shift = shift*buf.width;
-            imgd.set(imgd.subarray(0, imgd.length-shift) , shift);
+            shift = shift * buf.width;
+            imgd.set(imgd.subarray(0, imgd.length - shift), shift);
         } else if (shift < 0) { // shift up
-            shift = Math.abs(shift)*buf.width;
+            shift = Math.abs(shift) * buf.width;
             imgd.set(imgd.subarray(shift));
         }
 
@@ -4832,8 +5081,8 @@ window.mx = window.mx || {};
      * @private
      */
     mx.update_image_row = function(Mx, buf, data, row, zmin, zmax) {
-        var imgd = new Uint32Array(buf, row*buf.width*4, buf.width);
-        
+        var imgd = new Uint32Array(buf, row * buf.width * 4, buf.width);
+
         var fscale = 1;
         if (zmax !== zmin) {
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
@@ -4845,12 +5094,12 @@ window.mx = window.mx || {};
 
             var color = Mx.pixel[cidx];
             if (color) {
-		/*jshint bitwise: false */
-                imgd[i] = (255         << 24) | // alpha
-                          (color.blue  << 16) | // blue
-                          (color.green <<  8) | // green
-                          (color.red        );  // red
-		/*jshint bitwise: true */
+                /*jshint bitwise: false */
+                imgd[i] = (255 << 24) | // alpha
+                    (color.blue << 16) | // blue
+                    (color.green << 8) | // green
+                    (color.red); // red
+                /*jshint bitwise: true */
             }
         }
 
@@ -4872,7 +5121,7 @@ window.mx = window.mx || {};
 
         if (!Mx.pixel || Mx.pixel.length === 0) {
             m.log.warn("COLORMAP not initialized, defaulting to foreground");
-            mx.colormap(Mx, m.Mc.colormap[1], 16);
+            mx.colormap(Mx, m.Mc.colormap[1].colors, 16);
         }
 
         var fscale = 1;
@@ -4882,7 +5131,7 @@ window.mx = window.mx || {};
 
         w = Math.ceil(w);
         h = Math.ceil(h);
-        var buf = new ArrayBuffer(w*h*4);
+        var buf = new ArrayBuffer(w * h * 4);
         buf.width = w;
         buf.height = h;
 
@@ -4907,12 +5156,12 @@ window.mx = window.mx || {};
 
             var color = Mx.pixel[cidx];
             if (color) {
-		/*jshint bitwise: false */
-                imgd[i] = (255         << 24) | // alpha
-                          (color.blue  << 16) | // blue
-                          (color.green <<  8) | // green
-                          (color.red        );  // red
-		/*jshint bitwise: true */
+                /*jshint bitwise: false */
+                imgd[i] = (255 << 24) | // alpha
+                    (color.blue << 16) | // blue
+                    (color.green << 8) | // green
+                    (color.red); // red
+                /*jshint bitwise: true */
             }
         }
 
@@ -4939,7 +5188,7 @@ window.mx = window.mx || {};
 
         if (!Mx.pixel || Mx.pixel.length === 0) {
             m.log.warn("COLORMAP not initialized, defaulting to foreground");
-            mx.colormap(Mx, m.Mc.colormap[1], 16);
+            mx.colormap(Mx, m.Mc.colormap[1].colors, 16);
         }
 
         var w;
@@ -4953,7 +5202,7 @@ window.mx = window.mx || {};
         w = Math.floor(w);
         h = Math.floor(ny * ney);
 
-        var buf = new ArrayBuffer(w*h*4);
+        var buf = new ArrayBuffer(w * h * 4);
         buf.width = w;
         buf.height = h;
 
@@ -4964,12 +5213,12 @@ window.mx = window.mx || {};
 
             var color = Mx.pixel[cidx];
             if (color) {
-		/*jshint bitwise: false */
-                imgd[i] = (255         << 24) | // alpha
-                          (color.blue  << 16) | // blue
-                          (color.green <<  8) | // green
-                          (color.red        );  // red
-		/*jshint bitwise: true */
+                /*jshint bitwise: false */
+                imgd[i] = (255 << 24) | // alpha
+                    (color.blue << 16) | // blue
+                    (color.green << 8) | // green
+                    (color.red); // red
+                /*jshint bitwise: true */
             }
         }
 
@@ -4998,36 +5247,58 @@ window.mx = window.mx || {};
         var view_ymax = Math.min(ymax, Mx.stk[Mx.level].ymax);
 
 
-        if ((buf.width <= 1) || Math.abs(xmax-xmin) === 0) {
+        if ((buf.width <= 1) || Math.abs(xmax - xmin) === 0) {
             return;
         }
-        if ((buf.height <= 1) || Math.abs(ymax-ymin) === 0) {
+        if ((buf.height <= 1) || Math.abs(ymax - ymin) === 0) {
             return;
         }
-        var rx = (buf.width - 1) / (xmax - xmin);
-        var sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
-        var sw = Math.min(buf.width, buf.width - Math.floor((xmax - view_xmax) * rx) - sx);
+        var rx = buf.width / (xmax - xmin);
+        var ry = buf.height / (ymax - ymin);
 
-        var ry = (buf.height - 1) / (ymax - ymin);
-        var sy = Math.max(0, Math.floor((view_ymin - ymin) * ry));
-        var sh = Math.min(buf.height, buf.height - Math.floor((ymax - view_ymax) * ry) - sy);
+        // Ensure we are on buffer pixel boundaries, later we use clipping
+        // to constrain to the proper area
+        view_xmin = Math.floor(view_xmin * rx) / rx;
+        view_xmax = Math.ceil(view_xmax * rx) / rx;
+        view_ymin = Math.floor(view_ymin * ry) / ry;
+        view_ymax = Math.ceil(view_ymax * ry) / ry;
 
-        var ul;
-        var lr;
+        var ul, lr;
+        var sy, sx, sw, sh;
         if (Mx.origin === 1) {
             // regular x, regular y
+            sy = Math.max(0, Math.floor((ymax - view_ymax) * ry));
+            sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
+            sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
+
             ul = mx.real_to_pixel(Mx, view_xmin, view_ymax);
             lr = mx.real_to_pixel(Mx, view_xmax, view_ymin);
         } else if (Mx.origin === 2) {
             // inverted x, regular y
+            sy = Math.max(0, Math.floor((ymax - view_ymax) * ry));
+            sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.ceil((view_xmin - xmin) * rx));
+            sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
+
             ul = mx.real_to_pixel(Mx, view_xmax, view_ymax);
             lr = mx.real_to_pixel(Mx, view_xmin, view_ymin);
         } else if (Mx.origin === 3) {
             // inverted x, inverted y
+            sy = Math.max(0, Math.ceil((view_ymin - ymin) * ry));
+            sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.ceil((view_xmin - xmin) * rx));
+            sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
+
             ul = mx.real_to_pixel(Mx, view_xmax, view_ymin);
             lr = mx.real_to_pixel(Mx, view_xmin, view_ymax);
         } else if (Mx.origin === 4) {
             // regular x, inverted y
+            sy = Math.max(0, Math.ceil((view_ymin - ymin) * ry));
+            sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
+            sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
+            sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
+
             ul = mx.real_to_pixel(Mx, view_xmin, view_ymin);
             lr = mx.real_to_pixel(Mx, view_xmax, view_ymax);
         }
@@ -5035,9 +5306,28 @@ window.mx = window.mx || {};
         var iw = lr.x - ul.x;
         var ih = lr.y - ul.y;
 
+        // Always include at least one pixel from the source
+        sw = Math.max(1, sw);
+        sh = Math.max(1, sh);
+
+        // See if smart smoothing is requested
+        if (typeof smoothing === "number") {
+            // calculate the ratio of displayed pixels over
+            // displayed data-points
+            var ratio = (Mx.r - Mx.l) / sw;
+            // if the ratio is greater than the smoothing value
+            // turn on smoothing
+            smoothing = (ratio <= smoothing);
+        }
+
         //render the buffered canvas onto the original canvas element
         var ctx = Mx.active_canvas.getContext("2d");
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(Mx.l, Mx.t, Mx.r - Mx.l, Mx.b - Mx.t);
+        ctx.clip();
         renderImage(Mx, ctx, buf, opacity, smoothing, ul.x, ul.y, iw, ih, sx, sy, sw, sh);
+        ctx.restore();
     };
 
 }(window.mx, window.m));

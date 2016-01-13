@@ -39,12 +39,11 @@ var fs = require( "fs" );
  * @private
  */
 var jsdocTestPages = {
-	src       : ["./fixtures/*.js", "./README.md"],
 	dest      : "./testdocs",
 	tutorials : "./fixtures/tutorials",
 	template  : "./template",
-	config    : "./template/jsdoc.conf.json",
-	options   : " --lenient --verbose"
+	config    : "./fixtures/testdocs.conf.json",
+	options   : " --lenient --verbose --recurse"
 };
 /**
  * The definition to run the sample files. This runs the files in `fixtures` with the
@@ -53,9 +52,9 @@ var jsdocTestPages = {
  * @private
  */
 var jsdocExamplePages = {
-	src       : ["./fixtures/*.js", "./README.md"],
+	src       : ["./fixtures/", "./README.md"],
 	dest      : "./themes",
-	tutorials : "",
+	tutorials : "./fixtures/tutorials",
 	template  : "./template",
 	config    : "./fixtures/example.conf.json",
 	options   : " --lenient --verbose --recurse"
@@ -66,7 +65,7 @@ var jsdocExamplePages = {
  *  @private
  */
 var projectDocs = {
-	src       : ["./Gruntfile*.js", "./README.md", "./template/publish.js"],
+	src       : ["./Gruntfile.js", "./README.md", "./template/publish.js"],
 	dest      : "./dox",
 	tutorials : "",
 	template  : "./template",
@@ -92,18 +91,20 @@ function jsdocCommand( jsdoc ) {
 		cmd.push( path.resolve( src ) );
 	} );
 	cmd.unshift( path.resolve( "./node_modules/jsdoc/jsdoc" ) );
+	cmd.unshift( "node" );
+
 	return cmd.join( " " );
 }
 
 var tasks = {
-	shell : {
+	shell  : {
 		options  : {
 			stdout : true,
 			stderr : true
 		},
 		/**
 		 * TASK: Create the a documentation set for testing changes to the template
-		 * @name shell:testdocs
+		 * @name jsdoc:testdocs
 		 * @memberOf module:Gruntfile
 		 */
 		testdocs : {
@@ -116,6 +117,34 @@ var tasks = {
 		 */
 		dox      : {
 			command : jsdocCommand( projectDocs )
+		},
+		release1 : {
+			command : [
+				"touch Gruntfile.js",
+				"git add .",
+				'git commit -m "ready for release"',
+			].join( ";" )
+
+		},
+		release2 : {
+			command : ["npm version patch",
+				"git push",
+				"git push --tags",
+				"npm publish"
+			].join( "&&" )
+		}
+	},
+	jsdoc  : {
+		testdocs : {
+			src     : ['fixtures/**.js', "./README.md"],
+			jsdoc   : "./node_modules/jsdoc/jsdoc.js",
+			options : {
+				destination : './testdocs',
+				rescurse    : true,
+				"private"   : true,
+				"template"  : "./template",
+				"configure" : "./template/jsdoc.conf.json"
+			}
 		}
 	},
 	/**
@@ -125,7 +154,7 @@ var tasks = {
 	 * @name less
 	 * @memberOf module:Gruntfile
 	 */
-	less  : {
+	less   : {
 		dev : {
 			files : {
 				"template/static/styles/site.<%= jsdocConf.templates.theme %>.css" : "styles/main.less"
@@ -139,16 +168,39 @@ var tasks = {
 				{expand : true, cwd : "themes/", src : ['**'], dest : '../docstrap-dox/themes'}
 			]
 		}
+	},
+	uglify : {
+		template : {
+			files : {
+				'template/static/scripts/docstrap.lib.js' : [
+					'bower_components/jquery/jquery.min.js',
+					'bower_components/sunlight/src/sunlight.js',
+					'bower_components/sunlight/src/lang/sunlight.xml.js',
+					'bower_components/sunlight/src/**/*.js',
+//					'bower_components/sunlight/src/lang/*.js',
+//					'bower_components/sunlight/src/plugins/*.js',
+
+					'bower_components/jquery.scrollTo/jquery.scrollTo.min.js',
+					'bower_components/jquery.localScroll/jquery.localScroll.min.js',
+					'bower_components/bootstrap/js/bootstrap-dropdown.js',
+					'bower_components/toc/toc.js',
+					'bower_components/toc/copyright.js'
+				]
+			}
+		}
 	}
 };
 
 module.exports = function ( grunt ) {
 	tasks.jsdocConf = grunt.file.readJSON( 'template/jsdoc.conf.json' );
+
 	grunt.initConfig( tasks );
 
 	grunt.loadNpmTasks( 'grunt-contrib-less' );
 	grunt.loadNpmTasks( 'grunt-shell' );
 	grunt.loadNpmTasks( 'grunt-contrib-copy' );
+	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
+	grunt.loadNpmTasks( 'grunt-jsdoc' );
 
 	grunt.registerTask( "default", ["docs"] );
 
@@ -163,7 +215,7 @@ module.exports = function ( grunt ) {
 	 * @name dev
 	 * @memberof module:Gruntfile
 	 */
-	grunt.registerTask( "dev", "Compile the CSS and create the project documentation", ["less","shell:dox"] );
+	grunt.registerTask( "dev", "Compile the CSS and create the project documentation", ["less", "shell:dox"] );
 	/**
 	 * TASK: Builds the main less file and then generates the test documents
 	 * @name testdocs
@@ -176,7 +228,7 @@ module.exports = function ( grunt ) {
 	 * @name build
 	 * @memberof module:Gruntfile
 	 */
-	grunt.registerTask( "build", "Builds the whole shebang. Which means creating testdocs, the bootswatch samples and then resetting the styles directory", ["testdocs", "shell:dox", "bootswatch", "examples", "apply", "copy"] );
+	grunt.registerTask( "build", "Builds the whole shebang. Which means creating testdocs, the bootswatch samples and then resetting the styles directory", ["uglify:template", "testdocs", "shell:dox", "bootswatch", "examples", "apply", "copy"] );
 	/**
 	 * TASK: Applies the theme in the conf file and applies it to the styles directory.
 	 * @name apply
@@ -184,8 +236,8 @@ module.exports = function ( grunt ) {
 	 */
 	grunt.registerTask( "apply", "Applies the theme in the conf file and applies it to the styles directory", function () {
 		var def = {
-			less          : "http://bootswatch.com/" + tasks.jsdocConf.templates.theme + "/bootswatch.less",
-			lessVariables : "http://bootswatch.com/" + tasks.jsdocConf.templates.theme + "/variables.less"
+			less          : "http://bootswatch.com/2/" + tasks.jsdocConf.templates.theme + "/bootswatch.less",
+			lessVariables : "http://bootswatch.com/2/" + tasks.jsdocConf.templates.theme + "/variables.less"
 		};
 		grunt.registerTask( "swatch-apply", sys.partial( applyTheme, grunt, def ) );
 		grunt.task.run( ["swatch-apply"] );
@@ -255,6 +307,8 @@ module.exports = function ( grunt ) {
 		} );
 
 	} );
+
+	grunt.registerTask( "release", "Create the project documentation", ["shell:release1", "shell:release2"] );
 };
 
 /**
@@ -273,20 +327,23 @@ module.exports = function ( grunt ) {
  */
 function applyTheme( grunt, definition ) {
 	//noinspection JSHint
+
+	var webProtocol = tasks.jsdocConf.templates.protocol || "//";
+	console.info( webProtocol );
 	var done = this.async();
 	async.waterfall( [
 		function ( cb ) {
 			getBootSwatchComponent( definition.less, function ( err, swatch ) {
 				if ( err ) {return cb( err );}
 				var fullPath = path.join( __dirname, "styles/bootswatch.less" );
-				fs.writeFile( fullPath, swatch.replace("http://", "//"), cb );
+				fs.writeFile( fullPath, swatch.replace( "http://", webProtocol ), cb );
 			} );
 		},
 		function ( cb ) {
 			getBootSwatchComponent( definition.lessVariables, function ( err, swatch ) {
 				if ( err ) {return cb( err );}
 				var fullPath = path.join( __dirname, "styles/variables.less" );
-				fs.writeFile( fullPath, swatch.replace("http://", "//"), cb );
+				fs.writeFile( fullPath, swatch.replace( "http://", webProtocol ), cb );
 			} );
 		}
 	], done );

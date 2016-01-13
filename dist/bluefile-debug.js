@@ -835,7 +835,7 @@ if (!window.Float64Array) {
   var _XM_TO_TYPEDARRAY = {"P":null, "A":null, "O":Uint8Array, "B":Int8Array, "I":Int16Array, "L":Int32Array, "X":null, "F":Float32Array, "D":Float64Array};
   var _applySupportsTypedArray = true;
   try {
-    var uintbuf = new UInt8Array(new ArrayBuffer(4));
+    var uintbuf = new Uint8Array(new ArrayBuffer(4));
     uintbuf[0] = 66;
     uintbuf[1] = 76;
     uintbuf[2] = 85;

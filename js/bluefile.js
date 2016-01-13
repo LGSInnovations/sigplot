@@ -86,8 +86,12 @@
         var a = new Uint32Array(b);
         var c = new Uint8Array(b);
         a[0] = 0xdeadbeef;
-        if (c[0] === 0xef) { return 'LE'; }
-        if (c[0] === 0xde) { return 'BE'; }
+        if (c[0] === 0xef) {
+            return 'LE';
+        }
+        if (c[0] === 0xde) {
+            return 'BE';
+        }
         throw new Error('unknown endianness');
     }
 
@@ -170,7 +174,7 @@
      */
     var _applySupportsTypedArray = true;
     try {
-        var uintbuf = new UInt8Array(new ArrayBuffer(4));
+        var uintbuf = new Uint8Array(new ArrayBuffer(4));
         uintbuf[0] = 66;
         uintbuf[1] = 76;
         uintbuf[2] = 85;

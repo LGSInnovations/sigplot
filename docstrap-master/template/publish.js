@@ -1,16 +1,21 @@
 "use strict";
+
 /**
  * @module template/publish
  * @type {*}
  */
 /*global env: true */
+
 var template = require( 'jsdoc/template' ),
 	fs = require( 'jsdoc/fs' ),
 	_ = require( 'underscore' ),
 	path = require( 'jsdoc/path' ),
+
 	taffy = require( 'taffydb' ).taffy,
 	handle = require( 'jsdoc/util/error' ).handle,
 	helper = require( 'jsdoc/util/templateHelper' ),
+// jsdoc node support is still a bit odd
+	moment = require( "./moment" ),
 	htmlsafe = helper.htmlsafe,
 	linkto = helper.linkto,
 	resolveAuthorLinks = helper.resolveAuthorLinks,
@@ -25,14 +30,21 @@ var globalUrl = helper.getUniqueFilename( 'global' );
 var indexUrl = helper.getUniqueFilename( 'index' );
 
 var navOptions = {
-	systemName      : conf.systemName || "Documentation",
-	navType         : conf.navType || "vertical",
-	footer          : conf.footer || "",
-	copyright       : conf.copyright || "",
-	theme           : conf.theme || "simplex",
-	linenums        : conf.linenums,
-	collapseSymbols : conf.collapseSymbols || false,
-	inverseNav      : conf.inverseNav
+	systemName            : conf.systemName || "Documentation",
+	navType               : conf.navType || "vertical",
+	footer                : conf.footer || "",
+	copyright             : conf.copyright || "",
+	theme                 : conf.theme || "simplex",
+	syntaxTheme           : conf.syntaxTheme || "default",
+	linenums              : conf.linenums,
+	collapseSymbols       : conf.collapseSymbols || false,
+	inverseNav            : conf.inverseNav,
+	outputSourceFiles     : conf.outputSourceFiles === true,
+	sourceRootPath        : conf.sourceRootPath,
+	outputSourcePath      : conf.outputSourcePath,
+	dateFormat            : conf.dateFormat,
+	analytics             : conf.analytics || null,
+	highlightTutorialCode : conf.highlightTutorialCode
 };
 
 var navigationMaster = {
@@ -72,7 +84,7 @@ var navigationMaster = {
 		link    : helper.getUniqueFilename( "tutorials.list" ),
 		members : []
 	},
-	global    : {
+	global   : {
 		title   : "Global",
 		link    : globalUrl,
 		members : []
@@ -152,13 +164,25 @@ function addAttribs( f ) {
 }
 
 function shortenPaths( files, commonPrefix ) {
-	// always use forward slashes
-	var regexp = new RegExp( '\\\\', 'g' );
+//	// always use forward slashes
+//	var regexp = new RegExp( '\\\\', 'g' );
+//
+//	var prefix = commonPrefix.toLowerCase().replace( regexp, "/" );
+//
+//	Object.keys( files ).forEach( function ( file ) {
+//		files[file].shortened = files[file]
+//			.resolved
+//			.toLowerCase()
+//			.replace( regexp, '/' )
+//			.replace( prefix, '' );
+//	} );
 
-	Object.keys( files ).forEach( function ( file ) {
-		files[file].shortened = files[file].resolved.replace( commonPrefix, '' )
-			.replace( regexp, '/' );
-	} );
+	Object.keys(files).forEach(function(file) {
+		files[file].shortened = files[file].resolved.replace(commonPrefix, '')
+			// always use forward slashes
+			.replace(/\\/g, '/');
+	});
+
 
 	return files;
 }
@@ -168,9 +192,9 @@ function getPathFromDoclet( doclet ) {
 		return;
 	}
 
-	return doclet.meta.path && doclet.meta.path !== 'null' ?
+	return path.normalize(doclet.meta.path && doclet.meta.path !== 'null' ?
 		doclet.meta.path + '/' + doclet.meta.filename :
-		doclet.meta.filename;
+		doclet.meta.filename);
 }
 
 function generate( docType, title, docs, filename, resolveLinks ) {
@@ -263,7 +287,7 @@ function buildNav( members ) {
 		members.modules.forEach( function ( m ) {
 			if ( !hasOwnProp.call( seen, m.longname ) ) {
 
-				nav.module.members.push( linkto( m.longname, m.name ) );
+				nav.module.members.push( linkto( m.longname, m.longname.replace("module:", "") ) );
 			}
 			seen[m.longname] = true;
 		} );
@@ -285,7 +309,7 @@ function buildNav( members ) {
 		members.classes.forEach( function ( c ) {
 			if ( !hasOwnProp.call( seen, c.longname ) ) {
 
-				nav.class.members.push( linkto( c.longname, c.name ) );
+				nav.class.members.push( linkto( c.longname, c.longname.replace("module:", "") ) );
 			}
 			seen[c.longname] = true;
 		} );
@@ -297,7 +321,7 @@ function buildNav( members ) {
 		members.events.forEach( function ( e ) {
 			if ( !hasOwnProp.call( seen, e.longname ) ) {
 
-				nav.event.members.push( linkto( e.longname, e.name ) );
+				nav.event.members.push( linkto( e.longname, e.longname.replace("module:", "") ) );
 			}
 			seen[e.longname] = true;
 		} );
@@ -309,7 +333,7 @@ function buildNav( members ) {
 		members.namespaces.forEach( function ( n ) {
 			if ( !hasOwnProp.call( seen, n.longname ) ) {
 
-				nav.namespace.members.push( linkto( n.longname, n.name ) );
+				nav.namespace.members.push( linkto( n.longname, n.longname.replace("module:", "") ) );
 			}
 			seen[n.longname] = true;
 		} );
@@ -321,7 +345,7 @@ function buildNav( members ) {
 		members.mixins.forEach( function ( m ) {
 			if ( !hasOwnProp.call( seen, m.longname ) ) {
 
-				nav.mixin.members.push( linkto( m.longname, m.name ) );
+				nav.mixin.members.push( linkto( m.longname, m.longname.replace("module:", "") ) );
 			}
 			seen[m.longname] = true;
 		} );
@@ -341,10 +365,15 @@ function buildNav( members ) {
 		members.globals.forEach( function ( g ) {
 			if ( g.kind !== 'typedef' && !hasOwnProp.call( seen, g.longname ) ) {
 
-				nav.global.members.push( linkto( g.longname, g.name ) );
+				nav.global.members.push( linkto( g.longname, g.longname.replace("module:", "") ) );
 			}
 			seen[g.longname] = true;
 		} );
+
+		// even if there are no links, provide a link to the global page.
+		if ( nav.global.members.length === 0 ) {
+			nav.global.members.push( linkto( "global", "Global" ) );
+		}
 	}
 
 	var topLevelNav = [];
@@ -398,16 +427,27 @@ exports.publish = function ( taffyData, opts, tutorials ) {
 
 		if ( doclet.examples ) {
 			doclet.examples = doclet.examples.map( function ( example ) {
-				var caption, code;
+				var caption, code, lang;
 
 				if ( example.match( /^\s*<caption>([\s\S]+?)<\/caption>(\s*[\n\r])([\s\S]+)$/i ) ) {
 					caption = RegExp.$1;
 					code = RegExp.$3;
 				}
 
+				var lang = /{@lang (.*?)}/.exec( example );
+
+				if ( lang && lang[1] ) {
+					example = example.replace( lang[0], "" );
+					lang = lang[1];
+
+				} else {
+					lang = null;
+				}
+
 				return {
 					caption : caption || '',
-					code    : code || example
+					code    : code || example,
+					lang    : (lang && navOptions.highlightTutorialCode) ? lang : "javascript"
 				};
 			} );
 		}
@@ -427,6 +467,7 @@ exports.publish = function ( taffyData, opts, tutorials ) {
 			};
 
 			sourceFilePaths.push( sourcePath );
+
 		}
 	} );
 
@@ -448,7 +489,11 @@ exports.publish = function ( taffyData, opts, tutorials ) {
 	} );
 
 	if ( sourceFilePaths.length ) {
-		sourceFiles = shortenPaths( sourceFiles, path.commonPrefix( sourceFilePaths ) );
+		var payload = navOptions.sourceRootPath;
+		if ( !payload ) {
+			payload = path.commonPrefix( sourceFilePaths );
+		}
+		sourceFiles = shortenPaths( sourceFiles, payload );
 	}
 	data().each( function ( doclet ) {
 		var url = helper.createLink( doclet );
@@ -458,9 +503,11 @@ exports.publish = function ( taffyData, opts, tutorials ) {
 		var docletPath;
 		if ( doclet.meta ) {
 			docletPath = getPathFromDoclet( doclet );
-			docletPath = sourceFiles[docletPath].shortened;
-			if ( docletPath ) {
-				doclet.meta.shortpath = docletPath;
+			if ( !_.isEmpty( sourceFiles[docletPath] ) ) {
+				docletPath = sourceFiles[docletPath].shortened;
+				if ( docletPath ) {
+					doclet.meta.shortpath = docletPath;
+				}
 			}
 		}
 	} );
@@ -507,6 +554,7 @@ exports.publish = function ( taffyData, opts, tutorials ) {
 	view.resolveAuthorLinks = resolveAuthorLinks;
 	view.tutoriallink = tutoriallink;
 	view.htmlsafe = htmlsafe;
+	view.moment = moment;
 
 	// once for all
 	buildNav( members );
@@ -517,7 +565,7 @@ exports.publish = function ( taffyData, opts, tutorials ) {
 
 	// only output pretty-printed source files if requested; do this before generating any other
 	// pages, so the other pages can link to the source files
-	if ( conf['default'].outputSourceFiles ) {
+	if ( navOptions.outputSourceFiles ) {
 		generateSourceFiles( sourceFiles );
 	}
 

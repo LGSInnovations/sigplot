@@ -50,6 +50,13 @@ The first step is to install the build dependencies using `npm install`.
 Run `grunt test` to run the unittests and JavaScript linting; run `grunt dist`
 to build a distributable version of the project.
 
+If you get an warning from jsbeautifer about files not being "beautified", you 
+can use --force while doing development but prior to making your final commits
+you should run `grunt jsbeautifier:cleanup`.  This will fix any of the formatting
+issues.  It was an intentional decision to not automatically run cleanup because
+it can be risky to make changes to the code as part of the build (even if the
+beautifier is supposed to be 100% code-identical).
+
 Using Make
 -------------
 Although Grunt is the canonical build system, a basic Makefile is provided for
