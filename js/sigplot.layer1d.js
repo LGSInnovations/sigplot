@@ -99,7 +99,18 @@
                     this.size = hcb.size;
                 }
             } else {
+                if (hcb["class"] === 2) {
+                    m.force1000(hcb);
+                    this.size = hcb.subsize;
+                }
+            }
+
+            if (options.framesize) {
                 this.size = options.framesize;
+            }
+
+            if (!this.size) {
+                throw "1D layer could not determine appropriate size";
             }
 
             if (hcb["class"] <= 2) {
