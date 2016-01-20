@@ -1647,6 +1647,76 @@ interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimeco
     }, 100);
 });
 
+interactiveTest('t2000 odd-size layer1D (reload)', 'Do you see a stationary pulse?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var pulse = [];
+    var pulse_width = 5;
+    var pulse_position = 8192;
+    for (var i = 0; i < 16385; i++) {
+        if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+            pulse.push(10.0);
+        } else {
+            pulse.push(-10.0);
+        }
+    }
+    plot.overlay_array(null, {
+        type: 2000,
+        subsize: 16385
+    }, {
+        layerType: sigplot.Layer1D
+    });
+
+    ifixture.interval = window.setInterval(function() {
+        var pulse = [];
+        for (var i = 0; i < 16385; i++) {
+            if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+                pulse.push(Math.random() * 10.0);
+            } else {
+                pulse.push(-10.0);
+            }
+        }
+        plot.reload(0, pulse);
+    }, 100);
+});
+
+interactiveTest('t2000 odd-size layer1D (push)', 'Do you see a stationary pulse?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var pulse = [];
+    var pulse_width = 5;
+    var pulse_position = 8192;
+    for (var i = 0; i < 16385; i++) {
+        if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+            pulse.push(10.0);
+        } else {
+            pulse.push(-10.0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 16385
+    }, {
+        layerType: sigplot.Layer1D,
+    });
+
+    ifixture.interval = window.setInterval(function() {
+        var pulse = [];
+        for (var i = 0; i < 16385; i++) {
+            if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+                pulse.push(Math.random() * 10.0);
+            } else {
+                pulse.push(-10.0);
+            }
+        }
+        plot.push(0, pulse);
+    }, 100);
+});
+
 interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
