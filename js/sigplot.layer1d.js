@@ -171,7 +171,7 @@
 
             this.position = (this.position + tle) % this.size;
 
-            if (this.plot._Gx.autol > 1) {
+            if (this.plot._Gx.autol !== 0) {
                 this.plot.rescale();
             }
         },
