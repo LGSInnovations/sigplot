@@ -268,7 +268,16 @@
                 var fac = 1.0 / (Math.max(Gx.autol, 1));
                 zmin = Gx.zmin * fac + min * (1.0 - fac);
                 zmax = Gx.zmax * fac + max * (1.0 - fac);
+            } else if (Gx.autol < 0) {
+                // -1 means autol wasn't set so default to
+                // 5 like the original XRTRASTER; however,
+                // don't actually override Gx.autol since
+                // other layers may behave differently
+                var fac = 1.0 / (Math.max(5, 1));
+                zmin = Gx.zmin * fac + min * (1.0 - fac);
+                zmax = Gx.zmax * fac + max * (1.0 - fac);
             }
+
             if (((Gx.autoz & 1) !== 0)) {
                 Gx.zmin = zmin;
             }
