@@ -4595,6 +4595,7 @@ window.sigplot = window.sigplot || {};
         Gx.ydiv = o.ydiv === undefined ? 5 : o.ydiv;
 
         Gx.xcompression = o.xcmp || 0;
+        Gx.rasterSmoothing = o.smoothing || false;
 
         Mx.origin = 1;
         if (o.yinv) {

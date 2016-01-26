@@ -2013,6 +2013,35 @@ interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autosc
     }, 100);
 });
 
+interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {smoothing: true});
+    notEqual(plot, null);
+
+    var data = [];
+    for (var i = 0; i < 16384; i++) {
+        if ((i % 3 === 0) && (i > 400) && (i < 800)) {
+            data.push(400);
+        } else if ((i % 3 === 0) && (i > 1200) && (i < 1600)) {
+            data.push(800);
+        } else {
+            data.push(0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 16384
+    }, null, {
+        smoothing: true
+    });
+
+    var cnt = 0;
+    ifixture.interval = window.setInterval(function() {
+        cnt = cnt + 1;
+        plot.push(0, data);
+    }, 100);
+});
+
 interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
