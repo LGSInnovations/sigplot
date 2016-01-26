@@ -2858,6 +2858,14 @@ window.sigplot = window.sigplot || {};
         this.xlab = undefined;
         this.ylab = undefined;
 
+        // 0 - use HTML5 canvas smoothing
+        // 1 - average
+        // 2 - min
+        // 3 - max
+        // 4 - first
+        // 5 - max abs
+        this.xcompression = 0;
+
         this.default_rubberbox_action = "zoom";
         this.default_rubberbox_mode = "box";
 
@@ -4585,6 +4593,8 @@ window.sigplot = window.sigplot || {};
         }
         Gx.xdiv = o.xdiv === undefined ? 5 : o.xdiv;
         Gx.ydiv = o.ydiv === undefined ? 5 : o.ydiv;
+
+        Gx.xcompression = o.xcmp || 0;
 
         Mx.origin = 1;
         if (o.yinv) {

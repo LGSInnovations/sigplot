@@ -5080,16 +5080,38 @@ window.mx = window.mx || {};
      * @param zmax
      * @private
      */
-    mx.update_image_row = function(Mx, buf, data, row, zmin, zmax) {
+    mx.update_image_row = function(Mx, buf, data, row, zmin, zmax, xcompression) {
         var imgd = new Uint32Array(buf, row * buf.width * 4, buf.width);
 
         var fscale = 1;
         if (zmax !== zmin) {
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
         }
-        for (var i = 0; i < data.length; i++) {
 
-            var cidx = Math.floor((data[i] - zmin) * fscale);
+        var xc = Math.round(data.length / buf.width);
+        for (var i = 0; i < buf.width; i++) {
+            var value = data[i];
+            if (xcompression === 1) { // average
+                for (var j = 1; j < xc; j++) {
+                    value += data[(i * xc) + j];
+                }
+                value = (value / xc);
+            } else if (xcompression === 2) { // min 
+                for (var j = 1; j < xc; j++) {
+                    value = Math.min(value, data[(i * xc) + j]);
+                }
+            } else if (xcompression === 3) { // max
+                for (var j = 1; j < xc; j++) {
+                    value = Math.max(value, data[(i * xc) + j]);
+                }
+            } else if (xcompression === 4) { // first 
+                value = data[i];
+            } else if (xcompression === 5) { // max abs
+                for (var j = 1; j < xc; j++) {
+                    value = Math.max(Math.abs(value), Math.abs(data[(i * xc) + j]));
+                }
+            }
+            var cidx = Math.floor((value - zmin) * fscale);
             cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
 
             var color = Mx.pixel[cidx];
@@ -5116,7 +5138,7 @@ window.mx = window.mx || {};
      * @param zmax
      * @private
      */
-    mx.create_image = function(Mx, data, w, h, zmin, zmax) {
+    mx.create_image = function(Mx, data, subsize, w, h, zmin, zmax, xcompression) {
         var ctx = Mx.active_canvas.getContext("2d");
 
         if (!Mx.pixel || Mx.pixel.length === 0) {
@@ -5135,6 +5157,8 @@ window.mx = window.mx || {};
         buf.width = w;
         buf.height = h;
 
+        var nxc = Math.round(subsize / w);
+
         var imgd = new Uint32Array(buf);
         for (var i = 0; i < imgd.length; i++) {
             var ix;
@@ -5149,9 +5173,33 @@ window.mx = window.mx || {};
             } else {
                 iy = h - Math.floor(i / w) - 1;
             }
-            var didx = (iy * w) + ix;
+            if (iy === 1) {
+                var test = 1;
+            }
+            var didx = (iy * subsize) + (ix * nxc);
+            var value = data[didx];
+            if (xcompression === 1) { // average
+                for (var j = 1; j < nxc; j++) {
+                    value += data[didx + j];
+                }
+                value = value / nxc;
+            } else if (xcompression === 2) { // min 
+                for (var j = 1; j < nxc; j++) {
+                    value = Math.min(value, data[didx + j]);
+                }
+            } else if (xcompression === 3) { // max
+                for (var j = 1; j < nxc; j++) {
+                    value = Math.max(value, data[didx + j]);
+                }
+            } else if (xcompression === 4) { // first 
+                value = data[didx];
+            } else if (xcompression === 5) { // max abs
+                for (var j = 1; j < nxc; j++) {
+                    value = Math.max(Math.abs(value), Math.abs(data[didx + j]));
+                }
+            }
 
-            var cidx = Math.floor((data[didx] - zmin) * fscale);
+            var cidx = Math.floor((value - zmin) * fscale);
             cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
 
             var color = Mx.pixel[cidx];

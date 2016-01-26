@@ -286,7 +286,7 @@
             }
 
             if (this.img) {
-                mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax);
+                mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax, Gx.xcompression);
             }
             this.frame += 1;
             if (this.drawmode === "scrolling") {
@@ -604,7 +604,11 @@
                 }
             }
 
-            this.img = mx.create_image(Mx, this.zbuf, this.hcb.subsize, this.lps, Gx.zmin, Gx.zmax);
+            var xsize = this.hcb.subsize;
+            if (Gx.xcompression > 0) {
+                xsize = Math.ceil(Mx.r - Mx.l);
+            }
+            this.img = mx.create_image(Mx, this.zbuf, this.hcb.subsize, xsize, this.lps, Gx.zmin, Gx.zmax, Gx.xcompression);
             this.img.cmode = Gx.cmode;
             this.img.cmap = Gx.cmap;
             this.img.origin = Mx.origin;
@@ -613,11 +617,11 @@
             if (this.hcb.pipe && (this.frame < this.lps)) {
                 var imgd = new Uint32Array(this.img);
                 if (this.drawmode === "rising") {
-                    for (var i = 0; i < imgd.length - (this.frame * this.hcb.subsize); i++) {
+                    for (var i = 0; i < imgd.length - (this.frame * xsize); i++) {
                         imgd[i] = 0;
                     }
                 } else {
-                    for (var i = this.frame * this.hcb.subsize; i < imgd.length; i++) {
+                    for (var i = this.frame * xsize; i < imgd.length; i++) {
                         imgd[i] = 0;
                     }
                 }
