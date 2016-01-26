@@ -5103,7 +5103,7 @@ window.mx = window.mx || {};
             }
         }
 
-        return buf;
+        return imgd;
     };
 
     /**
