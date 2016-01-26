@@ -1986,7 +1986,7 @@ interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly wo
     }, 500);
 });
 
-interactiveTest('t2000 layer2D (push)', 'Does the plot correctly autoscale after 100 rows?', function() {
+interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autoscale after 100 rows?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
