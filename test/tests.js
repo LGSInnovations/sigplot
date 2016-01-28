@@ -2062,6 +2062,162 @@ interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines
     plot.overlay_pipe({
         type: 2000,
         subsize: 16384
+
+interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcmp: 1,
+    });
+    notEqual(plot, null);
+
+    var data = [];
+    for (var i = 0; i < 16384; i++) {
+        if ((i > 400) && (i < 800)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(200);
+            } else {
+                data.push(0);
+            }
+        } else if ((i > 1200) && (i < 1600)) {
+            if (i % 3 === 0) {
+                data.push(50);
+            } else if (i % 3 === 1) {
+                data.push(250);
+            } else {
+                data.push(0);
+            }
+        } else {
+            data.push(0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 16384
+    });
+
+    var cnt = 0;
+    ifixture.interval = window.setInterval(function() {
+        cnt = cnt + 1;
+        plot.push(0, data);
+    }, 100);
+});
+
+interactiveTest('layer2D (min compression)', 'Do you see two lines of the same color?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcmp: 2,
+    });
+    notEqual(plot, null);
+
+    var data = [];
+    for (var i = 0; i < 16384; i++) {
+        if ((i > 400) && (i < 800)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(50);
+            }
+        } else if ((i > 1200) && (i < 1600)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(50);
+            }
+        } else {
+            data.push(0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 16384
+    });
+
+    var cnt = 0;
+    ifixture.interval = window.setInterval(function() {
+        cnt = cnt + 1;
+        plot.push(0, data);
+    }, 100);
+});
+
+interactiveTest('layer2D (max compression)', 'Do you see two lines of the same color?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcmp: 3,
+    });
+    notEqual(plot, null);
+
+    var data = [];
+    for (var i = 0; i < 16384; i++) {
+        if ((i > 400) && (i < 800)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(0);
+            }
+        } else if ((i > 1200) && (i < 1600)) {
+            if (i % 3 === 0) {
+                data.push(200);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(0);
+            }
+        } else {
+            data.push(0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 16384
+    });
+
+    var cnt = 0;
+    ifixture.interval = window.setInterval(function() {
+        cnt = cnt + 1;
+        plot.push(0, data);
+    }, 100);
+});
+
+interactiveTest('layer2D (abs-max compression)', 'Do you see two lines of the same color?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcmp: 5,
+    });
+    notEqual(plot, null);
+
+    var data = [];
+    for (var i = 0; i < 16384; i++) {
+        if ((i > 400) && (i < 800)) {
+            if (i % 3 === 0) {
+                data.push(800);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(0);
+            }
+        } else if ((i > 1200) && (i < 1600)) {
+            if (i % 3 === 0) {
+                data.push(-800);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(0);
+            }
+        } else {
+            data.push(0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 16384
     });
 
     var cnt = 0;
