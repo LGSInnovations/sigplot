@@ -68,6 +68,26 @@ environment where Grunt cannot be used.  You will need the following:
 If you wish to build the SigPlot API documention, you will need
 [jsdoc](https://github.com/jsdoc3/jsdoc) installed.
 
+Contributing
+=====================
+The `master` branch is used to distribute stable releases.  No development
+should occur directly on the master branch.  To be compatible with Bower, the
+output of `grunt dist` (i.e. the files in the `dist` folder) should be commited
+when preparing a release.
+
+The `develop` branch should be used for general development towards the next
+release.  All code should be built using `grunt jsbeautifier:cleanup`
+**before** being commited.  Unlike the `master` branch, the output of the dist
+folder should not be commited on the develop branch.
+
+If release candidate builds are desired, a branch should be made from the
+`develop` branch.  The package.json and bower.json files should be updated; the
+code built with `grunt dist` and the resulting distribution files in the `dist`
+folder committed.
+
+Work performed under contract should always be first commited to a topic branch
+before being merged into the `develop` branch.
+
 License
 =====================
 SigPlot is free software; you can redistribute it and/or modify it under the
