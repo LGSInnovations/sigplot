@@ -1496,6 +1496,7 @@ window.mx = window.mx || {};
                             // highlight...we can thus remove the color
                             if ((rxs <= colors[cn].start) && (rxe >= colors[cn].end)) {
                                 colors.splice(cn, 1);
+                                continue;
                             }
                             // This highlight splits a previous highlight...we need
                             // to create a new color range
