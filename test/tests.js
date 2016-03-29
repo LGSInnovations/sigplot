@@ -2015,7 +2015,9 @@ interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autosc
 
 interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', function() {
     var container = document.getElementById('plot');
-    var plot = new sigplot.Plot(container, {smoothing: true});
+    var plot = new sigplot.Plot(container, {
+        smoothing: true
+    });
     notEqual(plot, null);
 
     var data = [];
@@ -2059,9 +2061,7 @@ interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines
             data.push(0);
         }
     }
-    plot.overlay_pipe({
-        type: 2000,
-        subsize: 16384
+});
 
 interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function() {
     var container = document.getElementById('plot');
