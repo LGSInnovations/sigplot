@@ -2044,25 +2044,6 @@ interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', functi
     }, 100);
 });
 
-interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines?', function() {
-    var container = document.getElementById('plot');
-    var plot = new sigplot.Plot(container, {
-        xcmp: 1
-    });
-    notEqual(plot, null);
-
-    var data = [];
-    for (var i = 0; i < 16384; i++) {
-        if ((i % 3 === 0) && (i > 400) && (i < 800)) {
-            data.push(400);
-        } else if ((i % 3 === 0) && (i > 1200) && (i < 1600)) {
-            data.push(800);
-        } else {
-            data.push(0);
-        }
-    }
-});
-
 interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
