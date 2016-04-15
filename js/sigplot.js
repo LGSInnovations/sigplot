@@ -2373,6 +2373,10 @@ window.sigplot = window.sigplot || {};
             var Mx = this._Mx;
             mx.addEventListener(Mx, "mousedown", this.onmousedown, false);
             mx.addEventListener(Mx, "mousemove", this.throttledOnMouseMove, false);
+            window.addEventListener("mouseup", Mx.onmouseup, false);
+            window.addEventListener("keydown", Mx.onkeydown, false);
+            window.addEventListener("keyup", Mx.onkeyup, false);
+            window.addEventListener("resize", this.onresize, false);
             document.addEventListener("mouseup", this.docMouseUp, false);
             mx.addEventListener(Mx, "mouseup", this.mouseup, false);
             window.addEventListener("mousedown", this.dragMouseDownHandler, false);
@@ -2390,8 +2394,12 @@ window.sigplot = window.sigplot || {};
             mx.removeEventListener(Mx, "mousedown", this.onmousedown, false);
             mx.removeEventListener(Mx, "mousemove", this.throttledOnMouseMove,
                 false);
-            document.removeEventListener("mouseup", this.docMouseUp, false);
             mx.removeEventListener(Mx, "mouseup", this.mouseup, false);
+            window.removeEventListener("mouseup", Mx.onmouseup, false);
+            window.removeEventListener("keydown", Mx.onkeydown, false);
+            window.removeEventListener("keyup", Mx.onkeyup, false);
+            window.removeEventListener("resize", this.onresize, false);
+            document.removeEventListener("mouseup", this.docMouseUp, false);
             window.removeEventListener("mousedown", this.dragMouseDownHandler,
                 false);
             window.removeEventListener("mousemove", this.throttledDragOnMouseMove,
