@@ -13,14 +13,6 @@ app.get('/savescore', function (req, res) {
 	    res.redirect('http://localhost:9876/base/benchmark/fail.html?score=' + score);
 	}
     });
-//    writeScoreToMongo(score, browser, function(scoreCount) {
-//	if (score > 1000) {
-//	    res.redirect('http://localhost:9876/base/benchmark/pass.html?score=' + score);
-//	} else {
-//	    res.redirect('http://localhost:9876/base/benchmark/fail.html?score=' + score);
-//	}
-//    });
-    
 });
 
 app.listen(3000, function () {
@@ -95,9 +87,6 @@ function writeScoreToFile( score, browser, cb) {
     if (scorePasses(score, scoreData)) {
 	cb(true);
     } else {
-	if (!fs.existsSync("benchmark/failed")) {
-	    fs.mkdirSync("benchmark/failed");
-	}
 	fileName = "benchmark/json/FailedScores.json";
 	fileData = "{ \"failedScores\": [] }"
 	if (fs.existsSync(fileName)) {
@@ -109,22 +98,3 @@ function writeScoreToFile( score, browser, cb) {
     }
     fs.writeFileSync(fileName, JSON.stringify(JSONdata, null, 4));
 }
-
-//function writeScoreToMongo( score, browser, cb ) {
-//    
-//    var MongoClient = require('mongodb').MongoClient;
-//    var Server = require('mongodb').Server;
-//    var Db = require('mongodb').Db;
-//
-//    console.log("Adding score of " + score + " to DB");
-//    MongoClient.connect("mongodb://localhost:27017", function(err, db) {
-//	db.createCollection('scores', function(err, scoreCollection) {
-//	    scoreCollection.count(function(err, scoreCount) {
-//		console.log(scoreCount + " scores already in DB");
-//		cb(scoreCount);
-//	    });
-//	    var scoreEntry = {'score': score, 'date': new Date(), 'browser': browser};
-//	    scoreCollection.insert(scoreEntry);
-//	});
-//    });
-//}

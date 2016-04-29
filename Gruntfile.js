@@ -202,17 +202,6 @@ module.exports = function (grunt) {
         	}
             }
         },
-        shell: {
-            mongodb: {
-        	command: "mongod --dbpath ./benchmark/db",
-        	options: {
-        	    async: true
-        	}
-            },
-            stopmongo: {
-        	command: "mongod --shutdown --dbpath ./benchmark/db"
-            }
-        },
         karma: {
             bench: {
                 configFile: 'karma.conf.js'
@@ -232,7 +221,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsbeautifier');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-express-server');
-    grunt.loadNpmTasks('grunt-shell-spawn');
 
     grunt.registerTask('build', ['concat', 'jsbeautifier:check']);
 
@@ -249,7 +237,6 @@ module.exports = function (grunt) {
     grunt.registerTask('bench_chrome', ['open:loadbench_chrome']);
     grunt.registerTask('run_benchmarks', 'karma:bench');
     grunt.registerTask('bench_firefox', ['express:test', 'run_benchmarks']);
-//    grunt.registerTask('bench_ff_db', ['shell:mongodb', 'bench_firefox', 'shell:stopmongo']);
     grunt.registerTask('benchtest', ['build', 'bench_chrome', 'bench_firefox', 'benchdata']);
     
 };
