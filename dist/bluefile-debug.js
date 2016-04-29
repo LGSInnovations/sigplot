@@ -835,7 +835,7 @@ if (!window.Float64Array) {
   var _XM_TO_TYPEDARRAY = {"P":null, "A":null, "O":Uint8Array, "B":Int8Array, "I":Int16Array, "L":Int32Array, "X":null, "F":Float32Array, "D":Float64Array};
   var _applySupportsTypedArray = true;
   try {
-    var uintbuf = new UInt8Array(new ArrayBuffer(4));
+    var uintbuf = new Uint8Array(new ArrayBuffer(4));
     uintbuf[0] = 66;
     uintbuf[1] = 76;
     uintbuf[2] = 85;
@@ -879,6 +879,7 @@ if (!window.Float64Array) {
         this.xstart = dvhdr.getFloat64(256, littleEndianHdr);
         this.xdelta = dvhdr.getFloat64(256 + 8, littleEndianHdr);
         this.xunits = dvhdr.getInt32(256 + 16, littleEndianHdr);
+        this.yunits = dvhdr.getInt32(256 + 40, littleEndianHdr);
         this.subsize = 1;
       } else {
         if (this["class"] === 2) {

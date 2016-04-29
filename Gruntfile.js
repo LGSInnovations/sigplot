@@ -194,7 +194,30 @@ module.exports = function (grunt) {
                     wrapLineLength: 0
                 }
             }
-        }
+        },
+        express: {
+            test: {
+        	options: {
+        	    script: 'benchmark/express.js'
+        	}
+            }
+        },
+        shell: {
+            mongodb: {
+        	command: "mongod --dbpath ./benchmark/db",
+        	options: {
+        	    async: true
+        	}
+            },
+            stopmongo: {
+        	command: "mongod --shutdown --dbpath ./benchmark/db"
+            }
+        },
+        karma: {
+            bench: {
+                configFile: 'karma.conf.js'
+            }
+        },
     });
 
     // These plugins provide necessary tasks.
@@ -207,6 +230,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-web-server');
     grunt.loadNpmTasks('grunt-jsbeautifier');
+    grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-express-server');
+    grunt.loadNpmTasks('grunt-shell-spawn');
 
     grunt.registerTask('build', ['concat', 'jsbeautifier:check']);
 
@@ -219,4 +245,11 @@ module.exports = function (grunt) {
     // Default task.
     grunt.registerTask('default', 'test');
 
+    // Benchmark in browsers.
+    grunt.registerTask('bench_chrome', ['open:loadbench_chrome']);
+    grunt.registerTask('run_benchmarks', 'karma:bench');
+    grunt.registerTask('bench_firefox', ['express:test', 'run_benchmarks']);
+//    grunt.registerTask('bench_ff_db', ['shell:mongodb', 'bench_firefox', 'shell:stopmongo']);
+    grunt.registerTask('benchtest', ['build', 'bench_chrome', 'bench_firefox', 'benchdata']);
+    
 };

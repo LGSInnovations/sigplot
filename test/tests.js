@@ -2061,7 +2061,7 @@ interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines
     }
     plot.overlay_pipe({
         type: 2000,
-        subsize: 16384
+        subsize: 16384});
 
 interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function() {
     var container = document.getElementById('plot');
@@ -3854,4 +3854,4 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
         color: "red"
     });
 
-});
+})});

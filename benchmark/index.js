@@ -107,6 +107,9 @@
     var onInit = function () {
         scoreList = document.getElementById("score-list");
         scoreStats = document.getElementById("score-stats");
+        if (scoreStats == null) {
+            return;
+        }
         scoreStatsGraph = document.getElementById("score-stats-graph");
 
         scoreStats.onclick = function () {
@@ -229,6 +232,9 @@
 
             document.getElementById("score-footer-text").innerHTML = score;
         };
+        if (location.href.lastIndexOf("autolaunch") !== -1) {
+            document.getElementById("home-launch").click();
+        }
     };
 
     var onResize = function () {
