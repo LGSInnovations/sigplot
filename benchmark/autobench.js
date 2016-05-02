@@ -1,25 +1,52 @@
 QUnit.test( 'sigplot benchmark test', function(assert) {
-    var done = assert.async();
-    console.log("Starting benchmark tests");
+    var countDone = assert.async();
     var inner = document.createElement('iframe');
     inner.name = 'innerframe';
-    inner.src = 'http://localhost:9876/base/benchmark/index.html?autolaunch';
+    inner.src = 'http://localhost:3000/countscores?browser=' + trimBrowser();
     inner.height = "600px";
     inner.width = "1000px";
-    var tofunc = function() {
-        var doc = inner.contentWindow.document;
-        var score = doc.getElementById("score-footer-text").innerHTML;
-        if (score == "") {
-            setTimeout(tofunc, 5000);
-        } else {
-            sendScoreToServer(inner, score, function(status) {
-                assert.ok(status, "Tests finished!");
-                done();
-            });
-        }
-    };
-    setTimeout(tofunc, 20000);
     document.body.appendChild(inner);
+    var numRuns = 1;
+    var runNum = 1;
+    var done = null;
+    var countRuns = function() {
+        var location = inner.contentWindow.location;
+        if (location == null || location.href == undefined) {
+            setTimeout(countRuns, 500);
+        } else {
+            var currentHref = location.href;
+            var index = currentHref.lastIndexOf('autolaunch=');
+            if (index != -1) {
+                numRuns = Number(currentHref.substring(index + 11));
+            }
+            done = assert.async(numRuns);
+            setTimeout(runBenches, 100);
+            countDone();
+        }
+    }
+    var runBenches = function() {
+        console.log("Starting benchmark run " + runNum + " of " + numRuns);
+	inner.contentWindow.document.getElementById("home-launch").click();
+        var tofunc = function() {
+            var doc = inner.contentWindow.document;
+            var score = doc.getElementById("score-footer-text").innerHTML;
+            if (score == "") {
+                setTimeout(tofunc, 5000);
+            } else {
+                sendScoreToServer(inner, score, function(status) {
+                    assert.ok(status, "Finished benchmark run " + runNum + " of " + numRuns);
+                    if (runNum < numRuns) {
+                	++runNum;
+                	inner.src = 'http://localhost:9876/base/benchmark/index.html';
+                	setTimeout(runBenches, 100);
+                    }
+                    done();
+                });
+            }
+        };
+        setTimeout(tofunc, 10000);
+    }
+    setTimeout(countRuns, 500);
 });
 
 function sendScoreToServer( inner, score, cb ) {
@@ -29,16 +56,8 @@ function sendScoreToServer( inner, score, cb ) {
     scoreForm.method = "get";
     scoreForm.name = "sendscore";
     scoreForm.enctype = "application/x-www-form-urlencoded";
-    var scoreInput = doc.createElement('input');
-    scoreInput.type = "hidden";
-    scoreInput.name = "finalscore";
-    scoreInput.value = score;
-    scoreForm.appendChild(scoreInput);
-    var browserInput = doc.createElement('input');
-    browserInput.type = "hidden";
-    browserInput.name = "browser";
-    browserInput.value = trimBrowser();
-    scoreForm.appendChild(browserInput);
+    scoreForm.appendChild(hiddenInput(doc, "finalscore", score));
+    scoreForm.appendChild(hiddenInput(doc, "browser", trimBrowser()));
     doc.body.appendChild(scoreForm);
     scoreForm.submit();
     
@@ -50,7 +69,15 @@ function sendScoreToServer( inner, score, cb ) {
 	    cb(false);
 	}
     };
-    setTimeout(finishFunc, 2000);
+    setTimeout(finishFunc, 1000);
+}
+
+function hiddenInput( doc, name, value ) {
+    var input = doc.createElement('input');
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
+    return input;
 }
 
 function trimBrowser() {

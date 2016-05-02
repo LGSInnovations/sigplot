@@ -15,9 +15,39 @@ app.get('/savescore', function (req, res) {
     });
 });
 
+app.get('/countscores', function (req, res) {
+    var browser = req.query.browser;
+    countScores(browser, function(numRuns) {
+	res.redirect('http://localhost:9876/base/benchmark/index.html?autolaunch=' + numRuns);
+    });
+});
+
 app.listen(3000, function () {
   console.log('Benchmark database writer listening on port 3000!');
 });
+
+function countScores( browser, cb ) {
+    var fs = require("fs");
+    if (!fs.existsSync("benchmark/json")) {
+	fs.mkdirSync("benchmark/json");
+    }
+    var numRuns = 10;
+    var fileName = "benchmark/json/Scores_" + browser + ".json";
+    console.log("Looking for file " + fileName);
+    if (fs.existsSync(fileName)) {
+	console.log("Found file " + fileName);
+	var fileData = fs.readFileSync(fileName);
+	var JSONdata = JSON.parse(fileData);
+	var scoreData = JSONdata.scores;
+	var numScores = scoreData.length;
+	console.log("File " + fileName + " contains " + numScores + " scores");
+	numRuns = 10 - numScores;
+    }
+    if (numRuns < 1) {
+	numRuns = 1;
+    }
+    cb(numRuns);
+}
 
 function scorePasses( score, prevScores ) {
     var mean = getMean(prevScores);

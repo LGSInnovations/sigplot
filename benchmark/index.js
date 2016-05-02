@@ -232,9 +232,6 @@
 
             document.getElementById("score-footer-text").innerHTML = score;
         };
-        if (location.href.lastIndexOf("autolaunch") !== -1) {
-            document.getElementById("home-launch").click();
-        }
     };
 
     var onResize = function () {
