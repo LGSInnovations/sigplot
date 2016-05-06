@@ -3,10 +3,15 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/savescore', function (req, res) {
-    var score = Number(req.query.finalscore);
-    var browser = req.query.browser;
+app.post('/savescore', function (req, res) {
+    // Client finished run, check score to see if it passes regression threshold
+    var contents = req.body;
+    var score = contents;
+    var benches = JSON.parse(contents.benches);
+    contents.benches = benches;
+    var browser = contents.browser;
     writeScoreToFile(score, browser, function (passed) {
+	// Use redirect to tell client whether run passed or failed
 	if (passed) {
 	    res.redirect('http://localhost:9876/base/benchmark/pass.html?score=' + score);
 	} else {
@@ -16,8 +21,10 @@ app.get('/savescore', function (req, res) {
 });
 
 app.get('/countscores', function (req, res) {
+    // Client asking how many benchmark runs to do, check number of scores in existing file
     var browser = req.query.browser;
     countScores(browser, function(numRuns) {
+	// Redirect client to HTML5 Potatoes test page with # runs to do as query parameter
 	res.redirect('http://localhost:9876/base/benchmark/index.html?autolaunch=' + numRuns);
     });
 });
@@ -26,6 +33,7 @@ app.listen(3000, function () {
   console.log('Benchmark database writer listening on port 3000!');
 });
 
+// Determine how many benchmark runs client needs to do to populate scores file for browser
 function countScores( browser, cb ) {
     var fs = require("fs");
     if (!fs.existsSync("benchmark/json")) {
@@ -33,68 +41,129 @@ function countScores( browser, cb ) {
     }
     var numRuns = 10;
     var fileName = "benchmark/json/Scores_" + browser + ".json";
-    console.log("Looking for file " + fileName);
     if (fs.existsSync(fileName)) {
-	console.log("Found file " + fileName);
 	var fileData = fs.readFileSync(fileName);
 	var JSONdata = JSON.parse(fileData);
 	var scoreData = JSONdata.scores;
 	var numScores = scoreData.length;
-	console.log("File " + fileName + " contains " + numScores + " scores");
 	numRuns = 10 - numScores;
     }
     if (numRuns < 1) {
+	// Already 10+ scores for comparison, so just do 1 run to check against them
 	numRuns = 1;
     }
     cb(numRuns);
 }
 
+// Return false if final score lower than mean of last 10 successful runs by > 1 sigma
 function scorePasses( score, prevScores ) {
     var mean = getMean(prevScores);
     var stdDev = getStdDev(prevScores);
-    var currentDiff = mean - score;
+    var currentDiff = mean - Number(score.finalScore);
     if (currentDiff > stdDev) {
 	return false;
     } else {
-	prevScores.push(score);
-	prevScores.shift();
 	return true;
     }
 }
 
-function getMean( numArray ) {
-    if (!Array.isArray(numArray)) {
+// Return mean of last 10 successful runs' final scores
+function getMean( scoreArray ) {
+    if (!Array.isArray(scoreArray)) {
 	return 0;
     }
-    var numValues = numArray.length;
+    var numValues = scoreArray.length;
     if (numValues == 0) {
 	return 0;
     }
     var sum = 0;
     for (var index = 0; index < numValues; ++index) {
-	sum += numArray[index];
+	sum += scoreArray[index].finalscore;
     }
     return sum / numValues;
 }
 
-function getStdDev( numArray ) {
-    if (!Array.isArray(numArray)) {
+// Return standard deviation (sigma) of last 10 successful runs' final scores
+function getStdDev( scoreArray ) {
+    if (!Array.isArray(scoreArray)) {
 	return 0;
     }
-    var numValues = numArray.length;
+    var numValues = scoreArray.length;
     if (numValues == 0) {
 	return 0;
     }
-    var mean = getMean(numArray);
+    var mean = getMean(scoreArray);
     var totalDev = 0;
     for (var index = 0; index < numValues; ++index) {
-	var diff = numArray[index] - mean;
+	var diff = scoreArray[index].finalscore - mean;
 	totalDev += (diff * diff);
     }
     var variance = totalDev / numValues;
     return Math.sqrt(variance);
 }
 
+// Get score of specific benchmark from results submitted by client
+function getBenchScore( score, benchName ) {
+    var benches = score.benches;
+    var numBenches = benches.length;
+    for (var benchIndex = 0; benchIndex < numBenches; ++benchIndex) {
+	var bench = benches[benchIndex];
+	if (bench.benchName == benchName) {
+	    return bench.benchScore;
+	}
+    }
+    return 0;
+}
+
+// Return false if benchmark score lower than mean of last 10 successful runs by > 1 sigma
+function benchScorePasses( score, prevScores, benchName ) {
+    var mean = getBenchMean(prevScores, benchName);
+    var stdDev = getBenchStdDev(prevScores, benchName);
+    var currentDiff = mean - getBenchScore(score, benchName);
+    if (currentDiff > stdDev) {
+	return false;
+    } else {
+	return true;
+    }
+}
+
+// Return mean score for specific benchmark for last 10 successful runs
+function getBenchMean( scoreArray, benchName ) {
+    if (!Array.isArray(scoreArray)) {
+	return 0;
+    }
+    var numValues = scoreArray.length;
+    if (numValues == 0) {
+	return 0;
+    }
+    var sum = 0;
+    for (var index = 0; index < numValues; ++index) {
+	sum += getBenchScore(scoreArray[index], benchName);
+    }
+    return sum / numValues;
+}
+
+// Return standard deviation of score for specific benchmark for last 10 successful runs
+function getBenchStdDev( scoreArray, benchName ) {
+    if (!Array.isArray(scoreArray)) {
+	return 0;
+    }
+    var numValues = scoreArray.length;
+    if (numValues == 0) {
+	return 0;
+    }
+    var mean = getBenchMean(scoreArray, benchName);
+    var totalDev = 0;
+    for (var index = 0; index < numValues; ++index) {
+	var benchScore = getBenchScore(scoreArray[index], benchName);
+	var diff = benchScore - mean;
+	totalDev += (diff * diff);
+    }
+    var variance = totalDev / numValues;
+    return Math.sqrt(variance);
+}
+
+// Test last score against 10 previous successful ones, and add to appropriate file
 function writeScoreToFile( score, browser, cb) {
     var fs = require("fs");
     if (!fs.existsSync("benchmark/json")) {
@@ -109,14 +178,16 @@ function writeScoreToFile( score, browser, cb) {
     var scoreData = JSONdata.scores;
     var numScores = scoreData.length;
     if (numScores < 10) {
+	// Too few scores to do analysis yet, just add last run to browser's score file
 	scoreData.push(score);
-	fs.writeFileSync(fileName, JSON.stringify(JSONdata, null, 4));
 	cb(true);
-	return;
-    }
-    if (scorePasses(score, scoreData)) {
+    } else if (scorePasses(score, scoreData)) {
+	// Add last run to browser's score file, and remove oldest one
+	scoreData.push(score);
+	scoreData.shift();
 	cb(true);
     } else {
+	// Store last run in the list of failures
 	fileName = "benchmark/json/FailedScores.json";
 	fileData = "{ \"failedScores\": [] }"
 	if (fs.existsSync(fileName)) {
