@@ -234,9 +234,7 @@ module.exports = function (grunt) {
     grunt.registerTask('default', 'test');
 
     // Benchmark in browsers.
-    grunt.registerTask('bench_chrome', ['open:loadbench_chrome']);
-    grunt.registerTask('run_benchmarks', 'karma:bench');
-    grunt.registerTask('bench_firefox', ['express:test', 'run_benchmarks']);
-    grunt.registerTask('benchtest', ['build', 'bench_chrome', 'bench_firefox', 'benchdata']);
+    grunt.registerTask('benchtest', ['express:test', 'karma:bench']);
+    grunt.registerTask('build_and_test', ['build', 'benchtest']);
     
 };

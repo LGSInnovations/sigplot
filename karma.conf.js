@@ -12,8 +12,9 @@ module.exports = function(config) {
                 "dist/sigplot.js",
                 "dist/bluefile.js",
                 "dist/sigplot.plugins.js"],
-        browsers: ['Firefox'],
+        browsers: ['Firefox', 'Chrome'],
         frameworks: ['qunit'],
+        concurrency: 1,
         browserNoActivityTimeout: 360000,
         singleRun: true,
         logLevel: config.LOG_DEBUG

@@ -9,6 +9,7 @@ app.post('/savescore', function (req, res) {
     var score = contents;
     var benches = JSON.parse(contents.benches);
     contents.benches = benches;
+    contents.timestamp = new Date();
     var browser = contents.browser;
     writeScoreToFile(score, browser, function (passed) {
 	// Use redirect to tell client whether run passed or failed
@@ -30,7 +31,7 @@ app.get('/countscores', function (req, res) {
 });
 
 app.listen(3000, function () {
-  console.log('Benchmark database writer listening on port 3000!');
+  console.log('Benchmark score reader/writer listening on port 3000!');
 });
 
 // Determine how many benchmark runs client needs to do to populate scores file for browser
@@ -57,13 +58,26 @@ function countScores( browser, cb ) {
 
 // Return false if final score lower than mean of last 10 successful runs by > 1 sigma
 function scorePasses( score, prevScores ) {
+    testBenchScores(score, prevScores);
     var mean = getMean(prevScores);
-    var stdDev = getStdDev(prevScores);
+    var stdDev = getStdDev(prevScores, mean);
     var currentDiff = mean - Number(score.finalScore);
     if (currentDiff > stdDev) {
 	return false;
     } else {
 	return true;
+    }
+}
+
+// Attach "failed" attribute to any specific benchmark in run that shows regression
+function testBenchScores( score, prevScores ) {
+    var benches = score.benches;
+    var numBenches = benches.length;
+    for (var benchIndex = 0; benchIndex < numBenches; ++benchIndex) {
+	var bench = benches[benchIndex];
+	if (!benchScorePassesByIndex(score, prevScores, benchIndex)) {
+	    bench.failed = true;
+	}
     }
 }
 
@@ -84,7 +98,7 @@ function getMean( scoreArray ) {
 }
 
 // Return standard deviation (sigma) of last 10 successful runs' final scores
-function getStdDev( scoreArray ) {
+function getStdDev( scoreArray, mean ) {
     if (!Array.isArray(scoreArray)) {
 	return 0;
     }
@@ -92,7 +106,6 @@ function getStdDev( scoreArray ) {
     if (numValues == 0) {
 	return 0;
     }
-    var mean = getMean(scoreArray);
     var totalDev = 0;
     for (var index = 0; index < numValues; ++index) {
 	var diff = scoreArray[index].finalscore - mean;
@@ -115,10 +128,23 @@ function getBenchScore( score, benchName ) {
     return 0;
 }
 
+// Get index of specific benchmark in score array
+function getBenchIndex( score, benchName ) {
+    var benches = score.benches;
+    var numBenches = benches.length;
+    for (var benchIndex = 0; benchIndex < numBenches; ++benchIndex) {
+	var bench = benches[benchIndex];
+	if (bench.benchName == benchName) {
+	    return benchIndex;
+	}
+    }
+    return -1;
+}
+
 // Return false if benchmark score lower than mean of last 10 successful runs by > 1 sigma
 function benchScorePasses( score, prevScores, benchName ) {
     var mean = getBenchMean(prevScores, benchName);
-    var stdDev = getBenchStdDev(prevScores, benchName);
+    var stdDev = getBenchStdDev(prevScores, benchName, mean);
     var currentDiff = mean - getBenchScore(score, benchName);
     if (currentDiff > stdDev) {
 	return false;
@@ -144,7 +170,7 @@ function getBenchMean( scoreArray, benchName ) {
 }
 
 // Return standard deviation of score for specific benchmark for last 10 successful runs
-function getBenchStdDev( scoreArray, benchName ) {
+function getBenchStdDev( scoreArray, benchName, mean ) {
     if (!Array.isArray(scoreArray)) {
 	return 0;
     }
@@ -152,10 +178,56 @@ function getBenchStdDev( scoreArray, benchName ) {
     if (numValues == 0) {
 	return 0;
     }
-    var mean = getBenchMean(scoreArray, benchName);
     var totalDev = 0;
     for (var index = 0; index < numValues; ++index) {
 	var benchScore = getBenchScore(scoreArray[index], benchName);
+	var diff = benchScore - mean;
+	totalDev += (diff * diff);
+    }
+    var variance = totalDev / numValues;
+    return Math.sqrt(variance);
+}
+
+// Index-based version of benchScorePasses() to improve efficiency
+function benchScorePassesByIndex( score, prevScores, benchIndex ) {
+    var mean = getBenchMeanByIndex(prevScores, benchIndex);
+    var stdDev = getBenchStdDevByIndex(prevScores, benchIndex, mean);
+    var currentDiff = mean - score.benches[benchIndex].benchScore;
+    if (currentDiff > stdDev) {
+	return false;
+    } else {
+	return true;
+    }
+}
+
+// Index-based version of getBenchMean() to improve efficiency
+function getBenchMeanByIndex( scoreArray, benchIndex ) {
+    if (!Array.isArray(scoreArray)) {
+	return 0;
+    }
+    var numValues = scoreArray.length;
+    if (numValues == 0) {
+	return 0;
+    }
+    var sum = 0;
+    for (var index = 0; index < numValues; ++index) {
+	sum += scoreArray[index].benches[benchIndex].benchScore;
+    }
+    return sum / numValues;
+}
+
+// Index-based version of getBenchStdDev() to improve efficiency
+function getBenchStdDevByIndex( scoreArray, benchIndex, mean ) {
+    if (!Array.isArray(scoreArray)) {
+	return 0;
+    }
+    var numValues = scoreArray.length;
+    if (numValues == 0) {
+	return 0;
+    }
+    var totalDev = 0;
+    for (var index = 0; index < numValues; ++index) {
+	var benchScore = scoreArray[index].benches[benchIndex].benchScore;
 	var diff = benchScore - mean;
 	totalDev += (diff * diff);
     }
@@ -194,7 +266,7 @@ function writeScoreToFile( score, browser, cb) {
 	    fileData = fs.readFileSync(fileName);
 	}
 	JSONdata = JSON.parse(fileData);
-	JSONdata.failedScores.push({"browser": browser, "date": new Date(), "score": score});
+	JSONdata.failedScores.push(score);
 	cb(false);
     }
     fs.writeFileSync(fileName, JSON.stringify(JSONdata, null, 4));
