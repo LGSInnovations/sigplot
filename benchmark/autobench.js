@@ -85,7 +85,12 @@ function makeBenchObject( element ) {
     }
     var divs = element.getElementsByTagName("div");
     ret.benchName = anchors[0].innerHTML;
-    ret.benchScore = divs[0].innerHTML;
+    var bScore = Number(divs[0].innerHTML);
+    if (isNaN(bScore)) {
+	ret.benchScore = 0;
+    } else {
+	ret.benchScore = bScore;
+    }
     var fps = Number(anchors[1].innerHTML);
     if (isNaN(fps)) {
 	ret.benchFPS = 0;

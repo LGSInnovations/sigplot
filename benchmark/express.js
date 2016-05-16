@@ -8,6 +8,7 @@ app.post('/savescore', function (req, res) {
     var contents = req.body;
     var score = contents;
     var benches = JSON.parse(contents.benches);
+    contents.finalscore = Number(contents.finalscore);
     contents.benches = benches;
     contents.timestamp = new Date();
     var browser = contents.browser;
@@ -61,7 +62,8 @@ function scorePasses( score, prevScores ) {
     testBenchScores(score, prevScores);
     var mean = getMean(prevScores);
     var stdDev = getStdDev(prevScores, mean);
-    var currentDiff = mean - Number(score.finalScore);
+    console.log("Mean: " + mean + " Sigma: " + stdDev + " Score: " + score.finalscore);
+    var currentDiff = mean - score.finalscore;
     if (currentDiff > stdDev) {
 	return false;
     } else {
