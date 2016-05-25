@@ -15,9 +15,9 @@ app.post('/savescore', function (req, res) {
     writeScoreToFile(score, browser, function (passed) {
 	// Use redirect to tell client whether run passed or failed
 	if (passed) {
-	    res.redirect('http://localhost:9876/base/benchmark/pass.html?score=' + score);
+	    res.redirect('http://localhost:9876/base/benchmark/pass.html?score=' + score.finalscore);
 	} else {
-	    res.redirect('http://localhost:9876/base/benchmark/fail.html?score=' + score);
+	    res.redirect('http://localhost:9876/base/benchmark/fail.html?score=' + score.finalscore);
 	}
     });
 });
