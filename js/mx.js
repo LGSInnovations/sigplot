@@ -5163,58 +5163,60 @@ window.mx = window.mx || {};
         var nxc = Math.max(1, Math.floor(subsize / w));
 
         var imgd = new Uint32Array(buf);
-        for (var i = 0; i < imgd.length; i++) {
-            var ix;
-            var iy;
-            if ((Mx.origin === 1) || (Mx.origin === 4)) {
-                ix = Math.floor(i % w);
-            } else {
-                ix = w - Math.floor(i % w) - 1;
-            }
-            if ((Mx.origin === 3) || (Mx.origin === 4)) {
-                iy = Math.floor(i / w);
-            } else {
-                iy = h - Math.floor(i / w) - 1;
-            }
-            if (iy === 1) {
-                var test = 1;
-            }
-            var didx = (iy * subsize) + (ix * nxc);
-            var value = data[didx];
-            if (nxc > 1) {
-                if (xcompression === 1) { // average
-                    for (var j = 1; j < nxc; j++) {
-                        value += data[didx + j];
-                    }
-                    value = value / nxc;
-                } else if (xcompression === 2) { // min 
-                    for (var j = 1; j < nxc; j++) {
-                        value = Math.min(value, data[didx + j]);
-                    }
-                } else if (xcompression === 3) { // max
-                    for (var j = 1; j < nxc; j++) {
-                        value = Math.max(value, data[didx + j]);
-                    }
-                } else if (xcompression === 4) { // first 
-                    value = data[didx];
-                } else if (xcompression === 5) { // max abs
-                    for (var j = 1; j < nxc; j++) {
-                        value = Math.max(Math.abs(value), Math.abs(data[didx + j]));
+        if (data) {
+            for (var i = 0; i < imgd.length; i++) {
+                var ix;
+                var iy;
+                if ((Mx.origin === 1) || (Mx.origin === 4)) {
+                    ix = Math.floor(i % w);
+                } else {
+                    ix = w - Math.floor(i % w) - 1;
+                }
+                if ((Mx.origin === 3) || (Mx.origin === 4)) {
+                    iy = Math.floor(i / w);
+                } else {
+                    iy = h - Math.floor(i / w) - 1;
+                }
+                if (iy === 1) {
+                    var test = 1;
+                }
+                var didx = (iy * subsize) + (ix * nxc);
+                var value = data[didx];
+                if (nxc > 1) {
+                    if (xcompression === 1) { // average
+                        for (var j = 1; j < nxc; j++) {
+                            value += data[didx + j];
+                        }
+                        value = value / nxc;
+                    } else if (xcompression === 2) { // min 
+                        for (var j = 1; j < nxc; j++) {
+                            value = Math.min(value, data[didx + j]);
+                        }
+                    } else if (xcompression === 3) { // max
+                        for (var j = 1; j < nxc; j++) {
+                            value = Math.max(value, data[didx + j]);
+                        }
+                    } else if (xcompression === 4) { // first 
+                        value = data[didx];
+                    } else if (xcompression === 5) { // max abs
+                        for (var j = 1; j < nxc; j++) {
+                            value = Math.max(Math.abs(value), Math.abs(data[didx + j]));
+                        }
                     }
                 }
-            }
 
-            var cidx = Math.floor((value - zmin) * fscale);
-            cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
+                var cidx = Math.floor((value - zmin) * fscale);
+                cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
 
-            var color = Mx.pixel[cidx];
-            if (color) {
-                /*jshint bitwise: false */
-                imgd[i] = (255 << 24) | // alpha
-                    (color.blue << 16) | // blue
-                    (color.green << 8) | // green
-                    (color.red); // red
-                /*jshint bitwise: true */
+                var color = Mx.pixel[cidx];
+                if (color) {
+                    /*jshint bitwise: false */
+                    imgd[i] = (255 << 24) | // alpha
+                        (color.blue << 16) | // blue
+                        (color.green << 8) | // green
+                        (color.red); // red
+                    /*jshint bitwise: true */
+                }
             }
         }
 
