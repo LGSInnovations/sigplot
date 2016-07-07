@@ -3834,5 +3834,4 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
         xend: 675,
         color: "red"
     });
-
 });

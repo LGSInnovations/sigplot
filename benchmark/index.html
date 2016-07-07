@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>HTML5 Potatoes - Gaming Bench</title>
+    <script src="../dist/bluefile.js"></script>
+    <script src="../dist/sigplot.js"></script>
+    <script src="../dist/sigplot.plugins.js"></script>
+    <script src="http://d3js.org/d3.v3.js"></script>
+    <script src="tools.js"></script>
+    <script src="gamingbench.js"></script>
+    <script src="benchmarks.js"></script>
+    <script src="index.js"></script>
+    <link href="index.css" rel="stylesheet" />
+</head>
+<body onload="checkHTML5Support();">
+    <!--Home screen-->
+    <div id="home" class="screen">
+        <div id="home-top">
+        </div>
+        <div id="home-controls">
+            <p>
+                <a id="home-launch" class="buttonLink">launch</a>
+		<a id="home-launch-mobile" class="buttonLink">mobile</a>
+            </p>
+            <div id="home-version">version 0.1</div>
+            <div id="home-brand">(c) <a href="http://aka.ms/david" target="_blank">David <b>Catuhe</b></a> & <a href="http://aka.ms/davrous" target="_blank">David <b>Rousset</b></a></div>
+        </div>
+        <div id="home-nohtml5" class="hidden">
+            <p>We are really sorry but your browser does not support required HTML5 features (canvas, RAF, etc.).</p>
+            <p>Please consider using a more recent browser.</p>
+        </div>
+    </div>
+
+    <!--Bench screen-->
+    <div id="bench" class="screen hidden">
+        <div id="bench-header">
+            <div id="bench-name"></div>
+            <div id="bench-fps"></div>
+        </div>
+        <div id="bench-work"></div>
+        <div id="bench-title-background"></div>
+        <div id="bench-title">Drawing sprites with easel.js</div>
+        <div id="bench-menu">
+            <div id="bench-status">
+                Status of the current bench:
+                <span id="bench-status-progress-text"></span><br />
+                <progress id="bench-status-progress" value="0" max="100"></progress>
+            </div>
+            <button id="bench-skip" class="small-button orange">skip</button>
+            <button id="bench-cancel" class="small-button red">cancel</button>
+        </div>
+    </div>
+
+    <!--Score screen-->
+    <div id="score" class="screen hidden">
+        <div id="score-header">
+            <div id="score-header-title">SCORE</div>
+        </div>
+        <div id="score-list-background"></div>
+        <div id="score-list" class="screen"></div>
+        <div id="score-stats" class="screen hidden">
+            <div id="score-stats-graph"></div>
+            <div id="score-stats-title"></div>
+        </div>
+        <div id="score-footer">
+            <div id="score-footer-text"></div>
+            <button id="score-footer-back" class="small-button red">home</button>
+        </div>
+    </div>
+</body>
+</html>

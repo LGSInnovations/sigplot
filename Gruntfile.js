@@ -194,7 +194,19 @@ module.exports = function (grunt) {
                     wrapLineLength: 0
                 }
             }
-        }
+        },
+        express: {
+            test: {
+                options: {
+                    script: 'benchmark/express.js'
+                }
+            }
+        },
+        karma: {
+            bench: {
+                configFile: 'karma.conf.js'
+            }
+        },
     });
 
     // These plugins provide necessary tasks.
@@ -207,6 +219,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-web-server');
     grunt.loadNpmTasks('grunt-jsbeautifier');
+    grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-express-server');
 
     grunt.registerTask('build', ['concat', 'jsbeautifier:check']);
 
@@ -219,4 +233,8 @@ module.exports = function (grunt) {
     // Default task.
     grunt.registerTask('default', 'test');
 
+    // Benchmark in browsers.
+    grunt.registerTask('benchtest', ['express:test', 'karma:bench']);
+    grunt.registerTask('build_and_test', ['build', 'benchtest']);
+    
 };

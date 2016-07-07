@@ -1,0 +1,532 @@
+﻿* {
+    font-family: Tahoma;
+    cursor: default;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+    a:visited {
+        color: white;
+    }
+
+.screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    z-index: 1;
+    transition: opacity 0.5s linear;
+    -webkit-transition: opacity 0.5s linear;
+}
+
+.hidden {
+    opacity: 0;
+    z-index: -10 !important;
+}
+
+.buttonLink {
+    font-size: 50px;
+    font-weight: bold;
+    color: white;
+    position: absolute;
+    text-decoration: none;
+}
+
+    .buttonLink:hover {
+        opacity: 0.8;
+    }
+
+.small-button {
+    font-size: 20px;
+    color: white;
+    width: 150px;
+    height: 50px;
+}
+
+.button:hover {
+    opacity: 0.8;
+}
+
+.green {
+    color: white;
+    border: 1px solid #005500;
+    background-color: green;
+}
+
+.orange {
+    color: white;
+    border: 1px solid #FFFF85;
+    background-color: orange;
+}
+
+.red {
+    background-color: red;
+    border: 1px solid #550000;
+}
+
+/*HOME*/
+#home {
+    background-color: white;
+}
+
+#home-top {
+    position: absolute;
+    width: 100%;
+    height: 40%;
+    margin-bottom: 5%;
+    margin-top: 20px;
+}
+
+#home-logo {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#home-controls {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    top: 50%;
+    text-align: center;
+    background-color: black;
+    z-index: 1;
+}
+
+#home-nohtml5 {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    top: 50%;
+    text-align: center;
+    background-color: black;
+    color: white;
+    font-size: 50px;
+    font-weight: bold;
+}
+
+#home-version {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 15px;
+    color: #cccccc;
+}
+
+#home-brand {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #cccccc;
+    font-style: italic;
+}
+
+#home-launch {
+    top: 50%;
+    margin-top: -50px;
+    height: 100px;
+    right: 50%;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+#home-launch-mobile {
+    top: 50%;
+    margin-top: -50px;
+    height: 100px;
+    left: 50%;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+
+/*BENCH*/
+#bench-header {
+    position: absolute;
+    width: 100%;
+    height: 80px;
+    z-index: 1;
+    background-color: black;
+}
+
+#bench-work {
+    position: absolute;
+    width: 100%;
+    top: 80px;
+    bottom: 80px;
+    background-color: #222222;
+}
+
+#bench-menu {
+    position: absolute;
+    width: 100%;
+    height: 80px;
+    bottom: 0px;
+    z-index: 1;
+    background-color: black;
+}
+
+#bench-cancel {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+}
+
+#bench-skip {
+    position: absolute;
+    top: 15px;
+    right: 180px;
+}
+
+#bench-fps {
+    font-size: 30px;
+    color: white;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+#bench-name {
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+#bench-title-background {
+    position: absolute;
+    background-color: white;
+    top: 50%;
+    margin-top: -75px;
+    height: 150px;
+    width: 100%;
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+#bench-title {
+    font-size: 50px;
+    font-weight: bold;
+    text-align: center;
+    position: absolute;
+    color: black;
+    top: 50%;
+    margin-top: -40px;
+    height: 50px;
+    width: 100%;
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+#bench-status {
+    position: absolute;
+    top: 30px;
+    left: 10px;
+    color: white;
+}
+
+#bench-status-progress {
+    color: green;
+}
+
+@keyframes move-bench-title-background {
+    0% {
+        transform: translateX(-100%);
+        opacity: 1;
+    }
+
+    10% {
+        animation-timing-function: ease-in-out;
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    90% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    100% {
+        animation-timing-function: ease-in-out;
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes move-bench-title {
+    0% {
+        transform: translateX(100%);
+        opacity: 1;
+    }
+
+    10% {
+        animation-timing-function: ease-in-out;
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    90% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    100% {
+        animation-timing-function: ease-in-out;
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes move-bench-title-background {
+    0% {
+        -webkit-transform: translateX(-100%);
+        opacity: 1;
+    }
+
+    10% {
+        -webkit-animation-timing-function: ease-in-out;
+        -webkit-transform: translateX(0);
+        opacity: 1;
+    }
+
+    90% {
+        -webkit-transform: translateX(0);
+        opacity: 1;
+    }
+
+    100% {
+        -webkit-animation-timing-function: ease-in-out;
+        -webkit-transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+@-webkit-keyframes move-bench-title {
+    0% {
+        -webkit-transform: translateX(100%);
+        opacity: 1;
+    }
+
+    10% {
+        -webkit-animation-timing-function: ease-in-out;
+        -webkit-transform: translateX(0);
+        opacity: 1;
+    }
+
+    90% {
+        -webkit-transform: translateX(0);
+        opacity: 1;
+    }
+
+    100% {
+        -webkit-animation-timing-function: ease-in-out;
+        -webkit-transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.animate-bench-title {
+    animation-delay: 0.5s;
+    animation-duration: 3s;
+    animation-iteration-count: 1;
+    animation-name: move-bench-title;
+    -webkit-animation-delay: 0.5s;
+    -webkit-animation-duration: 3s;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-name: move-bench-title;
+}
+
+.animate-bench-title-background {
+    animation-delay: 0.5s;
+    animation-duration: 3s;
+    animation-iteration-count: 1;
+    animation-name: move-bench-title-background;
+    -webkit-animation-delay: 0.5s;
+    -webkit-animation-duration: 3s;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-name: move-bench-title-background;
+}
+
+
+/*SCORE*/
+#score-header {
+    position: absolute;
+    width: 100%;
+    height: 150px;
+}
+
+#score-footer {
+    position: absolute;
+    width: 100%;
+    height: 150px;
+    bottom: 0;
+}
+
+#score-footer-text {
+    position: absolute;
+    bottom: -5px;
+    font-size: 100px;
+    color: white;
+    width: 100%;
+    text-align: center;
+}
+
+#score-header-title {
+    position: absolute;
+    top: 10px;
+    font-size: 120px;
+    color: white;
+    width: 100%;
+    text-align: center;
+}
+
+#score-list-background {
+    position: absolute;
+    width: 100%;
+    top: 150px;
+    bottom: 100px;
+    background-color: white;
+}
+
+#score-list {
+    width: 80%;
+    top: 200px;
+    height: auto;
+    bottom: 150px;
+    margin-left: 10%;
+    margin-right: 10%;
+    background-color: #dedede;
+    overflow: auto;
+    padding: 10px;
+    border: 1px solid #999999;
+}
+
+#score-stats {
+    position: absolute;
+    width: 100%;
+    top: 150px;
+    height: auto;
+    bottom: 100px;
+    text-align: center;
+    background-color: white;
+}
+
+#score-footer-back {
+    position: absolute;
+    bottom: 25px;
+    right: 20px;
+}
+
+.score-entry-block {
+    width: 100%;
+    height: 50px;
+}
+
+.score-entry {
+    float: left;
+    font-size: 30px;
+    color: black;
+}
+
+    .score-entry:hover {
+        opacity: 0.7;
+    }
+
+    .score-entry:visited {
+        color: black;
+    }
+
+.score-entry-link {
+    text-decoration: underline;
+    color: #550000;
+    font-size: 30px;
+    float: right;
+    width: 150px;
+    text-align: right;
+    cursor: pointer;
+}
+
+    .score-entry-link:visited {
+        text-decoration: underline;
+        color: #550000;
+        font-size: 30px;
+    }
+
+.score-entry-score {
+    width: 100px;
+    text-align: right;
+    color: #00CC00;
+    font-size: 30px;
+    float: right;
+}
+
+.score-entry-header-fps {
+    width: 150px;
+    text-align: right;
+    color: black;
+    font-size: 30px;
+    float: right;
+}
+
+.score-entry-header-score {
+    width: 100px;
+    text-align: right;
+    color: black;
+    font-size: 30px;
+    float: right;
+}
+
+
+/*Stats*/
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+#score-stats-graph {
+    position: absolute;
+    width: 100%;
+    top: 0px;
+    bottom: 100px;
+    height: auto;
+}
+
+.score-stats-graph-svg {
+    width: 100%;
+    height: 100%;
+}
+
+#score-stats-title {
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    bottom: 0px;
+    text-align: center;
+    color: black;
+    font-size: 40px;
+}
