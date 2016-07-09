@@ -4439,7 +4439,10 @@ window.sigplot = window.sigplot || {};
                         var link = document.createElement("a");
                         link.href = img;
                         link.download = "SigPlot." + (new Date()).getTime() + ".png";
+                        link.display = "none";
+                        document.body.appendChild(link);
                         link.click();
+                        document.body.removeChild(link);
                     }
                 }, {
                     text: "JPG",
@@ -4448,7 +4451,10 @@ window.sigplot = window.sigplot || {};
                         var link = document.createElement("a");
                         link.href = img;
                         link.download = "SigPlot." + (new Date()).getTime() + ".jpg";
+                        link.display = "none";
+                        document.body.appendChild(link);
                         link.click();
+                        document.body.removeChild(link);
                     }
                 }, {
                     text: "SVG",
@@ -4457,7 +4463,10 @@ window.sigplot = window.sigplot || {};
                         var link = document.createElement("a");
                         link.href = img;
                         link.download = "SigPlot." + (new Date()).getTime() + ".svg";
+                        link.display = "none";
+                        document.body.appendChild(link);
                         link.click();
+                        document.body.removeChild(link);
                     }
                 }]
             }
