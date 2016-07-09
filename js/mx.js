@@ -2797,18 +2797,6 @@ window.mx = window.mx || {};
             mx.textline(Mx, iscl, iscb, iscl, isct);
         }
 
-        // form nice tickmarks
-        var xtimecode = false;
-        if (xlab === 4) { //time-based tics
-            xtimecode = true;
-        }
-
-        var ytimecode = false;
-        if (ylab === 4) { //time-based tics
-            ytimecode = true;
-        }
-
-
         var xTIC = {
             dtic: 0,
             dtic1: 0
@@ -2822,26 +2810,26 @@ window.mx = window.mx || {};
             xTIC.dtic1 = stk1.xmin;
             xTIC.dtic = (stk1.xmin - stk1.xmax) / xdiv;
         } else {
-            xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv, xtimecode);
+            xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv, flags.xtimecode);
         }
 
 
         var _xmult = 1.0;
         if (flags.xmult) { // if xmult was provided
             _xmult = flags.xmult;
-        } else if (!xtimecode) {
+        } else if (!flags.xtimecode) {
             _xmult = mx.mult(stk1.xmin, stk1.xmax);
         }
         if (ydiv < 0) {
             yTIC.dtic1 = stk1.ymin;
             yTIC.dtic = (stk1.ymin - stk1.ymax) / ydiv;
         } else {
-            yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv, ytimecode);
+            yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv, flags.ytimecode);
         }
         var _ymult = 1.0;
         if (flags.ymult) { // if ymult was provided
             _ymult = flags.ymult;
-        } else if (!ytimecode) {
+        } else if (!flags.ytimecode) {
             _ymult = mx.mult(stk1.ymin, stk1.ymax);
         }
 
@@ -2863,10 +2851,22 @@ window.mx = window.mx || {};
         if (iy > 0) {
             var ly = 0;
             if (!flags.noyplab) {
-                ylabel = m.label(ylab, _ymult);
+                if (flags.ylabel instanceof Function) {
+                    ylabel = flags.ylabel(ylab, _ymult);
+                } else if (flags.ylabel) {
+                    ylabel = flags.ylabel;
+                } else {
+                    ylabel = m.label(ylab, _ymult);
+                }
             }
             if (!flags.noxplab) {
-                xlabel = m.label(xlab, _xmult);
+                if (flags.xlabel instanceof Function) {
+                    xlabel = flags.ylabel(xlab, _xmult);
+                } else if (flags.xlabel) {
+                    xlabel = flags.xlabel;
+                } else {
+                    xlabel = m.label(xlab, _xmult);
+                }
             }
         }
 
@@ -2924,7 +2924,7 @@ window.mx = window.mx || {};
         var x;
         var xlbl = "";
         if (xticlabels) {
-            if (xtimecode) {
+            if (flags.xtimecode) {
                 xlbl = m.sec2tod(xTIC.dtic1);
                 // If the label is no longer than half of the total width display multiple labels
                 sp = (xlbl.length * Mx.text_w < (iscr - iscl) / 2);
@@ -2978,7 +2978,7 @@ window.mx = window.mx || {};
             if (xticlabels) {
                 if (sp) {
                     xlbl = null;
-                    if (xtimecode) {
+                    if (flags.xtimecode) {
                         // If we have enough space to draw the next tic label
                         if (i > ix) {
                             xlbl = m.sec2tod(x, true);
@@ -2999,7 +2999,7 @@ window.mx = window.mx || {};
                         }
                     }
                 } else if (x === xTIC.dtic1) {
-                    if (xtimecode) {
+                    if (flags.xtimecode) {
                         xlbl = m.sec2tod(x, true);
                         if (flags.inside) {
                             i = Math.floor(Math.max(iscl + itext, i));
@@ -3078,7 +3078,7 @@ window.mx = window.mx || {};
                 if (flags.inside &&
                     ((i < isct + Mx.text_h) || (i > iscb - Mx.text_h * 2))) {
                     // out of range for inside labels
-                } else if (ytimecode) {
+                } else if (flags.ytimecode) {
                     ylbl = m.sec2tod(y); // don't trim zeros because we use them later
                     // y-axis timecodes
                     // use three lines

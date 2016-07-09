@@ -1498,6 +1498,52 @@ interactiveTest('sigplot ytimecode w/dates', 'Do you see a timecode yaxis?', fun
     });
 });
 
+interactiveTest('sigplot custom xlabel/ylabel', 'Do you see custom xlabel/ylabel?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xlabel: "CustomX",
+        ylabel: "CustomY"
+    });
+    notEqual(plot, null);
+
+    var ramp = [];
+    var now = Date.now() / 1000;
+    for (var i = now; i < now + 2000; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        file_name: "ramp",
+        format: "SF",
+        yunits: 4
+    });
+});
+
+interactiveTest('sigplot custom function xlabel/ylabel', 'Do you see custom xlabel/ylabel?', function() {
+    var xlabel = function(units, mult) {
+        return "CustomX - " + units + " " + mult;
+    }
+    var ylabel = function(units, mult) {
+        return "CustomY - " + units + " " + mult;
+    }
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xlabel: xlabel,
+        ylabel: ylabel
+    });
+    notEqual(plot, null);
+
+    var ramp = [];
+    var now = Date.now() / 1000;
+    for (var i = now; i < now + 2000; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        file_name: "ramp",
+        format: "SF",
+        yunits: 4
+    });
+});
+
 interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {

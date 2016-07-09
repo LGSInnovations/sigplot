@@ -183,6 +183,9 @@ window.sigplot = window.sigplot || {};
      * @param {Number}
      *            options.xlab the units that X-axis uses (see m.UNITS)
      *
+     * @param {Object}
+     *            options.xlabel function or string for custom X-axis label
+     *
      * @param {Number}
      *            options.xdiv the number of divisions on the X axis
      *
@@ -211,6 +214,9 @@ window.sigplot = window.sigplot || {};
      * @param {Number}
      *            options.ylab the units that Y-axis uses (see m.UNITS)
      *
+     * @param {Object}
+     *            options.ylabel function or string for custom Y-axis label
+     * 
      * @param {Number}
      *            options.ymin the minimum range to display on the Y axis
      *
@@ -2611,8 +2617,19 @@ window.sigplot = window.sigplot || {};
                     if (Gx.ymult) {
                         drawaxis_flags.ymult = Gx.ymult;
                     }
-                    mx.drawaxis(Mx, Gx.xdiv, Gx.ydiv, xlab, ylab,
-                        drawaxis_flags);
+                    if (xlab === 4) { //time-based tics
+                        drawaxis_flags.xtimecode = true;
+                    }
+                    if (ylab === 4) { //time-based tics
+                        drawaxis_flags.ytimecode = true;
+                    }
+                    if (Gx.xlabel) {
+                        drawaxis_flags.xlabel = Gx.xlabel;
+                    }
+                    if (Gx.ylabel) {
+                        drawaxis_flags.ylabel = Gx.ylabel;
+                    }
+                    mx.drawaxis(Mx, Gx.xdiv, Gx.ydiv, xlab, ylab, drawaxis_flags);
                 } //else {
                 // Not implemented yet
                 //}
@@ -2864,7 +2881,9 @@ window.sigplot = window.sigplot || {};
         this.isec = 0; // current sections
 
         this.xlab = undefined;
+        this.xlabel = undefined;
         this.ylab = undefined;
+        this.ylabel = undefined;
 
         // 0 - use HTML5 canvas smoothing
         // 1 - average
@@ -4562,6 +4581,7 @@ window.sigplot = window.sigplot || {};
         var address = o.cmode === undefined ? "" : o.cmode.toUpperCase();
         var line = o.line === undefined ? 3 : o.line;
         Gx.ylab = o.ylab;
+        Gx.ylabel = o.ylabel;
         Gx.ymin = o.ymin === undefined ? 0.0 : o.ymin;
         Gx.ymax = o.ymax === undefined ? 0.0 : o.ymax;
         var haveymin = (o.ymin !== undefined);
@@ -4590,6 +4610,7 @@ window.sigplot = window.sigplot || {};
 
         // TODO Gx.mimic = M$GET_SWITCH ('MIMIC')
         Gx.xlab = o.xlab;
+        Gx.xlabel = o.xlabel;
         Gx.segment = o.segment === undefined ? false : o.segment;
         Gx.plab = 24;
 
