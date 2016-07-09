@@ -181,6 +181,9 @@
                     return;
                 }
 
+                // the slider is handling this, so prevent default actions
+                evt.preventDefault();
+
                 // We are no longer dragging
                 self.dragging = false;
 
@@ -212,7 +215,7 @@
 
                 mx.dispatchEvent(Mx, evt);
             };
-            document.addEventListener("mouseup", this.onmouseup, false);
+            this.plot.addListener("mup", this.onmouseup);
         },
 
         menu: function() {
