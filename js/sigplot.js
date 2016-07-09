@@ -637,11 +637,6 @@ window.sigplot = window.sigplot || {};
                 var Gx = plot._Gx;
                 var Mx = plot._Mx;
 
-                if (Mx.warpbox) {
-                    // if we are in a warpbox, it will handle the mouseup
-                    return;
-                }
-
                 // Update Mx event fields
                 mx.ifevent(plot._Mx, event);
 
@@ -655,6 +650,15 @@ window.sigplot = window.sigplot || {};
                 var executeDefault = mx.dispatchEvent(Mx, evt);
 
                 if (executeDefault) {
+                    if (Mx.warpbox || Mx.widget || Mx.prompt) {
+                        // If any of these are true, the mouseup is going
+                        // to be handled by them...but this is a fragile approach
+                        // because it relies upon implicit ordering of event dispatch
+                        // for mouseup events.  It should be improved/refactored at some point
+                        return;
+                    }
+
+                    // Normal mouse up handling
                     if (event.which === 1) {
                         // If we are in the pan region, perform the pan
                         // otherwise emit an mtag

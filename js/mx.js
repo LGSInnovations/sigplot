@@ -3356,19 +3356,23 @@ window.mx = window.mx || {};
             _menu_redraw(Mx, menu);
         } else if (event.type === "mouseup") {
             // No longer dragging menu
-            menu.drag_x = undefined;
-            menu.drag_y = undefined;
+            if (event.which === 1) {
+                if ((menu.drag_x !== undefined) && (menu.drag_y !== undefined)) {
+                    menu.drag_x = undefined;
+                    menu.drag_y = undefined;
+                } else {
+                    _menu_takeaction(Mx, menu);
+                }
+            } else if (event.which === 3) {
+                _menu_dismiss(Mx, menu);
+            }
         } else if (event.type === "mousedown") {
             event.preventDefault();
             if (event.which === 1) {
                 if (Mx.xpos > menu.x && Mx.xpos < (menu.x + menu.w) && Mx.ypos > menu.y && Mx.ypos < (menu.y + Mx.text_h * 1.5)) {
                     menu.drag_x = Mx.xpos;
                     menu.drag_y = Mx.ypos;
-                } else {
-                    _menu_takeaction(Mx, menu);
                 }
-            } else {
-                _menu_dismiss(Mx, menu);
             }
         } else if (event.type === "keydown") {
             // Remember that keydown triggers periodically while a key is held

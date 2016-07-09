@@ -1198,6 +1198,16 @@ interactiveTest('sigplot empty', 'Do you see an empty plot scaled from -1 to 1 o
     equal(plot._Mx.wid_canvas.style.position, "absolute");
 });
 
+interactiveTest('sigplot menu no mtag', 'Open the menu and move it, ensure mtag events are not alerted', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    plot.addListener("mtag", function(evt) {
+        alert("Mtag occurred!");
+    });
+});
+
 interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
