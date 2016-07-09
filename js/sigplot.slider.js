@@ -42,6 +42,7 @@
         this.position = undefined;
         this.location = undefined;
         this.paired_slider = undefined;
+        this.name = options.name || "Slider";
     };
 
     sigplot.SliderPlugin.prototype = {
@@ -212,6 +213,52 @@
                 mx.dispatchEvent(Mx, evt);
             };
             document.addEventListener("mouseup", this.onmouseup, false);
+        },
+
+        menu: function() {
+            var _display_handler = (function(self) {
+                return function() {
+                    self.options.display = !self.options.display;
+                    self.plot.redraw();
+                };
+            }(this));
+
+            var _center_handler = (function(self) {
+                return function() {
+                    var Mx = self.plot._Mx;
+                    var stk = Mx.stk[Mx.level];
+
+                    var xctr = ((stk.xmax - stk.xmin) / 2.0) + stk.xmin;
+                    var yctr = ((stk.ymax - stk.ymin) / 2.0) + stk.ymin;
+
+                    if (self.options.direction === "vertical") {
+                        self.set_position(xctr);
+                    } else if (self.options.direction === "horizontal") {
+                        self.set_position(yctr);
+                    } else if (self.options.direction === "both") {
+                        self.set_position({
+                            x: xctr,
+                            y: yctr
+                        });
+                    }
+                };
+            }(this));
+
+            return {
+                text: this.name + "...",
+                menu: {
+                    title: "SLIDER",
+                    items: [{
+                        text: "Display",
+                        checked: this.options.display,
+                        style: "checkbox",
+                        handler: _display_handler
+                    }, {
+                        text: "Center",
+                        handler: _center_handler
+                    }]
+                }
+            };
         },
 
         addListener: function(what, callback) {
