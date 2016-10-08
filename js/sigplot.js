@@ -4741,6 +4741,8 @@ window.sigplot = window.sigplot || {};
                     Gx.ymin = Math.max(Gx.ymin, 1e-20);
                     Gx.ymax = Math.max(Gx.ymax, 1e-20);
                 }
+                Gx.ymin = m.log10(Gx.ymin) * dbscale;
+                Gx.ymax = m.log10(Gx.ymax) * dbscale;
             } else if ((Gx.lyr.length > 0) && (Gx.lyr[0].cx)) {
                 Gx.ymin = Math.max(-18.0 * dbscale, Gx.ymin);
                 Gx.ymax = Math.max(-18.0 * dbscale, Gx.ymax);
