@@ -1659,7 +1659,7 @@ window.mx = window.mx || {};
                         color,
                         pixx.subarray(ie - 1, ib),
                         pixy.subarray(ie - 1, ib),
-                        ib,
+                        ib - ie - 1,
                         symb,
                         rad,
                         n - ib + istart);
