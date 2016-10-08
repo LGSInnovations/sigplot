@@ -1137,6 +1137,7 @@ window.mx = window.mx || {};
 
         var r = 0; // int
         var d = 0; // int
+        var d2 = 0; // int
         var rmode = false; // bool
         var fill = false; // bool
         var tri = []; // XPoint array of size 4
@@ -1191,14 +1192,14 @@ window.mx = window.mx || {};
                 case mx.L_TriangleSymbol:
                     /* jshint +W086 */
                     d = m.trunc(r * 1.5);
-                    x = m.trunc(r * 0.80);
+                    d2 = m.trunc(r * 0.80);
 
                     // Coordinates of just the triangle itself
-                    tri[1].x = -x;
+                    tri[1].x = -d2;
                     tri[1].y = d;
-                    tri[2].x = x * 2;
+                    tri[2].x = d2 * 2;
                     tri[2].y = 0;
-                    tri[3].x = -x;
+                    tri[3].x = -d2;
                     tri[3].y = -d;
 
                     var tempTri = []; // XPoint array of size 4

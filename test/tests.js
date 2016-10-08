@@ -1277,6 +1277,22 @@ interactiveTest('empty array', 'Do you see a plot with two pulses?', function() 
 
 });
 
+interactiveTest('sigplot triangle symbol', 'Do you see triangle symbols?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 20; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, null, {
+        name: "x",
+        symbol: 6,
+        line: 0
+    });
+});
+
 interactiveTest('sigplot custom symbol', 'Do you see custom symbols?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
