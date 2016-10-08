@@ -3859,6 +3859,39 @@ interactiveTest('zoom-keep-marker', 'Does zooming not change the marker, but sho
 
 });
 
+interactiveTest('custom color line', 'Do you see an orange line?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1000; i++) {
+        ramp.push(i);
+    }
+    var layer = plot.overlay_array(ramp, {
+        file_name: "ramp"
+    }, {
+        color: "orange"
+    });
+});
+
+interactiveTest('custom color line (change settings)', 'Do you see an orange line?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var ramp = [];
+    for (var i = 0; i < 1000; i++) {
+        ramp.push(i);
+    }
+    var layer = plot.overlay_array(ramp, {
+        file_name: "ramp"
+    });
+
+    plot.get_layer(layer).color = "orange";
+    plot.refresh();
+});
+
 interactiveTest('overlapping_highlights', 'Do you see an unbroken yellow line with red on each end?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
