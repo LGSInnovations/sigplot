@@ -702,6 +702,13 @@ window.m = window.m || {};
         }
     };
 
+    m.log10 = function(v, lo_thresh) {
+        if (lo_thresh === undefined) {
+            lo_thresh = 1.0e-20;
+        }
+        return Math.log(Math.max(v, lo_thresh)) / Math.log(10);
+    };
+
     /**
      * For each vector element in <src>, determine the max of <src> element and <lo_thresh>, returns the log(base10) of that value in <dst>
      * @param	{array}		src		Input vector.
