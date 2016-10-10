@@ -1,0 +1,11 @@
+before_script:
+  - rm -rf dist/*
+  - npm install -q
+
+dist:
+  image: docker.lgsdirect.com:5000/sigplot-buildenv:latest
+  script:
+    - grunt dist
+  artifacts:
+    paths:
+      - dist/sigplot*.zip
