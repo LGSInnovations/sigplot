@@ -166,6 +166,21 @@
         'D': Float64Array
     };
 
+    /**
+     * @memberOf bluefile
+     * @private
+     */
+    var _XM_TO_DATAVIEW = {
+        'P': null,
+        'A': null,
+        'O': "getUint8",
+        'B': "getInt8",
+        'I': "getInt16",
+        'L': "getInt32",
+        'X': null,
+        'F': null,
+        'D': "getFloat64"
+    };
 
 
     /**
@@ -225,6 +240,8 @@
             this.datarep = ab2str(this.buf.slice(8, 12));
             var littleEndianHdr = (this.headrep === "EEEI");
             var littleEndianData = (this.datarep === "EEEI");
+            this.ext_start = dvhdr.getInt32(24, littleEndianHdr);
+            this.ext_size = dvhdr.getInt32(28, littleEndianHdr);
             this.type = dvhdr.getUint32(48, littleEndianHdr);
             this["class"] = this.type / 1000;
             this.format = ab2str(this.buf.slice(52, 54));
@@ -251,6 +268,9 @@
             this.data_size = dvhdr.getFloat64(40, littleEndianHdr);
             var ds = this.data_start;
             var de = this.data_start + this.data_size;
+            if (this.ext_size) {
+                this.ext_header = this.unpack_keywords(this.buf, this.ext_size, this.ext_start * 512, littleEndianHdr);
+            }
             this.setData(this.buf, ds, de, littleEndianData);
         }
     }
@@ -301,7 +321,46 @@
                 this.dview = this.createArray(null, null, this.size);
             }
         },
-
+        /**
+         * @author Sean Sullivan https://github.com/desean1625
+         * @memberof bluefile
+         * @param   buf
+         * @param   lbuf
+         * @param   offset
+         * @param   littleEndian
+         *
+         */
+        unpack_keywords: function(buf, lbuf, offset, littleEndian) {
+            var lkey, lextra, ltag, format, tag, data, ldata, itag, idata, dvk;
+            var keywords = {};
+            var ii = 0;
+            buf = buf.slice(offset, buf.length);
+            var dvhdr = new DataView(buf);
+            buf = ab2str(buf);
+            while (ii < lbuf) {
+                idata = ii + 8;
+                lkey = dvhdr.getUint32(ii, littleEndian);
+                lextra = dvhdr.getInt16(ii + 4, littleEndian);
+                ltag = dvhdr.getInt8(ii + 6, littleEndian);
+                format = buf.slice(ii + 7, ii + 8);
+                ldata = lkey - lextra;
+                itag = idata + ldata;
+                tag = buf.slice(itag, itag + ltag);
+                data = buf.slice(idata, idata + ldata);
+                if (format === "A") {
+                    keywords[tag] = data;
+                } else {
+                    //TODO: Get Bluefile with none ASCII keywords and test this.
+                    /*
+                    data = new ArrayBuffer(data);
+                    dvk = new DataView(data);
+                    keywords[tag] = dvk[_XM_TO_DATAVIEW[format]](0,littleEndian);
+                    */
+                }
+                ii += lkey;
+            }
+            return keywords;
+        },
         /**
          * Create typed array
          * @memberof bluefile

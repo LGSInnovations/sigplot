@@ -25,14 +25,14 @@
      * @returns {sigplot.PlaybackControlsPlugin}
      */
     sigplot.PlaybackControlsPlugin = function(options) {
-        this.options = (options === undefined) ? {} : options;
-
-        if (this.options.display === undefined) {
-            this.options.display = true;
-        }
-
-        this.options.size = this.options.size || 25;
-        this.options.lineWidth = this.options.lineWidth || 2;
+        this.options = {
+            display: true,
+            size: 25,
+            lineWidth: 2,
+            fillStyle: false //,
+                /*strokeStyle: "#FFFFFF"*/
+        };
+        sigplot.setOptions(this, options);
         this.state = "paused";
         this.highlight = false;
     };

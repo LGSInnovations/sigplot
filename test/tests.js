@@ -222,6 +222,18 @@ asyncTest('int data', function() {
     });
 });
 
+asyncTest('Ascii Keywords', function() {
+    var bfr = new BlueFileReader();
+    bfr.read_http("dat/lots_of_keywords.tmp", function(hdr) {
+        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        equal(hdr.ext_header.KEYWORD_001, "[value___001]", "KEYWORD_001 correct value");
+        equal(hdr.ext_header.KEYWORD_100, "[value___100                                ] ", "KEYWORD_100 correct value");
+
+
+        start();
+    });
+});
+
 asyncTest('double data', function() {
     var bfr = new BlueFileReader();
     bfr.read_http("dat/sin.tmp", function(hdr) {

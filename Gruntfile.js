@@ -28,6 +28,7 @@ module.exports = function (grunt) {
                     'js/loglevel.js',
                     'js/m.js',
                     'js/mx.js',
+                    'js/sigplot.Utils.js',
                     'js/sigplot.layer1d.js',
                     'js/sigplot.layer2d.js',
                     'js/sigplot.js'
