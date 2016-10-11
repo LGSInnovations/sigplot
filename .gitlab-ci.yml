@@ -3,7 +3,7 @@ before_script:
   - npm install -q
 
 dist:
-  image: docker.lgsdirect.com:5000/sigplot-buildenv:latest
+  image: axios/sigplot-buildenv:latest
   script:
     - grunt dist
   artifacts:
