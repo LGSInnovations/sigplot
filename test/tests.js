@@ -2058,6 +2058,94 @@ interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly wo
     }, 500);
 });
 
+// By default, rasters have their autolevel set by the 
+// first 16 raster-lines.   
+interactiveTest('t2000 file (default autol)', 'Is the plot red below the ~16th line?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var framesize = 128;
+    var height = 120;
+
+    var raster = [];
+    for (var j = 0; j < height; j += 1) {
+        for (var i = 0; i < framesize; i += 1) {
+            raster.push(j);
+        }
+    }
+
+    plot.overlay_array(raster, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "raster"
+    });
+});
+
+// When autol is used, the raster scaling will dynamically updated per-line
+// with autol=1 each line is scaled by itself, so this should render as vertical bars
+interactiveTest('t2000 file (default autol)', 'Does the plot render a vertical bars?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        autol: 1
+    });
+    notEqual(plot, null);
+
+    var framesize = 128;
+    var height = 120;
+
+    var raster = [];
+    for (var j = 0; j < height; j += 1) {
+        for (var i = 0; i < framesize; i += 1) {
+            raster.push(j + i);
+        }
+    }
+
+    plot.overlay_array(raster, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "raster"
+    });
+});
+
+// this data is rendered where the left side of the plot will be a constant color,
+// the right side should start as constant red and then around 110 switch to a gradient
+// that gradually go back to all red.  The 'height' of the rainbow grows as autol
+// is increased
+interactiveTest('t2000 file (default autol)', 'Does the plot render a gradient on the right?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        autol: 5
+    });
+    notEqual(plot, null);
+
+    var framesize = 128;
+    var height = 120;
+
+    var raster = [];
+    var val = 0;
+    for (var j = 0; j < height; j += 1) {
+        for (var i = 0; i < framesize; i += 1) {
+            if (i < (framesize) / 2) {
+                val = 1;
+            } else {
+                if (j < 60) {
+                    val = 100;
+                } else {
+                    val = 10;
+                }
+            }
+            raster.push(val);
+        }
+    }
+
+    plot.overlay_array(raster, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "raster"
+    });
+});
+
 interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autoscale after 100 rows?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
