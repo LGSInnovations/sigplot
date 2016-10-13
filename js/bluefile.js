@@ -361,37 +361,28 @@
                 ldata = lkey - lextra;
                 itag = idata + ldata;
                 tag = buf.slice(itag, itag + ltag);
-                data = buf.slice(idata, idata + ldata);
                 if (format === "A") {
-                    dict_keywords[tag] = data;
-                    keywords.push({
-                        tag: tag,
-                        value: data
-                    });
+                    data = buf.slice(idata, idata + ldata);
                 } else {
                     //TODO: Add Unsupported types to _XM_TO_DATAVIEW.
-                    data = str2ab(data);
-                    dvk = new DataView(data);
                     if (_XM_TO_DATAVIEW[format]) {
                         if (typeof _XM_TO_DATAVIEW[format] === "string") {
-                            data = dvk[_XM_TO_DATAVIEW[format]](0, littleEndian);
+                            data = dvhdr[_XM_TO_DATAVIEW[format]](idata, littleEndian);
                         } else {
+                            data = buf.slice(idata, idata + ldata);
+                            data = str2ab(data);
+                            dvk = new DataView(data);
                             data = _XM_TO_DATAVIEW[format](dvk, 0, littleEndian);
                         }
-                        dict_keywords[tag] = data;
-                        keywords.push({
-                            tag: tag,
-                            value: data
-                        });
                     } else {
-                        dict_keywords[tag] = data;
-                        keywords.push({
-                            tag: tag,
-                            value: data
-                        });
                         console.info("Unsupported keyword format " + format + " for tag " + tag);
                     }
                 }
+                dict_keywords[tag] = data;
+                keywords.push({
+                    tag: tag,
+                    value: data
+                });
                 ii += lkey;
             }
             if (this.options.ext_header_type == "dict") {
