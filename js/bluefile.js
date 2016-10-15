@@ -228,6 +228,7 @@
      */
     function getInt64(dataView, index, littleEndian) {
         var highIndex, lowIndex;
+        var MAX_INT = Math.pow(2, 53);
         if (littleEndian) {
             highIndex = 4;
             lowIndex = 0;
@@ -235,9 +236,14 @@
             highIndex = 0;
             lowIndex = 4;
         }
-        var high = dataView.getInt32(index + highIndex, littleEndian)
-        var low = dataView.getInt32(index + lowIndex, littleEndian)
-        return low + pow2(32) * high;
+        var high = dataView.getInt32(index + highIndex, littleEndian);
+        var low = dataView.getInt32(index + lowIndex, littleEndian);
+        rv = low + pow2(32) * high;
+        if (rv >= MAX_INT) {
+            console.info("Int is bigger than JS can represent.")
+            return Infinity;
+        }
+        return rv;
     }
     /**
      * Create bluefile header and attach data buffer
@@ -347,6 +353,7 @@
         unpack_keywords: function(buf, lbuf, offset, littleEndian) {
             var lkey, lextra, ltag, format, tag, data, ldata, itag, idata, dvk;
             var keywords = [];
+            var dic_index = {};
             var dict_keywords = {};
             var ii = 0;
             buf = buf.slice(offset, buf.length);
@@ -369,14 +376,17 @@
                         if (typeof _XM_TO_DATAVIEW[format] === "string") {
                             data = dvhdr[_XM_TO_DATAVIEW[format]](idata, littleEndian);
                         } else {
-                            data = buf.slice(idata, idata + ldata);
-                            data = str2ab(data);
-                            dvk = new DataView(data);
-                            data = _XM_TO_DATAVIEW[format](dvk, 0, littleEndian);
+                            data = _XM_TO_DATAVIEW[format](dvhdr, idata, littleEndian);
                         }
                     } else {
                         console.info("Unsupported keyword format " + format + " for tag " + tag);
                     }
+                }
+                if (typeof dic_index[tag] === "undefined") {
+                    dic_index[tag] = 1;
+                } else {
+                    dic_index[tag]++;
+                    tag = "" + tag + dic_index[tag];
                 }
                 dict_keywords[tag] = data;
                 keywords.push({
