@@ -210,6 +210,7 @@ window.sigplot = window.sigplot || {};
      *
      * @param {Number}
      *            options.autoy auto-scaling settings for Y axis
+     *            0 = Fix , 1 = Auto Min , 2 = Auto Max, 3 = Full Auto
      *
      * @param {Number}
      *            options.ylab the units that Y-axis uses (see m.UNITS)
@@ -1515,12 +1516,45 @@ window.sigplot = window.sigplot || {};
                 }
             }
 
-            if (settings.ymin !== undefined) {
-                updateViewbox(this, settings.ymin, Mx.stk[0].ymax, "Y");
+            if (settings.ymax !== undefined) {
+                if (settings.ymax === null) {
+                    Gx.autoy = Gx.autoy | 2;
+                    Gx.panymax = undefined;
+                    scale_base(this, {});
+                    Gx.ymax = Gx.panymax;
+                } else {
+                    // autoy must be set correctly before calling updateViewbox
+                    Gx.autoy = Gx.autoy & 0xD;
+                    Gx.ymax = settings.ymax;
+                    updateViewbox(this, Mx.stk[0].ymin, settings.ymax, "Y");
+                }
             }
 
-            if (settings.ymax !== undefined) {
-                updateViewbox(this, Mx.stk[0].ymin, settings.ymax, "Y");
+            if (settings.ymin !== undefined) {
+                if (settings.ymin === null) {
+                    Gx.autoy = Gx.autoy | 1;
+                    Gx.panymin = undefined;
+                    scale_base(this, {});
+                    Gx.ymin = Gx.panymin;
+                } else {
+                    // autoy must be set correctly before calling updateViewbox
+                    Gx.autoy = Gx.autoy & 0xE;
+                    Gx.ymin = settings.ymin;
+                    updateViewbox(this, settings.ymin, Mx.stk[0].ymax, "Y");
+                }
+            }
+
+            // Check autoy setting after checking ymin/ymax
+            // so that explicitly setting autoy will override
+            // implicit settings via ymin/ymax
+            if (settings.autoy !== undefined) {
+                Gx.autoy = settings.autoy;
+                if (((Gx.autoy & 1) !== 0)) {
+                    Gx.ymin = undefined;
+                }
+                if (((Gx.autoy & 2) !== 0)) {
+                    Gx.ymax = undefined;
+                }
             }
 
             if (settings.xmin !== undefined) {
