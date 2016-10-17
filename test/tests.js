@@ -782,6 +782,95 @@ test('sigplot construction', function() {
     equal(plot._Mx.wid_canvas.style.position, "absolute");
 });
 
+// Demonstrate that changing the ymin/ymax settings
+// will implicitly change the autoy settings
+test('sigplot layer1d change_settings ymin/ymax ', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(fixture.childNodes.length, 1);
+
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    // An empty plot starts at -1.0, 1.0
+    equal(plot._Gx.ymin, -1.0);
+    equal(plot._Gx.ymax, 1.0);
+    equal(plot._Gx.autoy, 3);
+
+
+    var pulse = [];
+    for (var i = 0; i <= 1000; i += 1) {
+        pulse.push(0.0);
+    }
+    pulse[0] = 10.0;
+
+    // The first overlay will scale the plot
+    plot.overlay_array(pulse);
+    equal(plot._Gx.ymin, -0.2);
+    equal(plot._Gx.ymax, 10.2);
+    equal(plot._Gx.autoy, 3);
+
+    plot.change_settings({
+        ymin: -50
+    });
+    equal(plot._Gx.ymin, -50);
+    equal(plot._Gx.ymax, 10.2);
+    equal(plot._Gx.autoy, 2);
+
+    plot.change_settings({
+        ymax: 100
+    });
+    equal(plot._Gx.ymin, -50);
+    equal(plot._Gx.ymax, 100);
+    equal(plot._Gx.autoy, 0);
+
+    plot.change_settings({
+        ymin: 10,
+        ymax: 50
+    });
+    equal(plot._Gx.ymin, 10);
+    equal(plot._Gx.ymax, 50);
+    equal(plot._Gx.autoy, 0);
+
+    plot.change_settings({
+        ymin: null
+    });
+    equal(plot._Gx.ymin, -0.2);
+    equal(plot._Gx.ymax, 50);
+    equal(plot._Gx.autoy, 1);
+
+    plot.change_settings({
+        ymax: null
+    });
+    equal(plot._Gx.ymin, -0.2);
+    equal(plot._Gx.ymax, 10.2);
+    equal(plot._Gx.autoy, 3);
+
+    plot.change_settings({
+        ymin: -100,
+        ymax: 200
+    });
+    equal(plot._Gx.ymin, -100);
+    equal(plot._Gx.ymax, 200);
+    equal(plot._Gx.autoy, 0);
+
+    plot.change_settings({
+        ymin: -10,
+        ymax: 20
+    });
+    equal(plot._Gx.ymin, -10);
+    equal(plot._Gx.ymax, 20);
+    equal(plot._Gx.autoy, 0);
+
+    plot.change_settings({
+        ymin: null,
+        ymax: null
+    });
+    equal(plot._Gx.ymin, -0.2);
+    equal(plot._Gx.ymax, 10.2);
+    equal(plot._Gx.autoy, 3);
+});
+
 test('sigplot layer1d noautoscale', function() {
     var container = document.getElementById('plot');
     equal(container.childNodes.length, 0);
@@ -3073,6 +3162,104 @@ interactiveTest('rescale', 'Do you see a plot that scales -2 to 2?', function() 
     plot.rescale();
 
 });
+
+// Demonstrate that changing the ymin/ymax settings
+// will implicitly change the autoy settings
+interactiveTest('sigplot layer1d change_settings ymin/ymax ',
+    'Do you see a plot scaled from -10 to 50',
+    function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual(plot, null);
+
+        var pulse = [];
+        for (var i = 0; i <= 1000; i += 1) {
+            if (i < 500) {
+                pulse.push(0.0);
+            } else {
+                pulse.push(10.0);
+            }
+        }
+
+        plot.overlay_array(pulse);
+        plot.change_settings({
+            ymin: -10,
+            ymax: 50
+        });
+    });
+
+interactiveTest('sigplot layer1d change_settings ymin/ymax ',
+    'Do you see a plot scaled from 0.2 to 50',
+    function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual(plot, null);
+
+        var pulse = [];
+        for (var i = 0; i <= 1000; i += 1) {
+            if (i < 500) {
+                pulse.push(0.0);
+            } else {
+                pulse.push(10.0);
+            }
+        }
+
+        plot.overlay_array(pulse);
+        plot.change_settings({
+            ymax: 50
+        });
+    });
+
+interactiveTest('sigplot layer1d change_settings ymin/ymax ',
+    'Do you see a plot scaled from -10 to 10.2',
+    function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual(plot, null);
+
+        var pulse = [];
+        for (var i = 0; i <= 1000; i += 1) {
+            if (i < 500) {
+                pulse.push(0.0);
+            } else {
+                pulse.push(10.0);
+            }
+        }
+
+        plot.overlay_array(pulse);
+        plot.change_settings({
+            ymin: -10
+        });
+    });
+
+// Prove that automatic autoy works when setting ymin/ymax
+// back to null
+interactiveTest('sigplot layer1d change_settings ymin/ymax ',
+    'Do you see a plot scaled from 0.2 to 10.2',
+    function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual(plot, null);
+
+        var pulse = [];
+        for (var i = 0; i <= 1000; i += 1) {
+            if (i < 500) {
+                pulse.push(0.0);
+            } else {
+                pulse.push(10.0);
+            }
+        }
+
+        plot.overlay_array(pulse);
+        plot.change_settings({
+            ymin: -10,
+            ymax: 50
+        });
+        plot.change_settings({
+            ymin: null,
+            ymax: null
+        });
+    });
 
 interactiveTest('LO ymin/ymax', 'Do you see a plot that scales -100 to -20?', function() {
     var container = document.getElementById('plot');
