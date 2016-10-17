@@ -64,7 +64,7 @@
  *
  * @namespace bluefile
  */
-(function(global) {
+(function(global, sigplot) {
     'use strict';
     /**
      * @memberOf bluefile
@@ -148,6 +148,32 @@
         'D': Float64Array
     };
     /**
+     * @memberof bluefile
+     * @param   {array}     buf         Data bffer
+     * @param number
+     * @param bool
+     * @private
+     */
+    function getInt64(dataView, index, littleEndian) {
+        var highIndex, lowIndex;
+        var MAX_INT = Math.pow(2, 53);
+        if (littleEndian) {
+            highIndex = 4;
+            lowIndex = 0;
+        } else {
+            highIndex = 0;
+            lowIndex = 4;
+        }
+        var high = dataView.getInt32(index + highIndex, littleEndian);
+        var low = dataView.getInt32(index + lowIndex, littleEndian);
+        var rv = low + pow2(32) * high;
+        if (rv >= MAX_INT) {
+            window.console.info("Int is bigger than JS can represent.");
+            return Infinity;
+        }
+        return rv;
+    }
+    /**
      * @memberOf bluefile
      * @private
      */
@@ -218,32 +244,6 @@
      */
     function pow2(n) {
         return (n >= 0 && n < 31) ? (1 << n) : (pow2[n] || (pow2[n] = Math.pow(2, n)));
-    };
-    /**
-     * @memberof bluefile
-     * @param   {array}     buf         Data bffer
-     * @param number
-     * @param bool
-     * @private
-     */
-    function getInt64(dataView, index, littleEndian) {
-        var highIndex, lowIndex;
-        var MAX_INT = Math.pow(2, 53);
-        if (littleEndian) {
-            highIndex = 4;
-            lowIndex = 0;
-        } else {
-            highIndex = 0;
-            lowIndex = 4;
-        }
-        var high = dataView.getInt32(index + highIndex, littleEndian);
-        var low = dataView.getInt32(index + lowIndex, littleEndian);
-        rv = low + pow2(32) * high;
-        if (rv >= MAX_INT) {
-            console.info("Int is bigger than JS can represent.")
-            return Infinity;
-        }
-        return rv;
     }
     /**
      * Create bluefile header and attach data buffer
@@ -379,7 +379,7 @@
                             data = _XM_TO_DATAVIEW[format](dvhdr, idata, littleEndian);
                         }
                     } else {
-                        console.info("Unsupported keyword format " + format + " for tag " + tag);
+                        window.console.info("Unsupported keyword format " + format + " for tag " + tag);
                     }
                 }
                 if (typeof dic_index[tag] === "undefined") {
@@ -395,7 +395,7 @@
                 });
                 ii += lkey;
             }
-            if (this.options.ext_header_type == "dict") {
+            if (this.options.ext_header_type === "dict") {
                 return dict_keywords;
             }
             return keywords;
