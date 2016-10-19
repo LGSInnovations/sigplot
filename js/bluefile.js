@@ -64,7 +64,7 @@
  *
  * @namespace bluefile
  */
-(function(global, sigplot) {
+(function(global) {
     'use strict';
     /**
      * @memberOf bluefile
@@ -188,6 +188,19 @@
         'F': "getFloat32",
         'D': "getFloat64"
     };
+
+    function update(dst, src) {
+        for (var prop in src) {
+            var val = src[prop];
+            if (typeof val == "object") { // recursive
+                update(dst[prop], val);
+            } else {
+                dst[prop] = val;
+            }
+        }
+        return dst; // return dst to allow method chaining
+    }
+
     /**
      * @memberOf bluefile
      * @private
@@ -254,7 +267,7 @@
         this.options = {
             ext_header_type: "dict"
         };
-        sigplot.setOptions(this, options);
+        update(this.options, options);
         this.file = null;
         this.file_name = null;
         this.offset = 0;
@@ -386,7 +399,7 @@
                     dic_index[tag] = 1;
                 } else {
                     dic_index[tag]++;
-                    tag = "" + tag + dic_index[tag];
+                    tag = "" + tag + dic_index[tag]; //Force to string just incase the tag is interpreted as a number
                 }
                 dict_keywords[tag] = data;
                 keywords.push({
