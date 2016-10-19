@@ -188,19 +188,6 @@
         'F': "getFloat32",
         'D': "getFloat64"
     };
-
-    function update(dst, src) {
-        for (var prop in src) {
-            var val = src[prop];
-            if (typeof val == "object") { // recursive
-                update(dst[prop], val);
-            } else {
-                dst[prop] = val;
-            }
-        }
-        return dst; // return dst to allow method chaining
-    }
-
     /**
      * @memberOf bluefile
      * @private
@@ -267,7 +254,7 @@
         this.options = {
             ext_header_type: "dict"
         };
-        update(this.options, options);
+        global.update(this.options, options);
         this.file = null;
         this.file_name = null;
         this.offset = 0;
@@ -384,7 +371,6 @@
                 if (format === "A") {
                     data = buf.slice(idata, idata + ldata);
                 } else {
-                    //TODO: Add Unsupported types to _XM_TO_DATAVIEW.
                     if (_XM_TO_DATAVIEW[format]) {
                         if (typeof _XM_TO_DATAVIEW[format] === "string") {
                             data = dvhdr[_XM_TO_DATAVIEW[format]](idata, littleEndian);
@@ -392,6 +378,7 @@
                             data = _XM_TO_DATAVIEW[format](dvhdr, idata, littleEndian);
                         }
                     } else {
+                        //Should never get here now.
                         window.console.info("Unsupported keyword format " + format + " for tag " + tag);
                     }
                 }

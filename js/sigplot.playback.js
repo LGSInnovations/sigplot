@@ -32,7 +32,7 @@
             fillStyle: false //,
                 /*strokeStyle: "#FFFFFF"*/
         };
-        sigplot.setOptions(this, options);
+        window.update(this.optionss, options);
         this.state = "paused";
         this.highlight = false;
     };

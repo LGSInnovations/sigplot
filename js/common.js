@@ -261,3 +261,16 @@ if (!window.Float64Array) {
     /* jshint +W030 */
 
 })(window, document);
+
+//Updates destenation object with source values
+function update(dst, src) {
+    for (var prop in src) {
+        var val = src[prop];
+        if (typeof val === "object") { // recursive
+            update(dst[prop], val);
+        } else {
+            dst[prop] = val;
+        }
+    }
+    return dst; // return dst to allow method chaining
+}

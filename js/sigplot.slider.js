@@ -36,7 +36,7 @@
             prevent_drag: false
         };
 
-        sigplot.setOptions(this, options);
+        window.update(this.options, options);
         this.position = undefined;
         this.location = undefined;
         this.paired_slider = undefined;
