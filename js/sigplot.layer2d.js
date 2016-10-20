@@ -587,39 +587,98 @@
 
                 var min = 0;
                 var max = 0;
-                if (zpoint.length > 0) {
-                    min = zpoint[0];
-                    max = zpoint[0];
-                    for (var i = 0; i < zpoint.length; i++) {
-                        if ((i / this.xframe) >= this.lpb) {
-                            break;
-                        }
-                        if (zpoint[i] < min) {
-                            min = zpoint[i];
-                        }
-                        if (zpoint[i] > max) {
-                            max = zpoint[i];
-                        }
-                    }
-                }
 
-                if (((Gx.autoz & 1) !== 0)) {
-                    if (Gx.zmin !== undefined) {
-                        Gx.zmin = Math.min(Gx.zmin, min);
-                    } else {
-                        Gx.zmin = min;
+                if ((Gx.autol <= 0) || this.hcb.pipe) {
+                    // If autol is not used or the layer is rendering
+                    // a pipe, then use the basic z-scaling method
+                    if (zpoint.length > 0) {
+                        min = zpoint[0];
+                        max = zpoint[0];
+                        for (var i = 0; i < zpoint.length; i++) {
+                            if ((i / this.xframe) >= this.lpb) {
+                                break;
+                            }
+                            if (zpoint[i] < min) {
+                                min = zpoint[i];
+                            }
+                            if (zpoint[i] > max) {
+                                max = zpoint[i];
+                            }
+                        }
                     }
-                }
-                if (((Gx.autoz & 2) !== 0)) {
-                    if (Gx.zmax !== undefined) {
-                        Gx.zmax = Math.min(Gx.zmax, max);
-                    } else {
-                        Gx.zmax = max;
-                    }
-                }
 
-                this.img = mx.create_image(Mx, this.zbuf, this.hcb.subsize, xsize, this.lps, Gx.zmin, Gx.zmax, Gx.xcompression);
+                    if (((Gx.autoz & 1) !== 0)) {
+                        if (Gx.zmin !== undefined) {
+                            Gx.zmin = Math.min(Gx.zmin, min);
+                        } else {
+                            Gx.zmin = min;
+                        }
+                    }
+                    if (((Gx.autoz & 2) !== 0)) {
+                        if (Gx.zmax !== undefined) {
+                            Gx.zmax = Math.min(Gx.zmax, max);
+                        } else {
+                            Gx.zmax = max;
+                        }
+                    }
+
+                    this.img = mx.create_image(Mx,
+                        this.zbuf,
+                        this.hcb.subsize,
+                        xsize,
+                        this.lps,
+                        Gx.zmin,
+                        Gx.zmax,
+                        Gx.xcompression);
+                } else {
+                    // otherwise autol > 1
+                    var nny = this.hcb.size;
+                    var fac = 1.0 / (Math.max(Gx.autol, 1));
+
+                    // If the image isn't yet created, make one now
+                    if (!this.img) {
+                        this.img = mx.create_image(Mx,
+                            this.zbuf,
+                            this.hcb.subsize,
+                            xsize,
+                            this.lps,
+                            Gx.zmin,
+                            Gx.zmax);
+                    }
+
+                    Gx.zmin = 0;
+                    Gx.zmax = 0;
+                    if (zpoint.length > 0) {
+                        for (var yy = 0; yy < nny; yy++) {
+                            var noff = yy * this.xframe;
+                            var min = zpoint[noff];
+                            var max = zpoint[noff];
+                            for (var i = 0; i < this.xframe; i++) {
+                                min = Math.min(zpoint[noff + i], min);
+                                max = Math.max(zpoint[noff + i], max);
+                            }
+
+                            // Auto-scale this raster line
+                            if ((Gx.autoz !== 2) && (min !== undefined)) {
+                                Gx.zmin = (min * fac) + (Gx.zmin * (1.0 - fac));
+                            }
+                            if ((Gx.autoz !== 1) && (max !== undefined)) {
+                                Gx.zmax = (max * fac) + (Gx.zmax * (1.0 - fac));
+                            }
+
+                            // Render the row
+                            mx.update_image_row(Mx,
+                                this.img,
+                                zpoint.subarray(noff, noff + this.xframe),
+                                yy,
+                                Gx.zmin,
+                                Gx.zmax);
+
+                        }
+                    }
+                }
             } else {
+                // Setup image for pipe-mode
                 if (Gx.panxmin > Gx.panxmax) {
                     Gx.panxmin = qmin;
                     Gx.panxmax = qmax;
@@ -638,7 +697,14 @@
                 if (!this.img) {
                     Gx.zmin = 0;
                     Gx.zmax = 0;
-                    this.img = mx.create_image(Mx, null, this.hcb.subsize, xsize, this.lps, Gx.zmin, Gx.zmax, Gx.xcompression);
+                    this.img = mx.create_image(Mx,
+                        null,
+                        this.hcb.subsize,
+                        xsize,
+                        this.lps,
+                        Gx.zmin,
+                        Gx.zmax,
+                        Gx.xcompression);
                 }
             }
 

@@ -1,0 +1,11 @@
+before_script:
+  - rm -rf dist/*
+  - npm install -q
+
+dist:
+  image: axios/sigplot-buildenv:latest
+  script:
+    - grunt dist
+  artifacts:
+    paths:
+      - dist/sigplot*.zip
