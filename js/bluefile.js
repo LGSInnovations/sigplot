@@ -395,8 +395,11 @@
                 });
                 ii += lkey;
             }
-            if (this.options.ext_header_type === "dict") {
-                return dict_keywords;
+            var dictTypes = ['dict', 'json', {}, 'XMTable','JSON','DICT'];
+            for (var k in dictTypes) {
+                if (dictTypes[k] === this.options.ext_header_type) {
+                    return dict_keywords;
+                }
             }
             return keywords;
         },
@@ -511,6 +514,7 @@
          *
          */
         readheader: function readheader(theFile, onload) {
+            var that = this;
             var reader = new FileReader();
             var blob = theFile.webkitSlice(0, 512); // Chrome specific
             // Closure to capture the file information.
@@ -521,7 +525,7 @@
                         return;
                     }
                     var rawhdr = reader.result;
-                    var hdr = new BlueHeader(rawhdr);
+                    var hdr = new BlueHeader(rawhdr, that.options);
                     hdr.file = theFile;
                     onload(hdr);
                 };
@@ -536,6 +540,7 @@
          *
          */
         read: function read(theFile, onload) {
+            var that = this;
             var reader = new FileReader();
             // Closure to capture the file information.
             reader.onloadend = (function(theFile) {
@@ -545,7 +550,7 @@
                         return;
                     }
                     var raw = reader.result;
-                    var hdr = new BlueHeader(raw);
+                    var hdr = new BlueHeader(raw, that.options);
                     hdr.file = theFile;
                     hdr.file_name = theFile.name;
                     onload(hdr);
@@ -561,6 +566,7 @@
          *
          */
         read_http: function read_http(href, onload) {
+            var that = this;
             var oReq = new XMLHttpRequest();
             oReq.open("GET", href, true);
             oReq.responseType = "arraybuffer";
@@ -571,14 +577,14 @@
                         var arrayBuffer = null; // Note: not oReq.responseText
                         if (oReq.response) {
                             arrayBuffer = oReq.response;
-                            var hdr = new BlueHeader(arrayBuffer);
+                            var hdr = new BlueHeader(arrayBuffer, that.options);
                             parseURL(href);
                             var fileUrl = parseURL(href);
                             hdr.file_name = fileUrl.file;
                             onload(hdr);
                         } else if (oReq.responseText) {
                             text2buffer(oReq.responseText, function(arrayBuffer) {
-                                var hdr = new BlueHeader(arrayBuffer);
+                                var hdr = new BlueHeader(arrayBuffer, that.options);
                                 parseURL(href);
                                 var fileUrl = parseURL(href);
                                 hdr.file_name = fileUrl.file;
