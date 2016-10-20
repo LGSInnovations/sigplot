@@ -185,13 +185,24 @@ asyncTest('Ascii Keywords', function() {
     var bfr = new BlueFileReader();
     bfr.read_http("dat/lots_of_keywords.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
-        equal(hdr.ext_header.KEYWORD_001, "[value___001]", "KEYWORD_001 correct value");
-        equal(hdr.ext_header.KEYWORD_100, "[value___100                                ] ", "KEYWORD_100 correct value");
+        var i = 1;
+        while (i < 100) {
+            if (i < 100) var strpad = "                                ";
+            if (i <= 30) var strpad = "                ";
+            if (i <= 20) var strpad = "";
+            var str = "" + i;
+            var keypad = "000";
+            var ans = keypad.substring(0, keypad.length - str.length) + str;
+            var key = "KEYWORD_" + ans;
+            var value = "[value___" + ans + strpad + "]";
+            equal(hdr.ext_header[key], value, key + " correct");;
+            i++;
+        }
         start();
     });
 });
-asyncTest('All Keywords', function() {
-    var bfr = new BlueFileReader();
+asyncTest('All Keywords as JSON (default)', function() {
+    var bfr = new BlueFileReader(); //defaults are to use dict
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var keywords = {
@@ -208,6 +219,122 @@ asyncTest('All Keywords', function() {
         };
         for (prop in keywords) {
             equal(hdr.ext_header[prop], keywords[prop], "Keyword " + prop + " correct = " + keywords[prop])
+        }
+        start();
+    });
+});
+asyncTest('All Keywords as JSON (json)', function() {
+    var bfr = new BlueFileReader({
+        ext_header_type: "json"
+    });
+    bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
+        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        var keywords = {
+            B_TEST: 123,
+            I_TEST: 1337,
+            L_TEST: 113355,
+            X_TEST: 987654321,
+            F_TEST: 0.12345000356435776,
+            D_TEST: 9.87654321,
+            O_TEST: 255,
+            STRING_TEST: "Hello World",
+            B_TEST2: 99,
+            STRING_TEST2: "Goodbye World"
+        };
+        for (prop in keywords) {
+            equal(hdr.ext_header[prop], keywords[prop], "Keyword " + prop + " correct = " + keywords[prop])
+        }
+        start();
+    });
+});
+asyncTest('All Keywords as JSON (dict)', function() {
+    var bfr = new BlueFileReader({
+        ext_header_type: "dict"
+    });
+    bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
+        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        var keywords = {
+            B_TEST: 123,
+            I_TEST: 1337,
+            L_TEST: 113355,
+            X_TEST: 987654321,
+            F_TEST: 0.12345000356435776,
+            D_TEST: 9.87654321,
+            O_TEST: 255,
+            STRING_TEST: "Hello World",
+            B_TEST2: 99,
+            STRING_TEST2: "Goodbye World"
+        };
+        for (prop in keywords) {
+            equal(hdr.ext_header[prop], keywords[prop], "Keyword " + prop + " correct = " + keywords[prop])
+        }
+        start();
+    });
+});
+asyncTest('All Keywords as JSON ({})', function() {
+    var bfr = new BlueFileReader({
+        ext_header_type: {}
+    });
+    bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
+        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        var keywords = {
+            B_TEST: 123,
+            I_TEST: 1337,
+            L_TEST: 113355,
+            X_TEST: 987654321,
+            F_TEST: 0.12345000356435776,
+            D_TEST: 9.87654321,
+            O_TEST: 255,
+            STRING_TEST: "Hello World",
+            B_TEST2: 99,
+            STRING_TEST2: "Goodbye World"
+        };
+        for (prop in keywords) {
+            equal(hdr.ext_header[prop], keywords[prop], "Keyword " + prop + " correct = " + keywords[prop])
+        }
+        start();
+    });
+});
+asyncTest('All Keywords as Array (list)', function() {
+    var bfr = new BlueFileReader({
+        ext_header_type: "list"
+    });
+    bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
+        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        var keywords = [{
+            "tag": "B_TEST",
+            "value": 123
+        }, {
+            "tag": "I_TEST",
+            "value": 1337
+        }, {
+            "tag": "L_TEST",
+            "value": 113355
+        }, {
+            "tag": "X_TEST",
+            "value": 987654321
+        }, {
+            "tag": "F_TEST",
+            "value": 0.12345000356435776
+        }, {
+            "tag": "D_TEST",
+            "value": 9.87654321
+        }, {
+            "tag": "O_TEST",
+            "value": 255
+        }, {
+            "tag": "STRING_TEST",
+            "value": "Hello World"
+        }, {
+            "tag": "B_TEST2",
+            "value": 99
+        }, {
+            "tag": "STRING_TEST2",
+            "value": "Goodbye World"
+        }];
+        for (var i = 0; i < keywords.length; i++) {
+            equal(hdr.ext_header[i].tag, keywords[i].tag, "Keyword " + i + " tag " + hdr.ext_header[i].tag + " = " + keywords[i].tag);
+            equal(hdr.ext_header[i].value, keywords[i].value, "Keyword " + i + " value " + hdr.ext_header[i].value + " = " + keywords[i].value);
         }
         start();
     });
