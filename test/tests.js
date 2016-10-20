@@ -186,7 +186,7 @@ asyncTest('Ascii Keywords', function() {
     bfr.read_http("dat/lots_of_keywords.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var i = 1;
-        while (i < 100) {
+        while (i <= 100) {
             if (i < 100) var strpad = "                                ";
             if (i <= 30) var strpad = "                ";
             if (i <= 20) var strpad = "";
@@ -195,7 +195,7 @@ asyncTest('Ascii Keywords', function() {
             var ans = keypad.substring(0, keypad.length - str.length) + str;
             var key = "KEYWORD_" + ans;
             var value = "[value___" + ans + strpad + "]";
-            equal(hdr.ext_header[key], value, key + " correct");;
+            equal(hdr.ext_header[key], value, key + " = " + hdr.ext_header[key]);;
             i++;
         }
         start();
