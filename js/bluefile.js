@@ -395,7 +395,7 @@
                 });
                 ii += lkey;
             }
-            var dictTypes = ['dict', 'json', {}, 'XMTable','JSON','DICT'];
+            var dictTypes = ['dict', 'json', {}, 'XMTable', 'JSON', 'DICT'];
             for (var k in dictTypes) {
                 if (dictTypes[k] === this.options.ext_header_type) {
                     return dict_keywords;
