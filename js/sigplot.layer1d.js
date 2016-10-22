@@ -453,7 +453,11 @@
 
             if (npts <= 0) {
                 m.log.debug("Nothing to plot");
-                return;
+                return {
+                    num: npts,
+                    start: n1,
+                    end: n2
+                };
             }
             if (this.cx) {
                 if (Gx.cmode === 1) {

@@ -25,24 +25,22 @@
      * @returns {sigplot.SliderPlugin}
      */
     sigplot.SliderPlugin = function(options) {
-        this.options = (options !== undefined) ? options : {};
+        this.options = {
+            display: true,
+            style: {
+                lineWidth: 1,
+                lineCap: "square" //, strokeStyle: "#FFFFFF", textStyle: "#FFFFFF"
+            },
+            direction: "vertical", // "vertical","horizontal","both" 
+            name: "Slider",
+            prevent_drag: false
+        };
 
-        if (this.options.display === undefined) {
-            this.options.display = true;
-        }
-
-        if (this.options.style === undefined) {
-            this.options.style = {};
-        }
-
-        if (this.options.direction === undefined) {
-            this.options.direction = "vertical";
-        }
-
+        window.update(this.options, options);
         this.position = undefined;
         this.location = undefined;
         this.paired_slider = undefined;
-        this.name = options.name || "Slider";
+        this.name = this.options.name;
     };
 
     sigplot.SliderPlugin.prototype = {
@@ -75,7 +73,7 @@
 
                 // If the mouse is close, "highlight" the line
 
-                var lineWidth = (self.options.style.lineWidth !== undefined) ? self.options.style.lineWidth : 1;
+                var lineWidth = self.options.style.lineWidth;
 
                 // If we aren't dragging, then there is nothing else to do
                 if (!self.dragging) {
@@ -149,7 +147,7 @@
                     return;
                 }
 
-                var lineWidth = (self.options.style.lineWidth !== undefined) ? self.options.style.lineWidth : 1;
+                var lineWidth = self.options.style.lineWidth;
 
                 // TODO if multiple sliders are on the same position
                 // they will become stuck together and cannot be separated
@@ -433,8 +431,8 @@
             var Mx = this.plot._Mx;
             var ctx = canvas.getContext("2d");
 
-            ctx.lineWidth = (this.options.style.lineWidth !== undefined) ? this.options.style.lineWidth : 1;
-            ctx.lineCap = (this.options.style.lineCap !== undefined) ? this.options.style.lineCap : "square";
+            ctx.lineWidth = this.options.style.lineWidth;
+            ctx.lineCap = this.options.style.lineCap;
             ctx.strokeStyle = (this.options.style.strokeStyle !== undefined) ? this.options.style.strokeStyle : Mx.fg;
 
             if (this.dragging || this.highlight) {
