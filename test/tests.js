@@ -12,17 +12,22 @@
  * PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
  * GNU Lesser General Public License along with this library.
  */
+
+/* globals QUnit, sigplot, m, mx, equal, test, strictEqual, asyncTest, notEqual, alert, BlueFileReader, start, ok */
+
 var fixture = document.getElementById("qunit-fixture");
 var ifixture = document.getElementById("interactive-fixture");
 
 function interactiveTest(testName, msg, callback) {
-    if (!ifixture) return;
+    if (!ifixture) {
+        return;
+    }
     var wrapped_callback = function() {
         QUnit.start();
         callback();
         QUnit.stop();
         var toolbar = document.getElementById("qunit-testrunner-toolbar");
-        var question = document.createElement("div")
+        var question = document.createElement("div");
         toolbar.appendChild(question);
         question.innerHTML = "<input id='askOkYes' type='button' value='Yes'></input>" + "<input id='askOkNo' type='button' value='No'></input>" + "<span>" + msg + "?</span>";
         var askOkYes = document.getElementById("askOkYes");
@@ -106,7 +111,7 @@ test('mx real_to_pixel test', function() {
             x1: 0,
             y1: 0,
             x2: 200,
-            y2: 200,
+            y2: 200
         }]
     };
     var result = mx.real_to_pixel(Mx, 0, 0);
@@ -155,7 +160,7 @@ asyncTest('int data', function() {
         strictEqual(hdr.datarep, "EEEI", "correct data rep");
         strictEqual(hdr.timecode, 0, "correct timecode");
         strictEqual(hdr.type, 1000, "correct type");
-        strictEqual(hdr.class, 1, "correct class");
+        strictEqual(hdr["class"], 1, "correct class");
         strictEqual(hdr.format, "SI", "correct format");
         strictEqual(hdr.spa, 1, "correct spa");
         strictEqual(hdr.bps, 2, "correct bps");
@@ -186,10 +191,17 @@ asyncTest('Ascii Keywords', function() {
     bfr.read_http("dat/lots_of_keywords.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var i = 1;
+        var strpad = "";
         while (i <= 100) {
-            if (i <= 100) var strpad = "                                ";
-            if (i <= 30) var strpad = "                ";
-            if (i <= 20) var strpad = "";
+            if (i <= 100) {
+                strpad = "                                ";
+            }
+            if (i <= 30) {
+                strpad = "                ";
+            }
+            if (i <= 20) {
+                strpad = "";
+            }
             var str = "" + i;
             var keypad = "000";
             var ans = keypad.substring(0, keypad.length - str.length) + str;
@@ -198,7 +210,11 @@ asyncTest('Ascii Keywords', function() {
             if ((i > 50) && (i <= 100)) {
                 value += " ";
             }
-            equal(hdr.ext_header[key], value, key + " = " + hdr.ext_header[key]);;
+            equal(
+                hdr.ext_header[key],
+                value,
+                key + " = " + hdr.ext_header[key]
+            );
             i++;
         }
         start();
@@ -220,8 +236,12 @@ asyncTest('All Keywords as JSON (default)', function() {
             B_TEST2: 99,
             STRING_TEST2: "Goodbye World"
         };
-        for (prop in keywords) {
-            equal(hdr.ext_header[prop], keywords[prop], "Keyword " + prop + " correct = " + keywords[prop])
+        for (var prop in keywords) {
+            equal(
+                hdr.ext_header[prop],
+                keywords[prop],
+                "Keyword " + prop + " correct = " + keywords[prop]
+            );
         }
         start();
     });
@@ -244,8 +264,12 @@ asyncTest('All Keywords as JSON (json)', function() {
             B_TEST2: 99,
             STRING_TEST2: "Goodbye World"
         };
-        for (prop in keywords) {
-            equal(hdr.ext_header[prop], keywords[prop], "Keyword " + prop + " correct = " + keywords[prop])
+        for (var prop in keywords) {
+            equal(
+                hdr.ext_header[prop],
+                keywords[prop],
+                "Keyword " + prop + " correct = " + keywords[prop]
+            );
         }
         start();
     });
@@ -268,8 +292,12 @@ asyncTest('All Keywords as JSON (dict)', function() {
             B_TEST2: 99,
             STRING_TEST2: "Goodbye World"
         };
-        for (prop in keywords) {
-            equal(hdr.ext_header[prop], keywords[prop], "Keyword " + prop + " correct = " + keywords[prop])
+        for (var prop in keywords) {
+            equal(
+                hdr.ext_header[prop],
+                keywords[prop],
+                "Keyword " + prop + " correct = " + keywords[prop]
+            );
         }
         start();
     });
@@ -292,8 +320,12 @@ asyncTest('All Keywords as JSON ({})', function() {
             B_TEST2: 99,
             STRING_TEST2: "Goodbye World"
         };
-        for (prop in keywords) {
-            equal(hdr.ext_header[prop], keywords[prop], "Keyword " + prop + " correct = " + keywords[prop])
+        for (var prop in keywords) {
+            equal(
+                hdr.ext_header[prop],
+                keywords[prop],
+                "Keyword " + prop + " correct = " + keywords[prop]
+            );
         }
         start();
     });
@@ -355,7 +387,7 @@ asyncTest('double data', function() {
         strictEqual(hdr.datarep, "EEEI", "correct data rep");
         strictEqual(hdr.timecode, 0, "correct timecode");
         strictEqual(hdr.type, 1000, "correct type");
-        strictEqual(hdr.class, 1, "correct class");
+        strictEqual(hdr["class"], 1, "correct class");
         strictEqual(hdr.format, "SD", "correct format");
         strictEqual(hdr.spa, 1, "correct spa");
         strictEqual(hdr.bps, 8, "correct bps");
@@ -394,7 +426,7 @@ asyncTest('complex float data', function() {
         strictEqual(hdr.datarep, "EEEI", "correct data rep");
         strictEqual(hdr.timecode, 0, "correct timecode");
         strictEqual(hdr.type, 1000, "correct type");
-        strictEqual(hdr.class, 1, "correct class");
+        strictEqual(hdr["class"], 1, "correct class");
         strictEqual(hdr.format, "CF", "correct format");
         strictEqual(hdr.spa, 2, "correct spa");
         strictEqual(hdr.bps, 4, "correct bps");
@@ -493,7 +525,7 @@ test('bluefile pipe basics', function() {
     equal(hcb.dview[2], 7.0);
     equal(hcb.dview[3], 8.0);
     throws(function() {
-        m.filad(hcb, [11.0, 12.0])
+        m.filad(hcb, [11.0, 12.0]);
     }, "pipe full");
     var ngot = m.grabx(hcb, rdview);
     equal(ngot, 4);
@@ -581,7 +613,7 @@ test('bluefile pipe basics (typed array)', function() {
     wrview[0] = 11.0;
     wrview[1] = 12.0;
     throws(function() {
-        m.filad(hcb, wrview)
+        m.filad(hcb, wrview);
     }, "pipe full");
     var ngot = m.grabx(hcb, rdview);
     equal(ngot, 4);
@@ -947,15 +979,15 @@ test('sigplot layer1d autoscale', function() {
     equal(plot._Gx.panymax, 1.0);
     pulse[0] = 1.0;
     plot.reload(0, pulse);
-    var expected_ymin = (-0.02 * .5) + (-1 * .5);
-    var expected_ymax = (1.02 * .5) + (1 * .5);
+    var expected_ymin = (-0.02 * 0.5) + (-1 * 0.5);
+    var expected_ymax = (1.02 * 0.5) + (1 * 0.5);
     equal(plot._Gx.panymin, expected_ymin);
     equal(plot._Gx.panymax, expected_ymax);
     for (var i = 1; i <= 1000; i += 1) {
         pulse[i - 1] = 0;
         pulse[i] = 1;
-        expected_ymin = (expected_ymin * .5) + (expected_ymin * .5);
-        expected_ymax = (expected_ymax * .5) + (expected_ymax * .5);
+        expected_ymin = (expected_ymin * 0.5) + (expected_ymin * 0.5);
+        expected_ymax = (expected_ymax * 0.5) + (expected_ymax * 0.5);
         equal(plot._Gx.panymin, expected_ymin);
         equal(plot._Gx.panymax, expected_ymax);
     }
@@ -974,15 +1006,15 @@ test('sigplot layer1d autoscale negative', function() {
     }
     pulse[0] = -10.0;
     plot.overlay_array(pulse);
-    var expected_ymin = (-61.0 * .5) + (-1 * .5);
-    var expected_ymax = (-9.0 * .5) + (1 * .5);
+    var expected_ymin = (-61.0 * 0.5) + (-1 * 0.5);
+    var expected_ymax = (-9.0 * 0.5) + (1 * 0.5);
     equal(plot._Gx.panymin, expected_ymin);
     equal(plot._Gx.panymax, expected_ymax);
     for (var i = 1; i <= 1000; i += 1) {
         pulse[i - 1] = -60;
         pulse[i] = -10;
-        expected_ymin = (expected_ymin * .5) + (expected_ymin * .5);
-        expected_ymax = (expected_ymax * .5) + (expected_ymax * .5);
+        expected_ymin = (expected_ymin * 0.5) + (expected_ymin * 0.5);
+        expected_ymax = (expected_ymax * 0.5) + (expected_ymax * 0.5);
         equal(plot._Gx.panymin, expected_ymin);
         equal(plot._Gx.panymax, expected_ymax);
     }
@@ -1017,8 +1049,8 @@ test('sigplot 0px height', function() {
     notEqual(plot.get_layer(0), null);
     equal(plot.get_layer(0).drawmode, "scrolling");
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 0)
-    equal(plot.get_layer(0).lps, 1)
+    equal(plot.get_layer(0).position, 0);
+    equal(plot.get_layer(0).lps, 1);
     plot.deoverlay();
     plot.overlay_pipe({
         type: 2000,
@@ -1029,8 +1061,8 @@ test('sigplot 0px height', function() {
     notEqual(plot.get_layer(0), null);
     equal(plot.get_layer(0).drawmode, "rising");
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 0)
-    equal(plot.get_layer(0).lps, 1)
+    equal(plot.get_layer(0).position, 0);
+    equal(plot.get_layer(0).lps, 1);
     plot.deoverlay();
     plot.overlay_pipe({
         type: 2000,
@@ -1041,9 +1073,9 @@ test('sigplot 0px height', function() {
     notEqual(plot.get_layer(0), null);
     equal(plot.get_layer(0).drawmode, "falling");
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 0)
-    equal(plot.get_layer(0).position, 0)
-    equal(plot.get_layer(0).lps, 1)
+    equal(plot.get_layer(0).position, 0);
+    equal(plot.get_layer(0).position, 0);
+    equal(plot.get_layer(0).lps, 1);
     plot.deoverlay();
 });
 test('sigplot resize raster 0px height', function() {
@@ -1300,22 +1332,22 @@ interactiveTest('empty array', 'Do you see a plot with two pulses?', function() 
     }, {
         layerType: sigplot.Layer1D
     });
-    var pulse1 = []
-    var pulse2 = []
+    var pulse1 = [];
+    var pulse2 = [];
     for (var i = 0; i < 1000; i++) {
         if ((i < 490) || (i > 510)) {
-            pulse1.push(0)
+            pulse1.push(0);
         } else {
-            pulse1.push(10.0)
+            pulse1.push(10.0);
         }
         if ((i < 240) || (i > 260)) {
-            pulse2.push(0)
+            pulse2.push(0);
         } else {
-            pulse2.push(10.0)
+            pulse2.push(10.0);
         }
     }
     plot.reload(0, pulse1);
-    plot.reload(1, pulse2)
+    plot.reload(1, pulse2);
 });
 interactiveTest('sigplot triangle symbol', 'Do you see triangle symbols?', function() {
     var container = document.getElementById('plot');
@@ -1403,7 +1435,6 @@ interactiveTest('sigplot custom symbol-line', 'Do you see custom symbols?', func
     notEqual(plot, null);
 
     function custom_symbol(ctx, i, x, y) {
-        console.log("sym", i, x, y);
         var n = (i % 3);
         if (n === 0) {
             ctx.strokeStyle = "red";
@@ -1440,7 +1471,7 @@ interactiveTest('sigplot custom xmult', 'Do you see the x-axis in "hecto-" units
         ramp.push(i);
     }
     plot.overlay_href("dat/sin.tmp", null, {
-        name: "x",
+        name: "x"
     });
 });
 interactiveTest('sigplot penny 1d legend default', 'Do you see a 1d penny with properly labeled legend (default)?', function() {
@@ -1493,7 +1524,7 @@ interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis?',
         file_name: "ramp",
         xstart: 999996296.08025432,
         xdelta: 0.637054443359375,
-        format: "SF",
+        format: "SF"
     });
 });
 interactiveTest('sigplot xtimecode', 'Do you see a timecode xaxis?', function() {
@@ -1560,10 +1591,10 @@ interactiveTest('sigplot custom xlabel/ylabel', 'Do you see custom xlabel/ylabel
 interactiveTest('sigplot custom function xlabel/ylabel', 'Do you see custom xlabel/ylabel?', function() {
     var xlabel = function(units, mult) {
         return "CustomX - " + units + " " + mult;
-    }
+    };
     var ylabel = function(units, mult) {
         return "CustomY - " + units + " " + mult;
-    }
+    };
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xlabel: xlabel,
@@ -1605,7 +1636,7 @@ interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', func
         }, {
             layerType: sigplot.Layer1D,
             expand: true
-        })
+        });
     }
 
     function plot1(plot) {
@@ -1768,7 +1799,7 @@ interactiveTest('t2000 odd-size layer1D (push)', 'Do you see a stationary pulse?
         type: 2000,
         subsize: 16385
     }, {
-        layerType: sigplot.Layer1D,
+        layerType: sigplot.Layer1D
     });
     ifixture.interval = window.setInterval(function() {
         var pulse = [];
@@ -1832,12 +1863,12 @@ interactiveTest('zoom-xdelta', 'Does this look correct?', function() {
     }, {
         x: 250,
         y: -5
-    })
+    });
     plot.reload(0, ramp, {
         xstart: 0,
         xdelta: 50
     });
-    plot.unzoom()
+    plot.unzoom();
 });
 interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis shifts?', function() {
     var container = document.getElementById('plot');
@@ -1935,7 +1966,7 @@ interactiveTest('complex scrolling line', 'Do you see a scrolling random data pl
     notEqual(plot, null);
     plot.change_settings({
         cmode: 3,
-        autol: 5,
+        autol: 5
     });
     plot.overlay_pipe({
         type: 1000,
@@ -2161,7 +2192,7 @@ interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', functi
 interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
-        xcmp: 1,
+        xcmp: 1
     });
     notEqual(plot, null);
     var data = [];
@@ -2199,7 +2230,7 @@ interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines
 interactiveTest('layer2D (min compression)', 'Do you see two lines of the same color?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
-        xcmp: 2,
+        xcmp: 2
     });
     notEqual(plot, null);
     var data = [];
@@ -2237,7 +2268,7 @@ interactiveTest('layer2D (min compression)', 'Do you see two lines of the same c
 interactiveTest('layer2D (max compression)', 'Do you see two lines of the same color?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
-        xcmp: 3,
+        xcmp: 3
     });
     notEqual(plot, null);
     var data = [];
@@ -2275,7 +2306,7 @@ interactiveTest('layer2D (max compression)', 'Do you see two lines of the same c
 interactiveTest('layer2D (abs-max compression)', 'Do you see two lines of the same color?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
-        xcmp: 5,
+        xcmp: 5
     });
     notEqual(plot, null);
     var data = [];
@@ -2326,7 +2357,7 @@ interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 Ju
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
-        ydelta: .5,
+        ydelta: 0.5,
         yunits: 4,
         timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
     });
@@ -2349,7 +2380,7 @@ interactiveTest('raster (smoothing)', 'Is the following raster smoothed?', funct
     plot.overlay_array(ramp, {
         type: 2000,
         subsize: framesize,
-        file_name: "ramp",
+        file_name: "ramp"
     });
 });
 interactiveTest('raster (smart-smoothing)', 'Is the following raster smoothed until zoomed?', function() {
@@ -2478,7 +2509,7 @@ interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function()
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        autol: 5,
+        autol: 5
     });
     var framesize = 128;
     plot.overlay_pipe({
@@ -2500,7 +2531,7 @@ interactiveTest('raster (small xdelta)', 'Do you see the expected raster?', func
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        autol: 5,
+        autol: 5
     });
     var framesize = 128;
     plot.overlay_pipe({
@@ -2523,7 +2554,7 @@ interactiveTest('zoomed scrolling raster', 'Do you see a scrolling raster with n
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        autol: 5,
+        autol: 5
     });
     var framesize = 128;
     plot.overlay_pipe({
@@ -2605,13 +2636,13 @@ interactiveTest('falling raster (timestamp)', 'Do you see a falling raster that 
         autol: 5
     });
     var framesize = 128;
-    var now = new Date("2014-07-04T00:00:00Z")
+    var now = new Date("2014-07-04T00:00:00Z");
     plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
         ydelta: 0.5, // two frames a second
-        yunits: 4,
+        yunits: 4
     }, {
         drawmode: "falling"
     });
@@ -2631,7 +2662,7 @@ interactiveTest('rising raster', 'Do you see a rising raster?', function() {
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        autol: 5,
+        autol: 5
     });
     var framesize = 128;
     plot.overlay_pipe({
@@ -2684,13 +2715,13 @@ interactiveTest('rising raster (timestamp)', 'Do you see a rising raster that st
         autol: 5
     });
     var framesize = 128;
-    var now = new Date("2014-07-04T00:00:00Z")
+    var now = new Date("2014-07-04T00:00:00Z");
     plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
         ydelta: 0.5, // two frames a second
-        yunits: 4,
+        yunits: 4
     }, {
         drawmode: "rising"
     });
@@ -2710,7 +2741,7 @@ interactiveTest('raster changing xstart', 'Do you see a falling raster that stay
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        autol: 5,
+        autol: 5
     });
     var framesize = 128;
     plot.overlay_pipe({
@@ -2745,7 +2776,7 @@ interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        autol: 5,
+        autol: 5
     });
     var framesize = 128;
     plot.overlay_pipe({
@@ -2771,7 +2802,7 @@ interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with
             ydelta: 0.25
         });
     };
-    strictEqual(plot.get_layer(0).lps, initialLps)
+    strictEqual(plot.get_layer(0).lps, initialLps);
     var count = 0;
     ifixture.interval = window.setInterval(function() {
         count++;
@@ -2792,7 +2823,7 @@ interactiveTest('raster changing xdelta', 'Do you see a falling raster that stay
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        autol: 5,
+        autol: 5
     });
     var framesize = 128;
     plot.overlay_pipe({
@@ -2841,7 +2872,7 @@ interactiveTest('complex data falling raster', 'Do you see a falling raster?', f
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        autol: 5,
+        autol: 5
     });
     var framesize = 128;
     plot.overlay_pipe({
@@ -2865,7 +2896,7 @@ interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?', functi
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
     plot.change_settings({
-        cmode: 5,
+        cmode: 5
     });
     var framesize = 1024;
     plot.overlay_pipe({
@@ -2882,7 +2913,7 @@ interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?', functi
         ymin: -2,
         ymax: 2,
         xmin: -2,
-        xmax: 2,
+        xmax: 2
     });
     ifixture.interval = window.setInterval(function() {
         var data = [];
@@ -3256,7 +3287,7 @@ interactiveTest('annotation falling raster', 'Do you see annotations that scroll
             ramp.push(i + 1);
         }
         row += 1;
-        if (row % 64 == 0) {
+        if (row % 64 === 0) {
             var y = (row * 0.25);
             annotations.add_annotation({
                 x: 64,
@@ -3264,7 +3295,7 @@ interactiveTest('annotation falling raster', 'Do you see annotations that scroll
                 value: "64," + y,
                 popup: "test"
             });
-        } else if (row % 100 == 0) {
+        } else if (row % 100 === 0) {
             var y = (row * 0.25);
             annotations.add_annotation({
                 x: 32,
@@ -3303,7 +3334,7 @@ interactiveTest('annotation rising raster', 'Do you see annotations that scroll 
             ramp.push(i + 1);
         }
         row += 1;
-        if (row % 64 == 0) {
+        if (row % 64 === 0) {
             var y = (row * 0.25);
             annotations.add_annotation({
                 x: 64,
@@ -3311,7 +3342,7 @@ interactiveTest('annotation rising raster', 'Do you see annotations that scroll 
                 value: "64," + y,
                 popup: "test"
             });
-        } else if (row % 100 == 0) {
+        } else if (row % 100 === 0) {
             var y = (row * 0.25);
             annotations.add_annotation({
                 x: 32,
@@ -3477,7 +3508,7 @@ interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at ze
         acc.set_center(y);
         acc.set_width(0.25 * 50);
         return acc;
-    }
+    };
     plot.add_plugin(accordion(0), 1);
     var row = 0;
     ifixture.interval = window.setInterval(function() {
@@ -3660,31 +3691,31 @@ interactiveTest('boxes', 'Do you see a boxes?', function() {
     boxes.add_box({
         x: 0,
         y: 0,
-        w: .1,
-        h: .1,
+        w: 0.1,
+        h: 0.1,
         text: "0,0"
     });
     boxes.add_box({
         x: 0.5,
         y: 0.5,
-        w: .1,
-        h: .1,
+        w: 0.1,
+        h: 0.1,
         text: "0.5,0.5",
         fill: true
     });
     boxes.add_box({
         x: -0.5,
         y: -0.5,
-        w: .1,
-        h: .1,
+        w: 0.1,
+        h: 0.1,
         text: "-0.5,-0.5",
         fillStyle: "green"
     });
     boxes.add_box({
         x: 0.5,
         y: -0.5,
-        w: .1,
-        h: .1,
+        w: 0.1,
+        h: 0.1,
         text: "0.5,-0.5",
         fillStyle: "red",
         alpha: 0.25
@@ -3699,8 +3730,8 @@ interactiveTest('clear boxes', 'Do you see one box?', function() {
     boxes.add_box({
         x: 0,
         y: 0,
-        w: .1,
-        h: .1,
+        w: 0.1,
+        h: 0.1,
         text: "I should be gone soon..."
     });
     window.setTimeout(function() {
@@ -3708,11 +3739,11 @@ interactiveTest('clear boxes', 'Do you see one box?', function() {
         boxes.add_box({
             x: 0.5,
             y: 0.5,
-            w: .1,
-            h: .1,
-            text: "You should see me",
+            w: 0.1,
+            h: 0.1,
+            text: "You should see me"
         });
-    }, 1000)
+    }, 1000);
 });
 interactiveTest('slider', 'Do you see a sliders?', function() {
     var container = document.getElementById('plot');
