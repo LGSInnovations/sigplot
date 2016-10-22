@@ -14,68 +14,63 @@
  * GNU Lesser General Public License along with SigPlot.
  *
  */
-
 /**
  * Bluefiles are a binary format directly supported by SigPlot.  A Bluefile consists of a 512-byte header
  * followed by binary data.
  * For more information on BLUEFILES, please visit http://nextmidas.techma.com/nm/htdocs/usersguide/BlueFiles.html
  *
- * Offset	Name		Size	Type		Description
+ * Offset   Name        Size    Type        Description
  * -----------------------------------------------------------------------------
- * 0 		version 	4 	char[4] 	Header version
- * 4 		head_rep 	4 	char[4] 	Header representation
- * 8 		data_rep 	4 	char[4] 	Data representation
- *12 		detached 	4 	int_4 		Detached header
- *16 		protected 	4 	int_4 		Protected from overwrite
- *20 		pipe 		4 	int_4 		Pipe mode (N/A)
- *24 		ext_start 	4 	int_4 		Extended header start, in 512-byte blocks
- *28 		ext_size 	4 	int_4 		Extended header size in bytes
- *32 		data_start 	8 	real_8 		Data start in bytes
- *40 		data_size 	8 	real_8 		Data size in bytes
- *48 		type 		4 	int_4 		File type code
- *52 		format 		2 	char[2] 	Data format code
- *54 		flagmask 	2 	int_2 		16-bit flagmask (1=flagbit)
- *56 		timecode 	8 	real_8 		Time code field
- *64 		inlet 		2 	int_2 		Inlet owner
- *66 		outlets 	2 	int_2 		Number of outlets
- *68 		outmask 	4 	int_4 		Outlet async mask
- *72 		pipeloc 	4 	int_4 		Pipe location
- *76 		pipesize 	4 	int_4 		Pipe size in bytes
- *80 		in_byte 	8 	real_8 		Next input byte
- *88 		out_byte 	8 	real_8 		Next out byte (cumulative)
- *96 		outbytes 	64 	real_8[8] 	Next out byte (each outlet)
- *160 		keylength 	4 	int_4 		Length of keyword string
- *164 		keywords 	92 	char[92] 	User defined keyword string
- *256 		Adjunct 	256 	char[256] 	Type-specific adjunct union (See below for 1000 and 2000 type bluefiles)
+ * 0        version     4   char[4]     Header version
+ * 4        head_rep    4   char[4]     Header representation
+ * 8        data_rep    4   char[4]     Data representation
+ *12        detached    4   int_4       Detached header
+ *16        protected   4   int_4       Protected from overwrite
+ *20        pipe        4   int_4       Pipe mode (N/A)
+ *24        ext_start   4   int_4       Extended header start, in 512-byte blocks
+ *28        ext_size    4   int_4       Extended header size in bytes
+ *32        data_start  8   real_8      Data start in bytes
+ *40        data_size   8   real_8      Data size in bytes
+ *48        type        4   int_4       File type code
+ *52        format      2   char[2]     Data format code
+ *54        flagmask    2   int_2       16-bit flagmask (1=flagbit)
+ *56        timecode    8   real_8      Time code field
+ *64        inlet       2   int_2       Inlet owner
+ *66        outlets     2   int_2       Number of outlets
+ *68        outmask     4   int_4       Outlet async mask
+ *72        pipeloc     4   int_4       Pipe location
+ *76        pipesize    4   int_4       Pipe size in bytes
+ *80        in_byte     8   real_8      Next input byte
+ *88        out_byte    8   real_8      Next out byte (cumulative)
+ *96        outbytes    64  real_8[8]   Next out byte (each outlet)
+ *160       keylength   4   int_4       Length of keyword string
+ *164       keywords    92  char[92]    User defined keyword string
+ *256       Adjunct     256     char[256]   Type-specific adjunct union (See below for 1000 and 2000 type bluefiles)
  *
  *
  * Type-1000 Adjunct
- * 0 		xstart 		8 	real_8 		Abscissa value for first sample
- *8 		xdelta 		8 	real_8 		Abscissa interval between samples
- *16 		xunits 		4 	int_4 		Units for abscissa values
+ * 0        xstart      8   real_8      Abscissa value for first sample
+ *8         xdelta      8   real_8      Abscissa interval between samples
+ *16        xunits      4   int_4       Units for abscissa values
  *
  * Type-2000 Adjunct
- *0 		xstart 		8 	real_8 		Frame (column) starting value
- *8 		xdelta 		8 	real_8 		Increment between samples in frame
- *16 		xunits 		4 	int_4 		Frame (column) units
- *20 		subsize 	4 	int_4 		Number of data points per frame (row)
- *24 		ystart 		8 	real_8 		Abscissa (row) start
- *32 		ydelta 		8 	real_8 		Increment between frames
- *36 		yunits 		4 	int_4 		Abscissa (row) unit code
+ *0         xstart      8   real_8      Frame (column) starting value
+ *8         xdelta      8   real_8      Increment between samples in frame
+ *16        xunits      4   int_4       Frame (column) units
+ *20        subsize     4   int_4       Number of data points per frame (row)
+ *24        ystart      8   real_8      Abscissa (row) start
+ *32        ydelta      8   real_8      Increment between frames
+ *36        yunits      4   int_4       Abscissa (row) unit code
  *
  * @namespace bluefile
  */
 (function(global) {
     'use strict';
-
     /**
      * @memberOf bluefile
      * @private
      */
     var iOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false);
-
-
-
     // https://gist.github.com/TooTallNate/4750953
     /**
      * @memberof bluefile
@@ -94,18 +89,11 @@
         }
         throw new Error('unknown endianness');
     }
-
-
-
-
     /**
      * @memberOf bluefile
      * @private
      */
     var ARRAY_BUFFER_ENDIANNESS = endianness();
-
-
-
     /**
      * @memberOf bluefile
      * @private
@@ -129,9 +117,6 @@
         '8': 8,
         '9': 9
     };
-
-
-
     /**
      * @memberOf bluefile
      * @private
@@ -147,9 +132,6 @@
         'F': 4,
         'D': 8
     };
-
-
-
     /**
      * @memberOf bluefile
      * @private
@@ -165,9 +147,47 @@
         'F': Float32Array,
         'D': Float64Array
     };
-
-
-
+    /**
+     * @memberof bluefile
+     * @param   {array}     buf         Data bffer
+     * @param number
+     * @param bool
+     * @private
+     */
+    function getInt64(dataView, index, littleEndian) {
+        var highIndex, lowIndex;
+        var MAX_INT = Math.pow(2, 53);
+        if (littleEndian) {
+            highIndex = 4;
+            lowIndex = 0;
+        } else {
+            highIndex = 0;
+            lowIndex = 4;
+        }
+        var high = dataView.getInt32(index + highIndex, littleEndian);
+        var low = dataView.getInt32(index + lowIndex, littleEndian);
+        var rv = low + pow2(32) * high;
+        if (rv >= MAX_INT) {
+            window.console.info("Int is bigger than JS can represent.");
+            return Infinity;
+        }
+        return rv;
+    }
+    /**
+     * @memberOf bluefile
+     * @private
+     */
+    var _XM_TO_DATAVIEW = {
+        'P': null,
+        'A': null,
+        'O': "getUint8",
+        'B': "getInt8",
+        'I': "getInt16",
+        'L': "getInt32",
+        'X': getInt64,
+        'F': "getFloat32",
+        'D': "getFloat64"
+    };
     /**
      * @memberOf bluefile
      * @private
@@ -186,12 +206,9 @@
     } catch (error) {
         _applySupportsTypedArray = false;
     }
-
-
-
     /**
      * @memberof bluefile
-     * @param 	{array} 	buf 		Data bffer
+     * @param   {array}     buf         Data bffer
      * @private
      */
     function ab2str(buf) {
@@ -207,13 +224,37 @@
             return str;
         }
     }
-
+    /**
+     * @memberof bluefile
+     * @param   {string}
+     * @private
+     */
+    function str2ab(str) {
+        var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
+        var bufView = new Uint16Array(buf);
+        for (var i = 0, strLen = str.length; i < strLen; i++) {
+            bufView[i] = str.charCodeAt(i);
+        }
+        return buf;
+    }
+    /**
+     * @memberof bluefile
+     * @param   {number}
+     * @private
+     */
+    function pow2(n) {
+        return (n >= 0 && n < 31) ? (1 << n) : (pow2[n] || (pow2[n] = Math.pow(2, n)));
+    }
     /**
      * Create bluefile header and attach data buffer
      * @memberof bluefile
-     * @param 	{array} 	buf 		Data bffer
+     * @param   {array}     buf         Data bffer
      */
-    function BlueHeader(buf) {
+    function BlueHeader(buf, options) {
+        this.options = {
+            ext_header_type: "dict"
+        };
+        global.update(this.options, options);
         this.file = null;
         this.file_name = null;
         this.offset = 0;
@@ -225,11 +266,12 @@
             this.datarep = ab2str(this.buf.slice(8, 12));
             var littleEndianHdr = (this.headrep === "EEEI");
             var littleEndianData = (this.datarep === "EEEI");
+            this.ext_start = dvhdr.getInt32(24, littleEndianHdr);
+            this.ext_size = dvhdr.getInt32(28, littleEndianHdr);
             this.type = dvhdr.getUint32(48, littleEndianHdr);
             this["class"] = this.type / 1000;
             this.format = ab2str(this.buf.slice(52, 54));
             this.timecode = dvhdr.getFloat64(56, littleEndianHdr);
-
             // the adjunct starts at offset 0x100
             if (this["class"] === 1) {
                 this.xstart = dvhdr.getFloat64(0x100, littleEndianHdr);
@@ -246,22 +288,23 @@
                 this.ydelta = dvhdr.getFloat64(0x100 + 32, littleEndianHdr);
                 this.yunits = dvhdr.getInt32(0x100 + 40, littleEndianHdr);
             }
-
             this.data_start = dvhdr.getFloat64(32, littleEndianHdr);
             this.data_size = dvhdr.getFloat64(40, littleEndianHdr);
             var ds = this.data_start;
             var de = this.data_start + this.data_size;
+            if (this.ext_size) {
+                this.ext_header = this.unpack_keywords(this.buf, this.ext_size, this.ext_start * 512, littleEndianHdr);
+            }
             this.setData(this.buf, ds, de, littleEndianData);
         }
     }
-
     BlueHeader.prototype = {
         /**
          * @memberof bluefile
-         * @param 	buf
-         * @param 	offset
-         * @param 	data_end
-         * @param 	littleEndian
+         * @param   buf
+         * @param   offset
+         * @param   data_end
+         * @param   littleEndian
          *
          */
         setData: function(buf, offset, data_end, littleEndian) {
@@ -278,18 +321,15 @@
                 this.ape = this.subsize;
                 this.bpe = this.ape * this.bpa;
             }
-
             if (littleEndian === undefined) {
                 littleEndian = (ARRAY_BUFFER_ENDIANNESS === "LE");
             }
-
             // TODO handle mismatch between host and data endianness using arrayBufferEndianness
             if (ARRAY_BUFFER_ENDIANNESS === "LE" && !littleEndian) {
                 throw ("Not supported " + ARRAY_BUFFER_ENDIANNESS + " " + littleEndian);
             } else if (ARRAY_BUFFER_ENDIANNESS === "BE" && this.littleEndianData) {
                 throw ("Not supported " + ARRAY_BUFFER_ENDIANNESS + " " + littleEndian);
             }
-
             if (buf) {
                 if ((offset) && (data_end)) {
                     this.dview = this.createArray(buf, offset, (data_end - offset) / this.bps);
@@ -301,13 +341,74 @@
                 this.dview = this.createArray(null, null, this.size);
             }
         },
-
+        /**
+         * @author Sean Sullivan https://github.com/desean1625
+         * @memberof bluefile
+         * @param   buf
+         * @param   lbuf
+         * @param   offset
+         * @param   littleEndian
+         *
+         */
+        unpack_keywords: function(buf, lbuf, offset, littleEndian) {
+            var lkey, lextra, ltag, format, tag, data, ldata, itag, idata, dvk;
+            var keywords = [];
+            var dic_index = {};
+            var dict_keywords = {};
+            var ii = 0;
+            buf = buf.slice(offset, buf.length);
+            var dvhdr = new DataView(buf);
+            buf = ab2str(buf);
+            while (ii < lbuf) {
+                idata = ii + 8;
+                lkey = dvhdr.getUint32(ii, littleEndian);
+                lextra = dvhdr.getInt16(ii + 4, littleEndian);
+                ltag = dvhdr.getInt8(ii + 6, littleEndian);
+                format = buf.slice(ii + 7, ii + 8);
+                ldata = lkey - lextra;
+                itag = idata + ldata;
+                tag = buf.slice(itag, itag + ltag);
+                if (format === "A") {
+                    data = buf.slice(idata, idata + ldata);
+                } else {
+                    if (_XM_TO_DATAVIEW[format]) {
+                        if (typeof _XM_TO_DATAVIEW[format] === "string") {
+                            data = dvhdr[_XM_TO_DATAVIEW[format]](idata, littleEndian);
+                        } else {
+                            data = _XM_TO_DATAVIEW[format](dvhdr, idata, littleEndian);
+                        }
+                    } else {
+                        //Should never get here now.
+                        window.console.info("Unsupported keyword format " + format + " for tag " + tag);
+                    }
+                }
+                if (typeof dic_index[tag] === "undefined") {
+                    dic_index[tag] = 1;
+                } else {
+                    dic_index[tag]++;
+                    tag = "" + tag + dic_index[tag]; //Force to string just incase the tag is interpreted as a number
+                }
+                dict_keywords[tag] = data;
+                keywords.push({
+                    tag: tag,
+                    value: data
+                });
+                ii += lkey;
+            }
+            var dictTypes = ['dict', 'json', {}, 'XMTable', 'JSON', 'DICT'];
+            for (var k in dictTypes) {
+                if (dictTypes[k] === this.options.ext_header_type) {
+                    return dict_keywords;
+                }
+            }
+            return keywords;
+        },
         /**
          * Create typed array
          * @memberof bluefile
-         * @param 	buf
-         * @param 	offset
-         * @param 	length
+         * @param   buf
+         * @param   offset
+         * @param   length
          * @returns -
          */
         createArray: function(buf, offset, length) {
@@ -323,7 +424,6 @@
             if (length === undefined) {
                 length = buf.length || (buf.byteLength / _BPS[this.format[1]]);
             }
-
             if (buf) {
                 return new TypedArray(buf, offset, length);
             } else {
@@ -331,8 +431,6 @@
             }
         }
     };
-
-
     // Internal method from http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
     /**
      * This function creates a new anchor element and uses location
@@ -341,7 +439,7 @@
      *
      * @memberof bluefile
      * @private
-     * @param 	url
+     * @param   url
      * @returns -
      */
     function parseURL(url) {
@@ -375,13 +473,12 @@
             segments: a.pathname.replace(/^\//, '').split('/')
         };
     }
-
     /**
      * @memberof bluefile
      * @private
-     * @param 	text
-     * @param	oncomplete
-     * @param 	blocksize
+     * @param   text
+     * @param   oncomplete
+     * @param   blocksize
      */
     function text2buffer(text, oncomplete, blocksize) {
         blocksize = blocksize || 1024;
@@ -401,29 +498,25 @@
         };
         setTimeout(worker, 0);
     }
-
-
     /**
      * Bluefile Reader
-     * @memberof	bluefile
-     * @param 	options
+     * @memberof    bluefile
+     * @param   options
      */
     function BlueFileReader(options) {
         this.options = options;
     }
-
     BlueFileReader.prototype = {
-
         /**
          * @memberof bluefile
-         * @param 	theFile
-         * @param 	onload
+         * @param   theFile
+         * @param   onload
          *
          */
         readheader: function readheader(theFile, onload) {
+            var that = this;
             var reader = new FileReader();
             var blob = theFile.webkitSlice(0, 512); // Chrome specific
-
             // Closure to capture the file information.
             reader.onloadend = (function(theFile) {
                 return function(e) {
@@ -431,27 +524,24 @@
                         onload(null);
                         return;
                     }
-
                     var rawhdr = reader.result;
-                    var hdr = new BlueHeader(rawhdr);
+                    var hdr = new BlueHeader(rawhdr, that.options);
                     hdr.file = theFile;
                     onload(hdr);
                 };
             })(theFile);
-
             reader.readAsArrayBuffer(blob);
         },
-
         /**
          *
          * @memberof bluefile
-         * @param	theFile
-         * @param	onload
+         * @param   theFile
+         * @param   onload
          *
          */
         read: function read(theFile, onload) {
+            var that = this;
             var reader = new FileReader();
-
             // Closure to capture the file information.
             reader.onloadend = (function(theFile) {
                 return function(e) {
@@ -459,27 +549,24 @@
                         onload(null);
                         return;
                     }
-
                     var raw = reader.result;
-                    var hdr = new BlueHeader(raw);
+                    var hdr = new BlueHeader(raw, that.options);
                     hdr.file = theFile;
                     hdr.file_name = theFile.name;
                     onload(hdr);
                 };
             })(theFile);
-
             reader.readAsArrayBuffer(theFile);
         },
-
-
         /**
          *
          * @memberof bluefile
-         * @param	href
-         * @param	onload
+         * @param   href
+         * @param   onload
          *
          */
         read_http: function read_http(href, onload) {
+            var that = this;
             var oReq = new XMLHttpRequest();
             oReq.open("GET", href, true);
             oReq.responseType = "arraybuffer";
@@ -490,14 +577,14 @@
                         var arrayBuffer = null; // Note: not oReq.responseText
                         if (oReq.response) {
                             arrayBuffer = oReq.response;
-                            var hdr = new BlueHeader(arrayBuffer);
+                            var hdr = new BlueHeader(arrayBuffer, that.options);
                             parseURL(href);
                             var fileUrl = parseURL(href);
                             hdr.file_name = fileUrl.file;
                             onload(hdr);
                         } else if (oReq.responseText) {
                             text2buffer(oReq.responseText, function(arrayBuffer) {
-                                var hdr = new BlueHeader(arrayBuffer);
+                                var hdr = new BlueHeader(arrayBuffer, that.options);
                                 parseURL(href);
                                 var fileUrl = parseURL(href);
                                 hdr.file_name = fileUrl.file;
@@ -509,16 +596,12 @@
                 }
                 onload(null);
             };
-
             oReq.onerror = function(oEvent) {
                 onload(null);
             };
-
             oReq.send(null);
         }
-
     };
-
     global['BlueHeader'] = global['BlueHeader'] || BlueHeader;
     global['BlueFileReader'] = global['BlueFileReader'] || BlueFileReader;
 }(this));
