@@ -161,6 +161,30 @@
                             self.width = (2 * Math.abs(self.center_location - evt.ypos)) / (Mx.b - Mx.t);
                         }
                     }
+                    // See if the width needs to be constrained
+                    if (self.options.discrete_widths) {
+                        // If the user wants to restrict the accordion to a set of
+                        // discrete widths, find the closest match
+                        var nearestIdx = 0;
+                        var minDiff = Math.abs(self.width - self.options.discrete_widths[0]);
+                        var tmpDiff = 0;
+                        for (var idx = 1; idx < self.options.discrete_widths.length; idx++) {
+                            tmpDiff = Math.abs(self.width - self.options.discrete_widths[idx]);
+                            if (tmpDiff < minDiff) {
+                                nearestIdx = idx;
+                                minDiff = tmpDiff;
+                            }
+                        }
+                        self.width = self.options.discrete_widths[nearestIdx];
+                    } else {
+                        // Otherwise, apply min_width/max_width if defined
+                        if (self.options.min_width) {
+                            self.width = Math.max(self.width, self.options.min_width);
+                        }
+                        if (self.options.max_width) {
+                            self.width = Math.min(self.width, self.options.max_width);
+                        }
+                    }
                 }
 
                 // Refresh the plot
