@@ -32,7 +32,7 @@
             fillStyle: false //,
                 /*strokeStyle: "#FFFFFF"*/
         };
-        window.update(this.optionss, options);
+        window.update(this.options, options);
         this.state = "paused";
         this.highlight = false;
     };
