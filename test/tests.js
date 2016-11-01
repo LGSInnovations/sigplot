@@ -1315,6 +1315,46 @@ interactiveTest('sigplot no label', 'Is the label completely hidden?', function(
         ylabel: null
     });
 });
+interactiveTest('sigplot custom font', 'Is the font changed from the default?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        font_family: "Comic Sans MS, cursive, sans-serif"
+    });
+});
+interactiveTest('sigplot bottom scrollbar', 'Is the x scrollbar on the bottom?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        noreadout: true,
+        xlabel: null,
+        ylabel: null,
+        x_scrollbar_location: "bottom"
+    });
+});
+interactiveTest('sigplot minimal chrome', 'Is the plot devoid of chrome', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        noreadout: true,
+        xlabel: null,
+        ylabel: null,
+        nopan: true,
+        noxaxis: true,
+        noyaxis: true
+    });
+    // display a ramp so it's easy to see the plot edges
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        file_name: "ramp"
+    });
+});
 interactiveTest('sigplot menu no mtag', 'Open the menu and move it, ensure mtag events are not alerted', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
