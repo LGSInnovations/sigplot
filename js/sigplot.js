@@ -2503,7 +2503,7 @@ window.sigplot = window.sigplot || {};
                 if (Gx.pan === true) {
                     Mx.r = Mx.width - (Gx.pthk + 2 * Mx.text_w);
                 } else {
-                    Mx.r = Mx.width - 2;
+                    Mx.r = Mx.width - 5;
                 }
 
                 // Set top and bottom
