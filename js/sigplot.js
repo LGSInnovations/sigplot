@@ -5988,10 +5988,12 @@ window.sigplot = window.sigplot || {};
         }
 
         // Clear the specs area
+        // First clear the y-row
         ctx.fillStyle = Mx.bg;
         var iy = Math.floor(Mx.height - 2.5 * Mx.text_h);
-        ctx.fillRect(Mx.text_w, iy, 49 * Mx.text_w, iy + 1.5 * Mx.text_h);
+        ctx.fillRect(Mx.text_w, iy - 1, 49 * Mx.text_w, iy + 1.5 * Mx.text_h);
 
+        // Then clear the x-row
         iy = Math.floor(Mx.height - 0.5 * Mx.text_h);
         var k = Math.max(Gx.pr + Mx.text_w, Mx.width - Mx.text_w * 2);
         ctx.fillStyle = Mx.bg;
