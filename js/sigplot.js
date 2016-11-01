@@ -2664,10 +2664,10 @@ window.sigplot = window.sigplot || {};
                     if (ylab === 4) { //time-based tics
                         drawaxis_flags.ytimecode = true;
                     }
-                    if (Gx.xlabel) {
+                    if (Gx.xlabel !== undefined) {
                         drawaxis_flags.xlabel = Gx.xlabel;
                     }
-                    if (Gx.ylabel) {
+                    if (Gx.ylabel !== undefined) {
                         drawaxis_flags.ylabel = Gx.ylabel;
                     }
                     mx.drawaxis(Mx, Gx.xdiv, Gx.ydiv, xlab, ylab, drawaxis_flags);

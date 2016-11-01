@@ -2854,7 +2854,7 @@ window.mx = window.mx || {};
             if (!flags.noyplab) {
                 if (flags.ylabel instanceof Function) {
                     ylabel = flags.ylabel(ylab, _ymult);
-                } else if (flags.ylabel) {
+                } else if (flags.ylabel !== undefined) {
                     ylabel = flags.ylabel;
                 } else {
                     ylabel = m.label(ylab, _ymult);
@@ -2863,7 +2863,7 @@ window.mx = window.mx || {};
             if (!flags.noxplab) {
                 if (flags.xlabel instanceof Function) {
                     xlabel = flags.ylabel(xlab, _xmult);
-                } else if (flags.xlabel) {
+                } else if (flags.xlabel !== undefined) {
                     xlabel = flags.xlabel;
                 } else {
                     xlabel = m.label(xlab, _xmult);

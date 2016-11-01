@@ -1290,6 +1290,31 @@ interactiveTest('sigplot no legend', 'Is the legend button hidden?', function() 
         no_legend_button: true
     });
 });
+interactiveTest('sigplot no ylabel', 'Does the label say Unknown (U)?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        ylabel: null
+    });
+});
+interactiveTest('sigplot no xlabel', 'Is the label say None (U)?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        xlabel: null
+    });
+});
+interactiveTest('sigplot no label', 'Is the label completely hidden?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        xlabel: null,
+        ylabel: null
+    });
+});
 interactiveTest('sigplot menu no mtag', 'Open the menu and move it, ensure mtag events are not alerted', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
