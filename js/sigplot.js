@@ -2514,6 +2514,21 @@ window.sigplot = window.sigplot || {};
                     } else {
                         Mx.b = Mx.height - Mx.text_h * 3;
                     }
+                } else if (Gx.x_scrollbar_location === "bottom") {
+                    Mx.t = Mx.text_h * 2;
+                    if (Gx.pan) {
+                        if (Gx.show_x_axis) {
+                            Mx.b = Mx.height - Mx.text_h * 3;
+                        } else {
+                            Mx.b = Mx.height - Mx.text_h * 2;
+                        }
+                    } else {
+                        if (Gx.show_x_axis) {
+                            Mx.b = Mx.height - Mx.text_h * 2;
+                        } else {
+                            Mx.b = Mx.height - 5;
+                        }
+                    }
                 } else {
                     if (Gx.pan) {
                         Mx.t = Gx.pthk + 2 * Mx.text_w;
@@ -2529,9 +2544,17 @@ window.sigplot = window.sigplot || {};
 
                 // set left and right edges for X scrollbar
                 if (Gx.show_readout) {
+                    // If there is a readout, show it in the bottom-right
+                    // next to the readout
                     Gx.pl = Mx.text_w * 50;
                 } else {
-                    Gx.pl = Mx.text_w * 35;
+                    // Otherwise, by default it conforms to legacy
+                    // behaviour and renders at the top next to the label
+                    if (Gx.x_scrollbar_location === "bottom") {
+                        Gx.pl = Mx.l;
+                    } else {
+                        Gx.pl = Mx.text_w * 35;
+                    }
                 }
                 Gx.pr = Math.max(Gx.pl + Mx.text_w * 9, Mx.r);
 
@@ -2543,7 +2566,17 @@ window.sigplot = window.sigplot || {};
                         Gx.pt = Mx.b + (Mx.height - Mx.b - Gx.pthk) / 2;
                     }
                 } else {
-                    Gx.pt = (Mx.t - Gx.pthk) / 2;
+                    // Otherwise, by default it conforms to legacy
+                    // behaviour and renders at the top
+                    if (Gx.x_scrollbar_location === "bottom") {
+                        if (Gx.show_x_axis) {
+                            Gx.pt = Mx.b + Mx.text_h + (Mx.height - Mx.b - Mx.text_h - Gx.pthk) / 2;
+                        } else {
+                            Gx.pt = Mx.b + (Mx.height - Mx.b - Gx.pthk) / 2;
+                        }
+                    } else {
+                        Gx.pt = (Mx.t - Gx.pthk) / 2;
+                    }
                 }
                 Gx.lbtn = Mx.text_h + Mx.text_w + 2;
             } else {
@@ -4946,6 +4979,7 @@ window.sigplot = window.sigplot || {};
 
         Gx.autohide_readout = o.autohide_readout;
         Gx.autohide_panbars = o.autohide_panbars;
+        Gx.x_scrollbar_location = o.x_scrollbar_location;
         if (Gx.specs) {
             Gx.show_x_axis = !o.noxaxis;
             Gx.show_y_axis = !o.noyaxis;
@@ -6216,17 +6250,31 @@ window.sigplot = window.sigplot || {};
             return false;
         }
 
-        if (Gx.pan && (x > Mx.r && y >= Mx.t && y <= Mx.b)) { // YPAN
+        if (!Gx.pan) {
+            return false;
+        }
+
+        var outside_right_border = (x > Mx.r);
+        var above_top_border = (y <= Gx.pt + Gx.pthk + 2);
+        var below_bottom_border = (y > Gx.pt - 2);
+        var between_top_and_bottom = (y >= Mx.t && y <= Mx.b);
+        var between_left_and_right = (x >= Gx.pl && x <= Gx.pr);
+        var has_bottom_scrollbar = (Gx.show_readout || (Gx.x_scrollbar_location === "bottom"));
+
+        if (outside_right_border && between_top_and_bottom) { // YPAN
             command = 'YPAN'; // Y scrollbar
             Mx.xpos = Gx.pyl + m.trunc(Gx.pthk / 2); // TODO do we want to
             // reset the xposition?
-
             inPanRegion = true;
-        } else if (Gx.pan && (x >= Gx.pl && x <= Gx.pr) && ((Gx.show_readout && y > Gx.pt - 2) || (!Gx.show_readout && y <= Gx.pt + Gx.pthk + 2))) { // XPAN
+        } else if (has_bottom_scrollbar && between_left_and_right && below_bottom_border) {
             command = 'XPAN'; // X scrollbar
             Mx.ypos = Gx.pt + m.trunc(Gx.pthk / 2); // TODO Do we want to reset
             // the yposition?
-
+            inPanRegion = true;
+        } else if (!has_bottom_scrollbar && between_left_and_right && above_top_border) {
+            command = 'XPAN'; // X scrollbar
+            Mx.ypos = Gx.pt + m.trunc(Gx.pthk / 2); // TODO Do we want to reset
+            // the yposition?
             inPanRegion = true;
         }
 
