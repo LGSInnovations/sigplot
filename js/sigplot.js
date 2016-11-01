@@ -287,6 +287,10 @@ window.sigplot = window.sigplot || {};
      *            the number of sections to split the plot into (Not
      *            implemented)
      *
+     * @param options.font_family
+     *            the font family to use for text rendered on the plot.  Monospace
+     *            font's will generally work best.
+     *
      * @returns {sigplot.Plot}
      */
     sigplot.Plot = function(element, options) {
@@ -4879,6 +4883,9 @@ window.sigplot = window.sigplot || {};
         Gx.xmin = Mx.stk[0].xmin;
         Gx.ymin = Mx.stk[0].ymin;
 
+        if (o.font_family) {
+            Mx.font_family = o.font_family;
+        }
         mx.set_font(Mx, Math.min(7, Mx.width / 64));
 
         Gx.ncolors = o.ncolors === undefined ? 16 : o.ncolors;

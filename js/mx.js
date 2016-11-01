@@ -199,6 +199,8 @@ window.mx = window.mx || {};
         //	throw "Plot could not be instantiated correctly; did you specify a size for your placeholder?";
         //}
 
+        this.font = undefined; // the full calculated font string
+        this.font_family = "Courier New, monospace"; // default font family
         this.text_w = 0; // text width
         this.text_h = 0; // text height
         this.level = 0; // current zoom level
@@ -2591,18 +2593,17 @@ window.mx = window.mx || {};
             ctx_wid.font = Mx.font.font;
         } else {
             // figure out the font
-            var font = "Courier New, monospace";
             var text_h = 1;
             do {
                 text_h = text_h + 1;
-                ctx.font = text_h + "px " + font;
-                ctx_wid.font = text_h + "px " + font;
+                ctx.font = text_h + "px " + Mx.font_family;
+                ctx_wid.font = text_h + "px " + Mx.font_family;
                 var font_size = ctx.measureText('M'); // the capital M is typically the same height and width
                 Mx.text_w = font_size.width;
                 Mx.text_h = text_h;
             } while (Mx.text_w < width);
             Mx.font = {
-                font: text_h + "px " + font,
+                font: text_h + "px " + Mx.font_family,
                 width: width
             };
         }
