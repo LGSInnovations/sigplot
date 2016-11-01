@@ -1282,6 +1282,14 @@ interactiveTest('sigplot empty', 'Do you see an empty plot scaled from -1 to 1 o
     equal(plot._Mx.wid_canvas.height, 400);
     equal(plot._Mx.wid_canvas.style.position, "absolute");
 });
+interactiveTest('sigplot no legend', 'Is the legend button hidden?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        no_legend_button: true
+    });
+});
 interactiveTest('sigplot menu no mtag', 'Open the menu and move it, ensure mtag events are not alerted', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});

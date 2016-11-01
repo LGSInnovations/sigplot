@@ -142,7 +142,10 @@ window.sigplot = window.sigplot || {};
      *            options.nogrid hide the background grid
      *
      * @param {Boolean}
-     *            options.legend hide the legned
+     *            options.legend set to false to hide the legend
+     *
+     * @param {Boolean}
+     *            options.no_legend_button set to true to hide the legend button
      *
      * @param {Boolean}
      *            options.nopan disable panning on the plot
@@ -2674,7 +2677,7 @@ window.sigplot = window.sigplot || {};
 
                 var i = Gx.lbtn - 2;
 
-                if (Gx.show_readout && Gx.pan) {
+                if (Gx.show_readout && Gx.pan && !Gx.no_legend_button) {
                     if (Gx.legend) {
                         Gx.legendBtnLocation = {
                             x: Mx.width - Gx.lbtn,
@@ -4913,6 +4916,7 @@ window.sigplot = window.sigplot || {};
         Gx.wheelZoom = o.wheelZoom;
         Gx.wheelZoomPercent = o.wheelZoomPercent;
         Gx.legend = o.legend === undefined ? false : o.legend;
+        Gx.no_legend_button = o.no_legend_button === undefined ? false : o.no_legend_button;
         Gx.legendBtnLocation = null;
         Gx.pan = o.nopan === undefined ? true : !o.nopan;
         Gx.nomenu = o.nomenu === undefined ? false : o.nomenu;
