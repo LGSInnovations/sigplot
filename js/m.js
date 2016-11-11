@@ -632,7 +632,19 @@ window.m = window.m || {};
                 u = ["Unknown", "U"];
             }
         }
+
+        var prefix = m.mult_prefix(mult);
+
+        if (u[1]) {
+            return u[0] + " (" + prefix + u[1] + ")";
+        } else {
+            return u[0];
+        }
+    };
+
+    m.mult_prefix = function(mult) {
         var prefix = "?";
+
         /* jshint -W116 */
         if (mult == 1) {
             prefix = "";
@@ -663,11 +675,7 @@ window.m = window.m || {};
         }
         /* jshint +W116 */
 
-        if (u[1]) {
-            return u[0] + " (" + prefix + u[1] + ")";
-        } else {
-            return u[0];
-        }
+        return prefix;
     };
 
     /** 
