@@ -1428,7 +1428,9 @@ window.sigplot = window.sigplot || {};
                 } else {
                     Gx.cross_xpos = undefined;
                     Gx.cross_ypos = undefined;
-                    draw_crosshairs(this);
+                    if (!Mx.warpbox) {
+                        draw_crosshairs(this);
+                    }
                 }
             }
 
@@ -2402,7 +2404,9 @@ window.sigplot = window.sigplot || {};
 
                 Gx.cross_xpos = undefined;
                 Gx.cross_ypos = undefined;
-                draw_crosshairs(this);
+                if (!Mx.warpbox) {
+                    draw_crosshairs(this);
+                }
 
                 if (Gx.always_show_marker || Gx.show_marker) {
                     draw_marker(this);
@@ -2775,7 +2779,9 @@ window.sigplot = window.sigplot || {};
 
             Gx.cross_xpos = undefined;
             Gx.cross_ypos = undefined;
-            draw_crosshairs(this);
+            if (!Mx.warpbox) {
+                draw_crosshairs(this);
+            }
 
             if (Gx.always_show_marker || Gx.show_marker) {
                 draw_marker(this);
