@@ -2675,6 +2675,30 @@ interactiveTest('falling raster', 'Do you see a falling raster?', function() {
         plot.push(0, ramp);
     }, 100);
 });
+interactiveTest('xcmp raster align check', 'Do you see a line centered at 6000?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcmp: 3
+    });
+    notEqual(plot, null);
+    var framesize = 9000;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "test"
+    }, {});
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            if (i > 5990 && i < 6010) {
+                ramp.push(100);
+            } else {
+                ramp.push(0);
+            }
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
 interactiveTest('falling raster (timecode)', 'Do you see a falling raster that starts at 2014 July 4th?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});

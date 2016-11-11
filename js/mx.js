@@ -5095,28 +5095,29 @@ window.mx = window.mx || {};
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
         }
 
-        var xc = Math.max(1, Math.floor(data.length / buf.width));
+        var xc = Math.max(1, data.length / buf.width);
         for (var i = 0; i < buf.width; i++) {
-            var value = data[(i * xc)];
+            var didx = Math.floor(i * xc);
+            var value = data[didx];
             if (xc > 1) {
                 if (xcompression === 1) { // average
                     for (var j = 1; j < xc; j++) {
-                        value += data[(i * xc) + j];
+                        value += data[didx + j];
                     }
                     value = (value / xc);
                 } else if (xcompression === 2) { // min 
                     for (var j = 1; j < xc; j++) {
-                        value = Math.min(value, data[(i * xc) + j]);
+                        value = Math.min(value, data[didx + j]);
                     }
                 } else if (xcompression === 3) { // max
                     for (var j = 1; j < xc; j++) {
-                        value = Math.max(value, data[(i * xc) + j]);
+                        value = Math.max(value, data[didx + j]);
                     }
                 } else if (xcompression === 4) { // first 
                     value = data[i];
                 } else if (xcompression === 5) { // max abs
                     for (var j = 1; j < xc; j++) {
-                        value = Math.max(Math.abs(value), Math.abs(data[(i * xc) + j]));
+                        value = Math.max(Math.abs(value), Math.abs(data[didx + j]));
                     }
                 }
             }
@@ -5166,7 +5167,7 @@ window.mx = window.mx || {};
         buf.width = w;
         buf.height = h;
 
-        var nxc = Math.max(1, Math.floor(subsize / w));
+        var nxc = Math.max(1, subsize / w);
 
         var imgd = new Uint32Array(buf);
         if (data) {
@@ -5186,7 +5187,7 @@ window.mx = window.mx || {};
                 if (iy === 1) {
                     var test = 1;
                 }
-                var didx = (iy * subsize) + (ix * nxc);
+                var didx = (iy * subsize) + Math.floor(ix * nxc);
                 var value = data[didx];
                 if (nxc > 1) {
                     if (xcompression === 1) { // average
