@@ -367,7 +367,9 @@ window.sigplot = window.sigplot || {};
                         Gx.cross_xpos = undefined;
                         Gx.cross_ypos = undefined;
                     } else {
-                        draw_crosshairs(plot);
+                        if (plot.mouseOnCanvas) {
+                            draw_crosshairs(plot);
+                        }
                     }
                 }
 
@@ -1428,7 +1430,7 @@ window.sigplot = window.sigplot || {};
                 } else {
                     Gx.cross_xpos = undefined;
                     Gx.cross_ypos = undefined;
-                    if (!Mx.warpbox) {
+                    if ((!Mx.warpbox) && (this.mouseOnCanvas)) {
                         draw_crosshairs(this);
                     }
                 }
@@ -2404,7 +2406,7 @@ window.sigplot = window.sigplot || {};
 
                 Gx.cross_xpos = undefined;
                 Gx.cross_ypos = undefined;
-                if (!Mx.warpbox) {
+                if ((!Mx.warpbox) && (this.mouseOnCanvas)) {
                     draw_crosshairs(this);
                 }
 
@@ -2779,7 +2781,7 @@ window.sigplot = window.sigplot || {};
 
             Gx.cross_xpos = undefined;
             Gx.cross_ypos = undefined;
-            if (!Mx.warpbox) {
+            if ((!Mx.warpbox) && (this.mouseOnCanvas)) {
                 draw_crosshairs(this);
             }
 
