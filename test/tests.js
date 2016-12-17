@@ -1363,6 +1363,20 @@ interactiveTest('sigplot menu no mtag', 'Open the menu and move it, ensure mtag 
         alert("Mtag occurred!");
     });
 });
+interactiveTest('sigplot continuous mtag', 'Ensure continuous mtag updates', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcnt: "continuous"
+    });
+    notEqual(plot, null);
+
+    var output = document.createElement("p");
+    output.innerHTML = "";
+    ifixture.appendChild(output);
+    plot.addListener("mtag", function(evt) {
+        output.innerHTML = "X: " + evt.x.toFixed(8) + " Y: " + evt.y.toFixed(8);
+    });
+});
 interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
