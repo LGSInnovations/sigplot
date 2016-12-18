@@ -695,8 +695,12 @@
                 }
 
                 if (!this.img) {
-                    Gx.zmin = 0;
-                    Gx.zmax = 0;
+                    if (Gx.zmin === undefined) {
+                        Gx.zmin = 0;
+                    }
+                    if (Gx.zmax === undefined) {
+                        Gx.zmax = 0;
+                    }
                     this.img = mx.create_image(Mx,
                         null,
                         this.hcb.subsize,
@@ -782,11 +786,9 @@
             Gx.xe = Math.max(1, Math.round(rx));
             Gx.ye = Math.max(1, Math.round(ry));
 
-            // in file mode we might need to prep
-            if (!this.hcb.pipe) {
-                if ((!this.img) || (Gx.cmode !== this.img.cmode) || (Gx.cmap !== this.img.cmap) || (Mx.origin !== this.img.origin)) {
-                    this.prep(xmin, xmax);
-                }
+            // we might need to prep in certian situations
+            if ((!this.img) || (Gx.cmode !== this.img.cmode) || (Gx.cmap !== this.img.cmap) || (Mx.origin !== this.img.origin)) {
+                this.prep(xmin, xmax);
             }
 
             // if there is an image, render it

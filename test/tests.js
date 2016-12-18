@@ -2568,7 +2568,7 @@ interactiveTest('sigplot (custom cmap) penny', 'Do you see a red penny', functio
     notEqual(plot, null);
     plot.overlay_href("dat/penny.prm");
 });
-interactiveTest('sigplot penny (scaled)', 'Manually scale the Z-axis, does it work?', function() {
+interactiveTest('sigplot penny (scaled)', 'Manually scale the Z-axis, does it work (i.e. all blue)?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         zmin: 50,
@@ -2608,9 +2608,64 @@ interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function()
     ifixture.interval = window.setInterval(function() {
         var ramp = [];
         for (var i = 0; i < framesize; i += 1) {
+            ramp.push(-1 * (i + 1));
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
+interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function() {
+    var container = document.getElementById('plot');
+    // the colors will start around 50 and max out around 100
+    var plot = new sigplot.Plot(container, {
+        zmin: 50,
+        zmax: 100
+    });
+    notEqual(plot, null);
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
         plot.push(0, ramp);
+    }, 100);
+});
+interactiveTest('scrolling raster (scaled)', 'Do you see the scaling change correctly?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    });
+
+    var cnt = 0;
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+        cnt = cnt + 1;
+        if (cnt === 40) {
+            // After 40 lines, change the scaling changes
+            plot.change_settings({
+                zmin: 50,
+                zmax: 100
+            });
+        }
     }, 100);
 });
 interactiveTest('raster (small xdelta)', 'Do you see the expected raster?', function() {
