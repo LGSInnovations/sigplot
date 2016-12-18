@@ -1426,6 +1426,7 @@
                 57: '(',
                 59: ':',
                 107: '+',
+                173: '_', // firefox uses 173 instead of 189
                 189: '_',
                 186: ':',
                 187: '+',
@@ -1478,7 +1479,12 @@
                         key = '\\';
                     } else if (keyCode === 187) {
                         key = '=';
-                    } else if (keyCode === 189) {
+                    } else if ((keyCode === 189)  || (keyCode === 173)) {
+                        // firefox maps the minus key to 173, rather
+                        // then trying to use browser detection we
+                        // simply accept 173 as well...which means that
+                        // for Chrome using the mute button would
+                        // cause minus sign to appear
                         key = '-';
                     } else if (keyCode === 222) {
                         key = '\'';
