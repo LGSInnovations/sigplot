@@ -200,6 +200,11 @@
                 throw "Invalid draw mode";
             }
 
+	    if (!this.buf) {
+	       // the layer isn't setup correctly yet
+	       return;
+	    }
+
             // grab one row worth of data
             var ngot = m.grabx(this.hcb, this.buf, this.hcb.subsize * this.hcb.spa);
             if (ngot === 0) { // shouldn't happen because of the pavail check
