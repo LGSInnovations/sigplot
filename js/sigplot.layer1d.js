@@ -112,8 +112,11 @@
                 this.size = options.framesize;
             }
 
-            if (!this.size) {
-                throw "1D layer could not determine appropriate size";
+            // pipe data requires a valid size on overlay, but
+            // other data can work without a valid size because
+            // the reload() function will correctly update the size
+            if (this.hcb.pipe && !this.size) {
+                throw "1D layer could not determine appropriate size for pipe, use framesize option";
             }
 
             if (hcb["class"] <= 2) {
