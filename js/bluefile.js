@@ -64,8 +64,17 @@
  *
  * @namespace bluefile
  */
-(function(global) {
+
+/* global module */
+/* global require */
+
+(function() {
     'use strict';
+
+    var common = require("./common");
+
+    function bluefile() {}
+
     /**
      * @memberOf bluefile
      * @private
@@ -250,11 +259,11 @@
      * @memberof bluefile
      * @param   {array}     buf         Data bffer
      */
-    function BlueHeader(buf, options) {
+    bluefile.BlueHeader = function(buf, options) {
         this.options = {
             ext_header_type: "dict"
         };
-        global.update(this.options, options);
+        common.update(this.options, options);
         this.file = null;
         this.file_name = null;
         this.offset = 0;
@@ -297,8 +306,9 @@
             }
             this.setData(this.buf, ds, de, littleEndianData);
         }
-    }
-    BlueHeader.prototype = {
+    };
+
+    bluefile.BlueHeader.prototype = {
         /**
          * @memberof bluefile
          * @param   buf
@@ -431,6 +441,7 @@
             }
         }
     };
+
     // Internal method from http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
     /**
      * This function creates a new anchor element and uses location
@@ -503,10 +514,11 @@
      * @memberof    bluefile
      * @param   options
      */
-    function BlueFileReader(options) {
+    bluefile.BlueFileReader = function(options) {
         this.options = options;
-    }
-    BlueFileReader.prototype = {
+    };
+
+    bluefile.BlueFileReader.prototype = {
         /**
          * @memberof bluefile
          * @param   theFile
@@ -525,7 +537,7 @@
                         return;
                     }
                     var rawhdr = reader.result;
-                    var hdr = new BlueHeader(rawhdr, that.options);
+                    var hdr = new bluefile.BlueHeader(rawhdr, that.options);
                     hdr.file = theFile;
                     onload(hdr);
                 };
@@ -550,7 +562,7 @@
                         return;
                     }
                     var raw = reader.result;
-                    var hdr = new BlueHeader(raw, that.options);
+                    var hdr = new bluefile.BlueHeader(raw, that.options);
                     hdr.file = theFile;
                     hdr.file_name = theFile.name;
                     onload(hdr);
@@ -577,14 +589,14 @@
                         var arrayBuffer = null; // Note: not oReq.responseText
                         if (oReq.response) {
                             arrayBuffer = oReq.response;
-                            var hdr = new BlueHeader(arrayBuffer, that.options);
+                            var hdr = new bluefile.BlueHeader(arrayBuffer, that.options);
                             parseURL(href);
                             var fileUrl = parseURL(href);
                             hdr.file_name = fileUrl.file;
                             onload(hdr);
                         } else if (oReq.responseText) {
                             text2buffer(oReq.responseText, function(arrayBuffer) {
-                                var hdr = new BlueHeader(arrayBuffer, that.options);
+                                var hdr = new bluefile.BlueHeader(arrayBuffer, that.options);
                                 parseURL(href);
                                 var fileUrl = parseURL(href);
                                 hdr.file_name = fileUrl.file;
@@ -602,6 +614,8 @@
             oReq.send(null);
         }
     };
-    global['BlueHeader'] = global['BlueHeader'] || BlueHeader;
-    global['BlueFileReader'] = global['BlueFileReader'] || BlueFileReader;
-}(this));
+
+    // Node: Export function
+    module.exports = bluefile;
+
+}());

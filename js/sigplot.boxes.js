@@ -15,16 +15,20 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
-/* global mx */
-/* global m */
-(function(sigplot, mx, m, undefined) {
+/* global module */
+/* global require */
+
+(function() {
+
+    var m = require("./m");
+    var mx = require("./mx");
 
     /**
      * @constructor
      * @param options
-     * @returns {sigplot.BoxesPlugin}
+     * @returns {BoxesPlugin}
      */
-    sigplot.BoxesPlugin = function(options) {
+    var BoxesPlugin = function(options) {
         this.options = (options === undefined) ? {} : options;
 
         if (this.options.display === undefined) {
@@ -34,7 +38,7 @@
         this.boxes = [];
     };
 
-    sigplot.BoxesPlugin.prototype = {
+    BoxesPlugin.prototype = {
         init: function(plot) {
             this.plot = plot;
         },
@@ -169,4 +173,6 @@
         }
     };
 
-}(window.sigplot = window.sigplot || {}, mx, m));
+    module.exports = BoxesPlugin;
+
+}());

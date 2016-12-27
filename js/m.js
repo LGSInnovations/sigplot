@@ -19,13 +19,44 @@
 //Uses Immediately-invoked Function Expressions (IIFE)s for namespaces
 //See http://addyosmani.com/blog/essential-js-namespacing/ for details.
 
-/**
- * @namespace
- */
-window.m = window.m || {};
+/* global module */
+/* global require */
 
-(function(m, undefined) {
+(function() {
     'use strict';
+
+    var bluefile = require("./bluefile");
+    var loglevel = require("loglevel");
+
+    function m() {}
+
+    m.log = loglevel;
+
+    /**
+     *
+     *
+     * @memberOf sigplot
+     * @private
+     */
+    var PointArray = null;
+
+    /**
+     * True if we detected that we are on an iOS device
+     *
+     * @memberOf sigplot
+     * @private
+     */
+    var iOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false);
+    if ((iOS) || // iOS doesn't support Float64
+        (typeof Float64Array === 'undefined') || // If it's undefined it's obviously not supported
+        (Float64Array.emulated) || // If it's emulated, don't waste time on extra precision
+        (!Float64Array.BYTES_PER_ELEMENT)) { // If bytes per element isn't defined, it's a buggy implementation (i.e. PhantomJS)
+        m.PointArray = Float32Array;
+    } else {
+        m.PointArray = Float64Array;
+    }
+
+
     /** UNITS Structure:
      *		0: ["None", "U"],
      *		1: ["Time", "sec"],
@@ -370,7 +401,7 @@ window.m = window.m || {};
      * @return 	{header} 	hcb		Return <hcb> type-1000 bluefile header, filename=null
      */
     m.initialize = function(data, overrides) {
-        var hcb = new BlueHeader(null);
+        var hcb = new bluefile.BlueHeader(null);
 
         hcb.version = 'BLUE';
         hcb.size = 0;
@@ -1259,4 +1290,7 @@ window.m = window.m || {};
         };
     };
 
-}(window.m));
+    // Node: Export function
+    module.exports = m;
+
+}());

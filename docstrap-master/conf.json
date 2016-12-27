@@ -17,7 +17,7 @@
 		"theme"           : "readable",
 		"linenums"        : false,
 		"collapseSymbols" : false,
-		"inverseNav"      : true,
+		"inverseNav"      : true
 	},
 	"markdown"  : {
 		"parser"   : "gfm",

@@ -15,16 +15,21 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
-/* global mx */
-/* global m */
-(function(sigplot, mx, m, undefined) {
+/* global module */
+/* global require */
+
+(function() {
+
+    var m = require("./m");
+    var mx = require("./mx");
+    var common = require("./common");
 
     /**
      * @constructor
      * @param options
-     * @returns {sigplot.SliderPlugin}
+     * @returns {SliderPlugin}
      */
-    sigplot.SliderPlugin = function(options) {
+    var SliderPlugin = function(options) {
         this.options = {
             display: true,
             style: {
@@ -36,14 +41,14 @@
             prevent_drag: false
         };
 
-        window.update(this.options, options);
+        common.update(this.options, options);
         this.position = undefined;
         this.location = undefined;
         this.paired_slider = undefined;
         this.name = this.options.name;
     };
 
-    sigplot.SliderPlugin.prototype = {
+    SliderPlugin.prototype = {
         init: function(plot) {
             this.plot = plot;
             var Mx = plot._Mx;
@@ -568,4 +573,6 @@
         }
     };
 
-}(window.sigplot = window.sigplot || {}, mx, m));
+    module.exports = SliderPlugin;
+
+}());

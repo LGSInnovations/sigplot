@@ -6,47 +6,6 @@ module.exports = function (grunt) {
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
-        concat: {
-          bluefile: {
-            src: [
-                    'js/license.js',
-                    'js/typedarray.js',
-                    'js/common.js',
-                    'js/bluefile.js'
-            ],
-            dest: 'dist/bluefile.js'
-          },
-          sigplot: {
-            src: [
-                    'js/license.js',
-                    'js/typedarray.js',
-                    'js/common.js',
-                    'js/bluefile.js',
-                    'js/tinycolor.js',
-                    'js/CanvasInput.js',
-                    'js/spin.js',
-                    'js/loglevel.js',
-                    'js/m.js',
-                    'js/mx.js',
-                    'js/sigplot.Utils.js',
-                    'js/sigplot.layer1d.js',
-                    'js/sigplot.layer2d.js',
-                    'js/sigplot.js'
-            ],
-            dest: 'dist/sigplot.js'
-          },
-          sigplot_plugins: {
-            src: [
-                    'js/license.js',
-                    'js/sigplot.annotations.js',
-                    'js/sigplot.slider.js',
-                    'js/sigplot.accordion.js',
-                    'js/sigplot.boxes.js',
-                    'js/sigplot.playback.js',
-            ],
-            dest: 'dist/sigplot.plugins.js'
-          }
-        },
         jshint: {
             options: {
                 jshintrc: '.jshintrc'
@@ -208,6 +167,35 @@ module.exports = function (grunt) {
                 configFile: 'karma.conf.js'
             }
         },
+        browserify: {
+            bluefile: {
+                src: 'js/bluefile.js',
+                dest: 'dist/bluefile.js',
+                options: {
+                    browserifyOptions: {
+                      standalone: 'bluefile'
+                    }
+                }
+            },
+            sigplot: {
+                src: 'js/sigplot.js',
+                dest: 'dist/sigplot.js',
+                options: {
+                    browserifyOptions: {
+                      standalone: 'sigplot'
+                    }
+                }
+            },
+            plugins: {
+                src: [ 'js/plugins.js' ],
+                dest: 'dist/sigplot.plugins.js',
+                options: {
+                    browserifyOptions: {
+                      standalone: 'sigplot_plugins'
+                    }
+                }
+            }
+        }
     });
 
     // These plugins provide necessary tasks.
@@ -222,11 +210,12 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsbeautifier');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-express-server');
+    grunt.loadNpmTasks('grunt-browserify');
 
-    grunt.registerTask('build', ['concat', 'jsbeautifier:check']);
+    grunt.registerTask('build', ['jsbeautifier:check', 'jshint', 'browserify']);
 
     // Check everything is good
-    grunt.registerTask('test', ['build', 'jshint', 'qunit']);
+    grunt.registerTask('test', ['build', 'qunit']);
     
     // Build a distributable release
     grunt.registerTask('dist', ['clean', 'test', 'closure-compiler', 'jsdoc', 'compress']);

@@ -1,8 +1,12 @@
 {
   "name": "sigplot",
   "description": "Advanced plotting for signal processing applications",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "homepage": "http://demo.axiosengineering.com/sigplot",
+  "main": "js/sigplot.js",
+  "files": [
+      "js"
+  ],
   "author": {
     "name": "Axios Engineering",
     "email": "sigplot@axiosengineering.com",
@@ -24,10 +28,16 @@
   "scripts": {
     "test": "grunt test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "spin": "0.0.1",
+    "tinycolor2": "^1.4.1",
+    "loglevel": "^1.4.1"
+  },
   "devDependencies": {
+    "catharsis": "^0.7.0",
     "express": "^4.13.4",
     "grunt": "^0.4.1",
+    "grunt-browserify": "^5.0.0",
     "grunt-cli": "^0.1.9",
     "grunt-closure-compiler": "^0.0.21",
     "grunt-contrib-clean": "^0.5.0",
@@ -36,8 +46,8 @@
     "grunt-contrib-jshint": "^0.8.0",
     "grunt-contrib-qunit": "^0.5.0",
     "grunt-express-server": "^0.5.3",
-    "grunt-jsbeautifier": "^0.2.7",
-    "grunt-jsdoc": "^0.5.4",
+    "grunt-jsbeautifier": "^0.2.13",
+    "grunt-jsdoc": "^0.5.8",
     "grunt-karma": "^0.12.2",
     "grunt-open": "^0.2.3",
     "grunt-services": "^0.1.0",
@@ -45,15 +55,12 @@
     "grunt-web-server": "^1.2.3",
     "jasmine": "^2.4.1",
     "karma": "^0.13.0",
-    "karma-jasmine": "^0.3.8",
-    "karma-qunit": "^1.1.0",
     "karma-chrome-launcher": "^1.0.1",
     "karma-firefox-launcher": "^1.0.0",
-    "mongod": "^1.3.0",
-    "mongodb": "^2.1.16",
-    "qunitjs": "^1.13.0",
-    "taffydb": "^2.7.3",
+    "karma-jasmine": "^0.3.8",
+    "karma-qunit": "^1.1.0",
     "marked": "^0.3.6",
-    "catharsis": "^0.7.0"
+    "qunitjs": "^1.13.0",
+    "taffydb": "^2.7.3"
   }
 }

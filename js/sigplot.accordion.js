@@ -15,16 +15,20 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
-/* global mx */
-/* global m */
-(function(sigplot, mx, m, undefined) {
+/* global module */
+/* global require */
+
+(function() {
+
+    var m = require("./m");
+    var mx = require("./mx");
 
     /**
      * @constructor
      * @param options
-     * @returns {sigplot.AccordionPlugin}
+     * @returns {AccordionPlugin}
      */
-    sigplot.AccordionPlugin = function(options) {
+    var AccordionPlugin = function(options) {
         this.options = (options !== undefined) ? options : {};
 
         if (this.options.display === undefined) {
@@ -64,7 +68,7 @@
         this.visible = true;
     };
 
-    sigplot.AccordionPlugin.prototype = {
+    AccordionPlugin.prototype = {
         init: function(plot) {
             this.plot = plot;
             var Mx = this.plot._Mx;
@@ -459,4 +463,6 @@
         }
     };
 
-}(window.sigplot = window.sigplot || {}, mx, m));
+    module.exports = AccordionPlugin;
+
+}());

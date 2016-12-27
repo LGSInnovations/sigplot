@@ -16,22 +16,30 @@
 
 /*jslint nomen: true, browser: true, devel: true */
 
-/**
- * This namespace provides the implementation of the plotting functionality.
- *
- * @namespace sigplot
- */
-window.sigplot = window.sigplot || {};
+/* global module */
+/* global require */
 
-//Uses Immediately-invoked Function Expressions (IIFE)s for namespaces
-//See:
-//http://addyosmani.com/blog/essential-js-namespacing/ for details.
-//http://www.ethangardner.com/articles/javascript-namespace-strategy-for-large-applications/
-(function(sigplot, mx, m) {
-    /* global setKeypressHandler */
-    /* global getKeyCode */
-    /* global BlueFileReader */
-    /* global Spinner */
+(function() {
+
+    var Spinner = require("spin");
+    var common = require("./common");
+    var bluefile = require("./bluefile");
+    var m = require("./m");
+    var mx = require("./mx");
+    var Layer1D = require("./sigplot.layer1d");
+    var Layer2D = require("./sigplot.layer2d");
+
+    function sigplot(element, options) {
+        if (!(this instanceof sigplot)) {
+            return new sigplot.Plot(element, options);
+        }
+    }
+
+    sigplot.bluefile = bluefile;
+    sigplot.m = m;
+    sigplot.mx = mx;
+    sigplot.Layer1D = Layer1D;
+    sigplot.Layer2D = Layer2D;
 
     /**
      * Text of the keypress help dialog.
@@ -87,36 +95,12 @@ window.sigplot = window.sigplot || {};
         return (hascanvas && hasarraybuf);
     };
 
-    /**
-     *
-     *
-     * @memberOf sigplot
-     * @private
-     */
-    var PointArray = null;
-
-    /**
-     * True if we detected that we are on an iOS device
-     *
-     * @memberOf sigplot
-     * @private
-     */
-    var iOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false);
-    if ((iOS) || // iOS doesn't support Float64
-        (typeof Float64Array === 'undefined') || // If it's undefined it's obviously not supported
-        (Float64Array.emulated) || // If it's emulated, don't waste time on extra precision
-        (!Float64Array.BYTES_PER_ELEMENT)) { // If bytes per element isn't defined, it's a buggy implementation (i.e. PhantomJS)
-        sigplot.PointArray = Float32Array;
-    } else {
-        sigplot.PointArray = Float64Array;
-    }
-
 
 
     /**
      * Construct and render a plot.
      *
-     * @constructor
+     * @constructor sigplot.Plot
      *
      * @example plot = new sigplot.Plot(document.getElementById('plot'), {});
      *
@@ -529,6 +513,7 @@ window.sigplot = window.sigplot || {};
                                     // Make scrolling smooth, the longer initial prevents
                                     // a single click from counting twice
                                     Gx.stillPanning = window.setTimeout(
+
                                         function() {
                                             Gx.repeatPanning = window.setInterval(repeatPan, 50);
                                         }, 250);
@@ -997,7 +982,7 @@ window.sigplot = window.sigplot || {};
                             return;
                         }
 
-                        var keyCode = getKeyCode(event);
+                        var keyCode = common.getKeyCode(event);
 
                         // Since the mouse is in the plot area, send a keypress event
                         var evt = document.createEvent('Event');
@@ -1097,7 +1082,7 @@ window.sigplot = window.sigplot || {};
                 };
             }(this));
 
-            setKeypressHandler(this.onkeypress);
+            common.setKeypressHandler(this.onkeypress);
         }
 
         return this;
@@ -1835,7 +1820,7 @@ window.sigplot = window.sigplot || {};
                     };
                 }(this, onload));
 
-                var br = new BlueFileReader();
+                var br = new bluefile.BlueFileReader();
                 br.read_http(href, handleHeader);
             } catch (error) {
                 console.log(error);
@@ -1910,15 +1895,15 @@ window.sigplot = window.sigplot || {};
 
             if (layerOptions.layerType === undefined) {
                 if (hcb["class"] === 1) {
-                    sigplot.Layer1D.overlay(this, hcb, layerOptions);
+                    Layer1D.overlay(this, hcb, layerOptions);
                 } else if (hcb["class"] === 2) {
-                    sigplot.Layer2D.overlay(this, hcb, layerOptions);
+                    Layer2D.overlay(this, hcb, layerOptions);
                 }
             } else {
                 if (layerOptions.layerType === "1D") {
-                    sigplot.Layer1D.overlay(this, hcb, layerOptions);
+                    Layer1D.overlay(this, hcb, layerOptions);
                 } else if (layerOptions.layerType === "2D") {
-                    sigplot.Layer2D.overlay(this, hcb, layerOptions);
+                    Layer2D.overlay(this, hcb, layerOptions);
                 } else {
                     layerOptions.layerType.overlay(this, hcb, layerOptions);
                 }
@@ -1998,7 +1983,7 @@ window.sigplot = window.sigplot || {};
 
             for (var i = 0; i < files.length; i++) {
                 var f = files[i];
-                var br = new BlueFileReader();
+                var br = new bluefile.BlueFileReader();
                 br.read(f, onload);
             }
         },
@@ -6478,4 +6463,6 @@ window.sigplot = window.sigplot || {};
         }
     }
 
-}(window.sigplot, window.mx, window.m));
+    module.exports = sigplot;
+
+}());

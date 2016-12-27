@@ -15,16 +15,20 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
-/* global mx */
-/* global m */
-(function(sigplot, mx, m, undefined) {
+/* global module */
+/* global require */
+
+(function() {
+
+    var m = require("./m");
+    var mx = require("./mx");
 
     /**
      * @constructor
      * @param options
-     * @returns {sigplot.AnnotationPlugin}
+     * @returns {AnnotationPlugin}
      */
-    sigplot.AnnotationPlugin = function(options) {
+    var AnnotationPlugin = function(options) {
         this.options = (options === undefined) ? {} : options;
 
         if (this.options.display === undefined) {
@@ -37,7 +41,7 @@
         this.annotations = [];
     };
 
-    sigplot.AnnotationPlugin.prototype = {
+    AnnotationPlugin.prototype = {
         init: function(plot) {
             var self = this;
             this.plot = plot;
@@ -318,4 +322,6 @@
         }
     };
 
-}(window.sigplot = window.sigplot || {}, mx, m));
+    module.exports = AnnotationPlugin;
+
+}());

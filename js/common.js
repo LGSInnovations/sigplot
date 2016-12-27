@@ -15,6 +15,12 @@
  *
  */
 
+/* global module */
+/* global require */
+
+(function() {
+
+module.exports = {};
 
 if (window.ArrayBuffer) {
     if (!ArrayBuffer.prototype.slice) {
@@ -57,7 +63,7 @@ window.cancelAnimFrame = (function(callback) {
 })();
 
 // Handle various ways to draw dashed lines
-function dashOn(ctx, on, off) {
+module.exports.dashOn = function(ctx, on, off) {
     if (ctx.setLineDash) {
         ctx.setLineDash([on, off]);
         return true;
@@ -69,9 +75,9 @@ function dashOn(ctx, on, off) {
         return true;
     }
     return false;
-}
+};
 
-function dashOff(ctx) {
+module.exports.dashOff = function(ctx) {
     if (ctx.setLineDash) {
         ctx.setLineDash([]);
     } else if (ctx.mozDash) { // Gecko 7.0+
@@ -79,21 +85,21 @@ function dashOff(ctx) {
     } else if (ctx.webkitLineDash) {
         ctx.webkitLineDash = [];
     }
-}
+};
 
 // Firefox behaves differntly for keypress events
-function getKeyCode(e) {
+module.exports.getKeyCode = function(e) {
     e = window.event || e;
     e = e.charCode || e.keyCode;
     return e;
-}
+};
 
-function setKeypressHandler(handler) {
+module.exports.setKeypressHandler = function(handler) {
     if (window.addEventListener) { window.addEventListener('keypress', handler, false); }
     else if (window.attachEvent) {
         window.attachEvent('onkeypress', handler);
     }
-}
+};
 
 // Array.isArray
 // FF 4+
@@ -263,7 +269,7 @@ if (!window.Float64Array) {
 })(window, document);
 
 //Updates destenation object with source values
-function update(dst, src) {
+module.exports.update = function update(dst, src) {
     for (var prop in src) {
         var val = src[prop];
         if (typeof val === "object") { // recursive
@@ -273,4 +279,6 @@ function update(dst, src) {
         }
     }
     return dst; // return dst to allow method chaining
-}
+};
+
+}());

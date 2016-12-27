@@ -15,16 +15,21 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
-/* global mx */
-/* global m */
-(function(sigplot, mx, m, undefined) {
+/* global module */
+/* global require */
+
+(function() {
+
+    var m = require("./m");
+    var mx = require("./mx");
+    var common = require("./common");
 
     /**
      * @constructor
      * @param options
-     * @returns {sigplot.PlaybackControlsPlugin}
+     * @returns {PlaybackControlsPlugin}
      */
-    sigplot.PlaybackControlsPlugin = function(options) {
+    var PlaybackControlsPlugin = function(options) {
         this.options = {
             display: true,
             size: 25,
@@ -32,12 +37,12 @@
             fillStyle: false //,
                 /*strokeStyle: "#FFFFFF"*/
         };
-        window.update(this.options, options);
+        common.update(this.options, options);
         this.state = "paused";
         this.highlight = false;
     };
 
-    sigplot.PlaybackControlsPlugin.prototype = {
+    PlaybackControlsPlugin.prototype = {
         init: function(plot) {
             this.plot = plot;
 
@@ -265,4 +270,6 @@
         }
     };
 
-}(window.sigplot = window.sigplot || {}, mx, m));
+    module.exports = PlaybackControlsPlugin;
+
+}());

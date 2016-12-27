@@ -14,17 +14,20 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
-/* global mx */
-/* global m */
-(function(sigplot, mx, m, undefined) {
+/* global module */
+/* global require */
 
+(function() {
+
+    var m = require("./m");
+    var mx = require("./mx");
 
     /**
      * @constructor
      * @param plot
      */
 
-    sigplot.Layer1D = function(plot) {
+    var Layer1D = function(plot) {
         this.plot = plot;
 
         this.xbuf = undefined; // raw (ArrayBuffer) of ABSC data
@@ -67,7 +70,7 @@
         this.options = {};
     };
 
-    sigplot.Layer1D.prototype = {
+    Layer1D.prototype = {
 
         /**
          * Initializes the layer to display the provided data.
@@ -77,7 +80,7 @@
          * @param lyrn
          *          the index of the added layer
          *
-         * @memberOf sigplot.Layer1D
+         * @memberOf Layer1D
          * @private
          */
         init: function(hcb, options) {
@@ -140,7 +143,7 @@
                 this.position = 0;
                 this.tle = options.tl;
 
-                this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+                this.ybufn = this.size * Math.max(this.skip * m.PointArray.BYTES_PER_ELEMENT, m.PointArray.BYTES_PER_ELEMENT);
                 this.ybuf = new ArrayBuffer(this.ybufn);
 
                 var self = this;
@@ -151,7 +154,7 @@
         },
 
         _onpipewrite: function() {
-            var ybuf = new sigplot.PointArray(this.ybuf);
+            var ybuf = new m.PointArray(this.ybuf);
 
             var tle = this.tle; // in scalars
             if (tle === undefined) {
@@ -230,12 +233,12 @@
                 // load new data
                 var start = this.offset + imin;
                 var skip = this.skip;
-                this.ybufn = npts * Math.max(skip * sigplot.PointArray.BYTES_PER_ELEMENT,
-                    sigplot.PointArray.BYTES_PER_ELEMENT);
+                this.ybufn = npts * Math.max(skip * m.PointArray.BYTES_PER_ELEMENT,
+                    m.PointArray.BYTES_PER_ELEMENT);
                 if ((this.ybuf === undefined) || (this.ybuf.byteLength < this.ybufn)) {
                     this.ybuf = new ArrayBuffer(this.ybufn);
                 }
-                var ybuf = new sigplot.PointArray(this.ybuf);
+                var ybuf = new m.PointArray(this.ybuf);
                 var ngot = m.grab(HCB, ybuf, start, npts);
                 this.imin = imin;
                 this.xstart = HCB.xstart + (imin) * this.xdelta;
@@ -267,7 +270,7 @@
                 this.drawmode = settings.drawmode;
                 // Reset the buffer
                 this.position = 0;
-                this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+                this.ybufn = this.size * Math.max(this.skip * m.PointArray.BYTES_PER_ELEMENT, m.PointArray.BYTES_PER_ELEMENT);
                 this.ybuf = new ArrayBuffer(this.ybufn);
             }
         },
@@ -329,7 +332,7 @@
                         this.size = this.hcb.subsize;
                         // Reset the buffer
                         this.position = null;
-                        this.ybufn = this.size * Math.max(this.skip * sigplot.PointArray.BYTES_PER_ELEMENT, sigplot.PointArray.BYTES_PER_ELEMENT);
+                        this.ybufn = this.size * Math.max(this.skip * m.PointArray.BYTES_PER_ELEMENT, m.PointArray.BYTES_PER_ELEMENT);
                         this.ybuf = new ArrayBuffer(this.ybufn);
                     }
                 }
@@ -363,15 +366,15 @@
                 };
             }
 
-            if (npts * sigplot.PointArray.BYTES_PER_ELEMENT > this.pointbufsize) {
-                this.pointbufsize = npts * sigplot.PointArray.BYTES_PER_ELEMENT;
+            if (npts * m.PointArray.BYTES_PER_ELEMENT > this.pointbufsize) {
+                this.pointbufsize = npts * m.PointArray.BYTES_PER_ELEMENT;
                 this.xptr = new ArrayBuffer(this.pointbufsize);
                 this.yptr = new ArrayBuffer(this.pointbufsize);
-                this.xpoint = new sigplot.PointArray(this.xptr);
-                this.ypoint = new sigplot.PointArray(this.yptr);
+                this.xpoint = new m.PointArray(this.xptr);
+                this.ypoint = new m.PointArray(this.yptr);
             }
 
-            var dbuf = new sigplot.PointArray(this.ybuf);
+            var dbuf = new m.PointArray(this.ybuf);
             var qmin = this.xmin;
             var qmax = this.xmax;
             var n1, n2;
@@ -384,7 +387,7 @@
                     qmax = Gx.panxmax;
                 } else if (Gx.cmode !== 5) {
                     // Largely unused code since xsub isn't used
-                    this.xpoint = new sigplot.PointArray(this.xbuf);
+                    this.xpoint = new m.PointArray(this.xbuf);
                 } else if (this.cx) {
                     // This is the pre-dominate condition
                     m.vmov(dbuf, skip, this.xpoint, 1, npts);
@@ -432,7 +435,7 @@
                     m.log.debug("Nothing to plot");
                     npts = 0;
                 }
-                dbuf = new sigplot.PointArray(this.ybuf).subarray(n1 * skip);
+                dbuf = new m.PointArray(this.ybuf).subarray(n1 * skip);
                 xstart = xstart + xdelta * (n1);
                 for (var i = 0; i < npts; i++) {
                     if (Gx.index) {
@@ -620,7 +623,7 @@
                     this.get_data(xmin, xmax);
                 }
 
-                // sigplot_prep fills in this.xptr and this.yptr (both sigplot.PointArray)
+                // sigplot_prep fills in this.xptr and this.yptr (both m.PointArray)
                 // with the data to be plotted
 
                 var pts = this.prep(xmin, xmax);
@@ -630,8 +633,8 @@
                     } else {
                         mx.trace(Mx,
                             ic,
-                            new sigplot.PointArray(this.xptr),
-                            new sigplot.PointArray(this.yptr),
+                            new m.PointArray(this.xptr),
+                            new m.PointArray(this.yptr),
                             pts.num,
                             pts.start,
                             1,
@@ -755,7 +758,7 @@
      *
      * @private
      */
-    sigplot.Layer1D.overlay = function(plot, hcb, layerOptions) {
+    Layer1D.overlay = function(plot, hcb, layerOptions) {
         var Gx = plot._Gx;
         var Mx = plot._Mx;
 
@@ -779,7 +782,7 @@
 
         for (var i = n1; i < n2; i++) {
             // This is logic from within sigplot.for LOAD_FILES
-            var layer = new sigplot.Layer1D(plot);
+            var layer = new Layer1D(plot);
             layer.init(hcb, layerOptions);
 
             // Provide a default color for the layer
@@ -829,4 +832,6 @@
         }
     };
 
-}(window.sigplot = window.sigplot || {}, mx, m));
+    module.exports = Layer1D;
+
+}());

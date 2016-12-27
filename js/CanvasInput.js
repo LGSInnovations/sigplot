@@ -14,6 +14,9 @@
  *  MIT License
  */
 
+/* global module */
+/* global require */
+
 (function() {
     // create a buffer that stores all inputs so that tabbing
     // between them is made possible.
@@ -1503,4 +1506,6 @@
             return key;
         }
     };
+
+    module.exports = CanvasInput;
 })();

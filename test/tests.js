@@ -13,7 +13,7 @@
  * GNU Lesser General Public License along with this library.
  */
 
-/* globals QUnit, sigplot, m, mx, equal, test, strictEqual, asyncTest, notEqual, alert, BlueFileReader, start, ok */
+/* globals QUnit, sigplot, sigplot_plugins, equal, test, strictEqual, asyncTest, notEqual, alert, BlueFileReader, start, ok */
 
 var fixture = document.getElementById("qunit-fixture");
 var ifixture = document.getElementById("interactive-fixture");
@@ -51,38 +51,38 @@ QUnit.module('m', {
 });
 test('m sec2tod test', function() {
     var secs = 0;
-    equal(m.sec2tod(0), "00:00:00.000000");
-    equal(m.sec2tod(1), "00:00:01.000000");
-    equal(m.sec2tod(60), "00:01:00.000000");
-    equal(m.sec2tod(3600), "01:00:00.000000");
-    equal(m.sec2tod(43200), "12:00:00.000000");
-    equal(m.sec2tod(86399), "23:59:59.000000");
-    equal(m.sec2tod(86400), "24:00:00.000000");
-    equal(m.sec2tod(86401), "1::00:00:01.000000");
-    equal(m.sec2tod(86400 + 43200), "1::12:00:00.000000");
-    equal(m.sec2tod(31535999), "364::23:59:59.000000");
-    equal(m.sec2tod(31536000), "1951:01:01::00:00:00.000000");
-    equal(m.sec2tod(-31535999), "-364::23:59:59.000000");
-    equal(m.sec2tod(-31536000), "1949:01:01::00:00:00.000000");
-    equal(m.sec2tod(-31536001), "1948:12:31::23:59:59.000000");
-    equal(m.sec2tod(0.5), "00:00:00.500000");
-    equal(m.sec2tod(-0.5), "-0::00:00:00.500000");
-    equal(m.sec2tod(86400.5), "1::00:00:00.500000");
-    equal(m.sec2tod(86401.5), "1::00:00:01.500000");
-    equal(m.sec2tod(86400.5), "1::00:00:00.500000");
-    equal(m.sec2tod(31535999.5), "364::23:59:59.500000");
-    equal(m.sec2tod(-31535999.5), "-364::23:59:59.500000");
-    equal(m.sec2tod(-31536000.5), "1948:12:31::23:59:59.500000");
-    equal(m.sec2tod(-31536001.5), "1948:12:31::23:59:58.500000");
-    equal(m.sec2tod(0.5, true), "00:00:00.5");
-    equal(m.sec2tod(-0.5, true), "-0::00:00:00.5");
-    equal(m.sec2tod(86400.5, true), "1::00:00:00.5");
-    equal(m.sec2tod(86401.5, true), "1::00:00:01.5");
-    equal(m.sec2tod(86400.5, true), "1::00:00:00.5");
-    equal(m.sec2tod(31535999.5, true), "364::23:59:59.5");
-    equal(m.sec2tod(-31535999.5, true), "-364::23:59:59.5");
-    equal(m.sec2tod(-31536000.5, true), "1948:12:31::23:59:59.5");
-    equal(m.sec2tod(-31536001.5, true), "1948:12:31::23:59:58.5");
+    equal(sigplot.m.sec2tod(0), "00:00:00.000000");
+    equal(sigplot.m.sec2tod(1), "00:00:01.000000");
+    equal(sigplot.m.sec2tod(60), "00:01:00.000000");
+    equal(sigplot.m.sec2tod(3600), "01:00:00.000000");
+    equal(sigplot.m.sec2tod(43200), "12:00:00.000000");
+    equal(sigplot.m.sec2tod(86399), "23:59:59.000000");
+    equal(sigplot.m.sec2tod(86400), "24:00:00.000000");
+    equal(sigplot.m.sec2tod(86401), "1::00:00:01.000000");
+    equal(sigplot.m.sec2tod(86400 + 43200), "1::12:00:00.000000");
+    equal(sigplot.m.sec2tod(31535999), "364::23:59:59.000000");
+    equal(sigplot.m.sec2tod(31536000), "1951:01:01::00:00:00.000000");
+    equal(sigplot.m.sec2tod(-31535999), "-364::23:59:59.000000");
+    equal(sigplot.m.sec2tod(-31536000), "1949:01:01::00:00:00.000000");
+    equal(sigplot.m.sec2tod(-31536001), "1948:12:31::23:59:59.000000");
+    equal(sigplot.m.sec2tod(0.5), "00:00:00.500000");
+    equal(sigplot.m.sec2tod(-0.5), "-0::00:00:00.500000");
+    equal(sigplot.m.sec2tod(86400.5), "1::00:00:00.500000");
+    equal(sigplot.m.sec2tod(86401.5), "1::00:00:01.500000");
+    equal(sigplot.m.sec2tod(86400.5), "1::00:00:00.500000");
+    equal(sigplot.m.sec2tod(31535999.5), "364::23:59:59.500000");
+    equal(sigplot.m.sec2tod(-31535999.5), "-364::23:59:59.500000");
+    equal(sigplot.m.sec2tod(-31536000.5), "1948:12:31::23:59:59.500000");
+    equal(sigplot.m.sec2tod(-31536001.5), "1948:12:31::23:59:58.500000");
+    equal(sigplot.m.sec2tod(0.5, true), "00:00:00.5");
+    equal(sigplot.m.sec2tod(-0.5, true), "-0::00:00:00.5");
+    equal(sigplot.m.sec2tod(86400.5, true), "1::00:00:00.5");
+    equal(sigplot.m.sec2tod(86401.5, true), "1::00:00:01.5");
+    equal(sigplot.m.sec2tod(86400.5, true), "1::00:00:00.5");
+    equal(sigplot.m.sec2tod(31535999.5, true), "364::23:59:59.5");
+    equal(sigplot.m.sec2tod(-31535999.5, true), "-364::23:59:59.5");
+    equal(sigplot.m.sec2tod(-31536000.5, true), "1948:12:31::23:59:59.5");
+    equal(sigplot.m.sec2tod(-31536001.5, true), "1948:12:31::23:59:58.5");
 });
 QUnit.module('mx', {
     setup: function() {},
@@ -90,10 +90,10 @@ QUnit.module('mx', {
 });
 test('mx format_f', function() {
     // the toFixed() function is limited to 0-20
-    equal(mx.format_f(1.0, 0, -1), "1");
-    equal(mx.format_f(1.0, 0, 21), "1.00000000000000000000");
-    equal(mx.format_f(1.0, 0, 1), "1.0");
-    equal(mx.format_f(1.0, 0, 20), "1.00000000000000000000");
+    equal(sigplot.mx.format_f(1.0, 0, -1), "1");
+    equal(sigplot.mx.format_f(1.0, 0, 21), "1.00000000000000000000");
+    equal(sigplot.mx.format_f(1.0, 0, 1), "1.0");
+    equal(sigplot.mx.format_f(1.0, 0, 20), "1.00000000000000000000");
 });
 test('mx real_to_pixel test', function() {
     var Mx = {
@@ -114,31 +114,31 @@ test('mx real_to_pixel test', function() {
             y2: 200
         }]
     };
-    var result = mx.real_to_pixel(Mx, 0, 0);
+    var result = sigplot.mx.real_to_pixel(Mx, 0, 0);
     equal(result.x, 100);
     equal(result.y, 100);
     equal(result.clipped, false);
-    var result = mx.real_to_pixel(Mx, 1, 1);
+    var result = sigplot.mx.real_to_pixel(Mx, 1, 1);
     equal(result.x, 200);
     equal(result.y, 0);
     equal(result.clipped, false);
-    var result = mx.real_to_pixel(Mx, -1, -1);
+    var result = sigplot.mx.real_to_pixel(Mx, -1, -1);
     equal(result.x, 0);
     equal(result.y, 200);
     equal(result.clipped, false);
-    var result = mx.real_to_pixel(Mx, 1.5, 1);
+    var result = sigplot.mx.real_to_pixel(Mx, 1.5, 1);
     equal(result.x, 250);
     equal(result.y, 0);
     equal(result.clipped, true);
-    var result = mx.real_to_pixel(Mx, -1, -1.5);
+    var result = sigplot.mx.real_to_pixel(Mx, -1, -1.5);
     equal(result.x, 0);
     equal(result.y, 250);
     equal(result.clipped, true);
-    var result = mx.real_to_pixel(Mx, 1.5, 1, true);
+    var result = sigplot.mx.real_to_pixel(Mx, 1.5, 1, true);
     equal(result.x, 200);
     equal(result.y, 0);
     equal(result.clipped, true);
-    var result = mx.real_to_pixel(Mx, -1, -1.5, true);
+    var result = sigplot.mx.real_to_pixel(Mx, -1, -1.5, true);
     equal(result.x, 0);
     equal(result.y, 200);
     equal(result.clipped, true);
@@ -148,7 +148,7 @@ QUnit.module('bluefile', {
     teardown: function() {}
 });
 asyncTest('int data', function() {
-    var bfr = new BlueFileReader();
+    var bfr = new sigplot.bluefile.BlueFileReader();
     bfr.read_http("dat/ramp.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         equal(hdr.buf.byteLength, 2560, "buf correct size");
@@ -187,7 +187,7 @@ asyncTest('int data', function() {
     });
 });
 asyncTest('Ascii Keywords', function() {
-    var bfr = new BlueFileReader();
+    var bfr = new sigplot.bluefile.BlueFileReader();
     bfr.read_http("dat/lots_of_keywords.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var i = 1;
@@ -221,7 +221,7 @@ asyncTest('Ascii Keywords', function() {
     });
 });
 asyncTest('All Keywords as JSON (default)', function() {
-    var bfr = new BlueFileReader(); //defaults are to use dict
+    var bfr = new sigplot.bluefile.BlueFileReader(); //defaults are to use dict
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var keywords = {
@@ -247,7 +247,7 @@ asyncTest('All Keywords as JSON (default)', function() {
     });
 });
 asyncTest('All Keywords as JSON (json)', function() {
-    var bfr = new BlueFileReader({
+    var bfr = new sigplot.bluefile.BlueFileReader({
         ext_header_type: "json"
     });
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
@@ -275,7 +275,7 @@ asyncTest('All Keywords as JSON (json)', function() {
     });
 });
 asyncTest('All Keywords as JSON (dict)', function() {
-    var bfr = new BlueFileReader({
+    var bfr = new sigplot.bluefile.BlueFileReader({
         ext_header_type: "dict"
     });
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
@@ -303,7 +303,7 @@ asyncTest('All Keywords as JSON (dict)', function() {
     });
 });
 asyncTest('All Keywords as JSON ({})', function() {
-    var bfr = new BlueFileReader({
+    var bfr = new sigplot.bluefile.BlueFileReader({
         ext_header_type: {}
     });
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
@@ -331,7 +331,7 @@ asyncTest('All Keywords as JSON ({})', function() {
     });
 });
 asyncTest('All Keywords as Array (list)', function() {
-    var bfr = new BlueFileReader({
+    var bfr = new sigplot.bluefile.BlueFileReader({
         ext_header_type: "list"
     });
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
@@ -375,7 +375,7 @@ asyncTest('All Keywords as Array (list)', function() {
     });
 });
 asyncTest('double data', function() {
-    var bfr = new BlueFileReader();
+    var bfr = new sigplot.bluefile.BlueFileReader();
     bfr.read_http("dat/sin.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         equal(hdr.buf.byteLength, 33280, "buf correct size");
@@ -414,7 +414,7 @@ asyncTest('double data', function() {
     });
 });
 asyncTest('complex float data', function() {
-    var bfr = new BlueFileReader();
+    var bfr = new sigplot.bluefile.BlueFileReader();
     bfr.read_http("dat/pulse_cx.tmp", function(hdr) {
         //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         equal(hdr.buf.byteLength, 131584, "buf correct size");
@@ -447,10 +447,10 @@ asyncTest('complex float data', function() {
     });
 });
 test('create type1000', function() {
-    //var hcb = m.initialize([1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0], {file_name :"newFile"});
+    //var hcb = sigplot.m.initialize([1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0], {file_name :"newFile"});
     var rdbuf = new ArrayBuffer(64);
     var rdview = new Float32Array(rdbuf);
-    var hcb = m.initialize(rdview, {
+    var hcb = sigplot.m.initialize(rdview, {
         file_name: "newFile"
     });
     notEqual(hcb.pipe, true); //#1
@@ -460,14 +460,14 @@ test('create type1000', function() {
     equal(hcb.dview.BYTES_PER_ELEMENT, 4); //#5
     equal(hcb.dview.length, 16); //#6
     hcb.dview = [1, 2, 3];
-    //m.filad(hcb, rdview);
+    //sigplot.m.filad(hcb, rdview);
     //equal(hcb.data_free, 0);              //#7
     equal(hcb.dview[0], 1.0); //#8
     equal(hcb.dview[1], 2.0); //#8
     equal(hcb.dview[2], 3.0); //#8
 });
 test('bluefile pipe basics', function() {
-    var hcb = m.initialize([], {
+    var hcb = sigplot.m.initialize([], {
         pipe: true,
         pipesize: 16
     });
@@ -482,35 +482,35 @@ test('bluefile pipe basics', function() {
     equal(hcb.buf.byteLength, 16);
     var rdbuf = new ArrayBuffer(8);
     var rdview = new Float32Array(rdbuf);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 0);
     equal(hcb.out_byte, 0);
     equal(hcb.data_free, 4);
-    m.filad(hcb, [1.0, 2.0]);
+    sigplot.m.filad(hcb, [1.0, 2.0]);
     equal(hcb.in_byte, 8);
     equal(hcb.out_byte, 0);
     equal(hcb.dview[0], 1.0);
     equal(hcb.dview[1], 2.0);
     equal(hcb.data_free, 2);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 2);
     equal(hcb.out_byte, 8);
     equal(rdview[0], 1.0);
     equal(rdview[1], 2.0);
     equal(hcb.data_free, 4);
-    m.filad(hcb, [3.0, 4.0]);
+    sigplot.m.filad(hcb, [3.0, 4.0]);
     equal(hcb.in_byte, 0);
     equal(hcb.dview[2], 3.0);
     equal(hcb.dview[3], 4.0);
     equal(hcb.data_free, 2);
-    m.filad(hcb, [5.0, 6.0]);
+    sigplot.m.filad(hcb, [5.0, 6.0]);
     equal(hcb.in_byte, 8);
     equal(hcb.dview[0], 5.0);
     equal(hcb.dview[1], 6.0);
     equal(hcb.data_free, 0);
     rdbuf = new ArrayBuffer(16);
     rdview = new Float32Array(rdbuf);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 4);
     equal(hcb.out_byte, 8);
     equal(rdview[0], 3.0);
@@ -518,16 +518,16 @@ test('bluefile pipe basics', function() {
     equal(rdview[2], 5.0);
     equal(rdview[3], 6.0);
     equal(hcb.data_free, 4);
-    m.filad(hcb, [7.0, 8.0, 9.0, 10.0]);
+    sigplot.m.filad(hcb, [7.0, 8.0, 9.0, 10.0]);
     equal(hcb.in_byte, 8);
     equal(hcb.dview[0], 9.0);
     equal(hcb.dview[1], 10.0);
     equal(hcb.dview[2], 7.0);
     equal(hcb.dview[3], 8.0);
     throws(function() {
-        m.filad(hcb, [11.0, 12.0]);
+        sigplot.m.filad(hcb, [11.0, 12.0]);
     }, "pipe full");
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 4);
     equal(hcb.out_byte, 8);
     equal(rdview[0], 7.0);
@@ -537,7 +537,7 @@ test('bluefile pipe basics', function() {
     equal(hcb.data_free, 4);
 });
 test('bluefile pipe basics (typed array)', function() {
-    var hcb = m.initialize([], {
+    var hcb = sigplot.m.initialize([], {
         pipe: true,
         pipesize: 16
     });
@@ -554,19 +554,19 @@ test('bluefile pipe basics (typed array)', function() {
     var rdview = new Float32Array(rdbuf);
     var wrbuf = new ArrayBuffer(8);
     var wrview = new Float32Array(wrbuf);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 0);
     equal(hcb.out_byte, 0);
     equal(hcb.data_free, 4);
     wrview[0] = 1.0;
     wrview[1] = 2.0;
-    m.filad(hcb, wrview);
+    sigplot.m.filad(hcb, wrview);
     equal(hcb.in_byte, 8);
     equal(hcb.out_byte, 0);
     equal(hcb.dview[0], 1.0);
     equal(hcb.dview[1], 2.0);
     equal(hcb.data_free, 2);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 2);
     equal(hcb.out_byte, 8);
     equal(rdview[0], 1.0);
@@ -574,21 +574,21 @@ test('bluefile pipe basics (typed array)', function() {
     equal(hcb.data_free, 4);
     wrview[0] = 3.0;
     wrview[1] = 4.0;
-    m.filad(hcb, wrview);
+    sigplot.m.filad(hcb, wrview);
     equal(hcb.in_byte, 0);
     equal(hcb.dview[2], 3.0);
     equal(hcb.dview[3], 4.0);
     equal(hcb.data_free, 2);
     wrview[0] = 5.0;
     wrview[1] = 6.0;
-    m.filad(hcb, wrview);
+    sigplot.m.filad(hcb, wrview);
     equal(hcb.in_byte, 8);
     equal(hcb.dview[0], 5.0);
     equal(hcb.dview[1], 6.0);
     equal(hcb.data_free, 0);
     rdbuf = new ArrayBuffer(16);
     rdview = new Float32Array(rdbuf);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 4);
     equal(hcb.out_byte, 8);
     equal(rdview[0], 3.0);
@@ -602,7 +602,7 @@ test('bluefile pipe basics (typed array)', function() {
     wrview[1] = 8.0;
     wrview[2] = 9.0;
     wrview[3] = 10.0;
-    m.filad(hcb, wrview);
+    sigplot.m.filad(hcb, wrview);
     equal(hcb.in_byte, 8);
     equal(hcb.dview[0], 9.0);
     equal(hcb.dview[1], 10.0);
@@ -613,9 +613,9 @@ test('bluefile pipe basics (typed array)', function() {
     wrview[0] = 11.0;
     wrview[1] = 12.0;
     throws(function() {
-        m.filad(hcb, wrview);
+        sigplot.m.filad(hcb, wrview);
     }, "pipe full");
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 4);
     equal(hcb.out_byte, 8);
     equal(rdview[0], 7.0);
@@ -625,7 +625,7 @@ test('bluefile pipe basics (typed array)', function() {
     equal(hcb.data_free, 4);
 });
 test('bluefile pipe CF type 2000', function() {
-    var hcb = m.initialize([], {
+    var hcb = sigplot.m.initialize([], {
         pipe: true,
         format: "CF",
         type: 2000,
@@ -646,11 +646,11 @@ test('bluefile pipe CF type 2000', function() {
     equal(hcb.data_free, 16); // number of scalars available
     var rdbuf = new ArrayBuffer(32);
     var rdview = new Float32Array(rdbuf);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 0);
     equal(hcb.out_byte, 0);
     equal(hcb.data_free, 16);
-    m.filad(hcb, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
+    sigplot.m.filad(hcb, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
     equal(hcb.in_byte, 32);
     equal(hcb.out_byte, 0);
     equal(hcb.dview[0], 1.0);
@@ -660,7 +660,7 @@ test('bluefile pipe CF type 2000', function() {
     equal(hcb.dview[6], 7.0);
     equal(hcb.dview[7], 8.0);
     equal(hcb.data_free, 8);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 8);
     equal(hcb.in_byte, 32);
     equal(hcb.out_byte, 32);
@@ -672,7 +672,7 @@ test('bluefile pipe CF type 2000', function() {
     equal(rdview[6], 7.0);
     equal(rdview[7], 8.0);
     equal(hcb.data_free, 16);
-    m.filad(hcb, [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]);
+    sigplot.m.filad(hcb, [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]);
     equal(hcb.in_byte, 0);
     equal(hcb.out_byte, 32);
     equal(hcb.dview[0], 1.0);
@@ -688,7 +688,7 @@ test('bluefile pipe CF type 2000', function() {
     equal(hcb.dview[14], 2.0);
     equal(hcb.dview[15], 1.0);
     equal(hcb.data_free, 8);
-    m.filad(hcb, [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
+    sigplot.m.filad(hcb, [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
     equal(hcb.in_byte, 32);
     equal(hcb.out_byte, 32);
     equal(hcb.dview[0], 0.0);
@@ -704,7 +704,7 @@ test('bluefile pipe CF type 2000', function() {
     equal(hcb.dview[14], 2.0);
     equal(hcb.dview[15], 1.0);
     equal(hcb.data_free, 0);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 8);
     equal(hcb.in_byte, 32);
     equal(hcb.out_byte, 0);
@@ -716,7 +716,7 @@ test('bluefile pipe CF type 2000', function() {
     equal(rdview[6], 2.0);
     equal(rdview[7], 1.0);
     equal(hcb.data_free, 8);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 8);
     equal(hcb.in_byte, 32);
     equal(hcb.out_byte, 32);
@@ -730,7 +730,7 @@ test('bluefile pipe CF type 2000', function() {
     equal(hcb.data_free, 16);
 });
 test('bluefile pipe CF type 2000 misaligned', function() {
-    var hcb = m.initialize([], {
+    var hcb = sigplot.m.initialize([], {
         pipe: true,
         format: "CF",
         type: 2000,
@@ -751,11 +751,11 @@ test('bluefile pipe CF type 2000 misaligned', function() {
     equal(hcb.data_free, 20); // number of scalars available
     var rdbuf = new ArrayBuffer(32);
     var rdview = new Float32Array(rdbuf);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 0);
     equal(hcb.out_byte, 0);
     equal(hcb.data_free, 20);
-    m.filad(hcb, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
+    sigplot.m.filad(hcb, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
     equal(hcb.in_byte, 32);
     equal(hcb.out_byte, 0);
     equal(hcb.dview[0], 1.0);
@@ -765,7 +765,7 @@ test('bluefile pipe CF type 2000 misaligned', function() {
     equal(hcb.dview[6], 7.0);
     equal(hcb.dview[7], 8.0);
     equal(hcb.data_free, 12);
-    var ngot = m.grabx(hcb, rdview);
+    var ngot = sigplot.m.grabx(hcb, rdview);
     equal(ngot, 8);
     equal(hcb.in_byte, 32);
     equal(hcb.out_byte, 32);
@@ -777,7 +777,7 @@ test('bluefile pipe CF type 2000 misaligned', function() {
     equal(rdview[6], 7.0);
     equal(rdview[7], 8.0);
     equal(hcb.data_free, 20);
-    m.filad(hcb, [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]);
+    sigplot.m.filad(hcb, [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]);
     equal(hcb.in_byte, 64);
     equal(hcb.out_byte, 32);
     equal(hcb.dview[0], 1.0);
@@ -793,7 +793,7 @@ test('bluefile pipe CF type 2000 misaligned', function() {
     equal(hcb.dview[14], 2.0);
     equal(hcb.dview[15], 1.0);
     equal(hcb.data_free, 12);
-    m.filad(hcb, [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
+    sigplot.m.filad(hcb, [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
     equal(hcb.in_byte, 16);
     equal(hcb.out_byte, 32);
     equal(hcb.dview[0], 0.0);
@@ -1186,7 +1186,7 @@ test('Add and remove plugins', function() {
         lps: 100,
         pipe: true
     });
-    var accordion = new sigplot.AccordionPlugin({
+    var accordion = new sigplot_plugins.AccordionPlugin({
         draw_center_line: true,
         shade_area: true,
         draw_edge_lines: true,
@@ -1211,7 +1211,7 @@ test('Plugins still exist after plot and canvas height and width are 0', functio
     });
     var positions = [0.0, 5.0, 9.0, 3.0];
     for (var pos = 0; pos < positions.length; ++pos) {
-        var slider = new sigplot.SliderPlugin({
+        var slider = new sigplot_plugins.SliderPlugin({
             style: {
                 strokeStyle: "#FF0000"
             }
@@ -1450,7 +1450,7 @@ interactiveTest('sigplot triangle symbol', 'Do you see triangle symbols?', funct
         line: 0
     });
 });
-interactiveTest('sigplot custom symbol', 'Do you see custom symbols?', function() {
+interactiveTest('sigplot custom symbol', 'Do you see custom symbols, alternating RGB?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -1482,7 +1482,7 @@ interactiveTest('sigplot custom symbol', 'Do you see custom symbols?', function(
         line: 0
     });
 });
-interactiveTest('sigplot custom symbol complex', 'Do you see custom symbols in RGB order?', function() {
+interactiveTest('sigplot custom symbol complex', 'Do you see custom symbols in RGB order (groups of 3)?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         cmode: "RI"
@@ -1599,7 +1599,7 @@ interactiveTest('sigplot penny 1d legend multiple', 'Do you see a penny with pro
         name: ["one", "two", "three"]
     });
 });
-interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis?', function() {
+interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis for 999.9965-999.9985?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -1614,7 +1614,7 @@ interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis?',
         format: "SF"
     });
 });
-interactiveTest('sigplot xtimecode', 'Do you see a timecode xaxis?', function() {
+interactiveTest('sigplot xtimecode', 'Do you see a timecode xaxis 0 to 1h?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -1932,7 +1932,7 @@ interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)
         plot.reload(0, pulse);
     }, 100);
 });
-interactiveTest('zoom-xdelta', 'Does this look correct?', function() {
+interactiveTest('zoom-xdelta', 'Is the plot fully scaled displaying a ramp?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -2025,7 +2025,7 @@ interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis gro
         });
     }, 5000);
 });
-interactiveTest('scrolling line', 'Do you see a scrolling random data plot', function() {
+interactiveTest('scrolling line', 'Do you see a scrolling random data plot (0 to 1 ) that does not scale', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -2047,7 +2047,7 @@ interactiveTest('scrolling line', 'Do you see a scrolling random data plot', fun
         plot.push(0, random);
     }, 100);
 });
-interactiveTest('complex scrolling line', 'Do you see a scrolling random data plot', function() {
+interactiveTest('complex scrolling line', 'Do you see a scrolling random data (0 to 1) plot that auto-scales', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -2070,7 +2070,7 @@ interactiveTest('complex scrolling line', 'Do you see a scrolling random data pl
         plot.push(0, random);
     }, 100);
 });
-interactiveTest('autoy with all zeros', 'Does the autoscaling properly work?', function() {
+interactiveTest('autoy with all zeros', 'Does the autoscaling properly work and keep both magenta and blue lines fully visible?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autoy: 3
@@ -2446,7 +2446,7 @@ interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 Ju
         file_name: "ramp",
         ydelta: 0.5,
         yunits: 4,
-        timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
+        timecode: sigplot.m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
     });
 });
 interactiveTest('raster (smoothing)', 'Is the following raster smoothed?', function() {
@@ -2490,7 +2490,7 @@ interactiveTest('raster (smart-smoothing)', 'Is the following raster smoothed un
         subsize: framesize,
         file_name: "ramp",
         yunits: 4,
-        timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
+        timecode: sigplot.m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
     });
 });
 interactiveTest('sigplot penny', 'Do you see a raster of a penny', function() {
@@ -2782,7 +2782,7 @@ interactiveTest('falling raster (timecode)', 'Do you see a falling raster that s
         file_name: "ramp",
         ydelta: 0.5, // two frames a second
         yunits: 4,
-        timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
+        timecode: sigplot.m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
     }, {
         drawmode: "falling"
     });
@@ -2861,7 +2861,7 @@ interactiveTest('rising raster (timecode)', 'Do you see a rising raster that sta
         file_name: "ramp",
         ydelta: 0.5, // two frames a second
         yunits: 4,
-        timecode: m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
+        timecode: sigplot.m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
     }, {
         drawmode: "rising"
     });
@@ -3271,7 +3271,7 @@ interactiveTest('annotations', 'Do you see a text annotation at the correct loca
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     annotations.add_annotation({
         x: 0,
@@ -3319,7 +3319,7 @@ interactiveTest('annotations png', 'Do you see a image annotation centered at 0,
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     var img = new Image(); // Create new img element
     img.onload = function() {
@@ -3336,7 +3336,7 @@ interactiveTest('annotations popup', 'Do you see an popup when you hover over th
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     annotations.add_annotation({
         x: -0.25,
@@ -3370,7 +3370,7 @@ interactiveTest('annotations custom popup', 'Do you see an popup when you hover 
             tt = null;
         }
     });
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     annotations.add_annotation({
         x: 0,
@@ -3382,7 +3382,7 @@ interactiveTest('annotations shift', 'Do you see a text annotation that remains 
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     annotations.add_annotation({
         x: 0,
@@ -3432,7 +3432,7 @@ interactiveTest('annotation falling raster', 'Do you see annotations that scroll
     notEqual(plot, null);
     var img = new Image(); // Create new img element
     img.src = 'dat/info.png';
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     plot.change_settings({
         autol: 5
@@ -3479,7 +3479,7 @@ interactiveTest('annotation rising raster', 'Do you see annotations that scroll 
     notEqual(plot, null);
     var img = new Image(); // Create new img element
     img.src = 'dat/info.png';
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     plot.change_settings({
         autol: 5
@@ -3526,7 +3526,7 @@ interactiveTest('x-fixed annotation rising raster', 'Do you see annotations that
     notEqual(plot, null);
     var img = new Image(); // Create new img element
     img.src = 'dat/info.png';
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     plot.change_settings({
         autol: 5
@@ -3567,7 +3567,7 @@ interactiveTest('lots of annotations', 'Does the plot still seem smooth?', funct
     notEqual(plot, null);
     var img = new Image(); // Create new img element
     img.src = 'dat/info.png';
-    var annotations = new sigplot.AnnotationPlugin();
+    var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     plot.change_settings({
         autol: 5
@@ -3609,7 +3609,7 @@ interactiveTest('vertical accordion', 'Do you see a vertical accordion that stay
     for (var i = 0; i < framesize; i += 1) {
         zeros.push(0);
     }
-    var accordion = new sigplot.AccordionPlugin({
+    var accordion = new sigplot_plugins.AccordionPlugin({
         draw_center_line: true,
         shade_area: true,
         draw_edge_lines: true,
@@ -3662,7 +3662,7 @@ interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at ze
     });
     var acc;
     var accordion = function(y) {
-        acc = new sigplot.AccordionPlugin({
+        acc = new sigplot_plugins.AccordionPlugin({
             draw_center_line: true,
             shade_area: true,
             draw_edge_lines: true,
@@ -3708,7 +3708,7 @@ interactiveTest('vertical accordion relative placement', "Do you see a vertical 
     }, {
         layerType: sigplot.Layer1D
     });
-    var accordion = new sigplot.AccordionPlugin({
+    var accordion = new sigplot_plugins.AccordionPlugin({
         mode: "relative",
         draw_center_line: true,
         shade_area: true,
@@ -3758,7 +3758,7 @@ interactiveTest('horizontal accordion relative placement', "Do you see a horizon
     }, {
         drawmode: 'rising'
     });
-    var accordion = new sigplot.AccordionPlugin({
+    var accordion = new sigplot_plugins.AccordionPlugin({
         mode: "relative",
         draw_center_line: true,
         shade_area: true,
@@ -3785,7 +3785,7 @@ interactiveTest('horizontal and vertical accordions absolute placement zoom', 'D
         zeros.push(0);
     }
     plot.overlay_array(zeros, {});
-    var vert_accordion = new sigplot.AccordionPlugin({
+    var vert_accordion = new sigplot_plugins.AccordionPlugin({
         mode: "absolute",
         draw_center_line: true,
         shade_area: true,
@@ -3795,7 +3795,7 @@ interactiveTest('horizontal and vertical accordions absolute placement zoom', 'D
             strokeStyle: "#FF2400"
         }
     });
-    var horiz_accordion = new sigplot.AccordionPlugin({
+    var horiz_accordion = new sigplot_plugins.AccordionPlugin({
         mode: "absolute",
         draw_center_line: true,
         shade_area: true,
@@ -3821,7 +3821,7 @@ interactiveTest('horizontal and vertical accordions relative placement zoom', 'D
         zeros.push(0);
     }
     plot.overlay_array(zeros, {});
-    var vert_accordion = new sigplot.AccordionPlugin({
+    var vert_accordion = new sigplot_plugins.AccordionPlugin({
         mode: "relative",
         draw_center_line: true,
         shade_area: true,
@@ -3831,7 +3831,7 @@ interactiveTest('horizontal and vertical accordions relative placement zoom', 'D
             strokeStyle: "#FF2400"
         }
     });
-    var horiz_accordion = new sigplot.AccordionPlugin({
+    var horiz_accordion = new sigplot_plugins.AccordionPlugin({
         mode: "relative",
         draw_center_line: true,
         shade_area: true,
@@ -3852,7 +3852,7 @@ interactiveTest('boxes', 'Do you see a boxes?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
-    var boxes = new sigplot.BoxesPlugin();
+    var boxes = new sigplot_plugins.BoxesPlugin();
     plot.add_plugin(boxes);
     boxes.add_box({
         x: 0,
@@ -3891,7 +3891,7 @@ interactiveTest('clear boxes', 'Do you see one box?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
-    var boxes = new sigplot.BoxesPlugin();
+    var boxes = new sigplot_plugins.BoxesPlugin();
     plot.add_plugin(boxes);
     boxes.add_box({
         x: 0,
@@ -3915,11 +3915,11 @@ interactiveTest('slider', 'Do you see a sliders?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
-    var slider1 = new sigplot.SliderPlugin({
+    var slider1 = new sigplot_plugins.SliderPlugin({
         name: "Slider 1"
     });
     plot.add_plugin(slider1);
-    var slider2 = new sigplot.SliderPlugin({
+    var slider2 = new sigplot_plugins.SliderPlugin({
         name: "Slider 2"
     });
     plot.add_plugin(slider2);

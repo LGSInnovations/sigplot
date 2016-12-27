@@ -14,15 +14,19 @@
  * GNU Lesser General Public License along with SigPlot.
  */
 
-/* global mx */
-/* global m */
-(function(sigplot, mx, m, undefined) {
+/* global module */
+/* global require */
+
+(function() {
+
+    var m = require("./m");
+    var mx = require("./mx");
 
     /**
      * @constructor
      * @param plot
      */
-    sigplot.Layer2D = function(plot) {
+    var Layer2D = function(plot) {
         this.plot = plot;
 
         this.offset = 0.0;
@@ -64,7 +68,7 @@
         this.options = {};
     };
 
-    sigplot.Layer2D.prototype = {
+    Layer2D.prototype = {
 
         /**
          * Initializes the layer to display the provided data.
@@ -74,7 +78,7 @@
          * @param lyrn
          *          the index of the added layer
          *
-         * @memberOf sigplot.Layer2D
+         * @memberOf Layer2D
          * @private
          */
         init: function(hcb) {
@@ -203,7 +207,7 @@
                 return;
             }
 
-            var zpoint = new sigplot.PointArray(this.hcb.subsize);
+            var zpoint = new m.PointArray(this.hcb.subsize);
             if (this.cx) {
                 if (Gx.cmode === 1) {
                     m.cvmag(this.buf, zpoint, zpoint.length);
@@ -305,11 +309,11 @@
                     // For pipes, we allocate buf and zbuf to only hold one line of
                     // data
                     this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
-                    this.zbuf = new sigplot.PointArray(this.hcb.subsize);
+                    this.zbuf = new m.PointArray(this.hcb.subsize);
                 } else {
                     // Otherwise, we allocate for the entire image
                     this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
-                    this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+                    this.zbuf = new m.PointArray(this.lps * this.hcb.subsize);
                 }
             }
 
@@ -359,10 +363,10 @@
                 this.frame = 0;
                 if (this.hcb.pipe) {
                     this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
-                    this.zbuf = new sigplot.PointArray(this.hcb.subsize);
+                    this.zbuf = new m.PointArray(this.hcb.subsize);
                 } else {
                     this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
-                    this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+                    this.zbuf = new m.PointArray(this.lps * this.hcb.subsize);
                 }
                 this.img = undefined;
 
@@ -391,10 +395,10 @@
                     this.hcb.subsize = hdrmod.subsize;
                     if (this.hcb.pipe) {
                         this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
-                        this.zbuf = new sigplot.PointArray(this.hcb.subsize);
+                        this.zbuf = new m.PointArray(this.hcb.subsize);
                     } else {
                         this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
-                        this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+                        this.zbuf = new m.PointArray(this.lps * this.hcb.subsize);
                     }
                     rescale = true;
                 }
@@ -811,13 +815,13 @@
      *
      * @private
      */
-    sigplot.Layer2D.overlay = function(plot, hcb, layerOptions) {
+    Layer2D.overlay = function(plot, hcb, layerOptions) {
         var Gx = plot._Gx;
         var Mx = plot._Mx;
 
         hcb.buf_type = "D";
 
-        var layer = new sigplot.Layer2D(plot);
+        var layer = new Layer2D(plot);
         layer.init(hcb);
 
         if (hcb.file_name) {
@@ -831,4 +835,6 @@
         plot.add_layer(layer);
     };
 
-}(window.sigplot = window.sigplot || {}, mx, m));
+    module.exports = Layer2D;
+
+}());

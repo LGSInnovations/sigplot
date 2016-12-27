@@ -25,16 +25,21 @@
  *
  * @namespace
  */
-window.mx = window.mx || {};
 
-(function(mx, m, undefined) {
-    /* global getKeyCode */
-    /* global requestAnimFrame */
-    /* global cancelAnimFrame */
-    /* global tinycolor */
-    /* global dashOn */
-    /* global dashOff */
-    /* global CanvasInput */
+/* global module */
+/* global require */
+/* global requestAnimFrame */
+/* global cancelAnimFrame */
+
+(function() {
+
+    var tinycolor = require("tinycolor2");
+    var common = require("./common");
+    var CanvasInput = require("./CanvasInput");
+    var m = require("./m");
+
+    function mx() {}
+
 
     mx.XW_INIT = -3;
     mx.XW_DRAW = 1;
@@ -337,7 +342,7 @@ window.mx = window.mx || {};
         Mx.onkeydown = (function(Mx) {
             return function(event) {
                 if (Mx.warpbox) {
-                    var keyCode = getKeyCode(event);
+                    var keyCode = common.getKeyCode(event);
                     if (((keyCode === 17) || // Ctrl 
                             (keyCode === 224) || // Mac Command Firefox 
                             (keyCode === 91) || // Safari/Chrome Left-command
@@ -355,7 +360,7 @@ window.mx = window.mx || {};
         Mx.onkeyup = (function(Mx) {
             return function(event) {
                 if (Mx.warpbox) {
-                    var keyCode = getKeyCode(event);
+                    var keyCode = common.getKeyCode(event);
                     if (((keyCode === 17) || // Ctrl 
                             (keyCode === 224) || // Mac Command Firefox 
                             (keyCode === 91) || // Safari/Chrome Left-command
@@ -1836,7 +1841,7 @@ window.mx = window.mx || {};
         }
 
         if ((style) && (style.mode === "dashed")) {
-            var dash_supported = dashOn(ctx, style.on, style.off);
+            var dash_supported = common.dashOn(ctx, style.on, style.off);
             if (!dash_supported) {
                 m.log.warn("WARNING: Dashed lines aren't supported on your browser");
             }
@@ -1905,7 +1910,7 @@ window.mx = window.mx || {};
             }
         }
         ctx.stroke();
-        dashOff(ctx);
+        common.dashOff(ctx);
         ctx.beginPath();
     };
 
@@ -3381,7 +3386,7 @@ window.mx = window.mx || {};
             if (Mx.menu) {
                 var menu = Mx.menu;
                 event.preventDefault();
-                var keyCode = getKeyCode(event);
+                var keyCode = common.getKeyCode(event);
                 if (keyCode === 13) { // enter
                     _menu_takeaction(Mx, menu);
                 } else if (keyCode === 38) { // up arrow
@@ -3669,13 +3674,13 @@ window.mx = window.mx || {};
             ctx.stroke();
             ctx.beginPath();
         } else if (style.mode === "dashed") {
-            var dash_supported = dashOn(ctx, style.on, style.off);
+            var dash_supported = common.dashOn(ctx, style.on, style.off);
             if (dash_supported) {
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
                 ctx.lineTo(x2, y2);
                 ctx.stroke();
-                dashOff(ctx);
+                common.dashOff(ctx);
                 ctx.beginPath();
             } else {
                 // Fallback that only supports vertical/horizontal
@@ -5392,6 +5397,9 @@ window.mx = window.mx || {};
         ctx.restore();
     };
 
-}(window.mx, window.m));
+    // Node: Export function
+    module.exports = mx;
+
+}());
 
 ///////////////////////////////////////////////////////////////////////////////
