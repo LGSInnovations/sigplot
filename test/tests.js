@@ -2644,8 +2644,12 @@ interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster wit
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
+    // typically when you have two raster layers you will want
+    // to manually fix both zmin and zmax, otherwise they will
+    // both be trying to adjust the zmin/zmax for autoscaling
     plot.change_settings({
-        autol: 5
+        zmin: -128,
+        zmax: 0
     });
     var framesize = 128;
     var layer_0 = plot.overlay_pipe({
@@ -2657,10 +2661,11 @@ interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster wit
     equal(layer_0, 0);
     var layer_1 = plot.overlay_pipe({
         type: 2000,
-        subsize: framesize / 2,
+        subsize: Math.floor(framesize / 3),
         file_name: "layer1",
-        ydelta: 0.25,
-        opacity: 0.25
+        ydelta: 0.25
+    }, {
+        opacity: 0.5
     });
     equal(layer_1, 1);
 
@@ -2670,17 +2675,17 @@ interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster wit
             ramp.push(-1 * (i + 1));
         }
         plot.push(layer_0, ramp);
-    }, 100);
+    }, 500);
 
     ifixture.interval = window.setInterval(function() {
         var ramp = [];
-        for (var i = 0; i < framesize / 2; i += 1) {
-            ramp.push(-1 * (i + 1));
+        for (var i = 0; i < Math.floor(framesize / 3); i += 1) {
+            ramp.push(-2 * (i + 1));
         }
         plot.push(layer_1, ramp);
-    }, 500);
+    }, 100);
 });
-interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function() {
+interactiveTest('scrolling raster fixed scale', 'Do you see a scrolling raster?', function() {
     var container = document.getElementById('plot');
     // the colors will start around 50 and max out around 100
     var plot = new sigplot.Plot(container, {

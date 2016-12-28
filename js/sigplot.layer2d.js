@@ -383,6 +383,9 @@
                     this.preferred_origin = 4;
                 }
             }
+            if (settings.opacity !== undefined) {
+                this.opacity = settings.opacity;
+            }
         },
 
         push: function(data, hdrmod, sync) {
