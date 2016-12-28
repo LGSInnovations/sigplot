@@ -476,9 +476,10 @@
                 xsize = Math.ceil(Mx.r - Mx.l);
             }
 
+            this.get_data(xmin, xmax);
+
             if (!this.hcb.pipe) {
                 // if we aren't a pipe we do a full prep
-                this.get_data(xmin, xmax);
 
                 if ((Gx.cmode === 5) || (this.xsub > 0)) {
                     // TODO - is this mode supported in rasters?
@@ -796,7 +797,7 @@
             Gx.ye = Math.max(1, Math.round(ry));
 
             // we might need to prep in certian situations
-            if ((!this.img) || (Gx.cmode !== this.img.cmode) || (Gx.cmap !== this.img.cmap) || (Mx.origin !== this.img.origin)) {
+            if ((!this.img) || (!this.buf) || (Gx.cmode !== this.img.cmode) || (Gx.cmap !== this.img.cmap) || (Mx.origin !== this.img.origin)) {
                 this.prep(xmin, xmax);
             }
 

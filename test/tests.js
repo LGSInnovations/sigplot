@@ -2640,6 +2640,46 @@ interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function()
         plot.push(0, ramp);
     }, 100);
 });
+interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster with two pipes?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5
+    });
+    var framesize = 128;
+    var layer_0 = plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "layer0",
+        ydelta: 0.25
+    });
+    equal(layer_0, 0);
+    var layer_1 = plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize / 2,
+        file_name: "layer1",
+        ydelta: 0.25,
+        opacity: 0.25
+    });
+    equal(layer_1, 1);
+
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(-1 * (i + 1));
+        }
+        plot.push(layer_0, ramp);
+    }, 100);
+
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize / 2; i += 1) {
+            ramp.push(-1 * (i + 1));
+        }
+        plot.push(layer_1, ramp);
+    }, 500);
+});
 interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function() {
     var container = document.getElementById('plot');
     // the colors will start around 50 and max out around 100
