@@ -385,18 +385,10 @@ window.sigplot = window.sigplot || {};
             };
         }(this));
 
-        this.ontouchmove = (function(plot) {
-            return function(event) {
-                event.preventDefault();
-                plot.onmousemove(event);
-            };
-        }(this));
-
         this.throttledOnMouseMove = m.throttle(this._Gx.scroll_time_interval,
             this.onmousemove);
 
         mx.addEventListener(Mx, "mousemove", this.throttledOnMouseMove, false);
-        // canvas.addEventListener('touchmove', this.ontouchmove, false);
 
         this.onmouseout = (function(plot) {
             return function(event) {
@@ -529,6 +521,7 @@ window.sigplot = window.sigplot || {};
                                     // Make scrolling smooth, the longer initial prevents
                                     // a single click from counting twice
                                     Gx.stillPanning = window.setTimeout(
+
                                         function() {
                                             Gx.repeatPanning = window.setInterval(repeatPan, 50);
                                         }, 250);
@@ -598,17 +591,186 @@ window.sigplot = window.sigplot || {};
             };
         }(this));
 
+
+        mx.addEventListener(Mx, "mousedown", this.onmousedown, false);
+
+        // Putting a finger on the screen and moving it, simulates
+        // pan.
         this.ontouchstart = (function(plot) {
             return function(event) {
                 event.preventDefault();
-                plot.onmousedown({
-                    which: 1
-                });
+
+                // See how many fingers are on the screen
+                // 1 finger == pan and/or unzoom
+                if (event.targetTouches.length === 1) {
+
+                    // See if this is a double-tap
+                    if (Mx.touchClear && Mx.touches) {
+                        // Double tap unzooms to L=0 and fully expands the plot
+                        window.clearTimeout(Mx.touchClear);
+                        plot.unzoom();
+                        middleClickScrollMenuAction(plot, mx.SB_FULL, "XPAN");
+                        middleClickScrollMenuAction(plot, mx.SB_FULL, "YPAN");
+                    } else {
+                        // Normal touch prepares for panning
+                        var touchEvent = event.targetTouches[0];
+                        // Determine the touch position, relative to the canvas
+                        var rect = touchEvent.target.getBoundingClientRect();
+                        var position = {
+                            x: (touchEvent.pageX - rect.left - window.scrollX),
+                            y: (touchEvent.pageY - rect.top - window.scrollY)
+                        };
+
+                        // Update the Mx coordinates
+                        Mx.xpos = m.bound(position.x, 0, Mx.width);
+                        Mx.ypos = m.bound(position.y, 0, Mx.height);
+
+                        // See if the finger lies on the pan-bars
+                        var inPan = inPanRegion(plot, position);
+                        if (!inPan.inPanRegion) {
+                            Mx.touches = event.targetTouches;
+                        } // TODO support touch 'pan' on the panbars
+                    }
+                } else if (event.targetTouches.length === 2) {
+                    Mx.touch_distance = m.touch_distance(event.targetTouches[0], event.targetTouches[1]);
+                }
             };
         }(this));
 
-        mx.addEventListener(Mx, "mousedown", this.onmousedown, false);
-        // canvas.addEventListener("touchstart", this.ontouchstart, false);
+        mx.addEventListener(Mx, "touchstart", this.ontouchstart, false);
+
+        this.ontouchmove = (function(plot) {
+            return function(event) {
+                var Mx = plot._Mx;
+                var Gx = plot._Gx;
+                var k = Mx.level;
+
+                event.preventDefault();
+                if (event.targetTouches.length === 1) {
+                    // Determine the touch event position
+                    var touchStart = Mx.touches[0];
+                    var rect = touchStart.target.getBoundingClientRect();
+                    var startPosition = {
+                        x: (touchStart.pageX - rect.left - window.scrollX),
+                        y: (touchStart.pageY - rect.top - window.scrollY)
+                    };
+
+                    var touchEvent = event.targetTouches[0];
+                    var rect = touchEvent.target.getBoundingClientRect();
+                    var position = {
+                        x: (touchEvent.pageX - rect.left - window.scrollX),
+                        y: (touchEvent.pageY - rect.top - window.scrollY)
+                    };
+
+                    var new_xpos = m.bound(position.x, 0, Mx.width);
+                    var new_ypos = m.bound(position.y, 0, Mx.height);
+                    var delta_xpos = new_xpos - Mx.xpos;
+                    var delta_ypos = new_ypos - Mx.ypos;
+                    Mx.xpos = new_xpos;
+                    Mx.ypos = new_ypos;
+
+                    var inPan = inPanRegion(plot, position);
+                    // If we are in the pan region, don't take any action
+                    if (inPan.inPanRegion) {
+                        return;
+                    }
+
+                    // Pan proportionally to the movement of the touch
+                    var xdelta = (Mx.stk[k].xscl * delta_xpos);
+                    var ydelta = (Mx.stk[k].yscl * delta_ypos);
+
+                    if (Mx.origin === 1) {
+                        // regular x, regular y
+                        xdelta *= -1;
+                    } else if (Mx.origin === 2) {
+                        // inverted x, regular y
+                        ydelta *= -1;
+                    } else if (Mx.origin === 3) {
+                        // inverted x, inverted y
+                        ydelta *= -1;
+                    } else if (Mx.origin === 4) {
+                        // regular x, inverted y
+                        xdelta *= -1;
+                        ydelta *= -1;
+                    }
+
+                    var xmin = Mx.stk[k].xmin + xdelta;
+                    var xmax = Mx.stk[k].xmax + xdelta;
+                    var ymin = Mx.stk[k].ymin + ydelta;
+                    var ymax = Mx.stk[k].ymax + ydelta;
+
+                    if ((xmin >= Gx.xmin) && (xmax <= Gx.xmax)) {
+                        Mx.stk[k].xmin = xmin;
+                        Mx.stk[k].xmax = xmax;
+                    }
+
+                    if ((ymin >= Gx.ymin) && (ymax <= Gx.ymax)) {
+                        Mx.stk[k].ymin = ymin;
+                        Mx.stk[k].ymax = ymax;
+                    }
+
+                    if (Gx.cmode === Gx.basemode && Mx.level === 1) {
+                        Gx.xmin = Math.min(Gx.xmin, xmin);
+                        Gx.xmax = Math.max(Gx.xmax, xmax);
+                        Gx.ymin = Math.min(Gx.ymin, ymin);
+                        Gx.ymax = Math.max(Gx.ymax, ymax);
+                    }
+                    plot.refresh();
+                } else if (event.targetTouches.length === 2) {
+                    var cur_distance = m.touch_distance(event.targetTouches[0], event.targetTouches[1]);
+                    var scaling = (1 - (Mx.touch_distance / cur_distance)) * 0.05;
+
+                    var xran = Mx.stk[k].xmax - Mx.stk[k].xmin;
+                    var yran = Mx.stk[k].ymax - Mx.stk[k].ymin;
+
+                    var xmin = Mx.stk[k].xmin + (scaling * xran);
+                    var xmax = Mx.stk[k].xmax - (scaling * xran);
+                    var ymin = Mx.stk[k].ymin + (scaling * yran);
+                    var ymax = Mx.stk[k].ymax - (scaling * yran);
+
+                    Mx.stk[k].xmin = Math.max(Gx.xmin, xmin);
+                    Mx.stk[k].xmax = Math.min(Gx.xmax, xmax);
+                    Mx.stk[k].ymin = Math.max(Gx.ymin, ymin);
+                    Mx.stk[k].ymax = Math.min(Gx.ymax, ymax);
+
+                    plot.refresh();
+                }
+            };
+        }(this));
+
+        this.throttledOnTouchMove = m.throttle(
+            this._Gx.scroll_time_interval,
+            this.ontouchmove);
+
+        mx.addEventListener(Mx, "touchmove", this.throttledOnTouchMove, false);
+
+        this.ontouchend = (function(plot) {
+            return function(event) {
+                var Gx = plot._Gx;
+                var Mx = plot._Mx;
+
+                event.preventDefault();
+                console.log("on touch end ", event.targetTouches.length);
+                Gx.panning = undefined;
+                plot._Mx.scrollbar_x.action = 0;
+                plot._Mx.scrollbar_y.action = 0;
+                Mx.touch_distance = undefined;
+
+                mx.widget_callback(Mx, event);
+
+                // Only clear the touches after a slight delay so we can
+                // detect double-tap
+                Mx.touchClear = window.setTimeout(
+
+                    function() {
+                        Mx.touches = undefined;
+                        Mx.touchClear = undefined;
+                    }, 100);
+            };
+        }(this));
+
+        mx.addEventListener(Mx, "touchend", this.ontouchend, false);
+
 
         this.docMouseUp = (function(plot) {
             return function(event) {
@@ -742,15 +904,7 @@ window.sigplot = window.sigplot || {};
             };
         }(this));
 
-        this.ontouchend = (function(plot) {
-            return function(event) {
-                event.preventDefault();
-                //
-            };
-        }(this));
-
         mx.addEventListener(Mx, "mouseup", this.mouseup, false);
-        // canvas.addEventListener("touchstart", this.ontouchend, false);
 
         this.mouseclick = (function(plot) {
             return function(event) {
