@@ -642,6 +642,22 @@ window.m = window.m || {};
         }
     };
 
+    /**
+     * @method bound
+     * @param a
+     * @param b
+     * @param c
+     */
+    m.bound = function(a, b, c) {
+        return a < b ? b : (a > c ? c : a);
+    };
+
+    m.touch_distance = function(touchA, touchB) {
+        var xd = (touchA.pageX - touchB.pageX);
+        var yd = (touchA.pageY - touchB.pageY);
+        return Math.sqrt((xd * xd) + (yd * yd));
+    };
+
     m.mult_prefix = function(mult) {
         var prefix = "?";
 
