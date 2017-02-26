@@ -4481,8 +4481,8 @@
 
         switch (mouseEvent.type) {
             case "mousedown":
-                Mx.xpos = bound(eventXPos, 0, Mx.width);
-                Mx.ypos = bound(eventYPos, 0, Mx.height);
+                Mx.xpos = m.bound(eventXPos, 0, Mx.width);
+                Mx.ypos = m.bound(eventYPos, 0, Mx.height);
                 switch (mouseEvent.which) {
                     case 1:
                         Mx.button_press = 1;
@@ -4502,8 +4502,8 @@
                 //Mx.state_mask = TODO
                 break;
             case "mouseup":
-                Mx.xpos = bound(eventXPos, 0, Mx.width);
-                Mx.ypos = bound(eventYPos, 0, Mx.height);
+                Mx.xpos = m.bound(eventXPos, 0, Mx.width);
+                Mx.ypos = m.bound(eventYPos, 0, Mx.height);
                 switch (mouseEvent.which) {
                     case 1:
                         Mx.button_release = 1;
@@ -4675,17 +4675,6 @@
         sv.s1 = s1;
         sv.sw = sw;
     };
-
-    /**
-     * @method bound
-     * @param a
-     * @param b
-     * @param c
-     * @private
-     */
-    function bound(a, b, c) {
-        return a < b ? b : (a > c ? c : a);
-    }
 
     /**
      * @param {Object} Mx - the Mx object
