@@ -801,7 +801,6 @@
 
                 mx.widget_callback(Mx, event);
 
-
                 // Only clear the touches after a slight delay so we can
                 // detect double-tap
                 Mx.touchClear = window.setTimeout(
