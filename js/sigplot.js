@@ -6382,18 +6382,26 @@
      * @memberOf sigplot
      * @private
      */
-    function inPanRegion(plot) {
+    function inPanRegion(plot, coord) {
         var inPanRegion = false;
         var Gx = plot._Gx;
         var Mx = plot._Mx;
-        var x = Mx.xpos;
-        var y = Mx.ypos;
+
+        var x = 0;
+        var y = 0;
+        if (coord === undefined) {
+            x = Mx.xpos;
+            y = Mx.ypos;
+
+            if (!plot.mouseOnCanvas) {
+                return false;
+            }
+        } else {
+            x = coord.x;
+            y = coord.y;
+        }
 
         var command = ' ';
-
-        if (!plot.mouseOnCanvas) {
-            return false;
-        }
 
         if (!Gx.pan) {
             return false;
