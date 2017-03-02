@@ -616,7 +616,7 @@
                     }
                 } else if (event.targetTouches.length === 2) {
                     Mx.touch_distance = m.touch_distance(event.targetTouches[0], event.targetTouches[1]);
-                } 
+                }
             };
         }(this));
 
@@ -741,7 +741,7 @@
 
                 mx.widget_callback(Mx, event);
 
-    
+
                 // Only clear the touches after a slight delay so we can
                 // detect double-tap
                 Mx.touchClear = window.setTimeout(
