@@ -3144,7 +3144,7 @@
         GBorder: 3,
         sidelab: 0,
         toplab: 1,
-        n_show: 5
+        n_show: 0,
     };
 
     /**
@@ -3154,10 +3154,25 @@
      * @private
      */
     function _menu_redraw(Mx, menu) {
-        //console.log('Redraw ' + menu.queue);
         if (menu.animationFrameHandle) {
             return;
         }
+        // Use the current mouse position and the size of the plot to determine available space 
+        //var mouse_pos = Mx.ypos; TODO: Use mouse position
+        var plot_height = Mx.canvas.height;
+        var buffer_sz = 35; // estimate of how much of the canvas is spacing around plot
+        var avail_space = plot_height- 2*buffer_sz;
+
+        // Calculate how many menu items can fit inside that space
+        var menu_item_height = Mx.text_h * 1.5;
+        var n_items = Math.floor(avail_space / menu_item_height);
+        if (n_items >= menu.items.length){
+            MENU_CONSTANTS.n_show = menu.items.length;
+        }
+        else{
+            MENU_CONSTANTS.n_show = n_items;
+        }
+
 
         menu.animationFrameHandle = requestAnimFrame(mx.withWidgetLayer(Mx, function() {
             mx.erase_window(Mx);
@@ -3198,7 +3213,6 @@
             var i_begin = menu.queue[0];
             var i_end = menu.queue[MENU_CONSTANTS.n_show - 1];
             if (i_end === 0) {
-                //console.log(i_end);
                 // now we are starting over
                 for (var q = 0; q < MENU_CONSTANTS.n_show; q++) {
                     menu.queue[q] = q;
@@ -3405,7 +3419,6 @@
             if (Mx.menu) {
                 var menu = Mx.menu;
                 event.preventDefault();
-                //console.log('At event: ' + menu.queue);
                 var keyCode = common.getKeyCode(event);
                 if (keyCode === 13) { // enter
                     _menu_takeaction(Mx, menu);
@@ -3448,10 +3461,9 @@
                             if (i_end + 1 === menu.items.length) {
                                 next_item = 0;
                             }
-                            //console.log(menu.queue);
+                            
                             menu.queue.shift();
                             menu.queue.push(next_item);
-                            //console.log('Changed: ' + menu.queue);
                             menu.items[i_end].selected = false;
                             menu.items[next_item].selected = true;
                             _menu_redraw(Mx, menu);
@@ -3503,9 +3515,9 @@
      */
     mx.menu = function(Mx, menu) {
         var yb = Mx.text_h * 1.5;
+        MENU_CONSTANTS.n_show = menu.items.length;
         if (menu) {
             if (!Mx.widget) {
-                //console.log(menu.items.length);
                 menu.x = Mx.xpos;
                 menu.y = Mx.ypos;
                 menu.val = 0;
