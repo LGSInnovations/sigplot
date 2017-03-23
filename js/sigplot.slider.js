@@ -40,7 +40,8 @@
             name: "Slider",
             prevent_drag: false,
             add_box: false, // add boxes around values
-            persistent_style: false // highlights and/or boxes persist
+            persistent_style: false, // highlights and/or boxes persist
+            slider_ID: 0    // each slider has a numerical int ID
         };
 
         common.update(this.options, options);
@@ -48,6 +49,7 @@
         this.location = undefined;
         this.paired_slider = undefined;
         this.name = this.options.name;
+
     };
 
     SliderPlugin.prototype = {
@@ -127,7 +129,6 @@
 
                 // Refresh the plugin
                 self.plot.redraw();
-
                 // Prevent any other plot default action at this point
                 evt.preventDefault();
             };
@@ -415,7 +416,6 @@
                 evt.position = this.position;
             }
             mx.dispatchEvent(Mx, evt);
-
             this.plot.redraw();
         },
 
@@ -437,7 +437,7 @@
 
             var Mx = this.plot._Mx;
             var ctx = canvas.getContext("2d");
-
+            
             ctx.lineWidth = this.options.style.lineWidth;
             ctx.lineCap = this.options.style.lineCap;
             ctx.strokeStyle = (this.options.style.strokeStyle !== undefined) ? this.options.style.strokeStyle : Mx.fg;
@@ -503,11 +503,12 @@
                     ctx.font = Mx.font.font;
                     var text = mx.format_g(this.position, 6, 3, true).trim();
                     var text_w = ctx.measureText(text).width;
+                    var overlap_adjustment = 2*Mx.text_h*(this.options.slider_ID);
                     if ((this.location + 5 + text_w) > Mx.r) {
                         ctx.textAlign = "right";
-                        ctx.fillText(text, this.location - 15, Mx.t + 40);
+                        ctx.fillText(text, this.location - 15, Mx.t + 40 + overlap_adjustment);
                     } else {
-                        ctx.fillText(text, this.location + 15, Mx.t + 40);
+                        ctx.fillText(text, this.location + 15, Mx.t + 40 + overlap_adjustment);
                     }
 
 
@@ -515,11 +516,11 @@
                         // Draw a box around the value
 
                         if ((this.location + 5 + text_w) > Mx.r) {
-                            ctx.rect(this.location, Mx.t + 20, 2 * text_w , 2*Mx.text_h);
+                            ctx.rect(this.location, Mx.t + 20 + overlap_adjustment, 2 * text_w , 2*Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         } else {
-                            ctx.rect(this.location, Mx.t + 20, 2 * text_w, 2*Mx.text_h);
+                            ctx.rect(this.location, Mx.t + 20 + overlap_adjustment, 2 * text_w, 2*Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         }
