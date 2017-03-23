@@ -532,7 +532,6 @@
                     var text_w = ctx.measureText(text).width;
                     if ((this.location - 2*Mx.text_h) > Mx.t) {
                         ctx.fillText(text, Mx.l + 30, this.location - 5);
-                        //console.log('up');
                     } else {
                         ctx.fillText(text, Mx.l + 30, this.location + 5 + Mx.text_h);
                         
@@ -541,12 +540,10 @@
                     if (this.options.add_box){
 
                         if ((this.location - 2*Mx.text_h) > Mx.t) {
-                            console.log('up');
                             ctx.rect( Mx.l + 15, this.location - 2*Mx.text_h, 2*text_w, 2*Mx.text_h );
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         } else {
-                            console.log('down');
                             ctx.rect(Mx.l + 15, this.location, 2 * text_w, 2*Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
