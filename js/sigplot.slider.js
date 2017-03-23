@@ -544,11 +544,11 @@
                         // Draw a box around the value
 
                         if ((this.location - 2*Mx.text_h) > Mx.t) {
-                            ctx.rect( Mx.l + 15, this.location - 2*Mx.text_h, 2*text_w, 2*Mx.text_h );
+                            ctx.rect( Mx.l + 15 + overlap_adjustment, this.location - 2*Mx.text_h, 2*text_w, 2*Mx.text_h );
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         } else {
-                            ctx.rect(Mx.l + 15, this.location, 2 * text_w, 2*Mx.text_h);
+                            ctx.rect(Mx.l + 15 + overlap_adjustment, this.location, 2 * text_w, 2*Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         }
