@@ -38,7 +38,8 @@
             },
             direction: "vertical", // "vertical","horizontal","both" 
             name: "Slider",
-            prevent_drag: false
+            prevent_drag: false,
+            add_box: false
         };
 
         common.update(this.options, options);
@@ -503,9 +504,24 @@
                     var text_w = ctx.measureText(text).width;
                     if ((this.location + 5 + text_w) > Mx.r) {
                         ctx.textAlign = "right";
-                        ctx.fillText(text, this.location - 5, Mx.t + 10);
+                        ctx.fillText(text, this.location - 15, Mx.t + 40);
                     } else {
-                        ctx.fillText(text, this.location + 5, Mx.t + 10);
+                        ctx.fillText(text, this.location + 15, Mx.t + 40);
+                    }
+
+
+                    if (this.options.add_box){
+
+                        if ((this.location + 5 + text_w) > Mx.r) {
+                            ctx.rect(this.location, Mx.t + 20, 2 * text_w , 2*Mx.text_h);
+                            ctx.strokeStyle = this.options.style.strokeStyle;
+                            ctx.stroke();
+                        } else {
+                            ctx.rect(this.location, Mx.t + 20, 2 * text_w, 2*Mx.text_h);
+                            ctx.strokeStyle = this.options.style.strokeStyle;
+                            ctx.stroke();
+                        }
+
                     }
                 } else if (this.options.direction === "horizontal") {
                     ctx.textBaseline = "alphabetic";
@@ -513,11 +529,30 @@
                     ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
                     ctx.font = Mx.font.font;
                     var text = mx.format_g(this.position, 6, 3, true).trim();
-                    if ((this.location - Mx.text_h - 5) > Mx.t) {
-                        ctx.fillText(text, Mx.l + 10, this.location - 5);
+                    var text_w = ctx.measureText(text).width;
+                    if ((this.location - 2*Mx.text_h) > Mx.t) {
+                        ctx.fillText(text, Mx.l + 30, this.location - 5);
+                        //console.log('up');
                     } else {
-                        ctx.fillText(text, Mx.l + 10, this.location + 5 + Mx.text_h);
+                        ctx.fillText(text, Mx.l + 30, this.location + 5 + Mx.text_h);
+                        
                     }
+
+                    if (this.options.add_box){
+
+                        if ((this.location - 2*Mx.text_h) > Mx.t) {
+                            console.log('up');
+                            ctx.rect( Mx.l + 15, this.location - 2*Mx.text_h, 2*text_w, 2*Mx.text_h );
+                            ctx.strokeStyle = this.options.style.strokeStyle;
+                            ctx.stroke();
+                        } else {
+                            console.log('down');
+                            ctx.rect(Mx.l + 15, this.location, 2 * text_w, 2*Mx.text_h);
+                            ctx.strokeStyle = this.options.style.strokeStyle;
+                            ctx.stroke();
+                        }
+                    }
+
                 } else if (this.options.direction === "both") {
                     // TODO
                 }
