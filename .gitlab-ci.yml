@@ -15,3 +15,4 @@ dist:
   artifacts:
     paths:
       - dist/sigplot*.zip
+    expire_in: 1 month
