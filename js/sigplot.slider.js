@@ -39,7 +39,8 @@
             direction: "vertical", // "vertical","horizontal","both" 
             name: "Slider",
             prevent_drag: false,
-            add_box: false
+            add_box: false, // add boxes around values
+            persistent_style: false // highlights and/or boxes persist
         };
 
         common.update(this.options, options);
@@ -492,9 +493,9 @@
                 ctx.lineTo(this.location.x + 0.5, Mx.b);
                 ctx.stroke();
             }
-
-            // Show extra information while dragging or highlighted
-            if (this.dragging || this.highlight) {
+        
+            // Show extra information while dragging or highlighted or if the user wants persistent highlights
+            if (this.dragging || this.highlight || this.options.persistent_style) {
                 if (this.options.direction === "vertical") {
                     ctx.textBaseline = "alphabetic";
                     ctx.textAlign = "left";
@@ -511,6 +512,7 @@
 
 
                     if (this.options.add_box){
+                        // Draw a box around the value
 
                         if ((this.location + 5 + text_w) > Mx.r) {
                             ctx.rect(this.location, Mx.t + 20, 2 * text_w , 2*Mx.text_h);
@@ -538,6 +540,7 @@
                     }
 
                     if (this.options.add_box){
+                        // Draw a box around the value
 
                         if ((this.location - 2*Mx.text_h) > Mx.t) {
                             ctx.rect( Mx.l + 15, this.location - 2*Mx.text_h, 2*text_w, 2*Mx.text_h );
