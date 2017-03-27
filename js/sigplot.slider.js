@@ -496,6 +496,7 @@
         
             // Show extra information while dragging or highlighted or if the user wants persistent highlights
             if (this.dragging || this.highlight || this.options.persistent_style) {
+                var overlap_adjustment = 2*Mx.text_h*(this.options.slider_ID);
                 if (this.options.direction === "vertical") {
                     ctx.textBaseline = "alphabetic";
                     ctx.textAlign = "left";
@@ -503,7 +504,6 @@
                     ctx.font = Mx.font.font;
                     var text = mx.format_g(this.position, 6, 3, true).trim();
                     var text_w = ctx.measureText(text).width;
-                    var overlap_adjustment = 2*Mx.text_h*(this.options.slider_ID);
                     if ((this.location + 5 + text_w) > Mx.r) {
                         ctx.textAlign = "right";
                         ctx.fillText(text, this.location - 15, Mx.t + 40 + overlap_adjustment);
@@ -533,10 +533,11 @@
                     ctx.font = Mx.font.font;
                     var text = mx.format_g(this.position, 6, 3, true).trim();
                     var text_w = ctx.measureText(text).width;
+                    overlap_adjustment = 2*text_w*(this.options.slider_ID);
                     if ((this.location - 2*Mx.text_h) > Mx.t) {
-                        ctx.fillText(text, Mx.l + 30, this.location - 5);
+                        ctx.fillText(text, Mx.l + 20 +overlap_adjustment, this.location - 5);
                     } else {
-                        ctx.fillText(text, Mx.l + 30, this.location + 5 + Mx.text_h);
+                        ctx.fillText(text, Mx.l + 20 + overlap_adjustment, this.location + 5 + Mx.text_h);
                         
                     }
 
