@@ -524,6 +524,46 @@
                                 Gx.legendBtnLocation.height);
                         }
 
+                        // If we have a large colorbar, we also have buttons:
+                        if (Gx.lg_colorbar){
+                            if (event.which === 1 || event.which === 3) {
+                                var mouse_x = Mx.xpos;
+                                var mouse_y = Mx.ypos;
+
+                                // Find vertex positions of top and bottom buttons
+                                var top_x1 = Gx.cbb_top_x1;
+                                var top_y1 = Gx.cbb_top_y1;
+                                var top_x2 = top_x1 + Gx.cbb_width;
+                                var top_y2 = top_y1;
+                                var top_x3 = top_x1 + (1/2)*Gx.cbb_width;
+                                var top_y3 = top_y1 - Gx.cbb_height;
+
+                                var topButtonPressed = coordsInTriangle(mouse_x, mouse_y, top_x1, top_y1, top_x2, top_y2, top_x3, top_y3);
+                                //console.log("Top ", topButtonPressed);
+
+                                if (topButtonPressed) {
+                                    console.log("I'm the top button and I don't do anything");
+                                }
+
+                                // bottom
+                                var bot_x1 = Gx.cbb_bot_x1;
+                                var bot_y1 = Gx.cbb_bot_y1;
+                                var bot_x2 = bot_x1 + Gx.cbb_width;
+                                var bot_y2 = bot_y1;
+                                var bot_x3 = bot_x1 + (1/2)*Gx.cbb_width;
+                                var bot_y3 = bot_y1 + Gx.cbb_height;
+
+                                var botButtonPressed = coordsInTriangle(mouse_x, mouse_y, bot_x1, bot_y1, bot_x2, bot_y2, bot_x3, bot_y3);
+                                //console.log("Bot ", botButtonPressed);
+
+                                if (botButtonPressed) {
+                                    console.log("I'm the bottom button and I don't do anything");
+                                }
+
+                            }
+
+                        }
+
                         if (lButtonPressed) {
                             plot.change_settings({
                                 legend: !Gx.legend
@@ -1402,6 +1442,8 @@
          *
          * @param {String}
          *            settings.phunits
+         * @ param {Boolean}
+                      settings.lg_colorbar
          */
         change_settings: function(settings) {
             var Gx = this._Gx;
@@ -1735,6 +1777,11 @@
 
             if (settings.note !== undefined) {
                 Gx.note = settings.note;
+            }
+
+            if (settings.lg_colorbar !== undefined){
+                // Change the plot area and then draw the large colorbar
+                Gx.lg_colorbar = !Gx.lg_colorbar;
             }
 
             this.refresh();
@@ -2741,6 +2788,13 @@
             // pan select ranges
             Gx.pyl = Mx.r + (Mx.width - Mx.r - Gx.pthk) / 2 + 1;
 
+            if (Gx.lg_colorbar) {
+                // Move the plot over to make room
+                var prev_Mx_r = Mx.r;
+                Mx.r = prev_Mx_r - 100;
+
+            }
+
             // set virtual window size/pos/scaling for current level
             var k = Mx.level;
             Mx.stk[k].x1 = Mx.l;
@@ -2905,13 +2959,7 @@
 
             draw_accessories(this, 4);
 
-            if ((Mx.r > Mx.l) && (Mx.b > Mx.t)) {
-                // Resize
-                Gx.plotData.width = Mx.canvas.width;
-                Gx.plotData.height = Mx.canvas.height;
-                Gx.plotData.getContext("2d").drawImage(Mx.canvas, 0, 0);
-                Gx.plotData.valid = true;
-            }
+
 
             draw_plugins(this);
 
@@ -2926,6 +2974,7 @@
                 draw_marker(this);
             }
         }
+
     };
 
     // /////////////////////////////////////////////////////////////////////////
@@ -3141,6 +3190,17 @@
 
         this.plotData = document.createElement("canvas");
         this.plotData.valid = false;
+
+        // Large colorbar info, like button locations
+        this.lg_colorbar = false;
+
+        // Colorbar button top or bottom positions
+        this.cbb_top_x1 = 0;
+        this.cbb_top_y1 = 0;
+        this.cbb_bot_x1 = 0;
+        this.cbb_bot_y1 = 0;
+        this.cbb_width = 0;
+        this.cbb_height = 0;
     }
 
     /**
@@ -6225,11 +6285,76 @@
             }
         }
 
-        // draw color bar
-        var x = (49 * Mx.text_w) - 3;
-        var y = Mx.height - Mx.text_h * 2.5;
-        var w = Mx.text_w;
-        var h = Mx.text_h * 2;
+        // draw color bar - large
+        var x = 0; 
+        var y = 0;
+        var w = 0;
+        var h = 0;
+        if (Gx.lg_colorbar){
+            // I want to center the big color bar between the top and bottom of the plot
+            // Retrieve padding info
+            var bottom_padding = Mx.wid_canvas.height - Mx.b;
+            var top_padding = Mx.wid_canvas.height - Mx.b - Mx.t;
+            //console.log('bottom: ', bottom_padding);
+            //console.log('top: ', top_padding);
+            var plot_height = Mx.b - Mx.t;
+
+            x = Mx.r + 35;
+            y = Mx.t + (1/8)*plot_height;
+            w = 5*Mx.text_w;
+            h = (3/4) * plot_height;
+
+            // If I have a large color bar, I probably also want to add buttons
+            var ctx = Mx.active_canvas.getContext("2d");
+            ctx.strokeStyle= "rgba(124, 123, 121, 0.8)";
+            ctx.fillStyle=" rgba(124, 123, 121, 0.8)";
+
+            // For more precise referencing
+            var colorbar_x = x;
+            var colorbar_y = y;
+            var colorbar_width = w;
+            var colorbar_height = h;
+            var button_width = colorbar_width - 2;
+            var button_height = button_width / 2;
+            var button_x = colorbar_x + ((colorbar_width - button_width)/2);
+            var button_y = colorbar_y - 10;
+
+            // Draw the top button
+            ctx.beginPath();
+            ctx.moveTo(button_x, button_y);
+            ctx.lineTo(button_x + button_width, button_y);
+            ctx.lineTo(button_x + (1/2)*button_width, button_y - button_height);
+            ctx.lineTo(button_x, button_y);
+            ctx.stroke();
+            ctx.fill();
+
+            // Draw the bottom button
+            var button_y_2 = button_y + colorbar_height + 20;
+
+            ctx.beginPath();
+            ctx.moveTo(button_x, button_y_2);
+            ctx.lineTo(button_x + button_width, button_y_2);
+            ctx.lineTo(button_x + (1/2)*button_width, button_y_2 + button_height);
+            ctx.lineTo(button_x, button_y_2);
+            ctx.stroke();
+            ctx.fill();
+
+            // Store this info so we can access it later
+
+            Gx.cbb_top_x1 = button_x;
+            Gx.cbb_top_y1 = button_y;
+            Gx.cbb_bot_x1 = button_x;
+            Gx.cbb_bot_y1 = button_y_2;
+            Gx.cbb_width = button_width;
+            Gx.cbb_height = button_height;
+
+        }
+        else{ // draw a small colorbar
+            x = (49 * Mx.text_w) - 3;
+            y = Mx.height - Mx.text_h * 2.5;
+            w = Mx.text_w;
+            h = Mx.text_h * 2;
+        }
 
         mx.colorbar(Mx, x, y, w, h);
     }
@@ -6382,6 +6507,40 @@
      * @memberOf sigplot
      * @private
      */
+     function coordsInTriangle(x, y, tri_x1, tri_y1, tri_x2, tri_y2, tri_x3, tri_y3){
+        // Uses barycentric coordinates
+        // https://en.wikipedia.org/wiki/Barycentric_coordinate_system ( and http://blackpawn.com/texts/pointinpoly/)
+
+        // Compute vectors
+        var v0 = [tri_x3 - tri_x1, tri_y3 - tri_y1];
+        var v1 = [tri_x2 - tri_x1, tri_y2 - tri_y1];
+        var v2 = [x - tri_x1, y - tri_y1];
+
+        // Compute dot products    
+        var dot00 = (v0[0]*v0[0]) + (v0[1]*v0[1]);
+        var dot01 = (v0[0]*v1[0]) + (v0[1]*v1[1]);
+        var dot02 = (v0[0]*v2[0]) + (v0[1]*v2[1]);
+        var dot11 = (v1[0]*v1[0]) + (v1[1]*v1[1]);
+        var dot12 = (v1[0]*v2[0]) + (v1[1]*v2[1]);
+
+        var inv_denom = 1/ (dot00 * dot11 - dot01 * dot01);
+        
+        var u = (dot11 * dot02 - dot01 * dot12) * inv_denom;
+        var v = (dot00 * dot12 - dot01 * dot02) * inv_denom;
+
+        /*
+        console.log("u ", u);
+        console.log("v ", v);
+        */
+
+        return (u >= 0 && v >= 0 && u + v < 1);
+
+     }    
+
+    /**
+     * @memberOf sigplot
+     * @private
+     */
     function inPanRegion(plot, coord) {
         var inPanRegion = false;
         var Gx = plot._Gx;
@@ -6416,9 +6575,24 @@
 
         if (outside_right_border && between_top_and_bottom) { // YPAN
             command = 'YPAN'; // Y scrollbar
-            Mx.xpos = Gx.pyl + m.trunc(Gx.pthk / 2); // TODO do we want to
+             // TODO do we want to
             // reset the xposition?
-            inPanRegion = true;
+
+            if (Gx.lg_colorbar){
+                // Need to do an additional check since there is area outside Mx.r that is NOT the pan region
+                var right_of_colorbar = (x > Mx.r + 100); // Mx.r = Mx.r - 100 is how we moved it initally
+                if (right_of_colorbar){
+                    inPanRegion = true;
+                }
+                else{
+                    inPanRegion = false;
+                }
+
+            }
+            else{
+                Mx.xpos = Gx.pyl + m.trunc(Gx.pthk / 2);
+                inPanRegion = true;
+            }
         } else if (has_bottom_scrollbar && between_left_and_right && below_bottom_border) {
             command = 'XPAN'; // X scrollbar
             Mx.ypos = Gx.pt + m.trunc(Gx.pthk / 2); // TODO Do we want to reset
@@ -6436,6 +6610,7 @@
             command: command
         };
     }
+
 
     /**
      * @memberOf sigplot
