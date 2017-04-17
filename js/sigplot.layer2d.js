@@ -640,8 +640,8 @@
                         this.hcb.subsize,
                         xsize,
                         this.lps,
-                        Gx.zmin,
-                        Gx.zmax,
+                        Gx.zmin + Gx.zoff,
+                        Gx.zmax + Gx.zoff,
                         Gx.xcompression);
                 } else {
                     // otherwise autol > 1
@@ -655,8 +655,8 @@
                             this.hcb.subsize,
                             xsize,
                             this.lps,
-                            Gx.zmin,
-                            Gx.zmax);
+                            Gx.zmin + Gx.zoff,
+                            Gx.zmax + Gx.zoff);
                     }
 
                     Gx.zmin = 0;
@@ -719,8 +719,8 @@
                         this.hcb.subsize,
                         xsize,
                         this.lps,
-                        Gx.zmin,
-                        Gx.zmax,
+                        Gx.zmin + Gx.zoff,
+                        Gx.zmax + Gx.zoff,
                         Gx.xcompression);
                 }
             }

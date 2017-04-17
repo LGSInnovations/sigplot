@@ -542,7 +542,18 @@
                                 //console.log("Top ", topButtonPressed);
 
                                 if (topButtonPressed) {
-                                    console.log("I'm the top button and I don't do anything");
+                                    var cur_cmap = Gx.cmap;
+                                    //console.log("I'm the top button and I don't do anything");
+                                    plot.get_layer(0).img = undefined;
+                                    console.log(m.Mc.colormap[cur_cmap]);
+                                    var current_map = m.Mc.colormap[cur_cmap];
+
+                                    for (var i = 0; i < current_map.colors.length; i++){
+                                        current_map.colors[i].pos += 5.0;
+                                    }
+                                    mx.colormap(Mx, current_map.colors, 16);
+                                    //Gx.zoff += (1/10)*(Gx.zmax - Gx.zmin);
+                                    plot.refresh();
                                 }
 
                                 // bottom
@@ -557,7 +568,16 @@
                                 //console.log("Bot ", botButtonPressed);
 
                                 if (botButtonPressed) {
-                                    console.log("I'm the bottom button and I don't do anything");
+                                    //console.log("I'm the bottom button and I don't do anything");
+                                    //Gx.zoff -= (1/10)*(Gx.zmax - Gx.zmin);
+                                    var cur_cmap = Gx.cmap;
+                                    var current_map = m.Mc.colormap[cur_cmap];
+                                    plot.get_layer(0).img = undefined;
+                                    for (var i = 0; i < current_map.colors.length; i++){
+                                        current_map.colors[i].pos -= 5.0;
+                                    }
+                                    mx.colormap(Mx, current_map.colors, 16);
+                                    plot.refresh();
                                 }
 
                             }
@@ -3096,6 +3116,7 @@
         this.ymult = undefined;
         this.zmin = undefined;
         this.zmax = undefined;
+        this.zoff = 0;
         this.dbmin = 0.0;
         this.pxscl = 0.0;
         this.pyscl = 0.0;
@@ -4170,9 +4191,7 @@
         };
 
         var colormap_handler = function(item) {
-            plot.change_settings({
-                cmap: this.cmap
-            });
+            
         };
 
         for (var xc = 0; xc < m.Mc.colormap.length; xc++) {

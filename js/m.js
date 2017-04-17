@@ -346,7 +346,88 @@
                 green: 95,
                 blue: 95
             }]
-        }, {
+        },{
+            name: "calewhite",
+            colors: [{
+                pos: 0,
+                red: 100,
+                green: 100,
+                blue: 100
+            }, {
+                pos: 16.666,
+                red: 0,
+                green: 0,
+                blue: 100
+            }, {
+                pos: 33.333,
+                red: 0,
+                green: 100,
+                blue: 100
+            }, {
+                pos: 50,
+                red: 0,
+                green: 100,
+                blue: 0
+            }, {
+                pos: 66.666,
+                red: 100,
+                green: 100,
+                blue: 0
+            }, {
+                pos: 83.333,
+                red: 100,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 100,
+                green: 0,
+                blue: 100
+            }]
+        },{
+            name: "HotDesat",
+            colors: [{
+                pos: 0,
+                red: 27.84,
+                green: 27.84,
+                blue: 85.88
+            }, {
+                pos: 14.2857,
+                red: 0,
+                green: 0,
+                blue: 35.69
+            }, {
+                pos: 28.571,
+                red: 0,
+                green: 100,
+                blue: 100
+            }, {
+                pos: 42.857,
+                red: 0,
+                green: 49.8,
+                blue: 0
+            }, {
+                pos: 57.14286,
+                red: 100,
+                green: 100,
+                blue: 0
+            }, {
+                pos: 71.42857,
+                red: 100,
+                green: 37.65,
+                blue: 0
+            }, {
+                pos: 85.7143,
+                red: 41.96,
+                green: 0,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 87.84,
+                green: 29.8,
+                blue: 29.8
+            }]
+        },{
             name: "Sunset",
             colors: [{
                 pos: 0,
