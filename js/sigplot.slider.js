@@ -504,7 +504,7 @@
                     ctx.font = Mx.font.font;
                     var text = mx.format_g(this.position, 6, 3, true).trim();
                     var text_w = ctx.measureText(text).width;
-                    if ((this.location + 5 + text_w) > Mx.r) {
+                    if ((this.location + 2 * text_w) > Mx.r) {
                         ctx.textAlign = "right";
                         ctx.fillText(text, this.location - 15, Mx.t + 40 + overlap_adjustment);
                     } else {
@@ -515,12 +515,12 @@
                     if (this.options.add_box){
                         // Draw a box around the value
 
-                        if ((this.location + 5 + text_w) > Mx.r) {
-                            ctx.rect(this.location, Mx.t + 20 + overlap_adjustment, 2 * text_w , 2*Mx.text_h);
+                        if ((this.location + 2 * text_w) > Mx.r) {
+                            ctx.rect(this.location - 2 * text_w , Mx.t + 20 + overlap_adjustment, 2 * text_w , 2*Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         } else {
-                            ctx.rect(this.location, Mx.t + 20 + overlap_adjustment, 2 * text_w, 2*Mx.text_h);
+                            ctx.rect(this.location + 0.5, Mx.t + 20 + overlap_adjustment, 2 * text_w, 2*Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         }
