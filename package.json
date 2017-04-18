@@ -5,7 +5,7 @@
   "homepage": "http://demo.axiosengineering.com/sigplot",
   "main": "js/sigplot.js",
   "files": [
-      "js"
+      "js", "dist"
   ],
   "author": {
     "name": "Axios Engineering",
