@@ -170,7 +170,8 @@ module.exports = function (grunt) {
                         'test/tests.js'
                 ],
                 options: {
-                    mode: "VERIFY_ONLY"
+                    mode: "VERIFY_ONLY",
+                    eol: "\n"
                 }
             },
             cleanup: {
@@ -192,7 +193,8 @@ module.exports = function (grunt) {
                 options: {
                     indentSize: 4,
                     indentWithTabs: false,
-                    wrapLineLength: 0
+                    wrapLineLength: 0,
+                    eol: "\n"
                 }
             }
         },
