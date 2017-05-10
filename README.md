@@ -70,6 +70,16 @@ environment where Grunt cannot be used.  You will need the following:
 If you wish to build the SigPlot API documention, you will need
 [jsdoc](https://github.com/jsdoc3/jsdoc) installed.
 
+Testing
+=============
+
+The non-interactive unittests are executed automatically whenever a Grunt build
+is executed.  The full unittest suite is interactive and requires that you
+execute tests within a webbrowser.  A local web server can easily be started by
+running `npm web_server` and then opening a browser to
+http://localhost:1337/test/test.html
+
+
 Contributing
 =====================
 The `master` branch is used to distribute stable releases.  No development
