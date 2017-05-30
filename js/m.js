@@ -346,7 +346,7 @@
                 green: 95,
                 blue: 95
             }]
-        },{
+        }, {
             name: "calewhite",
             colors: [{
                 pos: 0,
@@ -384,7 +384,7 @@
                 green: 0,
                 blue: 100
             }]
-        },{
+        }, {
             name: "HotDesat",
             colors: [{
                 pos: 0,
@@ -427,7 +427,7 @@
                 green: 29.8,
                 blue: 29.8
             }]
-        },{
+        }, {
             name: "Sunset",
             colors: [{
                 pos: 0,

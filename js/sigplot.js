@@ -525,7 +525,7 @@
                         }
 
                         // If we have a large colorbar, we also have buttons:
-                        if (Gx.lg_colorbar){
+                        if (Gx.lg_colorbar) {
                             if (event.which === 1 || event.which === 3) {
                                 var mouse_x = Mx.xpos;
                                 var mouse_y = Mx.ypos;
@@ -535,7 +535,7 @@
                                 var top_y1 = Gx.cbb_top_y1;
                                 var top_x2 = top_x1 + Gx.cbb_width;
                                 var top_y2 = top_y1;
-                                var top_x3 = top_x1 + (1/2)*Gx.cbb_width;
+                                var top_x3 = top_x1 + (1 / 2) * Gx.cbb_width;
                                 var top_y3 = top_y1 - Gx.cbb_height;
 
                                 var topButtonPressed = coordsInTriangle(mouse_x, mouse_y, top_x1, top_y1, top_x2, top_y2, top_x3, top_y3);
@@ -548,7 +548,7 @@
                                     console.log(m.Mc.colormap[cur_cmap]);
                                     var current_map = m.Mc.colormap[cur_cmap];
 
-                                    for (var i = 0; i < current_map.colors.length; i++){
+                                    for (var i = 0; i < current_map.colors.length; i++) {
                                         current_map.colors[i].pos += 5.0;
                                     }
                                     mx.colormap(Mx, current_map.colors, 16);
@@ -561,7 +561,7 @@
                                 var bot_y1 = Gx.cbb_bot_y1;
                                 var bot_x2 = bot_x1 + Gx.cbb_width;
                                 var bot_y2 = bot_y1;
-                                var bot_x3 = bot_x1 + (1/2)*Gx.cbb_width;
+                                var bot_x3 = bot_x1 + (1 / 2) * Gx.cbb_width;
                                 var bot_y3 = bot_y1 + Gx.cbb_height;
 
                                 var botButtonPressed = coordsInTriangle(mouse_x, mouse_y, bot_x1, bot_y1, bot_x2, bot_y2, bot_x3, bot_y3);
@@ -573,7 +573,7 @@
                                     var cur_cmap = Gx.cmap;
                                     var current_map = m.Mc.colormap[cur_cmap];
                                     plot.get_layer(0).img = undefined;
-                                    for (var i = 0; i < current_map.colors.length; i++){
+                                    for (var i = 0; i < current_map.colors.length; i++) {
                                         current_map.colors[i].pos -= 5.0;
                                     }
                                     mx.colormap(Mx, current_map.colors, 16);
@@ -1799,7 +1799,7 @@
                 Gx.note = settings.note;
             }
 
-            if (settings.lg_colorbar !== undefined){
+            if (settings.lg_colorbar !== undefined) {
                 // Change the plot area and then draw the large colorbar
                 Gx.lg_colorbar = !Gx.lg_colorbar;
             }
@@ -4191,7 +4191,7 @@
         };
 
         var colormap_handler = function(item) {
-            
+
         };
 
         for (var xc = 0; xc < m.Mc.colormap.length; xc++) {
@@ -4776,7 +4776,7 @@
 
         var REFRESH_ITEM = {
             text: "Refresh" // no handler, just let the finalizer deal with
-                // it
+            // it
         };
 
         var KEYPRESSINFO_ITEM = {
@@ -6305,11 +6305,11 @@
         }
 
         // draw color bar - large
-        var x = 0; 
+        var x = 0;
         var y = 0;
         var w = 0;
         var h = 0;
-        if (Gx.lg_colorbar){
+        if (Gx.lg_colorbar) {
             // I want to center the big color bar between the top and bottom of the plot
             // Retrieve padding info
             var bottom_padding = Mx.wid_canvas.height - Mx.b;
@@ -6319,14 +6319,14 @@
             var plot_height = Mx.b - Mx.t;
 
             x = Mx.r + 35;
-            y = Mx.t + (1/8)*plot_height;
-            w = 5*Mx.text_w;
-            h = (3/4) * plot_height;
+            y = Mx.t + (1 / 8) * plot_height;
+            w = 5 * Mx.text_w;
+            h = (3 / 4) * plot_height;
 
             // If I have a large color bar, I probably also want to add buttons
             var ctx = Mx.active_canvas.getContext("2d");
-            ctx.strokeStyle= "rgba(124, 123, 121, 0.8)";
-            ctx.fillStyle=" rgba(124, 123, 121, 0.8)";
+            ctx.strokeStyle = "rgba(124, 123, 121, 0.8)";
+            ctx.fillStyle = " rgba(124, 123, 121, 0.8)";
 
             // For more precise referencing
             var colorbar_x = x;
@@ -6335,14 +6335,14 @@
             var colorbar_height = h;
             var button_width = colorbar_width - 2;
             var button_height = button_width / 2;
-            var button_x = colorbar_x + ((colorbar_width - button_width)/2);
+            var button_x = colorbar_x + ((colorbar_width - button_width) / 2);
             var button_y = colorbar_y - 10;
 
             // Draw the top button
             ctx.beginPath();
             ctx.moveTo(button_x, button_y);
             ctx.lineTo(button_x + button_width, button_y);
-            ctx.lineTo(button_x + (1/2)*button_width, button_y - button_height);
+            ctx.lineTo(button_x + (1 / 2) * button_width, button_y - button_height);
             ctx.lineTo(button_x, button_y);
             ctx.stroke();
             ctx.fill();
@@ -6353,7 +6353,7 @@
             ctx.beginPath();
             ctx.moveTo(button_x, button_y_2);
             ctx.lineTo(button_x + button_width, button_y_2);
-            ctx.lineTo(button_x + (1/2)*button_width, button_y_2 + button_height);
+            ctx.lineTo(button_x + (1 / 2) * button_width, button_y_2 + button_height);
             ctx.lineTo(button_x, button_y_2);
             ctx.stroke();
             ctx.fill();
@@ -6367,8 +6367,7 @@
             Gx.cbb_width = button_width;
             Gx.cbb_height = button_height;
 
-        }
-        else{ // draw a small colorbar
+        } else { // draw a small colorbar
             x = (49 * Mx.text_w) - 3;
             y = Mx.height - Mx.text_h * 2.5;
             w = Mx.text_w;
@@ -6526,7 +6525,7 @@
      * @memberOf sigplot
      * @private
      */
-     function coordsInTriangle(x, y, tri_x1, tri_y1, tri_x2, tri_y2, tri_x3, tri_y3){
+    function coordsInTriangle(x, y, tri_x1, tri_y1, tri_x2, tri_y2, tri_x3, tri_y3) {
         // Uses barycentric coordinates
         // https://en.wikipedia.org/wiki/Barycentric_coordinate_system ( and http://blackpawn.com/texts/pointinpoly/)
 
@@ -6536,14 +6535,14 @@
         var v2 = [x - tri_x1, y - tri_y1];
 
         // Compute dot products    
-        var dot00 = (v0[0]*v0[0]) + (v0[1]*v0[1]);
-        var dot01 = (v0[0]*v1[0]) + (v0[1]*v1[1]);
-        var dot02 = (v0[0]*v2[0]) + (v0[1]*v2[1]);
-        var dot11 = (v1[0]*v1[0]) + (v1[1]*v1[1]);
-        var dot12 = (v1[0]*v2[0]) + (v1[1]*v2[1]);
+        var dot00 = (v0[0] * v0[0]) + (v0[1] * v0[1]);
+        var dot01 = (v0[0] * v1[0]) + (v0[1] * v1[1]);
+        var dot02 = (v0[0] * v2[0]) + (v0[1] * v2[1]);
+        var dot11 = (v1[0] * v1[0]) + (v1[1] * v1[1]);
+        var dot12 = (v1[0] * v2[0]) + (v1[1] * v2[1]);
 
-        var inv_denom = 1/ (dot00 * dot11 - dot01 * dot01);
-        
+        var inv_denom = 1 / (dot00 * dot11 - dot01 * dot01);
+
         var u = (dot11 * dot02 - dot01 * dot12) * inv_denom;
         var v = (dot00 * dot12 - dot01 * dot02) * inv_denom;
 
@@ -6554,7 +6553,7 @@
 
         return (u >= 0 && v >= 0 && u + v < 1);
 
-     }    
+    }
 
     /**
      * @memberOf sigplot
@@ -6594,21 +6593,19 @@
 
         if (outside_right_border && between_top_and_bottom) { // YPAN
             command = 'YPAN'; // Y scrollbar
-             // TODO do we want to
+            // TODO do we want to
             // reset the xposition?
 
-            if (Gx.lg_colorbar){
+            if (Gx.lg_colorbar) {
                 // Need to do an additional check since there is area outside Mx.r that is NOT the pan region
                 var right_of_colorbar = (x > Mx.r + 100); // Mx.r = Mx.r - 100 is how we moved it initally
-                if (right_of_colorbar){
+                if (right_of_colorbar) {
                     inPanRegion = true;
-                }
-                else{
+                } else {
                     inPanRegion = false;
                 }
 
-            }
-            else{
+            } else {
                 Mx.xpos = Gx.pyl + m.trunc(Gx.pthk / 2);
                 inPanRegion = true;
             }

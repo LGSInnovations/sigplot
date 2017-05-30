@@ -41,7 +41,7 @@
             prevent_drag: false,
             add_box: false, // add boxes around values
             persistent_style: false, // highlights and/or boxes persist
-            slider_ID: 0    // each slider has a numerical int ID
+            slider_ID: 0 // each slider has a numerical int ID
         };
 
         common.update(this.options, options);
@@ -437,7 +437,7 @@
 
             var Mx = this.plot._Mx;
             var ctx = canvas.getContext("2d");
-            
+
             ctx.lineWidth = this.options.style.lineWidth;
             ctx.lineCap = this.options.style.lineCap;
             ctx.strokeStyle = (this.options.style.strokeStyle !== undefined) ? this.options.style.strokeStyle : Mx.fg;
@@ -493,10 +493,10 @@
                 ctx.lineTo(this.location.x + 0.5, Mx.b);
                 ctx.stroke();
             }
-        
+
             // Show extra information while dragging or highlighted or if the user wants persistent highlights
             if (this.dragging || this.highlight || this.options.persistent_style) {
-                var overlap_adjustment = 2*Mx.text_h*(this.options.slider_ID);
+                var overlap_adjustment = 2 * Mx.text_h * (this.options.slider_ID);
                 if (this.options.direction === "vertical") {
                     ctx.textBaseline = "alphabetic";
                     ctx.textAlign = "left";
@@ -512,15 +512,15 @@
                     }
 
 
-                    if (this.options.add_box){
+                    if (this.options.add_box) {
                         // Draw a box around the value
 
                         if ((this.location + 2 * text_w) > Mx.r) {
-                            ctx.rect(this.location - 2 * text_w , Mx.t + 20 + overlap_adjustment, 2 * text_w , 2*Mx.text_h);
+                            ctx.rect(this.location - 2 * text_w, Mx.t + 20 + overlap_adjustment, 2 * text_w, 2 * Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         } else {
-                            ctx.rect(this.location + 0.5, Mx.t + 20 + overlap_adjustment, 2 * text_w, 2*Mx.text_h);
+                            ctx.rect(this.location + 0.5, Mx.t + 20 + overlap_adjustment, 2 * text_w, 2 * Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         }
@@ -533,23 +533,23 @@
                     ctx.font = Mx.font.font;
                     var text = mx.format_g(this.position, 6, 3, true).trim();
                     var text_w = ctx.measureText(text).width;
-                    overlap_adjustment = 2*text_w*(this.options.slider_ID);
-                    if ((this.location - 2*Mx.text_h) > Mx.t) {
-                        ctx.fillText(text, Mx.l + 20 +overlap_adjustment, this.location - 5);
+                    overlap_adjustment = 2 * text_w * (this.options.slider_ID);
+                    if ((this.location - 2 * Mx.text_h) > Mx.t) {
+                        ctx.fillText(text, Mx.l + 20 + overlap_adjustment, this.location - 5);
                     } else {
                         ctx.fillText(text, Mx.l + 20 + overlap_adjustment, this.location + 5 + Mx.text_h);
-                        
+
                     }
 
-                    if (this.options.add_box){
+                    if (this.options.add_box) {
                         // Draw a box around the value
 
-                        if ((this.location - 2*Mx.text_h) > Mx.t) {
-                            ctx.rect( Mx.l + 15 + overlap_adjustment, this.location - 2*Mx.text_h, 2*text_w, 2*Mx.text_h );
+                        if ((this.location - 2 * Mx.text_h) > Mx.t) {
+                            ctx.rect(Mx.l + 15 + overlap_adjustment, this.location - 2 * Mx.text_h, 2 * text_w, 2 * Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         } else {
-                            ctx.rect(Mx.l + 15 + overlap_adjustment, this.location, 2 * text_w, 2*Mx.text_h);
+                            ctx.rect(Mx.l + 15 + overlap_adjustment, this.location, 2 * text_w, 2 * Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         }
