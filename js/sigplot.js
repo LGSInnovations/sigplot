@@ -4884,6 +4884,38 @@
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 
+        if (!o.xlab)
+        {
+            o.xlab = 0;
+        }
+        if (!o.ylab)
+        {
+            o.ylab = 0;
+        }
+
+        //Convert xunits and yunits to numbers if they are strings
+        
+        for (var i = 0; i < 64; i++) {
+            var u;
+            if (sigplot.m.UNITS[i] === undefined)
+            {
+                u = sigplot.m.UNITS[0];
+            }
+            else {
+                u = sigplot.m.UNITS[i];
+            }
+            var comparer = u[0] + " " + u[1];
+
+            if (o.ylab === comparer)
+            {
+                o.ylab = i;
+            }
+            if (o.xlab === comparer)
+            {
+                o.xlab = i;
+            }
+        }
+
         // Equivalent to reading cmd line args
         Gx.xmin = o.xmin === undefined ? 0.0 : o.xmin;
         Gx.xmax = o.xmax === undefined ? 0.0 : o.xmax;

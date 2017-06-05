@@ -181,6 +181,8 @@
         63: ["Altitude", "m"]
     };
 
+    m.UNITS = UNITS;
+
     /** Common structure 
      * @private
      */
@@ -504,6 +506,29 @@
         for (var field in overrides) {
             hcb[field] = overrides[field];
         }
+
+        //Convert xunits and yunits to numbers if they are strings
+
+        for (var i = 0; i < 64; i++) {
+            var u;
+            if (UNITS[i] === undefined)
+            {
+                u = UNITS[0];
+            }
+            else {
+                u = UNITS[i];
+            }
+            var comparer = u[0] + " " + u[1];
+            if (hcb["xunits"] === comparer)
+            {
+                hcb["xunits"] = i;
+            }
+            if (hcb["yunits"] === comparer)
+            {
+                hcb["yunits"] = i;
+            }
+        }
+
 
         // Force type 2000 is subsize is specified
         if (hcb["subsize"] > 1) {
