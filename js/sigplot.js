@@ -5063,6 +5063,23 @@
         }
         Gx.xmult = o.xmult;
         Gx.ymult = o.xmult;
+
+        //Convert string inputs of autox to numbers
+        switch (o.autox) {
+            case "none":
+                o.autox = -1;
+                break;
+            case "min":
+                o.autox = 1;
+                break;
+            case "max":
+                o.autox = 2;
+                break;
+            case "full":
+                o.autox = 3;
+                break;
+        }
+
         Gx.autox = o.autox === undefined ? -1 : o.autox;
         if (Gx.autox < 0) {
             Gx.autox = 0;
@@ -5073,6 +5090,24 @@
                 Gx.autox += 2;
             }
         }
+
+        //Convert string inputs of autoy to numbers
+
+        switch (o.autoy) {
+            case "none":
+                o.autoy = -1;
+                break;
+            case "min":
+                o.autoy = 1;
+                break;
+            case "max":
+                o.autoy = 2;
+                break;
+            case "full":
+                o.autoy = 3;
+                break;
+        }
+
         Gx.autoy = o.autoy === undefined ? -1 : o.autoy;
         if (Gx.autoy < 0) {
             Gx.autoy = 0;
@@ -5083,6 +5118,24 @@
                 Gx.autoy += 2;
             }
         }
+
+        //Convert string inputs of autoz to numbers
+
+        switch (o.autoz) {
+            case "none":
+                o.autoz = -1;
+                break;
+            case "min":
+                o.autoz = 1;
+                break;
+            case "max":
+                o.autoz = 2;
+                break;
+            case "full":
+                o.autoz = 3;
+                break;
+        }
+
         Gx.autoz = o.autoz === undefined ? -1 : o.autoz;
         if (Gx.autoz < 0) {
             Gx.autoz = 0;
