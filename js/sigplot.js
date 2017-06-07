@@ -4277,6 +4277,18 @@
                                 }
                             }
                         }, {
+                            text: "Hot Pink",
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].color === "#ff009e" : undefined,
+                            handler: function() {
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].color = "#ff009e";
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[i].color = "#ff009e";
+                                    }
+                                }
+                            }
+                        }, {
                             text: "Orange",
                             checked: (index !== undefined) ? plot._Gx.lyr[index].color === "orange" : undefined,
                             handler: function() {
@@ -4301,14 +4313,14 @@
                                 }
                             }
                         }, {
-                            text: "Light Green",
-                            checked: (index !== undefined) ? plot._Gx.lyr[index].color === "light green" : undefined,
+                            text: "Lime Green",
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].color === "#80f741" : undefined,
                             handler: function() {
                                 if (index !== undefined) {
-                                    plot._Gx.lyr[index].color = "light green";
+                                    plot._Gx.lyr[index].color = "#80f741";
                                 } else {
                                     for (var i = 0; i < Gx.lyr.length; i++) {
-                                        plot._Gx.lyr[i].color = "light green";
+                                        plot._Gx.lyr[i].color = "#80f741";
                                     }
                                 }
                             }
