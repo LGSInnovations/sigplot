@@ -2298,6 +2298,22 @@
         }
     };
 
+    mx.hexValidator = function(value, strict) {
+        var regColorcode = /^(#)?([0-9a-fA-F]{3})([0-9a-fA-F]{3})?$/;
+        if (((strict === undefined || strict === false) && value === "") ||
+            (regColorcode.test(value) !== false)) {
+            return {
+                valid: true,
+                reason: ""
+            };
+        } else {
+            return {
+                valid: false,
+                reason: "Failed hexcode validation: not a valid hexcode"
+            };
+        }
+    };
+
     /**
      * @param Mx
      * @param msg
