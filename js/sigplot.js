@@ -5573,6 +5573,10 @@
             iy = iy + Mx.text_h * 0.3;
             mx.text(Mx, ix - labelOffset, iy, Gx.lyr[n].name);
         }
+        if ((legendPos.x <= Mx.xpos) && ((legendPos.x + legendPos.width) >= Mx.xpos) &&
+            ((legendPos.y <= Mx.ypos)) && (legendPos.y + legendPos.height) >= Mx.ypos) {
+            console.log("this works here");
+        }
     }
 
     /**
