@@ -1194,7 +1194,6 @@
                             return;
                         }
 
-
                         var keyCode = common.getKeyCode(event);
 
                         // Since the mouse is in the plot area, send a keypress event
@@ -5427,7 +5426,7 @@
                 draw_panbars(plot);
             }
             if ((mode >= 1) && (Gx.legend)) {
-                create_legend(plot);
+                draw_legend(plot);
             }
         }
     }
@@ -5476,30 +5475,22 @@
      * @memberOf sigplot
      * @private
      */
-    var Legend = function(legendPos) {
-        this.x = legendPos.x;
-        this.y = legendPos.y;
-        this.width = legendPos.width;
-        this.height = legendPos.height;
-    };
-    var legendDraw = function(plot, legendPos, tw, xc, yc, xs, ys, labelOffset, legends) {
-        draw_legend(plot, legendPos, tw, xc, yc, xs, ys, labelOffset);
-        var legend = new Legend(legendPos);
-        legends.push(legend);
-    };
-
-    function create_legend(plot) {
-        var legends = [];
+    function draw_legend(plot) {
         var Mx = plot._Mx;
         var Gx = plot._Gx;
         var ctx = Mx.canvas.getContext("2d");
 
         var n = 0; // integer*4
+        var ix = 0; // integer*4
+        var iy = 0; // integer*4
+        var ln = 0; // integer*4
         var tw = 0; // integer*4
         var xc = 0; // integer*4
         var yc = 0; // integer*4
         var xs = 0; // integer*4
         var ys = 0; // integer*4
+        var thk = 0; // integer*4
+        var ic = 0; // integer*4
 
         tw = Mx.text_w;
         xs = tw * 23;
@@ -5530,21 +5521,6 @@
             legendPos.width += labelOffset;
             legendPos.x -= labelOffset;
         }
-        legendDraw(plot, legendPos, tw, xc, yc, xs, ys, labelOffset, legends);
-
-    }
-
-    function draw_legend(plot, legendPos, tw, xc, yc, xs, ys, labelOffset) {
-        var Mx = plot._Mx;
-        var Gx = plot._Gx;
-        var ctx = Mx.canvas.getContext("2d");
-
-        var n = 0; // integer*4
-        var ix = 0; // integer*4
-        var iy = 0; // integer*4
-        var ln = 0; // integer*4
-        var thk = 0; // integer*4
-        var ic = 0; // integer*4
 
         ctx.strokeStyle = Mx.fg; // Mx.xwfg swapped in for FGColor
         ctx.fillStyle = Mx.bg;
