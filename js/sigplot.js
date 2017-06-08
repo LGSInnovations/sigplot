@@ -899,9 +899,9 @@
                             mx.dispatchEvent(Mx, mtagevt);
 
                             // Refresh to draw the new marker position
-                            if (Gx.always_show_marker || Gx.show_marker) {
-                                plot.redraw();
-                            }
+                            //if (Gx.always_show_marker || Gx.show_marker) {
+                            plot.redraw();
+                            //}
                         }
                     } else if (event.which === 2) {
                         if (Gx.nomenu) {
@@ -4960,6 +4960,508 @@
      * @memberOf sigplot
      * @private
      */
+    function sigplot_legend_menu(plot, index) {
+        var Gx = plot._Gx;
+        var Mx = plot._Mx;
+
+        mx.removeEventListener(Mx, "mousedown", plot.onmousedown, false);
+
+        var DASHED = {
+            text: "Dashed...",
+            handler: function() {
+                // Figure out the current thickness
+                var thk = 1;
+                if (index !== undefined) {
+                    thk = Math.abs(plot._Gx.lyr[index].thick);
+                } else {
+                    if (Gx.lyr.length === 0) {
+                        return;
+                    }
+
+                    thk = Math.abs(plot._Gx.lyr[0].thick);
+                    for (var i = 0; i < Gx.lyr.length; i++) {
+                        if (thk !== Math.abs(plot._Gx.lyr[i].thick)) {
+                            thk = 1;
+                            break;
+                        }
+                    }
+                }
+                setupPrompt(
+                    plot,
+                    "Line thickness:",
+                    mx.intValidator,
+                    function(finalValue) {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].line = 3;
+                            plot._Gx.lyr[index].thick = -1 * finalValue;
+                            plot._Gx.lyr[index].symbol = 0;
+                        } else {
+                            for (var index = 0; index < Gx.lyr.length; index++) {
+                                plot._Gx.lyr[index].line = 3;
+                                plot._Gx.lyr[index].thick = -1 * finalValue;
+                                plot._Gx.lyr[index].symbol = 0;
+                            }
+                        }
+                    }, thk);
+            }
+
+        };
+
+        var COLORS = {
+            text: "Colors...",
+            menu: {
+                title: "COLORS",
+                items: [{
+                    text: "Retain Current"
+                }, {
+                    text: "Red",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "red" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "red";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "red";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Pink",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "pink" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "pink";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "pink";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Hot Pink",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "#ff009e" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "#ff009e";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "#ff009e";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Orange",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "orange" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "orange";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "orange";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Yellow",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "yellow" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "yellow";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "yellow";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Lime Green",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "#80f741" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "#80f741";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "#80f741";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Green",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "green" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "green";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "green";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Blue",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "blue" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "blue";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "blue";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Purple",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].color === "purple" : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].color = "purple";
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].color = "purple";
+                            }
+                        }
+                    }
+                }, {
+                    text: "Custom Hexcode",
+                    handler: function() {
+                        setupPrompt(
+                            plot,
+                            "Color code (requires #):",
+                            mx.hexValidator,
+                            function(finalValue) {
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].color = finalValue;
+                                } else {
+                                    for (var index = 0; index < Gx.lyr.length; index++) {
+                                        plot._Gx.lyr[index].color = finalValue;
+                                    }
+                                }
+                            }, undefined, undefined, undefined, undefined);
+                    }
+                }]
+            }
+        };
+
+        var SOLID = {
+            text: "Solid...",
+            handler: function() {
+                // Figure out the current thickness
+                var thk = 1;
+                if (index !== undefined) {
+                    thk = Math.abs(plot._Gx.lyr[index].thick);
+                } else {
+                    if (Gx.lyr.length === 0) {
+                        return;
+                    }
+
+                    thk = Math.abs(plot._Gx.lyr[0].thick);
+                    var i;
+                    for (i = 0; i < Gx.lyr.length; i++) {
+                        if (thk !== Math.abs(plot._Gx.lyr[i].thick)) {
+                            thk = 1;
+                            break;
+                        }
+                    }
+                }
+                setupPrompt(
+                    plot,
+                    "Line thickness:",
+                    mx.intValidator,
+                    function(finalValue) {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].line = 3;
+                            plot._Gx.lyr[index].thick = finalValue;
+                            plot._Gx.lyr[index].symbol = 0;
+                        } else {
+                            var i;
+                            for (i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].line = 3;
+                                plot._Gx.lyr[i].thick = finalValue;
+                                plot._Gx.lyr[i].symbol = 0;
+                            }
+                        }
+                    }, thk);
+            }
+        };
+
+        var TOGGLE = {
+            text: "Toggle",
+            style: (index !== undefined) ? "checkbox" : undefined,
+            checked: (index !== undefined) ? plot._Gx.lyr[index].display : undefined,
+            handler: function() {
+                if (index !== undefined) {
+                    plot._Gx.lyr[index].display = !plot._Gx.lyr[index].display;
+                } else {
+                    for (var i = 0; i < Gx.lyr.length; i++) {
+                        plot._Gx.lyr[i].display = !plot._Gx.lyr[i].display;
+                    }
+                }
+            }
+        };
+
+        var SYMBOLS = {
+            text: "Symbols...",
+            menu: {
+                title: "SYMBOLS",
+                items: [{
+                    text: "Retain Current"
+                }, {
+                    text: "None",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 0 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].radius = 0;
+                            plot._Gx.lyr[index].symbol = 0;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].radius = 0;
+                                plot._Gx.lyr[i].symbol = 0;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Pixels",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 1 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].radius = 1;
+                            plot._Gx.lyr[index].symbol = 1;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].radius = 1;
+                                plot._Gx.lyr[i].symbol = 1;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Circles",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 2 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].radius = 4;
+                            plot._Gx.lyr[index].symbol = 2;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].radius = 4;
+                                plot._Gx.lyr[i].symbol = 2;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Squares",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 3 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].radius = 4;
+                            plot._Gx.lyr[index].symbol = 3;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].radius = 4;
+                                plot._Gx.lyr[i].symbol = 3;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Plusses",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 4 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].radius = 4;
+                            plot._Gx.lyr[index].symbol = 4;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].radius = 4;
+                                plot._Gx.lyr[i].symbol = 4;
+                            }
+                        }
+                    }
+                }, {
+                    text: "X's",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 5 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].radius = 4;
+                            plot._Gx.lyr[index].symbol = 5;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].radius = 4;
+                                plot._Gx.lyr[i].symbol = 5;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Triangles",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 6 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].radius = 6;
+                            plot._Gx.lyr[index].symbol = 6;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].radius = 6;
+                                plot._Gx.lyr[i].symbol = 6;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Downward Triangles",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].symbol === 7 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].radius = 6;
+                            plot._Gx.lyr[index].symbol = 7;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].radius = 6;
+                                plot._Gx.lyr[i].symbol = 7;
+                            }
+                        }
+                    }
+                }]
+            }
+        };
+
+        var LINE_TYPE = {
+            text: "Line Type...",
+            menu: {
+                title: "LINE TYPE",
+                items: [{
+                    text: "Retain Current"
+                }, {
+                    text: "None",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].line === 0 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].line = 0;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].line = 0;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Verticals",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].line === 1 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].line = 1;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].line = 1;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Horizontals",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].line === 2 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].line = 2;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].line = 2;
+                            }
+                        }
+                    }
+                }, {
+                    text: "Connecting",
+                    checked: (index !== undefined) ? plot._Gx.lyr[index].line === 3 : undefined,
+                    handler: function() {
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].line = 3;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].line = 3;
+                            }
+                        }
+                    }
+                }]
+            }
+        };
+
+        var THICKNESS = {
+            text: "Thickness...",
+            handler: function() {
+                var thickness = 1;
+                if (index !== undefined) {
+                    thickness = plot._Gx.lyr[index].thick;
+                }
+                setupPrompt(
+                    plot,
+                    "Thickness",
+                    mx.intValidator,
+                    function(finalValue) {
+                        if (finalValue === "") {
+                            finalValue = 1;
+                        }
+                        finalValue = Math.max(0, finalValue);
+
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].thick = finalValue;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].thick = finalValue;
+                            }
+                        }
+                    }, thickness, undefined,
+                    undefined, undefined);
+            }
+        };
+
+        var OPACITY = {
+            text: "Opacity...",
+            handler: function() {
+                var opacity = 1.0;
+                if (index !== undefined) {
+                    opacity = plot._Gx.lyr[index].opacity;
+                }
+                setupPrompt(
+                    plot,
+                    "Opacity:",
+                    mx.floatValidator,
+                    function(finalValue) {
+                        if (finalValue === "") {
+                            finalValue = 1.0;
+                        }
+                        finalValue = Math.max(0, finalValue);
+                        finalValue = Math.min(1, finalValue);
+
+                        if (index !== undefined) {
+                            plot._Gx.lyr[index].opacity = finalValue;
+                        } else {
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                plot._Gx.lyr[i].opacity = finalValue;
+                            }
+                        }
+                    }, opacity, undefined,
+                    undefined, undefined);
+            }
+        };
+
+        var LEGEND_TRACE = {
+            title: Gx.lyr[index].name,
+            finalize: function() {
+                if (!Mx.prompt) {
+                    // A prompt may have been
+                    // created by a menu handler
+                    // - let it deal with
+                    // eventListener re-setting
+                    mx.addEventListener(Mx, "mousedown", plot.onmousedown,
+                        false);
+                }
+                plot.refresh();
+            },
+            items: [DASHED, COLORS, SOLID, TOGGLE, SYMBOLS, LINE_TYPE, THICKNESS, OPACITY]
+        };
+
+        mx.menu(Mx, LEGEND_TRACE);
+    }
+
+
+    /**
+     * @memberOf sigplot
+     * @private
+     */
     function rubberbox_cb(plot, triggerEvent) {
         return function(event, xo, yo, xl, yl, action, mode) {
             var Gx = plot._Gx;
@@ -5478,8 +5980,10 @@
     function draw_legend(plot) {
         var Mx = plot._Mx;
         var Gx = plot._Gx;
+        //Gx.always_show_marker = true;
         var ctx = Mx.canvas.getContext("2d");
 
+        var i = 0;
         var n = 0; // integer*4
         var ix = 0; // integer*4
         var iy = 0; // integer*4
@@ -5573,9 +6077,16 @@
             iy = iy + Mx.text_h * 0.3;
             mx.text(Mx, ix - labelOffset, iy, Gx.lyr[n].name);
         }
-        if ((legendPos.x <= Mx.xpos) && ((legendPos.x + legendPos.width) >= Mx.xpos) &&
-            ((legendPos.y <= Mx.ypos)) && (legendPos.y + legendPos.height) >= Mx.ypos) {
-            console.log("this works here");
+        // a variable to hold the legend y positon of each layer
+        var layerheight = legendPos.height / Gx.lyr.length;
+
+        for (i = 0; i < Gx.lyr.length; i++) {
+            if ((legendPos.x <= Mx.xpos) && ((legendPos.x + legendPos.width) >= Mx.xpos) &&
+                ((legendPos.y <= Mx.ypos)) && (legendPos.y + layerheight) >= Mx.ypos) {
+                legendPos.y += layerheight;
+                //find a way to pull up the menu
+                sigplot_legend_menu(plot, i);
+            }
         }
     }
 
