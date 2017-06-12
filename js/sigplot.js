@@ -6083,10 +6083,10 @@
         for (i = 0; i < Gx.lyr.length; i++) {
             if ((legendPos.x <= Mx.xpos) && ((legendPos.x + legendPos.width) >= Mx.xpos) &&
                 ((legendPos.y <= Mx.ypos)) && (legendPos.y + layerheight) >= Mx.ypos) {
-                legendPos.y += layerheight;
                 //find a way to pull up the menu
                 sigplot_legend_menu(plot, i);
             }
+            legendPos.y += layerheight;
         }
     }
 
