@@ -353,6 +353,11 @@
                     } else {
                         if (plot.mouseOnCanvas) {
                             draw_crosshairs(plot);
+                            if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+                                if (!Gx.y_cut_press_on && !Gx.x_cut_press_on) {
+                                    draw_p_cuts(plot);
+                                }
+                            }
                         }
                     }
                 }
@@ -525,7 +530,7 @@
                         }
 
                         // If we have a large colorbar, we also have buttons:
-                        if (Gx.lg_colorbar) {
+                        if (Gx.lg_colorbar && (Gx.lyr[0].hcb["class"] === 2)) {
                             if (event.which === 1 || event.which === 3) {
                                 var mouse_x = Mx.xpos;
                                 var mouse_y = Mx.ypos;
@@ -1257,10 +1262,84 @@
                             plot.change_settings({
                                 specs: !Gx.specs
                             });
+                        } else if (keyCode === 112) { // 'p'
+                            plot.change_settings({
+                                p_cuts: !Gx.p_cuts
+                            });
                         } else if (keyCode === 120) { // 'x'
-                            sigplot_show_x(plot);
+                            if (Gx.x_cut_press_on) {
+                                Gx.x_cut_press_on = false;
+                                for (var h = 0; h < Gx.xcut_layer; h++) {
+                                    plot._Gx.lyr[h].display = !plot._Gx.lyr[h].display;
+                                }
+                                delete_layer(plot, plot._Gx.xcut_layer);
+                                plot.rescale();
+                                plot.refresh();
+                                Gx.xcut_layer = undefined;
+                            } else if (Gx.xyKeys === "pop-up") {
+                                sigplot_show_x(plot);
+                            } else if ((Gx.lyr[0].hcb["class"] === 1) && (Gx.xyKeys === "automatic")) {
+                                sigplot_show_x(plot);
+                            } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
+                                //display the x-cut of the raster
+                                if (!Gx.y_cut_press_on) {
+                                    var xcut_display = [];
+                                    for (var a = 0; a < Gx.x_cut_data.length; a++) {
+                                        var item = Gx.x_cut_data[a];
+                                        item = item * -1;
+                                        xcut_display.push(item);
+                                    }
+
+                                    Gx.xcut_layer = plot.overlay_array(xcut_display, null, {
+                                        name: "x_cut_data",
+                                        line: 3
+                                    });
+                                    Gx.xcut_layer = Gx.lyr.length - 1;
+                                    //do not display any other layers
+                                    for (var i = 0; i < Gx.xcut_layer; i++) {
+                                        plot._Gx.lyr[i].display = !plot._Gx.lyr[i].display;
+                                    }
+                                    Gx.x_cut_press_on = true;
+                                    plot.rescale();
+                                }
+                            }
                         } else if (keyCode === 121) { // 'y'
-                            sigplot_show_y(plot);
+                            if (Gx.y_cut_press_on) {
+                                Gx.y_cut_press_on = false;
+                                for (var j = 0; j < Gx.ycut_layer; j++) {
+                                    plot._Gx.lyr[j].display = !plot._Gx.lyr[j].display;
+                                }
+                                delete_layer(plot, plot._Gx.ycut_layer);
+                                plot.rescale();
+                                plot.refresh();
+                                Gx.ycut_layer = undefined;
+                            } else if (Gx.xyKeys === "pop-up") {
+                                sigplot_show_y(plot);
+                            } else if ((Gx.lyr[0].hcb["class"] === 1) && (Gx.xyKeys === "automatic")) {
+                                sigplot_show_y(plot);
+                            } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
+                                //display the y-cut of the raster
+                                if (!Gx.x_cut_press_on) {
+                                    var ycut_display = [];
+                                    for (var a = 0; a < Gx.y_cut_data.length; a++) {
+                                        var item = Gx.y_cut_data[a];
+                                        item = item * -1;
+                                        ycut_display.push(item);
+                                    }
+
+                                    Gx.ycut_layer = plot.overlay_array(ycut_display, null, {
+                                        name: "y_cut_data",
+                                        line: 3
+                                    });
+                                    Gx.ycut_layer = Gx.lyr.length - 1;
+                                    //do not display any other layers
+                                    for (var k = 0; k < Gx.ycut_layer; k++) {
+                                        plot._Gx.lyr[k].display = !plot._Gx.lyr[k].display;
+                                    }
+                                    Gx.y_cut_press_on = true;
+                                    plot.rescale();
+                                }
+                            }
                         } else if (keyCode === 122) { // 'z'
                             sigplot_show_z(plot);
                         } else if (keyCode === 116) { // 't'
@@ -1471,6 +1550,14 @@
 
             for (var i = 0; i < Gx.lyr.length; i++) {
                 Gx.lyr[i].change_settings(settings);
+            }
+
+            if (settings.xyKeys !== undefined) {
+                if (settings.xyKeys === null) {
+                    Gx.xyKeys = "automatic";
+                } else {
+                    Gx.xyKeys = settings.xyKeys;
+                }
             }
 
             if (settings.grid !== undefined) {
@@ -1802,6 +1889,22 @@
             if (settings.lg_colorbar !== undefined) {
                 // Change the plot area and then draw the large colorbar
                 Gx.lg_colorbar = !Gx.lg_colorbar;
+            }
+
+            if (settings.p_cuts !== undefined) {
+                // Change the plot area and then draw the p_cuts dipslay
+                Gx.p_cuts = !Gx.p_cuts;
+                Gx.parent.setAttribute("style", "position:relative");
+            }
+
+            //this is a setting that is true if we are drawing an xcut
+            if (settings.xcut_now !== undefined) {
+                Gx.xcut_now = !Gx.xcut_now;
+            }
+
+            //this is a setting that is true if we are drawing a ycut
+            if (settings.ycut_now !== undefined) {
+                Gx.ycut_now = !Gx.ycut_now;
             }
 
             this.refresh();
@@ -2595,7 +2698,6 @@
             var Gx = this._Gx;
             var Mx = this._Mx;
             var ctx = Mx.canvas.getContext("2d");
-
             if (!Gx.plotData.valid) {
                 this.refresh();
             } else {
@@ -2808,11 +2910,41 @@
             // pan select ranges
             Gx.pyl = Mx.r + (Mx.width - Mx.r - Gx.pthk) / 2 + 1;
 
-            if (Gx.lg_colorbar) {
+            if (Gx.lg_colorbar && (Gx.lyr[0].hcb["class"] === 2)) {
                 // Move the plot over to make room
                 var prev_Mx_r = Mx.r;
                 Mx.r = prev_Mx_r - 100;
 
+            }
+
+            if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+                //turn cross hairs on
+                Gx.cross = true;
+
+                //Move the plot over to make room
+                var prev_Mx_r = Mx.r;
+                Mx.r = prev_Mx_r - 100;
+
+                //Move the plot up to make room
+                var prev_Mx_b = Mx.b;
+                Mx.b = prev_Mx_b - 100;
+            }
+            if (Gx.xcut_now) {
+                Mx.canvas.width = Gx.x_box_w - 1;
+                Mx.canvas.height = Gx.x_box_h;
+                Mx.r = Gx.x_box_w - 1;
+                Mx.l = 0;
+                Mx.b = Gx.x_box_h;
+                Mx.t = 0;
+            }
+
+            if (Gx.ycut_now) {
+                Mx.canvas.width = Gx.y_box_h - 1;
+                Mx.canvas.height = Gx.y_box_w;
+                Mx.r = Gx.y_box_h - 1;
+                Mx.l = 0;
+                Mx.b = Gx.y_box_w;
+                Mx.t = 0;
             }
 
             // set virtual window size/pos/scaling for current level
@@ -2924,7 +3056,7 @@
                     if (Gx.ylabel !== undefined) {
                         drawaxis_flags.ylabel = Gx.ylabel;
                     }
-                    mx.drawaxis(Mx, Gx.xdiv, Gx.ydiv, xlab, ylab, drawaxis_flags);
+                    mx.drawaxis(Gx, Mx, Gx.xdiv, Gx.ydiv, xlab, ylab, drawaxis_flags);
                 } //else {
                 // Not implemented yet
                 //}
@@ -2966,7 +3098,7 @@
                     noytlab: true,
                     noyplab: true
                 };
-                mx.drawaxis(Mx, Gx.xdiv, Gx.ydiv, xlab, ylab,
+                mx.drawaxis(Gx, Mx, Gx.xdiv, Gx.ydiv, xlab, ylab,
                     drawaxis_flags);
             }
 
@@ -2988,6 +3120,9 @@
             Gx.cross_ypos = undefined;
             if ((!Mx.warpbox) && (this.mouseOnCanvas)) {
                 draw_crosshairs(this);
+                if (!Gx.y_cut_press_on && !Gx.x_cut_press_on) {
+                    draw_p_cuts(this);
+                }
             }
 
             if (Gx.always_show_marker || Gx.show_marker) {
@@ -3222,6 +3357,41 @@
         this.cbb_bot_y1 = 0;
         this.cbb_width = 0;
         this.cbb_height = 0;
+
+        //P_cuts info
+        this.p_cuts = false;
+        this.x_box_x = 0;
+        this.x_box_y = 0;
+        this.x_box_h = 0;
+        this.x_box_w = 0;
+        this.y_box_x = 0;
+        this.y_box_y = 0;
+        this.y_box_h = 0;
+        this.y_box_w = 0;
+        this.p_cuts_xpos = undefined;
+        this.p_cuts_ypos = undefined;
+        this.x_cut_data = [];
+        this.y_cut_data = [];
+        //the plot to hold the x-cut on bottom
+        this.xcut = undefined;
+        //layer xcut that will be displayed on pop-up
+        this.xcut_layer = undefined;
+        this.x_cut_press_on = false;
+        //variable that is true if the bottom xcut is being drawn
+        this.xcut_now = false;
+        //the plot to hold the y-cut
+        this.ycut = undefined;
+        //layer ycut that will be displayed on pop-up
+        this.ycut_layer = undefined;
+        this.y_cut_press_on = false;
+        //variable that is true if the ycut is being drawn
+        this.ycut_now = false;
+        this.holder = [];
+
+        //x and y sticky key configuration ("automatic" displays point on
+        //1D and cut on 2D, "disable" doesn't display anything, "pop-up"
+        //displays point on both, and "cuts" displays only cuts on 2D)
+        this.xyKeys = "automatic";
     }
 
     /**
@@ -4007,6 +4177,25 @@
                     handler: function() {
                         plot.change_settings({
                             specs: !Gx.specs
+                        });
+                    }
+                }, {
+                    text: "P-Cuts",
+                    checked: Gx.p_cuts,
+                    style: "checkbox",
+                    handler: function() {
+                        plot.change_settings({
+                            p_cuts: !Gx.p_cuts
+                        });
+                        Gx.parent.setAttribute("style", "position:relative");
+                    }
+                }, {
+                    text: "Large Colorbar",
+                    checked: Gx.lg_colorbar,
+                    style: "checkbox",
+                    handler: function() {
+                        plot.change_settings({
+                            lg_colorbar: !Gx.lg_colorbar
                         });
                     }
                 }, {
@@ -5524,6 +5713,157 @@
             Gx.panymax = -1.0;
         }
     }
+    /**
+     * @memberOf sigplot
+     * @private
+     */
+
+    function draw_p_cuts(plot) {
+        var Gx = plot._Gx;
+        var Mx = plot._Mx;
+
+        var eventx = document.createEvent('Event');
+        eventx.initEvent('x-cut', false, false);
+        var onPlotXCut = function() {
+            if (plot._Gx.xcut === undefined) {
+                //create the canvas and plot for xcut
+                var element1 = document.createElement("div");
+                document.getElementById(plot._Gx.parent.id).appendChild(element1);
+
+                plot._Gx.xcut = new sigplot.Plot(element1, {});
+                var layer = plot._Gx.xcut.overlay_array(plot._Gx.x_cut_data, null, {
+                    name: "x_cut_data",
+                    line: 3
+                });
+
+                plot._Gx.xcut.change_settings({
+                    specs: !Gx.specs
+                });
+                plot._Gx.xcut.change_settings({
+                    grid: !Gx.grid
+                });
+                plot._Gx.xcut.change_settings({
+                    pan: !Gx.pan
+                });
+                plot._Gx.xcut._Gx.x_box_x = plot._Gx.x_box_x;
+                plot._Gx.xcut._Gx.x_box_y = plot._Gx.x_box_y;
+                plot._Gx.xcut._Gx.x_box_h = plot._Gx.x_box_h;
+                plot._Gx.xcut._Gx.x_box_w = plot._Gx.x_box_w;
+                plot._Gx.xcut.change_settings({
+                    xcut_now: !Gx.xcut_now
+                });
+                plot._Gx.xcut.get_layer(layer).color = plot._Mx.fg;
+                element1.setAttribute("style", "width:" + plot._Gx.x_box_w + "px;" +
+                    "height:" + plot._Gx.x_box_h + "px;position:absolute;left:" +
+                    plot._Gx.x_box_x + "px;top:" + plot._Gx.x_box_y + "px");
+
+            } else {
+                plot._Gx.xcut.reload(0, plot._Gx.x_cut_data);
+            }
+        };
+        plot.addListener('x-cut', onPlotXCut);
+
+        var eventy = document.createEvent('Event');
+        eventy.initEvent('y-cut', false, false);
+        var onPlotYCut = function() {
+            if (plot._Gx.ycut === undefined) {
+                //create the canvas and plot for ycut
+                var element2 = document.createElement("div");
+                document.getElementById(plot._Gx.parent.id).appendChild(element2);
+                plot._Gx.ycut = new sigplot.Plot(element2, {});
+
+                var layer = plot._Gx.ycut.overlay_array(plot._Gx.y_cut_data, null, {
+                    name: "y_cut_data",
+                    line: 3
+                });
+
+                plot._Gx.ycut.change_settings({
+                    specs: !Gx.specs
+                });
+                plot._Gx.ycut.change_settings({
+                    grid: !Gx.grid
+                });
+                plot._Gx.ycut.change_settings({
+                    pan: !Gx.pan
+                });
+                plot._Gx.ycut._Gx.y_box_x = plot._Gx.y_box_x;
+                plot._Gx.ycut._Gx.y_box_y = plot._Gx.y_box_y;
+                plot._Gx.ycut._Gx.y_box_h = plot._Gx.y_box_h;
+                plot._Gx.ycut._Gx.y_box_w = plot._Gx.y_box_w;
+                plot._Gx.ycut.change_settings({
+                    ycut_now: !Gx.ycut_now
+                });
+                plot._Gx.ycut.get_layer(layer).color = plot._Mx.fg;
+                var new_left = plot._Gx.y_box_x + (0.5 * plot._Gx.y_box_w) -
+                    (0.5 * plot._Gx.y_box_h);
+                var new_top = plot._Gx.y_box_y + (0.5 * plot._Gx.y_box_h) -
+                    (0.5 * plot._Gx.y_box_w);
+                element2.setAttribute("style", "width:" + plot._Gx.y_box_h + "px;" +
+                    "height:" + plot._Gx.y_box_w + "px;position:absolute;left:" +
+                    new_left + "px;top:" + new_top + "px");
+                element2.style.transform = "rotate(90deg)";
+
+            } else {
+                plot._Gx.ycut.reload(0, plot._Gx.y_cut_data);
+            }
+        };
+        plot.addListener('y-cut', onPlotYCut);
+
+        if (Gx.p_cuts) {
+            var plot_height = Mx.b - Mx.t;
+            var plot_width = Mx.r - Mx.l;
+            var height = Gx.lyr[0].yframe;
+            var width = Gx.lyr[0].xframe;
+
+            if ((Mx.xpos >= Mx.l) && (Mx.xpos <= Mx.r) && (Gx.p_cuts_xpos !== Mx.xpos)) {
+                var line = 0;
+                var i = 0;
+                if (Gx.p_cuts_xpos !== undefined) {
+                    //fill data for y_cut for this xpos
+                    Gx.y_cut_data = [];
+                    line = Math.floor((width * (Gx.p_cuts_xpos - Mx.l)) / plot_width);
+                    for (i = line; i < (width * height); i += width) {
+                        Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
+                    }
+                    mx.dispatchEvent(Mx, eventy);
+
+                }
+                //fill data for y_cut for this mouse xpos
+                Gx.y_cut_data = [];
+                line = Math.floor((width * (Mx.xpos - Mx.l)) / plot_width);
+                for (i = line; i < (width * height); i += width) {
+                    Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
+                }
+                mx.dispatchEvent(Mx, eventy);
+
+                Gx.p_cuts_xpos = Mx.xpos;
+
+            }
+            if ((Mx.ypos >= Mx.t) && (Mx.ypos <= Mx.b) && (Gx.p_cuts_ypos !== Mx.ypos)) {
+                var row = 0;
+                var start = 0;
+                var finish = 0;
+                var i = 0;
+                if (Gx.p_cuts_ypos !== undefined) {
+                    //fill data for x_cut for this ypos
+                    row = Math.floor((height * (Gx.p_cuts_ypos - Mx.t)) / plot_height);
+                    start = row * width;
+                    finish = start + width;
+                    Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
+                    mx.dispatchEvent(Mx, eventx);
+                }
+                //fill data for x_cut for this mouse ypos
+                row = Math.floor((height * (Mx.ypos - Mx.t)) / plot_height);
+                start = row * width;
+                finish = start + width;
+                Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
+                mx.dispatchEvent(Mx, eventx);
+
+                Gx.p_cuts_ypos = Mx.ypos;
+
+            }
+        }
+    }
 
     /**
      * @memberOf sigplot
@@ -6309,13 +6649,7 @@
         var y = 0;
         var w = 0;
         var h = 0;
-        if (Gx.lg_colorbar) {
-            // I want to center the big color bar between the top and bottom of the plot
-            // Retrieve padding info
-            var bottom_padding = Mx.wid_canvas.height - Mx.b;
-            var top_padding = Mx.wid_canvas.height - Mx.b - Mx.t;
-            //console.log('bottom: ', bottom_padding);
-            //console.log('top: ', top_padding);
+        if (Gx.lg_colorbar && (Gx.lyr[0].hcb["class"] === 2)) {
             var plot_height = Mx.b - Mx.t;
 
             x = Mx.r + 35;
@@ -6375,6 +6709,37 @@
         }
 
         mx.colorbar(Mx, x, y, w, h);
+
+        //draw boxes for the p_cuts
+        if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+            var plot_height = Mx.b - Mx.t;
+            var plot_width = Mx.r - Mx.l;
+
+            //fill variables to draw y-cut box along right side
+            Gx.y_box_x = Mx.r + 25;
+            Gx.y_box_y = Mx.t;
+            Gx.y_box_w = (5 * Mx.text_w) + 20;
+            Gx.y_box_h = plot_height;
+
+            if (Gx.lg_colorbar) { //move over box if large colorbar displayed
+                Gx.y_box_x += 100;
+            }
+
+            //draw y-cut box
+            mx.draw_box(Mx, Mx.fg, Gx.y_box_x + 0.5, Gx.y_box_y, Gx.y_box_w, Gx.y_box_h);
+
+            //fill variables to draw x-cut box along bottom
+            Gx.x_box_x = Mx.l;
+            Gx.x_box_y = Mx.b + 25;
+            Gx.x_box_w = plot_width;
+            Gx.x_box_h = (5 * Mx.text_h) + 20;
+
+            mx.draw_box(Mx, Mx.fg, Gx.x_box_x + 0.5, Gx.x_box_y, Gx.x_box_w, Gx.x_box_h);
+
+
+
+        }
+
     }
 
     /**
@@ -6596,7 +6961,7 @@
             // TODO do we want to
             // reset the xposition?
 
-            if (Gx.lg_colorbar) {
+            if (Gx.lg_colorbar && (Gx.lyr[0].hcb["class"] === 2)) {
                 // Need to do an additional check since there is area outside Mx.r that is NOT the pan region
                 var right_of_colorbar = (x > Mx.r + 100); // Mx.r = Mx.r - 100 is how we moved it initally
                 if (right_of_colorbar) {
@@ -6609,6 +6974,7 @@
                 Mx.xpos = Gx.pyl + m.trunc(Gx.pthk / 2);
                 inPanRegion = true;
             }
+            //possibly do another check for p_cuts as well;
         } else if (has_bottom_scrollbar && between_left_and_right && below_bottom_border) {
             command = 'XPAN'; // X scrollbar
             Mx.ypos = Gx.pt + m.trunc(Gx.pthk / 2); // TODO Do we want to reset
