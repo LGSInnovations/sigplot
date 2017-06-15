@@ -507,7 +507,7 @@
                 return i;
             }
         }
-        return unitInput;
+        return 0;
     };
 
     /**

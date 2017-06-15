@@ -4884,36 +4884,19 @@
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 
-        if (!o.xlab)
-        {
+        if (!o.xlab) {
             o.xlab = 0;
         }
-        if (!o.ylab)
-        {
+        if (!o.ylab) {
             o.ylab = 0;
         }
 
         //Convert xunits and yunits to numbers if they are strings
-        
-        for (var i = 0; i < 64; i++) {
-            var u;
-            if (sigplot.m.UNITS[i] === undefined)
-            {
-                u = sigplot.m.UNITS[0];
-            }
-            else {
-                u = sigplot.m.UNITS[i];
-            }
-            var comparer = u[0] + " " + u[1];
-
-            if (o.ylab === comparer)
-            {
-                o.ylab = i;
-            }
-            if (o.xlab === comparer)
-            {
-                o.xlab = i;
-            }
+        if (!Number.isInteger(o.xlab)) {
+            o.xlab = m.unit_lookup(o.xlab);
+        }
+        if (!Number.isInteger(o.ylab)) {
+            o.ylab = m.unit_lookup(o.ylab);
         }
 
         // Equivalent to reading cmd line args
