@@ -476,12 +476,8 @@
     m.PIPESIZE = 1024 * 1024;
 
     /**
-     * Creates new file with header initialized to type-1000 defaults
-     * and data appended. (tbd)
-     * @param	{string}	filename	Name of File to Create
-     * @param  	{array}		data		Input data buffer
-     * @param  	{array}	  	overrides	List of fields/values to be overridden in the bluefile header
-     * @return 	{header} 	hcb		Return <hcb> type-1000 bluefile header, filename=null
+     * Converts unit strings to number code
+     * @param	{string}	unitInput	User unit input
      */
     m.unit_lookup = function(unitInput) {
         for (var i = 0; i < 64; i++) {
@@ -507,7 +503,7 @@
                 return i;
             }
         }
-        return 0;
+        return unitInput;
     };
 
     /**
@@ -543,12 +539,8 @@
         }
 
         //Convert xunits and yunits to numbers if they are strings
-        if (!Number.isInteger(hcb["xunits"])) {
-            hcb["xunits"] = m.unit_lookup(hcb["xunits"]);
-        }
-        if (!Number.isInteger(hcb["yunits"])) {
-            hcb["yunits"] = m.unit_lookup(hcb["yunits"]);
-        }
+        hcb["xunits"] = m.unit_lookup(hcb["xunits"]);
+        hcb["yunits"] = m.unit_lookup(hcb["yunits"]);
 
 
         // Force type 2000 is subsize is specified

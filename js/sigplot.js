@@ -4892,12 +4892,8 @@
         }
 
         //Convert xunits and yunits to numbers if they are strings
-        if (!Number.isInteger(o.xlab)) {
-            o.xlab = m.unit_lookup(o.xlab);
-        }
-        if (!Number.isInteger(o.ylab)) {
-            o.ylab = m.unit_lookup(o.ylab);
-        }
+        o.xlab = m.unit_lookup(o.xlab);
+        o.ylab = m.unit_lookup(o.ylab);
 
         // Equivalent to reading cmd line args
         Gx.xmin = o.xmin === undefined ? 0.0 : o.xmin;
