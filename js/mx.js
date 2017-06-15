@@ -3144,7 +3144,7 @@
         GBorder: 3,
         sidelab: 0,
         toplab: 1,
-        n_show: 0,
+        n_show: 0
     };
 
     /**
@@ -3161,15 +3161,14 @@
         //var mouse_pos = Mx.ypos; TODO: Use mouse position
         var plot_height = Mx.canvas.height;
         var buffer_sz = 35; // estimate of how much of the canvas is spacing around plot
-        var avail_space = plot_height- 2*buffer_sz;
+        var avail_space = plot_height - 2 * buffer_sz;
 
         // Calculate how many menu items can fit inside that space
         var menu_item_height = Mx.text_h * 1.5;
         var n_items = Math.floor(avail_space / menu_item_height);
-        if (n_items >= menu.items.length){
+        if (n_items >= menu.items.length) {
             MENU_CONSTANTS.n_show = menu.items.length;
-        }
-        else{
+        } else {
             MENU_CONSTANTS.n_show = n_items;
         }
 
@@ -3461,7 +3460,7 @@
                             if (i_end + 1 === menu.items.length) {
                                 next_item = 0;
                             }
-                            
+
                             menu.queue.shift();
                             menu.queue.push(next_item);
                             menu.items[i_end].selected = false;
