@@ -4697,7 +4697,7 @@
 
         var REFRESH_ITEM = {
             text: "Refresh" // no handler, just let the finalizer deal with
-                // it
+            // it
         };
 
         var KEYPRESSINFO_ITEM = {
