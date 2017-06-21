@@ -181,6 +181,8 @@
         63: ["Altitude", "m"]
     };
 
+    m.UNITS = UNITS;
+
     /** Common structure 
      * @private
      */

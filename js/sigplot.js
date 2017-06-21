@@ -1269,6 +1269,8 @@
                         } else if (keyCode === 120) { // 'x'
                             if (Gx.x_cut_press_on) {
                                 Gx.x_cut_press_on = false;
+                                Gx.ylabel = Gx.ylabel_stash;
+                                Gx.xlabel = Gx.xlabel_stash;
                                 for (var h = 0; h < Gx.xcut_layer; h++) {
                                     plot._Gx.lyr[h].display = !plot._Gx.lyr[h].display;
                                 }
@@ -1289,7 +1291,15 @@
                                         item = item * -1;
                                         xcut_display.push(item);
                                     }
-
+                                    Gx.ylabel_stash = Gx.ylabel;
+                                    Gx.ylabel = "Intensity";
+                                    Gx.xlabel_stash = Gx.xlabel;
+                                    if ((m.UNITS[Gx.xlab][0] !== "None") && (m.UNITS[Gx.xlab][0] !== "Unknown")) {
+                                        Gx.xlabel = m.UNITS[Gx.xlab][0];
+                                    } else {
+                                        Gx.xlabel = "Frequency";
+                                    }
+                                    Gx.xlabel += "    CURRENTLY IN X_CUT MODE";
                                     Gx.xcut_layer = plot.overlay_array(xcut_display, null, {
                                         name: "x_cut_data",
                                         line: 3
@@ -1306,6 +1316,8 @@
                         } else if (keyCode === 121) { // 'y'
                             if (Gx.y_cut_press_on) {
                                 Gx.y_cut_press_on = false;
+                                Gx.ylabel = Gx.ylabel_stash;
+                                Gx.xlabel = Gx.xlabel_stash;
                                 for (var j = 0; j < Gx.ycut_layer; j++) {
                                     plot._Gx.lyr[j].display = !plot._Gx.lyr[j].display;
                                 }
@@ -1326,7 +1338,15 @@
                                         item = item * -1;
                                         ycut_display.push(item);
                                     }
-
+                                    Gx.ylabel_stash = Gx.ylabel;
+                                    Gx.ylabel = "Intensity";
+                                    Gx.xlabel_stash = Gx.xlabel;
+                                    if ((m.UNITS[Gx.ylab][0] !== "None") && (m.UNITS[Gx.ylab][0] !== "Unknown")) {
+                                        Gx.xlabel = m.UNITS[Gx.ylab][0];
+                                    } else {
+                                        Gx.xlabel = "Time";
+                                    }
+                                    Gx.xlabel += "    CURRENTLY IN Y_CUT MODE";
                                     Gx.ycut_layer = plot.overlay_array(ycut_display, null, {
                                         name: "y_cut_data",
                                         line: 3
@@ -3386,7 +3406,8 @@
         this.y_cut_press_on = false;
         //variable that is true if the ycut is being drawn
         this.ycut_now = false;
-        this.holder = [];
+        this.ylabel_stash = undefined;
+        this.xlabel_stash = undefined;
 
         //x and y sticky key configuration ("automatic" displays point on
         //1D and cut on 2D, "disable" doesn't display anything, "pop-up"
