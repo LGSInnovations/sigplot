@@ -115,9 +115,10 @@
      *
      * @param {String}
      *            options.cmode the plot rendering mode "IN" = Index, "AB" =
-     *            Abscissa, "MA" = Magnitude, "PH" = Phase, "RE" = Real, "IM" =
-     *            Imaginary, "LO" or "D1" = 10*log, "L2" or "D2" = 20*log, "RI"
-     *            or "IR" = Real vs. Imaginary
+     *            Abscissa (both of these, along with "__" can be added as prefixes to the other modes),
+     *            "MA", "Magnitude" = Magnitude, "PH", "Phase" = Phase, "RE", "Real" = Real,
+     *            "IM","Imaginary" = Imaginary, "LO", "D1", "10*log10" = 10*log, "L2" or "D2"
+     *            , "20*log10" = 20*log, "RI", "Real/Imag", "Imag/Real","IR" = Real vs. Imaginary
      *
      * @param {String}
      *            options.phunits the phase units "D" = Degrees, "R" = Radians,
@@ -1640,7 +1641,39 @@
             }
 
             if (settings.cmode !== undefined) {
-                changemode(this, settings.cmode);
+                var cmode = settings.cmode;
+                if ((Gx.lyr.length > 0) && (Gx.lyr[0].cx)) {
+                    Gx.cmode = 1;
+                } else {
+                    Gx.cmode = 3;
+                }
+                if ((cmode === "MA") || (cmode === "Magnitude") || (cmode === 1)) {
+                    Gx.cmode = 1;
+                }
+                if ((cmode === "PH") || (cmode === "Phase") || (cmode === 2)) {
+                    Gx.cmode = 2;
+                }
+                if ((cmode === "RE") || (cmode === "Real") || (cmode === 3)) {
+                    Gx.cmode = 3;
+                }
+                if ((cmode === "IM") || (cmode === "Imaginary") || (cmode === 4)) {
+                    Gx.cmode = 4;
+                }
+                if ((cmode === "LO") || (cmode === "D1") || (cmode === "10*log10") || (cmode === 6)) {
+                    Gx.cmode = 6;
+                }
+                if ((cmode === "L2") || (cmode === "D2") || (cmode === "20*log10") || (cmode === 7)) {
+                    Gx.cmode = 7;
+                }
+                if ((cmode === "RI") || (cmode === "IR") ||
+                    (cmode === "Real/Imag") || (cmode === "Imag/Real") || (cmode === 5)) {
+                    if (Gx.index) {
+                        alert("Imag/Real mode not permitted in INDEX mode");
+                    } else {
+                        Gx.cmode = 5;
+                    }
+                }
+                changemode(this, Gx.cmode);
             }
 
             if (settings.phunits !== undefined) {
@@ -4893,7 +4926,7 @@
         Gx.xmax = o.xmax === undefined ? 0.0 : o.xmax;
         var havexmin = (o.xmin !== undefined);
         var havexmax = (o.xmax !== undefined);
-        var address = o.cmode === undefined ? "" : o.cmode.toUpperCase();
+        var address = o.cmode === undefined ? "" : o.cmode;
         var line = o.line === undefined ? 3 : o.line;
         Gx.ylab = o.ylab;
         Gx.ylabel = o.ylabel;
@@ -4980,44 +5013,52 @@
             // TODO load files
         }
 
-        var cmode = address.slice(0, 2);
-        if (cmode === "IN" || cmode === "AB" || cmode === "__") {
-            cmode = address.slice(2, 4);
-        }
+        var cmode = address;
 
-        // TODO
         if ((Gx.lyr.length > 0) && (Gx.lyr[0].cx)) {
             Gx.cmode = 1;
         } else {
             Gx.cmode = 3;
         }
 
-        if (cmode === "MA") {
+        if ((cmode === "MA") || (cmode === "INMA") || (cmode === "ABMA") ||
+            (cmode === "__MA") || (cmode === "Magnitude")) {
             Gx.cmode = 1;
         }
-        if (cmode === "PH") {
+        if ((cmode === "PH") || (cmode === "INPH") || (cmode === "ABPH") ||
+            (cmode === "__PH") || (cmode === "Phase")) {
             Gx.cmode = 2;
         }
-        if (cmode === "RE") {
+        if ((cmode === "RE") || (cmode === "INRE") || (cmode === "ABRE") ||
+            (cmode === "__RE") || (cmode === "Real")) {
             Gx.cmode = 3;
         }
-        if (cmode === "IM") {
+        if ((cmode === "IM") || (cmode === "INIM") || (cmode === "ABIM") ||
+            (cmode === "__IM") || (cmode === "Imaginary")) {
             Gx.cmode = 4;
         }
-        if ((cmode === "LO") || (cmode === "D1")) {
+        if ((cmode === "LO") || (cmode === "D1") || (cmode === "INLO") || (cmode === "IND1") ||
+            (cmode === "ABIM") || (cmode === "ABD1") || (cmode === "__LO") ||
+            (cmode === "__D1") || (cmode === "10*log10")) {
             Gx.cmode = 6;
         }
-        if ((cmode === "L2") || (cmode === "D2")) {
+        if ((cmode === "L2") || (cmode === "D2") || (cmode === "INL2") || (cmode === "IND2") ||
+            (cmode === "ABLO") || (cmode === "ABD2") || (cmode === "__L2") ||
+            (cmode === "__D2") || (cmode === "10*log10")) {
             Gx.cmode = 7;
         }
-        if ((cmode === "RI") || (cmode === "IR")) {
+        if ((cmode === "RI") || (cmode === "IR") || (cmode === "INRI") || (cmode === "INIR") ||
+            (cmode === "ABRI") || (cmode === "ABIR") || (cmode === "__RI") ||
+            (cmode === "__IR") || (cmode === "Imag/Real") || (cmode === "Real/Imag")) {
             if (Gx.index) {
                 alert("Imag/Real mode not permitted in INDEX mode");
             } else {
                 Gx.cmode = 5;
             }
         }
+
         Gx.basemode = Gx.cmode;
+        console.log("Is this the problem?");
         plot.change_settings({
             cmode: Gx.cmode
         });
@@ -5035,7 +5076,7 @@
             if (Gx.cmode === 7) {
                 dbscale = 20.0;
             }
-            if (cmode[0] === "L") {
+            if ((cmode[0] === "L") || (cmode[0] === "1") || (cmode[0] === "2")) {
                 if ((Gx.lyr.length > 0) && (Gx.lyr[0].cx)) {
                     Gx.ymin = Math.max(Gx.ymin, 1e-10);
                     Gx.ymax = Math.max(Gx.ymax, 1e-10);
@@ -5158,6 +5199,7 @@
         if (!havexmax) {
             Gx.xmax = undefined;
         }
+
         scale_base(plot, {
             get_data: true
         }, Gx.xmin, Gx.xmax, Gx.xlab, Gx.ylab);
