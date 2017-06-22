@@ -1292,6 +1292,7 @@
                                         xcut_display.push(item);
                                     }
                                     Gx.ylabel_stash = Gx.ylabel;
+
                                     var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
                                     if (Gx.cmode === 1) {
                                         Gx.ylabel = m.UNITS[28][0];
@@ -1310,6 +1311,7 @@
                                     } else {
                                         Gx.ylabel = "Intensity";
                                     }
+
                                     Gx.ylabel = "Intensity";
                                     Gx.xlabel_stash = Gx.xlabel;
                                     if ((m.UNITS[Gx.xlab][0] !== "None") && (m.UNITS[Gx.xlab][0] !== "Unknown")) {
@@ -1376,6 +1378,7 @@
                                     } else {
                                         Gx.ylabel = "Intensity";
                                     }
+
                                     Gx.xlabel_stash = Gx.xlabel;
                                     if ((m.UNITS[Gx.ylab][0] !== "None") && (m.UNITS[Gx.ylab][0] !== "Unknown")) {
                                         Gx.xlabel = m.UNITS[Gx.ylab][0];
