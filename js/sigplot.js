@@ -1953,6 +1953,12 @@
             if (settings.p_cuts !== undefined) {
                 // Change the plot area and then draw the p_cuts dipslay
                 Gx.p_cuts = !Gx.p_cuts;
+                if (Gx.p_cuts === false) {
+                    Gx.element1.parentNode.removeChild(Gx.element1);
+                    Gx.element2.parentNode.removeChild(Gx.element2);
+                    Gx.ycut = undefined;
+                    Gx.xcut = undefined;
+                }
                 Gx.parent.setAttribute("style", "position:relative");
             }
 
@@ -3179,7 +3185,7 @@
             Gx.cross_ypos = undefined;
             if ((!Mx.warpbox) && (this.mouseOnCanvas)) {
                 draw_crosshairs(this);
-                if (!Gx.y_cut_press_on && !Gx.x_cut_press_on) {
+                if (!Gx.y_cut_press_on && !Gx.x_cut_press_on && (Gx.lyr[0].hcb["class"] === 2)) {
                     draw_p_cuts(this);
                 }
             }
@@ -3447,6 +3453,10 @@
         this.ycut_now = false;
         this.ylabel_stash = undefined;
         this.xlabel_stash = undefined;
+        //div to hold x-cut
+        this.element1 = undefined;
+        //div to hold y cut
+        this.element2 = undefined;
 
         //x and y sticky key configuration ("automatic" displays point on
         //1D and cut on 2D, "disable" doesn't display anything, "pop-up"
@@ -4247,6 +4257,12 @@
                         plot.change_settings({
                             p_cuts: !Gx.p_cuts
                         });
+                        if (Gx.p_cuts === false) {
+                            Gx.element1.parentNode.removeChild(Gx.element1);
+                            Gx.element2.parentNode.removeChild(Gx.element2);
+                            Gx.ycut = undefined;
+                            Gx.xcut = undefined;
+                        }
                         Gx.parent.setAttribute("style", "position:relative");
                     }
                 }, {
@@ -5781,16 +5797,19 @@
     function draw_p_cuts(plot) {
         var Gx = plot._Gx;
         var Mx = plot._Mx;
+        if (Gx.lyr[0].hcb["class"] !== 2) {
+            return;
+        }
 
         var eventx = document.createEvent('Event');
         eventx.initEvent('x-cut', false, false);
         var onPlotXCut = function() {
             if (plot._Gx.xcut === undefined) {
                 //create the canvas and plot for xcut
-                var element1 = document.createElement("div");
-                document.getElementById(plot._Gx.parent.id).appendChild(element1);
+                plot._Gx.element1 = document.createElement("div");
+                document.getElementById(plot._Gx.parent.id).appendChild(plot._Gx.element1);
 
-                plot._Gx.xcut = new sigplot.Plot(element1, {});
+                plot._Gx.xcut = new sigplot.Plot(plot._Gx.element1, {});
                 var layer = plot._Gx.xcut.overlay_array(plot._Gx.x_cut_data, null, {
                     name: "x_cut_data",
                     line: 3
@@ -5813,7 +5832,7 @@
                     xcut_now: !Gx.xcut_now
                 });
                 plot._Gx.xcut.get_layer(layer).color = plot._Mx.fg;
-                element1.setAttribute("style", "width:" + plot._Gx.x_box_w + "px;" +
+                plot._Gx.element1.setAttribute("style", "width:" + plot._Gx.x_box_w + "px;" +
                     "height:" + plot._Gx.x_box_h + "px;position:absolute;left:" +
                     plot._Gx.x_box_x + "px;top:" + plot._Gx.x_box_y + "px");
 
@@ -5828,9 +5847,9 @@
         var onPlotYCut = function() {
             if (plot._Gx.ycut === undefined) {
                 //create the canvas and plot for ycut
-                var element2 = document.createElement("div");
-                document.getElementById(plot._Gx.parent.id).appendChild(element2);
-                plot._Gx.ycut = new sigplot.Plot(element2, {});
+                plot._Gx.element2 = document.createElement("div");
+                document.getElementById(plot._Gx.parent.id).appendChild(plot._Gx.element2);
+                plot._Gx.ycut = new sigplot.Plot(plot._Gx.element2, {});
 
                 var layer = plot._Gx.ycut.overlay_array(plot._Gx.y_cut_data, null, {
                     name: "y_cut_data",
@@ -5858,10 +5877,10 @@
                     (0.5 * plot._Gx.y_box_h);
                 var new_top = plot._Gx.y_box_y + (0.5 * plot._Gx.y_box_h) -
                     (0.5 * plot._Gx.y_box_w);
-                element2.setAttribute("style", "width:" + plot._Gx.y_box_h + "px;" +
+                plot._Gx.element2.setAttribute("style", "width:" + plot._Gx.y_box_h + "px;" +
                     "height:" + plot._Gx.y_box_w + "px;position:absolute;left:" +
                     new_left + "px;top:" + new_top + "px");
-                element2.style.transform = "rotate(90deg)";
+                plot._Gx.element2.style.transform = "rotate(90deg)";
 
             } else {
                 plot._Gx.ycut.reload(0, plot._Gx.y_cut_data);
