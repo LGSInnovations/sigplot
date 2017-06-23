@@ -1724,10 +1724,12 @@ window.sigplot = window.sigplot || {};
 
             if (settings.xmin !== undefined) {
                 updateViewbox(this, settings.xmin, Mx.stk[0].xmax, "X");
+                Gx.autox = (Gx.autox & 2);
             }
 
             if (settings.xmax !== undefined) {
                 updateViewbox(this, Mx.stk[0].xmin, settings.xmax, "X");
+                Gx.autox = (Gx.autox & 1);
             }
 
             if (settings.zmin !== undefined) {
@@ -2101,26 +2103,26 @@ window.sigplot = window.sigplot || {};
                     Gx.basemode = Gx.cmode;
                     var xmin;
                     var xmax;
-                    if ((Gx.autox && 1) === 0) {
+                    if ((Gx.autox & 1) === 0) {
                         xmin = Gx.xmin;
                     }
-                    if ((Gx.autox && 2) === 0) {
+                    if ((Gx.autox & 2) === 0) {
                         xmax = Gx.xmin;
                     }
                     scale_base(this, {
                         get_data: true
                     }, xmin, xmax);
                     Mx.level = 0;
-                    if ((Gx.autox && 1) !== 0) {
+                    if ((Gx.autox & 1) !== 0) {
                         Gx.xmin = Mx.stk[0].xmin;
                     }
-                    if ((Gx.autox && 2) !== 0) {
+                    if ((Gx.autox & 2) !== 0) {
                         Gx.xmax = Mx.stk[0].xmax;
                     }
-                    if ((Gx.autoy && 1) !== 0) {
+                    if ((Gx.autoy & 1) !== 0) {
                         Gx.ymin = Mx.stk[0].ymin;
                     }
-                    if ((Gx.autoy && 2) !== 0) {
+                    if ((Gx.autoy & 2) !== 0) {
                         Gx.ymax = Mx.stk[0].ymax;
                     }
                     Mx.resize = true;
