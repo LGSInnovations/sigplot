@@ -4192,3 +4192,8 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
         color: "red"
     });
 });
+interactiveTest('Show marker on raster', 'Do you see a marker on click (press k first)?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot.overlay_href("dat/penny.prm");
+});

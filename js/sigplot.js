@@ -5623,8 +5623,14 @@
 
         if (Gx.xmrk !== null && Gx.ymrk !== null) {
             var pix = mx.real_to_pixel(Mx, Gx.xmrk, Gx.ymrk);
-            if (pix.clipped) {
-                return;
+            if (Gx.lyr[0].hcb["class"] === 1) {
+                if (pix.clipped) {
+                    return;
+                }
+            } else if (Gx.lyr[0].hcb["class"] === 2) {
+                if (pix.clipped_x || !pix.clipped_y) {
+                    return;
+                }
             }
             var ctx = Mx.active_canvas.getContext("2d");
             ctx.beginPath();
