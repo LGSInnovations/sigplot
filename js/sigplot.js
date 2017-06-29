@@ -1285,6 +1285,17 @@
                             } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
                                 //display the x-cut of the raster
                                 if (!Gx.y_cut_press_on) {
+                                    if (Gx.x_cut_data.length === 0) {
+                                        var plot_height = Mx.b - Mx.t;
+                                        var plot_width = Mx.r - Mx.l;
+                                        var height = Gx.lyr[0].yframe;
+                                        var width = Gx.lyr[0].xframe;
+                                        var row, start, finish = 0;
+                                        row = Math.floor((height * (Mx.ypos - Mx.t)) / plot_height);
+                                        start = row * width;
+                                        finish = start + width;
+                                        Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
+                                    }
                                     var xcut_display = [];
                                     for (var a = 0; a < Gx.x_cut_data.length; a++) {
                                         var item = Gx.x_cut_data[a];
@@ -1312,7 +1323,6 @@
                                         Gx.ylabel = "Intensity";
                                     }
 
-                                    Gx.ylabel = "Intensity";
                                     Gx.xlabel_stash = Gx.xlabel;
                                     if ((m.UNITS[Gx.xlab][0] !== "None") && (m.UNITS[Gx.xlab][0] !== "Unknown")) {
                                         Gx.xlabel = m.UNITS[Gx.xlab][0];
@@ -1352,6 +1362,18 @@
                             } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
                                 //display the y-cut of the raster
                                 if (!Gx.x_cut_press_on) {
+                                    if (Gx.x_cut_data.length === 0) {
+                                        var plot_height = Mx.b - Mx.t;
+                                        var plot_width = Mx.r - Mx.l;
+                                        var height = Gx.lyr[0].yframe;
+                                        var width = Gx.lyr[0].xframe;
+                                        var line, i = 0;
+                                        Gx.y_cut_data = [];
+                                        line = Math.floor((width * (Mx.xpos - Mx.l)) / plot_width);
+                                        for (i = line; i < (width * height); i += width) {
+                                            Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
+                                        }
+                                    }
                                     var ycut_display = [];
                                     for (var a = 0; a < Gx.y_cut_data.length; a++) {
                                         var item = Gx.y_cut_data[a];
@@ -1954,6 +1976,14 @@
                 // Change the plot area and then draw the p_cuts dipslay
                 Gx.p_cuts = !Gx.p_cuts;
                 if (Gx.p_cuts === false) {
+                    //ensure that the elements have a parent to remove them.
+                    if (Gx.element1.parentNode === null) {
+                        document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element1);
+                    }
+                    if (Gx.element2.parentNode === null) {
+                        document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element2);
+                    }
+
                     Gx.element1.parentNode.removeChild(Gx.element1);
                     Gx.element2.parentNode.removeChild(Gx.element2);
                     Gx.ycut = undefined;
@@ -4258,6 +4288,8 @@
                             p_cuts: !Gx.p_cuts
                         });
                         if (Gx.p_cuts === false) {
+                            //ensure that the elements exist to remove them.
+                            draw_p_cuts(plot);
                             Gx.element1.parentNode.removeChild(Gx.element1);
                             Gx.element2.parentNode.removeChild(Gx.element2);
                             Gx.ycut = undefined;
@@ -5888,11 +5920,12 @@
         };
         plot.addListener('y-cut', onPlotYCut);
 
+        var plot_height = Mx.b - Mx.t;
+        var plot_width = Mx.r - Mx.l;
+        var height = Gx.lyr[0].yframe;
+        var width = Gx.lyr[0].xframe;
+
         if (Gx.p_cuts) {
-            var plot_height = Mx.b - Mx.t;
-            var plot_width = Mx.r - Mx.l;
-            var height = Gx.lyr[0].yframe;
-            var width = Gx.lyr[0].xframe;
 
             if ((Mx.xpos >= Mx.l) && (Mx.xpos <= Mx.r) && (Gx.p_cuts_xpos !== Mx.xpos)) {
                 var line = 0;
@@ -5914,7 +5947,6 @@
                     Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
                 }
                 mx.dispatchEvent(Mx, eventy);
-
                 Gx.p_cuts_xpos = Mx.xpos;
 
             }
@@ -5939,7 +5971,6 @@
                 mx.dispatchEvent(Mx, eventx);
 
                 Gx.p_cuts_ypos = Mx.ypos;
-
             }
         }
     }
