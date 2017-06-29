@@ -4192,3 +4192,25 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
         color: "red"
     });
 });
+interactiveTest('Legend', 'Are the correct functions modified from the legend??', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    var ramp = [];
+    var ramp2 = [];
+    for (var i = 0; i < 20; i++) {
+        ramp.push(i);
+        var contra = 20 - i;
+        ramp2.push(contra);
+    }
+    plot.overlay_array(ramp, null, {
+        name: "up",
+        symbol: 0,
+        line: 3
+    });
+    plot.overlay_array(ramp2, null, {
+        name: "down",
+        symbol: 0,
+        line: 3
+    });
+});
