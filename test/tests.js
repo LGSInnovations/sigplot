@@ -4196,25 +4196,33 @@ interactiveTest('p-cuts: side and bottom plots', 'Do you see updating data when 
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
-    plot.change_settings({p_cuts: true});
+    plot.change_settings({
+        p_cuts: true
+    });
 });
 interactiveTest('p-cuts: side and bottom plots turn on and off', 'Do the plots toggle on "p" key regardless of mouse postion?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
-    plot.change_settings({p_cuts: true});
+    plot.change_settings({
+        p_cuts: true
+    });
 });
 interactiveTest('p-cuts: x-cut', 'Does the x-plot show on "x" key regardless of mouse position and update when clicked open in different spot?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
-    plot.change_settings({p_cuts: true});
+    plot.change_settings({
+        p_cuts: true
+    });
 });
 interactiveTest('p-cuts: y-cut', 'Does the y-plot show on "y" key regardless of mouse position and update when clicked open in different spot?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
-    plot.change_settings({p_cuts: true});
+    plot.change_settings({
+        p_cuts: true
+    });
 });
 interactiveTest('p-cuts: turn on and off', 'Does the feature toggle with "p" key? Does everything resize correctly?', function() {
     var container = document.getElementById('plot');
