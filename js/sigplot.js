@@ -1439,8 +1439,20 @@
                         } else if (keyCode === 63) { // '?'
                             mx.message(Mx, MAIN_HELP);
                         } else if (keyCode === 102) { // 'f'
+                            var switcher = 0;
+                            if (Gx.p_cuts) {
+                                plot.change_settings({
+                                    p_cuts: !Gx.p_cuts
+                                });
+                                switcher = 1;
+                            }
                             mx.fullscreen(Mx);
                             plot.refresh();
+                            if (switcher === 1) {
+                                plot.change_settings({
+                                    p_cuts: !Gx.p_cuts
+                                });
+                            }
                         } else if ((keyCode === 9) && (event.ctrlKey)) { // ctrl-i
                             plot.change_settings({
                                 invert: null
@@ -3024,6 +3036,7 @@
                 var prev_Mx_b = Mx.b;
                 Mx.b = prev_Mx_b - 100;
             }
+
             if (Gx.xcut_now) {
                 Mx.canvas.width = Gx.x_box_w - 1;
                 Mx.canvas.height = Gx.x_box_h;
