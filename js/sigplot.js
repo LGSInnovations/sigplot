@@ -49,21 +49,25 @@
      */
     var KEYPRESS_HELP = "Keypress Table:\n" +
         "--------------\n" +
-        "?    - Main help box.\n" +
-        "A    - Toggle display x,y readouts:\n" +
-        "       (absc) -> (index) -> (1/absc) -> (time).\n" +
-        "B    - Toggle LM Drag Mode:\n" +
-        "       (box) -> (horizontal) -> (vertical).\n" +
-        "C    - Toggle controls.\n" +
-        "K    - Show Marker.\n" +
-        "L    - Toggle legend.\n" +
-        "M    - Pops up main menu\n" +
-        "R    - Toggle display specs (x/y readout)\n" +
-        "S    - Toggle display specs and axes.\n" +
-        "T    - Popup box with timecode value at mouse.\n" +
-        "X    - Popup box with X value at mouse.\n" +
-        "Y    - Popup box with Y value at mouse.\n" +
-        "F    - Toggle fullscreen.\n";
+        "?       - Main help box.\n" +
+        "A       - Toggle display x,y readouts:\n" +
+        "          (absc) -> (index) -> (1/absc) -> (time).\n" +
+        "B       - Toggle LM Drag Mode:\n" +
+        "          (box) -> (horizontal) -> (vertical).\n" +
+        "C       - Toggle controls.\n" +
+        "K       - Show Marker.\n" +
+        "L       - Toggle legend.\n" +
+        "M       - Pops up main menu\n" +
+        "R       - Toggle display specs (x/y readout)\n" +
+        "S       - Toggle display specs and axes.\n" +
+        "T       - Popup box with timecode value at mouse.\n" +
+        "X       - In 1D mode, popup box with X value at mouse.\n" +
+        "        - In 2D mode, toggle x-cut display.\n" +
+        "Y       - In 1D mode, popup box with Y value at mouse.\n" +
+        "        - In 2D mode, toggle y-cut display.\n" +
+        "P       - In 2D mode, displays p-cuts along side and bottom.\n" +
+        "F       - Toggle fullscreen.\n" +
+        "Cntrl+I - Invert colors.";
 
     /**
      * Text of the main help dialog.
@@ -72,8 +76,8 @@
      * @private
      */
     var MAIN_HELP = "To zoom, press and drag the left mouse (LM) over the region of interest and release. " +
-        "To unzoom, press right mouse (RM).  Press the middle mouse (MM) button or press the " +
-        "by selecting 'Keypress Info' from the main menu.";
+        "To unzoom, press right mouse (RM).  Press the middle mouse (MM) button or press the 'M' key to open the main menu." +
+        "View the function of all keypresses by selecting 'Keypress Info' from the main menu.";
 
     /**
      * Attempts basic checks to determine if the browser is compatible with
@@ -4922,7 +4926,7 @@
         Gx.xmax = o.xmax === undefined ? 0.0 : o.xmax;
         var havexmin = (o.xmin !== undefined);
         var havexmax = (o.xmax !== undefined);
-        var address = o.cmode === undefined ? "" : o.cmode.toUpperCase();
+        var address = o.cmode === undefined ? "" : o.cmode;
         var line = o.line === undefined ? 3 : o.line;
         Gx.ylab = o.ylab;
         Gx.ylabel = o.ylabel;
@@ -5018,6 +5022,7 @@
         }
 
         if ((cmode === "MA") || (cmode === "INMA") || (cmode === "ABMA") ||
+<<<<<<< HEAD
             (cmode === "__MA") || (cmode === "MAGNITUDE")) {
             Gx.cmode = 1;
         }
@@ -5031,21 +5036,48 @@
         }
         if ((cmode === "IM") || (cmode === "INIM") || (cmode === "ABIM") ||
             (cmode === "__IM") || (cmode === "IMAGINARY")) {
+=======
+            (cmode === "__MA") || (cmode === "Magnitude")) {
+            Gx.cmode = 1;
+        }
+        if ((cmode === "PH") || (cmode === "INPH") || (cmode === "ABPH") ||
+            (cmode === "__PH") || (cmode === "Phase")) {
+            Gx.cmode = 2;
+        }
+        if ((cmode === "RE") || (cmode === "INRE") || (cmode === "ABRE") ||
+            (cmode === "__RE") || (cmode === "Real")) {
+            Gx.cmode = 3;
+        }
+        if ((cmode === "IM") || (cmode === "INIM") || (cmode === "ABIM") ||
+            (cmode === "__IM") || (cmode === "Imaginary")) {
+>>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
             Gx.cmode = 4;
         }
         if ((cmode === "LO") || (cmode === "D1") || (cmode === "INLO") || (cmode === "IND1") ||
             (cmode === "ABIM") || (cmode === "ABD1") || (cmode === "__LO") ||
+<<<<<<< HEAD
             (cmode === "__D1") || (cmode === "10*LOG10")) {
+=======
+            (cmode === "__D1") || (cmode === "10*log10")) {
+>>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
             Gx.cmode = 6;
         }
         if ((cmode === "L2") || (cmode === "D2") || (cmode === "INL2") || (cmode === "IND2") ||
             (cmode === "ABLO") || (cmode === "ABD2") || (cmode === "__L2") ||
+<<<<<<< HEAD
             (cmode === "__D2") || (cmode === "20*LOG10")) {
+=======
+            (cmode === "__D2") || (cmode === "10*log10")) {
+>>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
             Gx.cmode = 7;
         }
         if ((cmode === "RI") || (cmode === "IR") || (cmode === "INRI") || (cmode === "INIR") ||
             (cmode === "ABRI") || (cmode === "ABIR") || (cmode === "__RI") ||
+<<<<<<< HEAD
             (cmode === "__IR") || (cmode === "IMAG/REAL") || (cmode === "REAL/IMAG")) {
+=======
+            (cmode === "__IR") || (cmode === "Imag/Real") || (cmode === "Real/Imag")) {
+>>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
             if (Gx.index) {
                 alert("Imag/Real mode not permitted in INDEX mode");
             } else {
@@ -5054,7 +5086,11 @@
         }
 
         Gx.basemode = Gx.cmode;
+<<<<<<< HEAD
 
+=======
+        console.log("Is this the problem?");
+>>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
         plot.change_settings({
             cmode: Gx.cmode
         });
