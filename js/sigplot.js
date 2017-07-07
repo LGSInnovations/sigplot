@@ -205,7 +205,7 @@
      *
      * @param {Object}
      *            options.ylabel function or string for custom Y-axis label
-     * 
+     *
      * @param {Number}
      *            options.ymin the minimum range to display on the Y axis
      *
@@ -2288,7 +2288,7 @@
             if ((index >= 0) && (index < Gx.HCB.length)) {
                 fileName = Gx.HCB[index].file_name;
                 // TODO if (Gx.modsource > 0) {
-                //	
+                //
                 // }
                 HCB = Gx.HCB[index];
                 Gx.HCB[index] = null;
@@ -4922,7 +4922,7 @@
         Gx.xmax = o.xmax === undefined ? 0.0 : o.xmax;
         var havexmin = (o.xmin !== undefined);
         var havexmax = (o.xmax !== undefined);
-        var address = o.cmode === undefined ? "" : o.cmode;
+        var address = o.cmode === undefined ? "" : o.cmode.toUpperCase();
         var line = o.line === undefined ? 3 : o.line;
         Gx.ylab = o.ylab;
         Gx.ylabel = o.ylabel;
@@ -5018,34 +5018,34 @@
         }
 
         if ((cmode === "MA") || (cmode === "INMA") || (cmode === "ABMA") ||
-            (cmode === "__MA") || (cmode === "Magnitude")) {
+            (cmode === "__MA") || (cmode === "MAGNITUDE")) {
             Gx.cmode = 1;
         }
         if ((cmode === "PH") || (cmode === "INPH") || (cmode === "ABPH") ||
-            (cmode === "__PH") || (cmode === "Phase")) {
+            (cmode === "__PH") || (cmode === "PHASE")) {
             Gx.cmode = 2;
         }
         if ((cmode === "RE") || (cmode === "INRE") || (cmode === "ABRE") ||
-            (cmode === "__RE") || (cmode === "Real")) {
+            (cmode === "__RE") || (cmode === "REAL")) {
             Gx.cmode = 3;
         }
         if ((cmode === "IM") || (cmode === "INIM") || (cmode === "ABIM") ||
-            (cmode === "__IM") || (cmode === "Imaginary")) {
+            (cmode === "__IM") || (cmode === "IMAGINARY")) {
             Gx.cmode = 4;
         }
         if ((cmode === "LO") || (cmode === "D1") || (cmode === "INLO") || (cmode === "IND1") ||
             (cmode === "ABIM") || (cmode === "ABD1") || (cmode === "__LO") ||
-            (cmode === "__D1") || (cmode === "10*log10")) {
+            (cmode === "__D1") || (cmode === "10*LOG10")) {
             Gx.cmode = 6;
         }
         if ((cmode === "L2") || (cmode === "D2") || (cmode === "INL2") || (cmode === "IND2") ||
             (cmode === "ABLO") || (cmode === "ABD2") || (cmode === "__L2") ||
-            (cmode === "__D2") || (cmode === "10*log10")) {
+            (cmode === "__D2") || (cmode === "20*LOG10")) {
             Gx.cmode = 7;
         }
         if ((cmode === "RI") || (cmode === "IR") || (cmode === "INRI") || (cmode === "INIR") ||
             (cmode === "ABRI") || (cmode === "ABIR") || (cmode === "__RI") ||
-            (cmode === "__IR") || (cmode === "Imag/Real") || (cmode === "Real/Imag")) {
+            (cmode === "__IR") || (cmode === "IMAG/REAL") || (cmode === "REAL/IMAG")) {
             if (Gx.index) {
                 alert("Imag/Real mode not permitted in INDEX mode");
             } else {
@@ -5054,7 +5054,7 @@
         }
 
         Gx.basemode = Gx.cmode;
-        console.log("Is this the problem?");
+
         plot.change_settings({
             cmode: Gx.cmode
         });
@@ -6357,7 +6357,7 @@
         }
 
         var xval, yval, xdelta, ydelta;
-        // TODO handle xfmt/yfmt using m.d2a_form equivalent 
+        // TODO handle xfmt/yfmt using m.d2a_form equivalent
         if ((Gx.iabsc === 0) && (Gx.ylab === 4)) {
             yval = (m.sec2tspec(Gx.arety) + "                ").substring(0, 16);
             ydelta = (m.sec2tspec(Gx.drety, "delta") + "                ").substring(0, 16);
@@ -6629,7 +6629,7 @@
         var v1 = [tri_x2 - tri_x1, tri_y2 - tri_y1];
         var v2 = [x - tri_x1, y - tri_y1];
 
-        // Compute dot products    
+        // Compute dot products
         var dot00 = (v0[0] * v0[0]) + (v0[1] * v0[1]);
         var dot01 = (v0[0] * v1[0]) + (v0[1] * v1[1]);
         var dot02 = (v0[0] * v2[0]) + (v0[1] * v2[1]);
