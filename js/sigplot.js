@@ -4926,7 +4926,7 @@
         Gx.xmax = o.xmax === undefined ? 0.0 : o.xmax;
         var havexmin = (o.xmin !== undefined);
         var havexmax = (o.xmax !== undefined);
-        var address = o.cmode === undefined ? "" : o.cmode;
+        var address = o.cmode === undefined ? "" : o.cmode.toUpperCase();
         var line = o.line === undefined ? 3 : o.line;
         Gx.ylab = o.ylab;
         Gx.ylabel = o.ylabel;
@@ -5022,7 +5022,6 @@
         }
 
         if ((cmode === "MA") || (cmode === "INMA") || (cmode === "ABMA") ||
-<<<<<<< HEAD
             (cmode === "__MA") || (cmode === "MAGNITUDE")) {
             Gx.cmode = 1;
         }
@@ -5036,48 +5035,21 @@
         }
         if ((cmode === "IM") || (cmode === "INIM") || (cmode === "ABIM") ||
             (cmode === "__IM") || (cmode === "IMAGINARY")) {
-=======
-            (cmode === "__MA") || (cmode === "Magnitude")) {
-            Gx.cmode = 1;
-        }
-        if ((cmode === "PH") || (cmode === "INPH") || (cmode === "ABPH") ||
-            (cmode === "__PH") || (cmode === "Phase")) {
-            Gx.cmode = 2;
-        }
-        if ((cmode === "RE") || (cmode === "INRE") || (cmode === "ABRE") ||
-            (cmode === "__RE") || (cmode === "Real")) {
-            Gx.cmode = 3;
-        }
-        if ((cmode === "IM") || (cmode === "INIM") || (cmode === "ABIM") ||
-            (cmode === "__IM") || (cmode === "Imaginary")) {
->>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
             Gx.cmode = 4;
         }
         if ((cmode === "LO") || (cmode === "D1") || (cmode === "INLO") || (cmode === "IND1") ||
             (cmode === "ABIM") || (cmode === "ABD1") || (cmode === "__LO") ||
-<<<<<<< HEAD
             (cmode === "__D1") || (cmode === "10*LOG10")) {
-=======
-            (cmode === "__D1") || (cmode === "10*log10")) {
->>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
             Gx.cmode = 6;
         }
         if ((cmode === "L2") || (cmode === "D2") || (cmode === "INL2") || (cmode === "IND2") ||
             (cmode === "ABLO") || (cmode === "ABD2") || (cmode === "__L2") ||
-<<<<<<< HEAD
             (cmode === "__D2") || (cmode === "20*LOG10")) {
-=======
-            (cmode === "__D2") || (cmode === "10*log10")) {
->>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
             Gx.cmode = 7;
         }
         if ((cmode === "RI") || (cmode === "IR") || (cmode === "INRI") || (cmode === "INIR") ||
             (cmode === "ABRI") || (cmode === "ABIR") || (cmode === "__RI") ||
-<<<<<<< HEAD
             (cmode === "__IR") || (cmode === "IMAG/REAL") || (cmode === "REAL/IMAG")) {
-=======
-            (cmode === "__IR") || (cmode === "Imag/Real") || (cmode === "Real/Imag")) {
->>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
             if (Gx.index) {
                 alert("Imag/Real mode not permitted in INDEX mode");
             } else {
@@ -5086,11 +5058,7 @@
         }
 
         Gx.basemode = Gx.cmode;
-<<<<<<< HEAD
 
-=======
-        console.log("Is this the problem?");
->>>>>>> e68cab377144985e2149c754e68124ce0d4c5e27
         plot.change_settings({
             cmode: Gx.cmode
         });
