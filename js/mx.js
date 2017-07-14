@@ -248,6 +248,29 @@ window.mx = window.mx || {};
         this._renderCanvas = document.createElement("canvas");
     }
 
+    /* This is used as a helper function for defining highlight ranges/
+     */
+
+    function in_fill_range(ele, range_begin, range_end) {
+        var left = false;
+        var right = false;
+
+        if (ele >= range_begin) {
+            left = true;
+        }
+
+
+        if (ele <= range_end) {
+            right = true;
+        }
+
+        if (left === true && right === true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Create Canvas and it's Mx structure and functions
      * @param {element}	element 	Reference to a DOM window element
@@ -1664,13 +1687,67 @@ window.mx = window.mx || {};
                 }
             }
 
-            if (options.fillStyle) {
+            if (options.fillStyle && !Mx.fillMin && !Mx.fillMax) {
                 if ((ib > 1) || (wn !== 0)) {
                     // if we have at least one point
                     // or the entire plot area is in the fill zone
                     mx.fill_trace(Mx, options.fillStyle, pixx, pixy, ib);
                 }
             }
+
+            if (options.highlight) {
+                for (var i = 0; i < options.highlight.length; i++) {
+                    var highlight = options.highlight[i];
+                    if (!highlight.fill) {
+                        continue;
+                    }
+
+                    var x_start = highlight.xstart;
+                    var x_end = highlight.xend;
+
+                    console.log("x start ", x_start);
+                    console.log("x end ", x_end);
+
+                    if (x_start >= Mx.stk[Mx.level].xmax) {
+                        continue;
+                    }
+                    if (x_end <= Mx.stk[Mx.level].xmin) {
+                        continue;
+                    }
+
+                    if ((ib > 1) || (wn !== 0)) {
+
+                        var xstart_pixel_value = mx.real_to_pixel(Mx, x_start, 0);
+                        var xend_pixel_value = mx.real_to_pixel(Mx, x_end, 0);
+
+                        var pi_start = xstart_pixel_value.x;
+                        var pi_end = xend_pixel_value.x;
+                        //console.log('start: ', pi_start, 'end: ', pi_end);
+                        var pixx_new = [];
+                        var pixy_new = [];
+                        for (var q = 0; q < ib; q++) {
+                            var this_point = pixx[q];
+                            var this_point_y = pixy[q];
+                            //console.log(this_point);
+                            if (in_fill_range(this_point, pi_start, pi_end) === true) {
+                                //console.log('in range: ', this_point);
+                                pixx_new.push(this_point);
+                                pixy_new.push(this_point_y);
+
+                            }
+                        }
+
+                        if ((pixx_new.length > 0) || (wn !== 0)) {
+                            pi_start = Math.max(pi_start, pixx_new[0]);
+                            pi_end = Math.min(pi_end, pixx_new[pixx_new.length - 1]);
+                            mx.fill_trace(Mx, highlight.fill, pixx_new, pixy_new, pixx_new.length, pi_start, pi_end);
+                        }
+                    }
+
+                }
+            }
+
+
         }
 
         if (!options.noclip) {
@@ -1754,7 +1831,7 @@ window.mx = window.mx || {};
      * @param npts
      * @private
      */
-    mx.fill_trace = function(Mx, fillStyle, pixx, pixy, npts) {
+    mx.fill_trace = function(Mx, fillStyle, pixx, pixy, npts, l, r) {
         var ctx = Mx.active_canvas.getContext("2d");
         if (Array.isArray(fillStyle)) {
             ctx.fillStyle = mx.linear_gradient(Mx, 0, 0, 0, Mx.b - Mx.t, fillStyle);
@@ -1767,15 +1844,22 @@ window.mx = window.mx || {};
             return;
         }
 
+        if (l === undefined) {
+            l = Mx.l;
+        }
+        if (r === undefined) {
+            r = Mx.r;
+        }
+
         if (fillStyle) {
             var x = pixx[0];
             var y = pixy[0];
 
             ctx.beginPath();
             if (y === Mx.t) {
-                ctx.lineTo(Mx.l, Mx.t);
+                ctx.lineTo(l, Mx.t);
             } else {
-                ctx.lineTo(Mx.l, Mx.b);
+                ctx.lineTo(l, Mx.b);
             }
 
 
@@ -1790,15 +1874,15 @@ window.mx = window.mx || {};
             }
 
             if (y === Mx.t) {
-                ctx.lineTo(Mx.r, Mx.t);
+                ctx.lineTo(r, Mx.t);
             }
-            ctx.lineTo(Mx.r, Mx.b);
+            ctx.lineTo(r, Mx.b);
             if (pixy[0] === Mx.t) {
-                ctx.lineTo(Mx.l, Mx.b);
+                ctx.lineTo(l, Mx.b);
             }
 
             ctx.closePath();
-            ctx.fill();
+            ctx.fill("evenodd");
         }
     };
 

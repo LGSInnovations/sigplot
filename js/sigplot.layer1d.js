@@ -662,10 +662,10 @@
          * @param highlight
          *            the highlight to add
          * @param {Number}
-         *            highlight.xmin the minimum x value to start the highlight
+         *            highlight.xstart x value to start the highlight
          *            at
          * @param {Number}
-         *            highlight.xmax the maximum x value to start the highlight
+         *            highlight.xend the maximum x value to end the highlight
          *            at
          * @param {String}
          *            hightlight.color the color to use for the highlight
@@ -675,6 +675,21 @@
          */
         add_highlight: function(highlight) {
             if (!this.options.highlight) {
+                this.options.highlight = [];
+            }
+            // Check for nans
+
+            var xmin = highlight.xstart;
+            var xmax = highlight.xend;
+            var min_nan = isNaN(xmin);
+            var max_nan = isNaN(xmax);
+
+            if ((min_nan === true) || (xmin === null) || (xmin === undefined)) {
+
+                this.options.highlight = [];
+            }
+            if ((max_nan === true) || (xmax === null) || (xmax === undefined)) {
+
                 this.options.highlight = [];
             }
 
