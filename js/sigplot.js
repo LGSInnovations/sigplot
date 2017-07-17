@@ -1263,10 +1263,12 @@
                                 specs: !Gx.specs
                             });
                         } else if (keyCode === 112) { // 'p'
-                            Gx.p_press = true;
-                            plot.change_settings({
-                                p_cuts: !Gx.p_cuts
-                            });
+                            if (Gx.lyr[0].hcb["class"] !== 1) {
+                                Gx.p_press = true;
+                                plot.change_settings({
+                                    p_cuts: !Gx.p_cuts
+                                });
+                            }
                         } else if (keyCode === 120) { // 'x'
                             if (Gx.x_cut_press_on) {
                                 Gx.x_cut_press_on = false;
@@ -4301,18 +4303,20 @@
                     checked: Gx.p_cuts,
                     style: "checkbox",
                     handler: function() {
-                        plot.change_settings({
-                            p_cuts: !Gx.p_cuts
-                        });
-                        if (Gx.p_cuts === false) {
-                            //ensure that the elements exist to remove them.
-                            draw_p_cuts(plot);
-                            Gx.element1.parentNode.removeChild(Gx.element1);
-                            Gx.element2.parentNode.removeChild(Gx.element2);
-                            Gx.ycut = undefined;
-                            Gx.xcut = undefined;
+                        if (Gx.lyr[0].hcb["class"] !== 1) {
+                            plot.change_settings({
+                                p_cuts: !Gx.p_cuts
+                            });
+                            if (Gx.p_cuts === false) {
+                                //ensure that the elements exist to remove them.
+                                draw_p_cuts(plot);
+                                Gx.element1.parentNode.removeChild(Gx.element1);
+                                Gx.element2.parentNode.removeChild(Gx.element2);
+                                Gx.ycut = undefined;
+                                Gx.xcut = undefined;
+                            }
+                            Gx.parent.setAttribute("style", "position:relative");
                         }
-                        Gx.parent.setAttribute("style", "position:relative");
                     }
                 }, {
                     text: "Large Colorbar",
