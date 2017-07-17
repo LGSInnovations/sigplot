@@ -204,7 +204,7 @@
      *
      * @param {Object}
      *            options.ylabel function or string for custom Y-axis label
-     * 
+     *
      * @param {Number}
      *            options.ymin the minimum range to display on the Y axis
      *
@@ -1285,7 +1285,8 @@
                             } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
                                 //display the x-cut of the raster
                                 if (!Gx.y_cut_press_on) {
-                                    if (Gx.x_cut_data.length === 0) {
+                                    if (!Gx.p_cuts) {
+                                        Gx.x_cut_data = [];
                                         var plot_height = Mx.b - Mx.t;
                                         var plot_width = Mx.r - Mx.l;
                                         var height = Gx.lyr[0].yframe;
@@ -1362,7 +1363,7 @@
                             } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
                                 //display the y-cut of the raster
                                 if (!Gx.x_cut_press_on) {
-                                    if (Gx.x_cut_data.length === 0) {
+                                    if (!Gx.p_cuts) {
                                         var plot_height = Mx.b - Mx.t;
                                         var plot_width = Mx.r - Mx.l;
                                         var height = Gx.lyr[0].yframe;
@@ -2465,7 +2466,7 @@
             if ((index >= 0) && (index < Gx.HCB.length)) {
                 fileName = Gx.HCB[index].file_name;
                 // TODO if (Gx.modsource > 0) {
-                //	
+                //
                 // }
                 HCB = Gx.HCB[index];
                 Gx.HCB[index] = null;
@@ -6725,7 +6726,7 @@
         }
 
         var xval, yval, xdelta, ydelta;
-        // TODO handle xfmt/yfmt using m.d2a_form equivalent 
+        // TODO handle xfmt/yfmt using m.d2a_form equivalent
         if ((Gx.iabsc === 0) && (Gx.ylab === 4)) {
             yval = (m.sec2tspec(Gx.arety) + "                ").substring(0, 16);
             ydelta = (m.sec2tspec(Gx.drety, "delta") + "                ").substring(0, 16);
@@ -7022,7 +7023,7 @@
         var v1 = [tri_x2 - tri_x1, tri_y2 - tri_y1];
         var v2 = [x - tri_x1, y - tri_y1];
 
-        // Compute dot products    
+        // Compute dot products
         var dot00 = (v0[0] * v0[0]) + (v0[1] * v0[1]);
         var dot01 = (v0[0] * v1[0]) + (v0[1] * v1[1]);
         var dot02 = (v0[0] * v2[0]) + (v0[1] * v2[1]);
