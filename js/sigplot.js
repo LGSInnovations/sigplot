@@ -1263,6 +1263,7 @@
                                 specs: !Gx.specs
                             });
                         } else if (keyCode === 112) { // 'p'
+                            Gx.p_press = true;
                             plot.change_settings({
                                 p_cuts: !Gx.p_cuts
                             });
@@ -3501,6 +3502,8 @@
         this.element1 = undefined;
         //div to hold y cut
         this.element2 = undefined;
+        //indicates that the p key was just pressed
+        this.p_press = false;
 
         //x and y sticky key configuration ("automatic" displays point on
         //1D and cut on 2D, "disable" doesn't display anything, "pop-up"
@@ -5941,7 +5944,8 @@
 
         if (Gx.p_cuts) {
 
-            if ((Mx.xpos >= Mx.l) && (Mx.xpos <= Mx.r) && (Gx.p_cuts_xpos !== Mx.xpos)) {
+            if (((Mx.xpos >= Mx.l) && (Mx.xpos <= Mx.r) && (Gx.p_cuts_xpos !== Mx.xpos)) ||
+                (Gx.p_press)) {
                 var line = 0;
                 var i = 0;
                 if (Gx.p_cuts_xpos !== undefined) {
@@ -5964,7 +5968,8 @@
                 Gx.p_cuts_xpos = Mx.xpos;
 
             }
-            if ((Mx.ypos >= Mx.t) && (Mx.ypos <= Mx.b) && (Gx.p_cuts_ypos !== Mx.ypos)) {
+            if (((Mx.ypos >= Mx.t) && (Mx.ypos <= Mx.b) && (Gx.p_cuts_ypos !== Mx.ypos)) ||
+                (Gx.p_press)) {
                 var row = 0;
                 var start = 0;
                 var finish = 0;
@@ -5986,6 +5991,7 @@
 
                 Gx.p_cuts_ypos = Mx.ypos;
             }
+            Gx.p_press = false;
         }
     }
 
