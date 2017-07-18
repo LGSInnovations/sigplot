@@ -3148,7 +3148,8 @@
     var MENU_CONSTANTS = {
         GBorder: 3,
         sidelab: 0,
-        toplab: 1
+        toplab: 1,
+        n_show: 0
     };
 
     /**
@@ -3161,13 +3162,27 @@
         if (menu.animationFrameHandle) {
             return;
         }
+        // Use the current mouse position and the size of the plot to determine available space 
+        //var mouse_pos = Mx.ypos; TODO: Use mouse position
+        var plot_height = Mx.canvas.height;
+        var buffer_sz = 35; // estimate of how much of the canvas is spacing around plot
+        var avail_space = plot_height - 2 * buffer_sz;
+
+        // Calculate how many menu items can fit inside that space
+        var menu_item_height = Mx.text_h * 1.5;
+        var n_items = Math.floor(avail_space / menu_item_height);
+        if (n_items >= menu.items.length) {
+            MENU_CONSTANTS.n_show = menu.items.length;
+        } else {
+            MENU_CONSTANTS.n_show = n_items;
+        }
+
 
         menu.animationFrameHandle = requestAnimFrame(mx.withWidgetLayer(Mx, function() {
             mx.erase_window(Mx);
 
             menu.animationFrameHandle = undefined;
             var yb = Mx.text_h * 1.5;
-
             menu.x = Math.max(menu.x, 0);
             menu.y = Math.max(menu.y, 0);
             menu.x = Math.min(menu.x, Mx.width - menu.w);
@@ -3199,9 +3214,21 @@
             ctx.lineTo(xcc + xss - 1, ycc - 3 + 0.5);
             ctx.stroke();
 
-            for (var i = 0; i < menu.items.length; i++) {
+            var i_begin = menu.queue[0];
+            var i_end = menu.queue[MENU_CONSTANTS.n_show - 1];
+            if (i_end === 0) {
+                // now we are starting over
+                for (var q = 0; q < MENU_CONSTANTS.n_show; q++) {
+                    menu.queue[q] = q;
+                }
+                i_begin = menu.queue[0];
+                i_end = menu.queue[MENU_CONSTANTS.n_show - 1];
+            }
+            var menu_counter = 0;
+            for (var i = i_begin; i <= i_end; i++) {
                 var item = menu.items[i];
-                var y = ycc + yb * i;
+                var y = ycc + yb * menu_counter;
+                menu_counter = menu_counter + 1;
 
                 if (item.style === "separator") {
                     ctx.fillStyle = Mx.xwbs;
@@ -3276,6 +3303,8 @@
                     }
                 }
             }
+
+
         }));
     }
 
@@ -3339,6 +3368,9 @@
      * @private
      */
     function _menu_callback(Mx, menu, event) {
+        // Keep track of whats visible currently
+        var i_begin = menu.queue[0];
+        var i_end = menu.queue[MENU_CONSTANTS.n_show - 1];
         if (event === undefined) {
             // no event, just refresh the menu
             _menu_redraw(Mx, menu);
@@ -3357,7 +3389,7 @@
             var yb = Mx.text_h * 1.5;
             var ycc = menu.y + MENU_CONSTANTS.GBorder + MENU_CONSTANTS.toplab * (yb + MENU_CONSTANTS.GBorder);
 
-            for (var i = 0; i < menu.items.length; i++) {
+            for (var i = i_begin; i <= i_end; i++) {
                 var y = ycc + yb * i;
                 var item = menu.items[i];
                 item.selected = false;
@@ -3395,7 +3427,7 @@
                 if (keyCode === 13) { // enter
                     _menu_takeaction(Mx, menu);
                 } else if (keyCode === 38) { // up arrow
-                    for (var i = 0; i < menu.items.length; i++) {
+                    for (var i = i_begin; i < i_end; i++) {
                         var item = menu.items[i];
                         if (item.selected) {
                             item.selected = false;
@@ -3403,14 +3435,22 @@
                                 menu.items[i - 1].selected = true;
                             }
                             break;
-                        } else if (i === (menu.items.length - 1)) {
+                        } else if (i === i_begin && i_begin !== 0) {
                             // we are at the end of the list and nothing was selected so pick the last element
-                            item.selected = true;
+                            //item.selected = true;
+                            menu.queue.pop();
+                            menu.queue.unshift(i_begin - 1);
+                            _menu_redraw(Mx, menu);
+                            menu.items[i_end - 1].selected = true;
+
+                        } else if (i_begin === 0 && menu.items[i_begin].selected === true) {
+                            _menu_redraw(Mx, menu);
+                            menu.items[0].selected = true;
                         }
                     }
                     _menu_redraw(Mx, menu);
                 } else if (keyCode === 40) { // down arrow
-                    for (var i = 0; i < menu.items.length; i++) {
+                    for (var i = i_begin; i < i_end; i++) {
                         var item = menu.items[i];
                         if (item.selected) {
                             item.selected = false;
@@ -3418,9 +3458,19 @@
                                 menu.items[i + 1].selected = true;
                             }
                             break;
-                        } else if (i === (menu.items.length - 1)) {
+                        } else if (i === (i_end - 1)) {
                             // nothing was selected so select the top
-                            menu.items[0].selected = true;
+                            var next_item = i_end + 1;
+
+                            if (i_end + 1 === menu.items.length) {
+                                next_item = 0;
+                            }
+
+                            menu.queue.shift();
+                            menu.queue.push(next_item);
+                            menu.items[i_end].selected = false;
+                            menu.items[next_item].selected = true;
+                            _menu_redraw(Mx, menu);
                         }
                     }
                     _menu_redraw(Mx, menu);
@@ -3469,13 +3519,14 @@
      */
     mx.menu = function(Mx, menu) {
         var yb = Mx.text_h * 1.5;
+        MENU_CONSTANTS.n_show = menu.items.length;
         if (menu) {
             if (!Mx.widget) {
                 menu.x = Mx.xpos;
                 menu.y = Mx.ypos;
                 menu.val = 0;
 
-                menu.h = MENU_CONSTANTS.GBorder * 2 + yb * menu.items.length + MENU_CONSTANTS.toplab * (yb + MENU_CONSTANTS.GBorder) - 1;
+                menu.h = MENU_CONSTANTS.GBorder * 2 + yb * MENU_CONSTANTS.n_show + MENU_CONSTANTS.toplab * (yb + MENU_CONSTANTS.GBorder) - 1;
                 menu.y = menu.y - ((MENU_CONSTANTS.toplab + (Math.max(1, menu.val)) - 0.5) * yb + (1 + MENU_CONSTANTS.toplab) * MENU_CONSTANTS.GBorder) + 1;
 
                 var xb = menu.title.length;
@@ -3493,6 +3544,14 @@
                         yadj = yb * i;
                     }
                 }
+
+                menu.queue = [];
+
+                for (var q = 0; q < MENU_CONSTANTS.n_show; q++) {
+                    menu.queue.push(q);
+
+                }
+
                 menu.y = menu.y - yadj;
                 xb += 2;
                 xb = xb * Mx.text_w;

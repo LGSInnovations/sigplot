@@ -49,21 +49,25 @@
      */
     var KEYPRESS_HELP = "Keypress Table:\n" +
         "--------------\n" +
-        "?    - Main help box.\n" +
-        "A    - Toggle display x,y readouts:\n" +
-        "       (absc) -> (index) -> (1/absc) -> (time).\n" +
-        "B    - Toggle LM Drag Mode:\n" +
-        "       (box) -> (horizontal) -> (vertical).\n" +
-        "C    - Toggle controls.\n" +
-        "K    - Show Marker.\n" +
-        "L    - Toggle legend.\n" +
-        "M    - Pops up main menu\n" +
-        "R    - Toggle display specs (x/y readout)\n" +
-        "S    - Toggle display specs and axes.\n" +
-        "T    - Popup box with timecode value at mouse.\n" +
-        "X    - Popup box with X value at mouse.\n" +
-        "Y    - Popup box with Y value at mouse.\n" +
-        "F    - Toggle fullscreen.\n";
+        "?       - Main help box.\n" +
+        "A       - Toggle display x,y readouts:\n" +
+        "          (absc) -> (index) -> (1/absc) -> (time).\n" +
+        "B       - Toggle LM Drag Mode:\n" +
+        "          (box) -> (horizontal) -> (vertical).\n" +
+        "C       - Toggle controls.\n" +
+        "K       - Show Marker.\n" +
+        "L       - Toggle legend.\n" +
+        "M       - Pops up main menu\n" +
+        "R       - Toggle display specs (x/y readout)\n" +
+        "S       - Toggle display specs and axes.\n" +
+        "T       - Popup box with timecode value at mouse.\n" +
+        "X       - In 1D mode, popup box with X value at mouse.\n" +
+        "        - In 2D mode, toggle x-cut display.\n" +
+        "Y       - In 1D mode, popup box with Y value at mouse.\n" +
+        "        - In 2D mode, toggle y-cut display.\n" +
+        "P       - In 2D mode, displays p-cuts along side and bottom.\n" +
+        "F       - Toggle fullscreen.\n" +
+        "Cntrl+I - Invert colors.";
 
     /**
      * Text of the main help dialog.
@@ -72,8 +76,8 @@
      * @private
      */
     var MAIN_HELP = "To zoom, press and drag the left mouse (LM) over the region of interest and release. " +
-        "To unzoom, press right mouse (RM).  Press the middle mouse (MM) button or press the " +
-        "by selecting 'Keypress Info' from the main menu.";
+        "To unzoom, press right mouse (RM).  Press the middle mouse (MM) button or press the 'M' key to open the main menu." +
+        "View the function of all keypresses by selecting 'Keypress Info' from the main menu.";
 
     /**
      * Attempts basic checks to determine if the browser is compatible with
@@ -5405,6 +5409,23 @@
         }
         Gx.xmult = o.xmult;
         Gx.ymult = o.xmult;
+
+        //Convert string inputs of autox to numbers
+        switch (o.autox) {
+            case "none":
+                o.autox = -1;
+                break;
+            case "min":
+                o.autox = 1;
+                break;
+            case "max":
+                o.autox = 2;
+                break;
+            case "full":
+                o.autox = 3;
+                break;
+        }
+
         Gx.autox = o.autox === undefined ? -1 : o.autox;
         if (Gx.autox < 0) {
             Gx.autox = 0;
@@ -5415,6 +5436,24 @@
                 Gx.autox += 2;
             }
         }
+
+        //Convert string inputs of autoy to numbers
+
+        switch (o.autoy) {
+            case "none":
+                o.autoy = -1;
+                break;
+            case "min":
+                o.autoy = 1;
+                break;
+            case "max":
+                o.autoy = 2;
+                break;
+            case "full":
+                o.autoy = 3;
+                break;
+        }
+
         Gx.autoy = o.autoy === undefined ? -1 : o.autoy;
         if (Gx.autoy < 0) {
             Gx.autoy = 0;
@@ -5425,6 +5464,24 @@
                 Gx.autoy += 2;
             }
         }
+
+        //Convert string inputs of autoz to numbers
+
+        switch (o.autoz) {
+            case "none":
+                o.autoz = -1;
+                break;
+            case "min":
+                o.autoz = 1;
+                break;
+            case "max":
+                o.autoz = 2;
+                break;
+            case "full":
+                o.autoz = 3;
+                break;
+        }
+
         Gx.autoz = o.autoz === undefined ? -1 : o.autoz;
         if (Gx.autoz < 0) {
             Gx.autoz = 0;
@@ -6064,8 +6121,14 @@
 
         if (Gx.xmrk !== null && Gx.ymrk !== null) {
             var pix = mx.real_to_pixel(Mx, Gx.xmrk, Gx.ymrk);
-            if (pix.clipped) {
-                return;
+            if (Gx.lyr[0].hcb["class"] === 1) {
+                if (pix.clipped) {
+                    return;
+                }
+            } else if (Gx.lyr[0].hcb["class"] === 2) {
+                if (pix.clipped_x || !pix.clipped_y) {
+                    return;
+                }
             }
             var ctx = Mx.active_canvas.getContext("2d");
             ctx.beginPath();
