@@ -2756,7 +2756,7 @@
      * @param flags
      */
     // ~= MX$FDRAWAXIS
-    mx.drawaxis = function(Mx, xdiv, ydiv, xlab, ylab, flags) {
+    mx.drawaxis = function(Gx, Mx, xdiv, ydiv, xlab, ylab, flags) {
         var stk1 = mx.origin(Mx.origin, 1, Mx.stk[Mx.level]);
         var iscl = 0;
         var isct = 0;
@@ -2826,6 +2826,11 @@
             _xmult = flags.xmult;
         } else if (!flags.xtimecode) {
             _xmult = mx.mult(stk1.xmin, stk1.xmax);
+        }
+        if (Gx.x_cut_press_on || Gx.y_cut_press_on) {
+            var new_max = stk1.ymax;
+            stk1.ymax = stk1.ymin;
+            stk1.ymin = new_max;
         }
         if (ydiv < 0) {
             yTIC.dtic1 = stk1.ymin;

@@ -4192,7 +4192,44 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
         color: "red"
     });
 });
-interactiveTest('Show marker on raster', 'Do you see a marker on click (press k first)?', function() {
+interactiveTest('p-cuts: side and bottom plots', 'Do you see updating data when the mouse is moved in the x and y plots', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot.overlay_href("dat/penny.prm");
+    plot.change_settings({
+        p_cuts: true
+    });
+});
+interactiveTest('p-cuts: side and bottom plots turn on and off', 'Do the plots toggle on "p" key regardless of mouse postion?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot.overlay_href("dat/penny.prm");
+    plot.change_settings({
+        p_cuts: true
+    });
+});
+interactiveTest('p-cuts: x-cut', 'Does the x-plot show on "x" key regardless of mouse position and update when clicked open in different spot?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot.overlay_href("dat/penny.prm");
+    plot.change_settings({
+        p_cuts: true
+    });
+});
+interactiveTest('p-cuts: y-cut', 'Does the y-plot show on "y" key regardless of mouse position and update when clicked open in different spot?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot.overlay_href("dat/penny.prm");
+    plot.change_settings({
+        p_cuts: true
+    });
+});
+interactiveTest('p-cuts: turn on and off', 'Does the feature toggle with "p" key? Does everything resize correctly?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot.overlay_href("dat/penny.prm");
+});
+interactiveTest('p-cuts: x-cut and y-cut without p-cuts display', 'Do the x and y plot display when clicked without the smaller plots?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
