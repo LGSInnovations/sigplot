@@ -63,7 +63,7 @@
     // "35%,35%,30%" - medium gray
     // "40%,40%,35%" - light medium gray
     // "60%,60%,55%" - light gray
-    // "70%,70%,65%" - very light gray	
+    // "70%,70%,65%" - very light gray
     // "80%,80%,75%" - very very light gray
 
     mx.L_ArrowLeft = 1001;
@@ -343,8 +343,8 @@
             return function(event) {
                 if (Mx.warpbox) {
                     var keyCode = common.getKeyCode(event);
-                    if (((keyCode === 17) || // Ctrl 
-                            (keyCode === 224) || // Mac Command Firefox 
+                    if (((keyCode === 17) || // Ctrl
+                            (keyCode === 224) || // Mac Command Firefox
                             (keyCode === 91) || // Safari/Chrome Left-command
                             (keyCode === 93)) && // Safari/Chrome Right-command
                         (Mx.warpbox.style !== Mx.warpbox.alt_style)) {
@@ -361,8 +361,8 @@
             return function(event) {
                 if (Mx.warpbox) {
                     var keyCode = common.getKeyCode(event);
-                    if (((keyCode === 17) || // Ctrl 
-                            (keyCode === 224) || // Mac Command Firefox 
+                    if (((keyCode === 17) || // Ctrl
+                            (keyCode === 224) || // Mac Command Firefox
                             (keyCode === 91) || // Safari/Chrome Left-command
                             (keyCode === 93)) && // Safari/Chrome Right-command
                         (Mx.warpbox.style !== Mx.warpbox.def_style)) {
@@ -734,8 +734,8 @@
     //
     mx.scrollbar = function(Mx, sb, xs, xe, ys, ye, out, qs, qe, mouseEvent, scrollbarState) {
         // Param types:
-        // mx.SCROLLBAR* sb, 
-        // int xs, int xe, int ys, int ye, 
+        // mx.SCROLLBAR* sb,
+        // int xs, int xe, int ys, int ye,
         // real* ps, real* pe, real qs, real qe
 
         var mode; // an int
@@ -804,7 +804,7 @@
         mx.scroll_vals(sb, out.ps, sb.srange, qs, qe - qs, step, page, scale, scrollbarState);
 
         if (mode === 0) {
-            mx.scroll(Mx, sb, mx.XW_DRAW, undefined, undefined); // No need for a mouse event 
+            mx.scroll(Mx, sb, mx.XW_DRAW, undefined, undefined); // No need for a mouse event
         } else {
             if (mx.scroll(Mx, sb, mx.XW_EVENT, mouseEvent, scrollbarState)) {
                 if (out.ps !== sb.smin) {
@@ -828,7 +828,7 @@
      * @param mouseEvent
      * @param scrollbarState
      */
-    // 
+    //
     // ~= mx_scroll
     //
     mx.scroll = function(Mx, sv, op, mouseEvent, scrollbarState) {
@@ -1014,8 +1014,8 @@
                             smin += (sv.srange - srange) / 2.0; /* Plot is completely contained on positive side of axis */
                         }
                         break;
-                        /* The mouse wheel needs to scroll 1 page at a time, if you want an 
-		           application to scroll differently, change sv.page with 
+                        /* The mouse wheel needs to scroll 1 page at a time, if you want an
+		           application to scroll differently, change sv.page with
 		           mx_scroll_vals in the application code */
                     case mx.SB_WHEELUP:
                         smin -= sv.page;
@@ -1263,7 +1263,7 @@
                     c = symbol;
                     r = m.trunc(Mx.text_w / 2); //tbd
                     if (fill && !rmode) {
-                        ctx.fillText(c.substring(0, 2), x - r, y + r); // TODO Does this cover it? Do we need to also fill in a rectangle behind 
+                        ctx.fillText(c.substring(0, 2), x - r, y + r); // TODO Does this cover it? Do we need to also fill in a rectangle behind
                     }
                     break;
             } // end switch (symbol)
@@ -2137,8 +2137,8 @@
             var fontFamily = ctx.font.substr(fontIndex, ctx.font.length).toString();
 
             /* TODO Note: There is a scrolling bug - you can scroll to the right, but not the left of the value
-			And... when truncating the width of an input field - it shows the value as though truncated 
-			from the right (say if its cut off by 1 and that one happened to be a negative sign, the value 
+			And... when truncating the width of an input field - it shows the value as though truncated
+			from the right (say if its cut off by 1 and that one happened to be a negative sign, the value
 			would look like a positive) .
 			 */
             var canvasInput = new CanvasInput({
@@ -2918,7 +2918,7 @@
         var xlbl_maxlen = Math.min(12, Math.round(fact * xTIC.dtic) / Mx.text_w);
 
         // The sp flag decides if all tics should be labeled, or just the first tic.
-        // in LEGACY rendering when sp=0 you should get one tic at the start 
+        // in LEGACY rendering when sp=0 you should get one tic at the start
         // that then displays like XPOS += tic-delta
         //
         // The original logic basically says, if the tic-delta (i.e. dtic) is very small
@@ -3157,7 +3157,7 @@
         if (menu.animationFrameHandle) {
             return;
         }
-        // Use the current mouse position and the size of the plot to determine available space 
+        // Use the current mouse position and the size of the plot to determine available space
         //var mouse_pos = Mx.ypos; TODO: Use mouse position
         var plot_height = Mx.canvas.height;
         var buffer_sz = 35; // estimate of how much of the canvas is spacing around plot
@@ -3514,7 +3514,20 @@
      */
     mx.menu = function(Mx, menu) {
         var yb = Mx.text_h * 1.5;
-        MENU_CONSTANTS.n_show = menu.items.length;
+        //MENU_CONSTANTS.n_show = menu.items.length;
+
+        var plot_height = Mx.canvas.height;
+        var buffer_sz = 35; // estimate of how much of the canvas is spacing around plot
+        var avail_space = plot_height - 2 * buffer_sz;
+        // Calculate how many menu items can fit inside that space
+        var menu_item_height = Mx.text_h * 1.5;
+        var n_items = Math.floor(avail_space / menu_item_height);
+        if (n_items >= menu.items.length) {
+            MENU_CONSTANTS.n_show = menu.items.length;
+        } else {
+            MENU_CONSTANTS.n_show = n_items;
+        }
+
         if (menu) {
             if (!Mx.widget) {
                 menu.x = Mx.xpos;
@@ -5105,7 +5118,7 @@
         var width_scaling = sw / w;
         var height_scaling = sh / h;
 
-        // Perform the scaling	
+        // Perform the scaling
         var xx = 0;
         var yy = 0;
         var jj = 0;
@@ -5169,7 +5182,7 @@
                         value += data[didx + j];
                     }
                     value = (value / xc);
-                } else if (xcompression === 2) { // min 
+                } else if (xcompression === 2) { // min
                     for (var j = 1; j < xc; j++) {
                         value = Math.min(value, data[didx + j]);
                     }
@@ -5177,7 +5190,7 @@
                     for (var j = 1; j < xc; j++) {
                         value = Math.max(value, data[didx + j]);
                     }
-                } else if (xcompression === 4) { // first 
+                } else if (xcompression === 4) { // first
                     value = data[i];
                 } else if (xcompression === 5) { // max abs
                     for (var j = 1; j < xc; j++) {
@@ -5259,7 +5272,7 @@
                             value += data[didx + j];
                         }
                         value = value / nxc;
-                    } else if (xcompression === 2) { // min 
+                    } else if (xcompression === 2) { // min
                         for (var j = 1; j < nxc; j++) {
                             value = Math.min(value, data[didx + j]);
                         }
@@ -5267,7 +5280,7 @@
                         for (var j = 1; j < nxc; j++) {
                             value = Math.max(value, data[didx + j]);
                         }
-                    } else if (xcompression === 4) { // first 
+                    } else if (xcompression === 4) { // first
                         value = data[didx];
                     } else if (xcompression === 5) { // max abs
                         for (var j = 1; j < nxc; j++) {
