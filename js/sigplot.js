@@ -1282,9 +1282,19 @@
                                 plot.refresh();
                                 Gx.xcut_layer = undefined;
                             } else if (Gx.xyKeys === "pop-up") {
-                                sigplot_show_x(plot);
+                                if (!Gx.x_pop_now) {
+                                    sigplot_show_x(plot);
+                                    Gx.x_pop_now = true;
+                                } else {
+                                    Gx.x_pop_now = false;
+                                }
                             } else if ((Gx.lyr[0].hcb["class"] === 1) && (Gx.xyKeys === "automatic")) {
-                                sigplot_show_x(plot);
+                                if (!Gx.x_pop_now) {
+                                    sigplot_show_x(plot);
+                                    Gx.x_pop_now = true;
+                                } else {
+                                    Gx.x_pop_now = false;
+                                }
                             } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
                                 //display the x-cut of the raster
                                 if (!Gx.y_cut_press_on) {
@@ -1360,9 +1370,19 @@
                                 plot.refresh();
                                 Gx.ycut_layer = undefined;
                             } else if (Gx.xyKeys === "pop-up") {
-                                sigplot_show_y(plot);
+                                if (!Gx.y_pop_now) {
+                                    sigplot_show_y(plot);
+                                    Gx.y_pop_now = true;
+                                } else {
+                                    Gx.y_pop_now = false;
+                                }
                             } else if ((Gx.lyr[0].hcb["class"] === 1) && (Gx.xyKeys === "automatic")) {
-                                sigplot_show_y(plot);
+                                if (!Gx.y_pop_now) {
+                                    sigplot_show_y(plot);
+                                    Gx.y_pop_now = true;
+                                } else {
+                                    Gx.y_pop_now = false;
+                                }
                             } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
                                 //display the y-cut of the raster
                                 if (!Gx.x_cut_press_on) {
@@ -3511,6 +3531,10 @@
         //1D and cut on 2D, "disable" doesn't display anything, "pop-up"
         //displays point on both, and "cuts" displays only cuts on 2D)
         this.xyKeys = "automatic";
+        //true if the x value is being displayed on plot
+        this.x_pop_now = false;
+        //true if the y value is being displayed on plot
+        this.y_pop_now = false;
     }
 
     /**
