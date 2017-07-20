@@ -938,6 +938,60 @@ test('sigplot layer1d change_settings ymin/ymax ', function() {
     equal(plot._Gx.autoy, 3);
 });
 
+test('Cmode input test', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        cmode: "MA"
+    });
+
+    equal(plot._Gx.cmode, 1);
+
+    notEqual(plot, null);
+    var ramp = [];
+    for (var i = 0; i < 20; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, null, {
+        name: "x",
+        symbol: 1,
+        line: 0
+    });
+
+
+    plot.change_settings({
+        cmode: "Magnitude"
+    });
+    equal(plot._Gx.cmode, 1);
+    plot.change_settings({
+        cmode: "Phase"
+    });
+    equal(plot._Gx.cmode, 2);
+    plot.change_settings({
+        cmode: "Real"
+    });
+    equal(plot._Gx.cmode, 3);
+    plot.change_settings({
+        cmode: "Imaginary"
+    });
+    equal(plot._Gx.cmode, 4);
+    plot.change_settings({
+        cmode: "Imag/Real"
+    });
+    equal(plot._Gx.cmode, 5);
+    plot.change_settings({
+        cmode: "Real/Imag"
+    });
+    equal(plot._Gx.cmode, 5);
+    plot.change_settings({
+        cmode: "10*log10"
+    });
+    equal(plot._Gx.cmode, 6);
+    plot.change_settings({
+        cmode: "20*log10"
+    });
+    equal(plot._Gx.cmode, 7);
+});
+
 test('sigplot layer1d noautoscale', function() {
     var container = document.getElementById('plot');
     equal(container.childNodes.length, 0);
