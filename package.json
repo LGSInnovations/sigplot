@@ -5,7 +5,8 @@
   "homepage": "http://demo.axiosengineering.com/sigplot",
   "main": "js/sigplot.js",
   "files": [
-      "js", "dist"
+    "js",
+    "dist"
   ],
   "author": {
     "name": "Axios Engineering",
@@ -29,9 +30,11 @@
     "test": "grunt test"
   },
   "dependencies": {
+    "loglevel": "^1.4.1",
     "spin": "0.0.1",
+    "taffydb": "^2.7.3",
     "tinycolor2": "^1.4.1",
-    "loglevel": "^1.4.1"
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "catharsis": "^0.7.0",
