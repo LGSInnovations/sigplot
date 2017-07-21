@@ -130,13 +130,13 @@
                 this.xstart = hcb.xstart;
                 this.xdelta = hcb.xdelta;
                 var d = hcb.xstart + hcb.xdelta * (hcb.subsize - 1.0);
-                this.xmin = Math.min(hcb.xstart, d);
-                this.xmax = Math.max(hcb.xstart, d);
+                this.xmin = this.hcb.xmin || Math.min(hcb.xstart, d);
+                this.xmax = this.hcb.xmax || Math.max(hcb.xstart, d);
                 this.ystart = hcb.ystart;
                 this.ydelta = hcb.ydelta;
                 var d = hcb.ystart + hcb.ydelta * (this.lps - 1.0);
-                this.ymin = Math.min(hcb.ystart, d);
-                this.ymax = Math.max(hcb.ystart, d);
+                this.ymin = this.hcb.ymin || Math.min(hcb.ystart, d);
+                this.ymax = this.hcb.ymax || Math.max(hcb.ystart, d);
             }
 
             // TODO make this work with force 1000 applied
@@ -444,7 +444,9 @@
                 }
             }
 
-            m.filad(this.hcb, data, sync);
+            if (data.length > 0) {
+                m.filad(this.hcb, data, sync);
+            }
 
             return rescale;
 

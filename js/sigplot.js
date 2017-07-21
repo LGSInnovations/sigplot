@@ -1881,7 +1881,25 @@ window.sigplot = window.sigplot || {};
                 return;
             }
 
-            var rescale = Gx.lyr[n].push(data, hdrmod, sync);
+            var hdrmod_clone = hdrmod;
+
+            // quick deep copy of the header so we can
+            // add some necessary fields if this is
+            // a header-only push
+            if (hdrmod) {
+                var hdrmod_clone = JSON.parse(JSON.stringify(hdrmod));
+
+                // if it's a header-only push, the data should
+                // be an empty array
+                if (data.length === 0) {
+                    hdrmod_clone.xmin = Mx.stk[n].xmin;
+                    hdrmod_clone.xmax = Mx.stk[n].xmax;
+                    hdrmod_clone.ymin = Mx.stk[n].ymin;
+                    hdrmod_clone.ymax = Mx.stk[n].ymax;
+                }
+            }
+
+            var rescale = Gx.lyr[n].push(data, hdrmod_clone, sync);
 
             if ((Mx.level === 0) && rescale) {
                 scale_base(this, {
@@ -4716,7 +4734,7 @@ window.sigplot = window.sigplot || {};
 
         var REFRESH_ITEM = {
             text: "Refresh" // no handler, just let the finalizer deal with
-                // it
+            // it
         };
 
         var KEYPRESSINFO_ITEM = {

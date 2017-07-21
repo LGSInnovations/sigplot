@@ -335,13 +335,15 @@
                 }
 
                 var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1.0);
-                this.xmin = Math.min(this.hcb.xstart, d);
-                this.xmax = Math.max(this.hcb.xstart, d);
+                this.xmin = this.hcb.xmin || Math.min(this.hcb.xstart, d);
+                this.xmax = this.hcb.xmax || Math.max(this.hcb.xstart, d);
                 this.xdelta = this.hcb.xdelta;
                 this.xstart = this.hcb.xstart;
             }
 
-            m.filad(this.hcb, data, sync);
+            if (data.length > 0) {
+                m.filad(this.hcb, data, sync);
+            }
 
             return hdrmod ? true : false;
 

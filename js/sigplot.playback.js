@@ -30,7 +30,7 @@
             size: 25,
             lineWidth: 2,
             fillStyle: false //,
-                /*strokeStyle: "#FFFFFF"*/
+            /*strokeStyle: "#FFFFFF"*/
         };
         window.update(this.options, options);
         this.state = "paused";
