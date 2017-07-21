@@ -4150,12 +4150,18 @@ interactiveTest('change_settings', 'does the plot show a a range 200-2200', func
     strictEqual(plot._Mx.stk[0].xmin, 0);
     strictEqual(plot._Mx.stk[0].xmax, 20460);
 
+    strictEqual(plot._Gx.lyr[0].xmin, 0);
+    strictEqual(plot._Gx.lyr[0].xmax, 20460);
+
     plot.change_settings({
         xmin: 200,
-        xmax: 2200,
+        xmax: 2200
     });
     strictEqual(plot._Mx.stk[0].xmin, 200);
     strictEqual(plot._Mx.stk[0].xmax, 2200);
+
+    strictEqual(plot._Gx.lyr[0].xmin, 200);
+    strictEqual(plot._Gx.lyr[0].xmax, 2200);
 
     // do a syncronous refresh
     plot._refresh();
@@ -4166,4 +4172,7 @@ interactiveTest('change_settings', 'does the plot show a a range 200-2200', func
     plot.push(0, ramp, null, true);
     strictEqual(plot._Mx.stk[0].xmin, 200);
     strictEqual(plot._Mx.stk[0].xmax, 2200);
+
+    strictEqual(plot._Gx.lyr[0].xmin, 200);
+    strictEqual(plot._Gx.lyr[0].xmax, 2200);
 });
