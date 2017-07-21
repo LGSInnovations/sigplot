@@ -1857,6 +1857,19 @@ window.sigplot = window.sigplot || {};
         },
 
         /**
+         * Change the file header
+         *
+         * @param {Number} n
+         *            the layer to push header changes to
+         * @param {Object} hdrmod
+         *            changes to the file header
+         */
+        headermod: function(n, hdrmod) {
+            this.change_settings(hdrmod);
+            this.push(n, [], hdrmod);
+        },
+
+        /**
          * Push data into a layer that was created with overlay_pipe
          *
          * @param {Number} n

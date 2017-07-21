@@ -9513,6 +9513,9 @@ window.sigplot = window.sigplot || {};
       scale_base(this, {get_data:false}, undefined, undefined);
     }
     this.refresh();
+  }, headermod:function(n, hdrmod) {
+    this.change_settings(hdrmod);
+    this.push(n, [], hdrmod);
   }, push:function(n, data, hdrmod, sync, rsync) {
     var Mx = this._Mx;
     var Gx = this._Gx;

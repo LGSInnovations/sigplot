@@ -4120,7 +4120,7 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
         color: "red"
     });
 });
-interactiveTest('change_settings', 'does the plot show a a range 200-2200', function() {
+interactiveTest('change_settings', 'does the plot show a range 200-2200', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autohide_panbars: false,
@@ -4154,6 +4154,62 @@ interactiveTest('change_settings', 'does the plot show a a range 200-2200', func
     strictEqual(plot._Gx.lyr[0].xmax, 20460);
 
     plot.change_settings({
+        xmin: 200,
+        xmax: 2200
+    });
+    strictEqual(plot._Mx.stk[0].xmin, 200);
+    strictEqual(plot._Mx.stk[0].xmax, 2200);
+
+    strictEqual(plot._Gx.lyr[0].xmin, 200);
+    strictEqual(plot._Gx.lyr[0].xmax, 2200);
+
+    // do a syncronous refresh
+    plot._refresh();
+    strictEqual(plot._Mx.stk[0].xmin, 200);
+    strictEqual(plot._Mx.stk[0].xmax, 2200);
+
+    // and another push
+    plot.push(0, ramp, null, true);
+    strictEqual(plot._Mx.stk[0].xmin, 200);
+    strictEqual(plot._Mx.stk[0].xmax, 2200);
+
+    strictEqual(plot._Gx.lyr[0].xmin, 200);
+    strictEqual(plot._Gx.lyr[0].xmax, 2200);
+});
+interactiveTest('headermod', 'does the plot show a range 200-2200', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        autohide_panbars: false,
+        cmode: 'LO',
+        xcnt: 'continuous'
+    });
+    notEqual(plot, null);
+
+    var hcb = {
+        xunits: 3,
+        yunits: 26,
+        size: 1024,
+        xdelta: 20
+    };
+    var layerOptions = {
+        framesize: 1024
+    };
+
+    plot.overlay_pipe(hcb, layerOptions);
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i += 1) {
+        ramp.push(i + 1);
+    }
+    // do a syncronous push so we can make some assertions
+    plot.push(0, ramp, null, true);
+    strictEqual(plot._Mx.stk[0].xmin, 0);
+    strictEqual(plot._Mx.stk[0].xmax, 20460);
+
+    strictEqual(plot._Gx.lyr[0].xmin, 0);
+    strictEqual(plot._Gx.lyr[0].xmax, 20460);
+
+    plot.hdrmod({
         xmin: 200,
         xmax: 2200
     });
