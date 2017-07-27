@@ -63,7 +63,7 @@
         // the original code
         this.lpb = undefined;
 
-        this.yc = 1; // y-compression factor...not yet used 
+        this.yc = 1; // y-compression factor...not yet used
 
         this.options = {};
     };
@@ -193,6 +193,10 @@
                     mx.shift_image_rows(Mx, this.img, -1);
                 }
             } else if (this.drawmode === "scrolling") {
+                var ylength = Math.abs(this.ymax - this.ymin);
+                this.ystart = 0;
+                this.ymin = 0;
+                this.ymax = ylength;
                 if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
                     this.position = 0;
                 }
@@ -729,7 +733,7 @@
             this.img.cmap = Gx.cmap;
             this.img.origin = Mx.origin;
 
-            // Make the parts without data transparent 
+            // Make the parts without data transparent
             if (this.hcb.pipe && (this.frame < this.lps)) {
                 var imgd = new Uint32Array(this.img);
                 if (this.drawmode === "rising") {
