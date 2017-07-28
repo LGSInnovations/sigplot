@@ -59,7 +59,7 @@
         // the original code
         this.lpb = undefined;
 
-        this.yc = 1; // y-compression factor...not yet used 
+        this.yc = 1; // y-compression factor...not yet used
 
         this.options = {};
     };
@@ -352,7 +352,12 @@
             if (settings.cmap !== undefined) {
                 this.img = undefined;
             }
-            if (settings.drawmode !== undefined) {
+            if ((settings.drawmode !== undefined) || (settings.xmin !== undefined) ||
+                (settings.xmax !== undefined) || (settings.xdelta !== undefined) ||
+                (settings.xstart !== undefined)) {
+                if (settings.drawmode === undefined) {
+                    settings.drawmode = this.drawmode;
+                }
                 this.drawmode = settings.drawmode;
                 // Reset the buffer
                 this.position = 0;
@@ -718,7 +723,7 @@
             this.img.cmap = Gx.cmap;
             this.img.origin = Mx.origin;
 
-            // Make the parts without data transparent 
+            // Make the parts without data transparent
             if (this.hcb.pipe && (this.frame < this.lps)) {
                 var imgd = new Uint32Array(this.img);
                 if (this.drawmode === "rising") {

@@ -220,7 +220,7 @@ window.sigplot = window.sigplot || {};
      *
      * @param {Object}
      *            options.ylabel function or string for custom Y-axis label
-     * 
+     *
      * @param {Number}
      *            options.ymin the minimum range to display on the Y axis
      *
@@ -1692,6 +1692,7 @@ window.sigplot = window.sigplot || {};
                     Gx.autoy = Gx.autoy & 0xD;
                     Gx.ymax = settings.ymax;
                     updateViewbox(this, Mx.stk[0].ymin, settings.ymax, "Y");
+                    this.redraw();
                 }
             }
 
@@ -1706,6 +1707,7 @@ window.sigplot = window.sigplot || {};
                     Gx.autoy = Gx.autoy & 0xE;
                     Gx.ymin = settings.ymin;
                     updateViewbox(this, settings.ymin, Mx.stk[0].ymax, "Y");
+                    this.redraw();
                 }
             }
 
@@ -1725,11 +1727,13 @@ window.sigplot = window.sigplot || {};
             if (settings.xmin !== undefined) {
                 updateViewbox(this, settings.xmin, Mx.stk[0].xmax, "X");
                 Gx.autox = (Gx.autox & 2);
+                this.redraw();
             }
 
             if (settings.xmax !== undefined) {
                 updateViewbox(this, Mx.stk[0].xmin, settings.xmax, "X");
                 Gx.autox = (Gx.autox & 1);
+                this.redraw();
             }
 
             if (settings.zmin !== undefined) {
@@ -2225,7 +2229,7 @@ window.sigplot = window.sigplot || {};
             if ((index >= 0) && (index < Gx.HCB.length)) {
                 fileName = Gx.HCB[index].file_name;
                 // TODO if (Gx.modsource > 0) {
-                //	
+                //
                 // }
                 HCB = Gx.HCB[index];
                 Gx.HCB[index] = null;
@@ -6220,7 +6224,7 @@ window.sigplot = window.sigplot || {};
         }
 
         var xval, yval, xdelta, ydelta;
-        // TODO handle xfmt/yfmt using m.d2a_form equivalent 
+        // TODO handle xfmt/yfmt using m.d2a_form equivalent
         if ((Gx.iabsc === 0) && (Gx.ylab === 4)) {
             yval = (m.sec2tspec(Gx.arety) + "                ").substring(0, 16);
             ydelta = (m.sec2tspec(Gx.drety, "delta") + "                ").substring(0, 16);
