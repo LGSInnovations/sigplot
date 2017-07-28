@@ -4916,6 +4916,22 @@
     };
 
     /**
+     * @param Mx
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @private
+     */
+    mx.legend_colorbar = function(Mx, x, y, w, h) {
+        for (var j = 1; j < w; j++) {
+            var cidx = Math.floor(Mx.pixel.length * (j - 1) / w);
+            mx.draw_line(Mx, cidx, x + w - j, y, x + w - j, y + h);
+        }
+        mx.draw_box(Mx, Mx.fg, x + 0.5, y, w, h);
+    };
+
+    /**
      * Render image buffer to canvas.
      *
      * If we don't have access to Uint8ClampedArray (i.e. Firefox 3.6)
