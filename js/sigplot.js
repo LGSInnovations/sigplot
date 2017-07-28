@@ -2260,7 +2260,7 @@
          *
          * @example plot.overlay_array(data, {[overrides]}, {[layerOptions]});
          *
-         * @param {Javascript Array}
+         * @param data
          *            data the data that you will be plotting
          *
          * @param [overrides]
