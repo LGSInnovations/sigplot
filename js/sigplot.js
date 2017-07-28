@@ -2260,7 +2260,7 @@
          *
          * @example plot.overlay_array(data, {[overrides]}, {[layerOptions]});
          *
-         * @param {Javascript Array}
+         * @param data
          *            data the data that you will be plotting
          *
          * @param [overrides]
@@ -2286,7 +2286,7 @@
          *            layerOptions.etc all of the parameters for the change_settings
          *            function except for lg_colorbar and p_cuts
          *
-         * @returns {a data layer}
+         * @returns a data layer
          *
          */
 
