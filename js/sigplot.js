@@ -2286,7 +2286,7 @@
          *            layerOptions.etc all of the parameters for the change_settings
          *            function except for lg_colorbar and p_cuts
          *
-         * @returns a data layer
+         * @returns data_layer
          *
          */
 
@@ -2324,7 +2324,7 @@
          *            layerOptions.etc all of the parameters for the change_settings
          *            function except for lg_colorbar and p_cuts
          *
-         * @returns {a data layer}
+         * @returns data_layer
          *
          */
 
@@ -2368,7 +2368,7 @@
          *            layerOptions.etc all of the parameters for the change_settings
          *            function except for lg_colorbar and p_cuts
          *
-         * @returns {a data layer}
+         * @returns data_layer
          *
          */
 
@@ -2434,7 +2434,7 @@
          *            layerOptions.etc all of the parameters for the change_settings
          *            function except for lg_colorbar and p_cuts
          *
-         * @returns {a data layer}
+         * @returns data_layer
          *
          */
         overlay_href: function(href, onload, layerOptions) {
@@ -2506,7 +2506,7 @@
          * @param {Number}
          *              n the index of the layer
          *
-         * @returns {a data layer}
+         * @returns data_layer
          *
          */
 
@@ -2648,7 +2648,7 @@
          *             The index of the layer. If not provided, all layers will
          *             be removed
          *
-         * @returns {a data layer}
+         * @returns data_layer
          *
          */
 
