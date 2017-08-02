@@ -2217,8 +2217,8 @@ interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly wo
     }, 500);
 });
 
-// By default, rasters have their autolevel set by the 
-// first 16 raster-lines.   
+// By default, rasters have their autolevel set by the
+// first 16 raster-lines.
 interactiveTest('t2000 file (default autol)', 'Is the plot red below the ~16th line?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
@@ -4056,7 +4056,7 @@ interactiveTest('slider', 'Do you see a sliders?', function() {
     // slidertag events happen whenever a slider is moved
     // programatically or by the user
     plot.addListener("slidertag", function(evt) {});
-    // sliderdrag events happen only when a slider is moved by 
+    // sliderdrag events happen only when a slider is moved by
     // the user
     plot.addListener("sliderdrag", function(evt) {});
 });
@@ -4287,4 +4287,80 @@ interactiveTest('p-cuts: x-cut and y-cut without p-cuts display', 'Do the x and 
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
+    //console.log(plot._Gx);
+});
+interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with accurate side x and y cuts?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5,
+        enabled_streaming_pcut: true
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    }, {
+        drawmode: "falling"
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
+interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with accurate side x and y cuts?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5,
+        enabled_streaming_pcut: true
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    }, {
+        drawmode: "rising"
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
+interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster with accurate side x and y cuts?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5,
+        enabled_streaming_pcut: true
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    }, {
+        drawmode: "scrolling"
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 100);
 });
