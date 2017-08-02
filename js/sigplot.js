@@ -1307,7 +1307,7 @@
                                         Gx.x_cut_data = [];
                                         var plot_height = Mx.b - Mx.t;
                                         var plot_width = Mx.r - Mx.l;
-                                        var height = Gx.lyr[0].yframe;
+                                        var height = Gx.lyr[0].lps;
                                         var width = Gx.lyr[0].xframe;
                                         var row, start, finish = 0;
                                         row = Math.floor((height * (Mx.ypos - Mx.t)) / plot_height);
@@ -1392,9 +1392,10 @@
                                 //display the y-cut of the raster
                                 if (!Gx.x_cut_press_on) {
                                     if (!Gx.p_cuts) {
+                                        Gx.y_cut_data = [];
                                         var plot_height = Mx.b - Mx.t;
                                         var plot_width = Mx.r - Mx.l;
-                                        var height = Gx.lyr[0].yframe;
+                                        var height = Gx.lyr[0].lps;
                                         var width = Gx.lyr[0].xframe;
                                         var line, i = 0;
                                         Gx.y_cut_data = [];
@@ -1402,6 +1403,7 @@
                                         for (i = line; i < (width * height); i += width) {
                                             Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
                                         }
+                                        console.log(Gx.y_cut_data);
                                     }
                                     var ycut_display = [];
                                     for (var a = 0; a < Gx.y_cut_data.length; a++) {
@@ -2045,6 +2047,25 @@
                 Gx.lg_colorbar = !Gx.lg_colorbar;
             }
 
+            if (settings.enabled_streaming_pcut !== undefined) {
+                Gx.enabled_streaming_pcut = !Gx.enabled_streaming_pcut;
+                if (Gx.enabled_streaming_pcut === false) {
+                    //ensure that the elements have a parent to remove them.
+                    if (Gx.element1.parentNode === null) {
+                        document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element1);
+                    }
+                    if (Gx.element2.parentNode === null) {
+                        document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element2);
+                    }
+
+                    Gx.element1.parentNode.removeChild(Gx.element1);
+                    Gx.element2.parentNode.removeChild(Gx.element2);
+                    Gx.ycut = undefined;
+                    Gx.xcut = undefined;
+                }
+                Gx.parent.setAttribute("style", "position:relative");
+            }
+
             if (settings.p_cuts !== undefined) {
                 // Change the plot area and then draw the p_cuts dipslay
                 Gx.p_cuts = !Gx.p_cuts;
@@ -2207,10 +2228,40 @@
                     get_data: false
                 });
             }
+            /*
+            if (Gx.lyr[n].drawmode = "scrolling") {
+
+                var height = Math.abs(Gx.lyr[n].ystart - Gx.lyr[n].ymax);
+                var real_height = height / Gx.lyr[n].ydelta;
+                var zbuf_size = real_height * Gx.lyr[n].hcb.subsize;
+                //if we have filled the xbuf, start from the beginning
+                //(this will work for scrolling plots only)
+                if (zbuf_size !== Gx.lyr[n].zbuf.length) {
+                    Gx.lyr[n].zbuf = [];
+                    Gx.lyr[n].zbuf = new m.PointArray(real_height * Gx.lyr[n].hcb.subsize);
+                }
+                if (Gx.zbuf_fill >= zbuf_size) {
+                    Gx.zbuf_fill = 0;
+                }
+
+                var next_fill = Gx.zbuf_fill + Gx.lyr[n].hcb.subsize;
+                var b = 0;
+                for (var i = Gx.zbuf_fill; i < next_fill; i++) {
+                    Gx.lyr[n].zbuf[i] = data[b];
+                    b++;
+                }
+                Gx.zbuf_fill = next_fill;
+            }*/
 
             if (rsync) {
+                if (Gx.enabled_streaming_pcut) {
+                    draw_p_cuts(this);
+                }
                 this._refresh();
             } else {
+                if (Gx.enabled_streaming_pcut) {
+                    draw_p_cuts(this);
+                }
                 this.refresh();
             }
         },
@@ -3085,7 +3136,7 @@
 
             }
 
-            if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+            if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0].hcb["class"] === 2)) {
                 //turn cross hairs on
                 Gx.cross = true;
 
@@ -3572,6 +3623,9 @@
         this.x_pop_now = false;
         //true if the y value is being displayed on plot
         this.y_pop_now = false;
+
+        //enables streaming p-cuts
+        this.enabled_streaming_pcut = false;
     }
 
     /**
@@ -6120,6 +6174,31 @@
             }
             Gx.p_press = false;
         }
+
+        if (Gx.enabled_streaming_pcut) {
+            var line = 0;
+            var i = 0;
+            height = Gx.lyr[0].lps;
+            //fill data for y_cut for this mouse xpos
+            Gx.y_cut_data = [];
+            line = Math.floor((width * (Mx.xpos - Mx.l)) / plot_width);
+            for (i = line; i < (width * height); i += width) {
+                Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
+            }
+            mx.dispatchEvent(Mx, eventy);
+
+            var row = 0;
+            var start = 0;
+            var finish = 0;
+            //fill data for x_cut for this mouse ypos
+            Gx.x_cut_data = [];
+            row = Math.floor((height * (Mx.ypos - Mx.t)) / plot_height);
+            start = row * width;
+            finish = start + width;
+            Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
+            mx.dispatchEvent(Mx, eventx);
+
+        }
     }
 
     /**
@@ -6974,7 +7053,7 @@
         mx.colorbar(Mx, x, y, w, h);
 
         //draw boxes for the p_cuts
-        if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+        if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0].hcb["class"] === 2)) {
             var plot_height = Mx.b - Mx.t;
             var plot_width = Mx.r - Mx.l;
 
