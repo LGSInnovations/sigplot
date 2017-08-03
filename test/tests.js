@@ -4289,7 +4289,7 @@ interactiveTest('p-cuts: x-cut and y-cut without p-cuts display', 'Do the x and 
     plot.overlay_href("dat/penny.prm");
     //console.log(plot._Gx);
 });
-interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with accurate side x and y cuts?', function() {
+interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with p-cut functionality?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -4314,7 +4314,7 @@ interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with 
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with accurate side x and y cuts?', function() {
+interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with p-cut functionality?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
@@ -4339,7 +4339,7 @@ interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with ac
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster with accurate side x and y cuts?', function() {
+interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster with p-cut functionality?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);

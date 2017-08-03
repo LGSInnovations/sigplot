@@ -160,36 +160,6 @@
 
         },
 
-        /*
-        draw_stream_pcuts: function() {
-            var Gx = this.plot._Gx;
-            var Mx = this.plot._Mx;
-            var plot_height = Mx.b - Mx.t;
-            var plot_width = Mx.r - Mx.l;
-            var height = Gx.lyr[0].yframe;
-            var width = Gx.lyr[0].xframe;
-            var line = 0;
-            var i = 0;
-
-            //fill data for y_cut for this xpos
-            Gx.y_cut_data = [];
-            line = Math.floor((width * (Gx.p_cuts_xpos - Mx.l)) / plot_width);
-            for (i = line; i < (width * height); i += width) {
-                Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
-            }
-            mx.dispatchEvent(Mx, eventy);
-
-            var row = 0;
-            var start = 0;
-            var finish = 0;
-            //fill data for x_cut for this ypos
-            row = Math.floor((height * (Gx.p_cuts_ypos - Mx.t)) / plot_height);
-            start = row * width;
-            finish = start + width;
-            Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
-            mx.dispatchEvent(Mx, eventx);
-        },*/
-
         _onpipewrite: function() {
             var Gx = this.plot._Gx;
             var Mx = this.plot._Mx;

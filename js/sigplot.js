@@ -1286,6 +1286,10 @@
                                 plot.rescale();
                                 plot.refresh();
                                 Gx.xcut_layer = undefined;
+                                plot.change_settings({
+                                    drawmode: Gx.old_drawmode,
+                                    autol: Gx.old_autol
+                                });
                             } else if (Gx.xyKeys === "pop-up") {
                                 if (!Gx.x_pop_now) {
                                     sigplot_show_x(plot);
@@ -1316,11 +1320,20 @@
                                         Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
                                     }
                                     var xcut_display = [];
+                                    //make all values negative because of weird display
                                     for (var a = 0; a < Gx.x_cut_data.length; a++) {
                                         var item = Gx.x_cut_data[a];
                                         item = item * -1;
                                         xcut_display.push(item);
                                     }
+                                    //adjust for the values of the xcut
+                                    Gx.old_drawmode = Gx.lyr[0].drawmode;
+                                    Gx.old_autol = Gx.autol;
+                                    plot.change_settings({
+                                        drawmode: "undefined",
+                                        autol: -1
+                                    });
+
                                     Gx.ylabel_stash = Gx.ylabel;
 
                                     var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
@@ -1360,6 +1373,7 @@
                                     }
                                     Gx.x_cut_press_on = true;
                                     plot.rescale();
+
                                 }
                             }
                         } else if (keyCode === 121) { // 'y'
@@ -1374,6 +1388,10 @@
                                 plot.rescale();
                                 plot.refresh();
                                 Gx.ycut_layer = undefined;
+                                plot.change_settings({
+                                    drawmode: Gx.old_drawmode,
+                                    autol: Gx.old_autol
+                                });
                             } else if (Gx.xyKeys === "pop-up") {
                                 if (!Gx.y_pop_now) {
                                     sigplot_show_y(plot);
@@ -1403,14 +1421,23 @@
                                         for (i = line; i < (width * height); i += width) {
                                             Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
                                         }
-                                        console.log(Gx.y_cut_data);
                                     }
                                     var ycut_display = [];
+                                    //make all values negative because of weird display
                                     for (var a = 0; a < Gx.y_cut_data.length; a++) {
                                         var item = Gx.y_cut_data[a];
                                         item = item * -1;
                                         ycut_display.push(item);
                                     }
+
+                                    //adjust for the values of the xcut
+                                    Gx.old_drawmode = Gx.lyr[0].drawmode;
+                                    Gx.old_autol = Gx.autol;
+                                    plot.change_settings({
+                                        drawmode: "undefined",
+                                        autol: -1
+                                    });
+
                                     Gx.ylabel_stash = Gx.ylabel;
 
                                     var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
@@ -2221,6 +2248,10 @@
                 return;
             }
 
+            if (Gx.lyr[n].display === false) {
+                return;
+            }
+
             var rescale = Gx.lyr[n].push(data, hdrmod, sync);
 
             if ((Mx.level === 0) && rescale) {
@@ -2228,30 +2259,6 @@
                     get_data: false
                 });
             }
-            /*
-            if (Gx.lyr[n].drawmode = "scrolling") {
-
-                var height = Math.abs(Gx.lyr[n].ystart - Gx.lyr[n].ymax);
-                var real_height = height / Gx.lyr[n].ydelta;
-                var zbuf_size = real_height * Gx.lyr[n].hcb.subsize;
-                //if we have filled the xbuf, start from the beginning
-                //(this will work for scrolling plots only)
-                if (zbuf_size !== Gx.lyr[n].zbuf.length) {
-                    Gx.lyr[n].zbuf = [];
-                    Gx.lyr[n].zbuf = new m.PointArray(real_height * Gx.lyr[n].hcb.subsize);
-                }
-                if (Gx.zbuf_fill >= zbuf_size) {
-                    Gx.zbuf_fill = 0;
-                }
-
-                var next_fill = Gx.zbuf_fill + Gx.lyr[n].hcb.subsize;
-                var b = 0;
-                for (var i = Gx.zbuf_fill; i < next_fill; i++) {
-                    Gx.lyr[n].zbuf[i] = data[b];
-                    b++;
-                }
-                Gx.zbuf_fill = next_fill;
-            }*/
 
             if (rsync) {
                 if (Gx.enabled_streaming_pcut) {
@@ -3626,6 +3633,9 @@
 
         //enables streaming p-cuts
         this.enabled_streaming_pcut = false;
+        //the drawmode and autol before the x or y cut was showing
+        this.old_drawmode = undefined;
+        this.old_autol = undefined;
     }
 
     /**
