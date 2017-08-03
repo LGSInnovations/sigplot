@@ -2217,8 +2217,8 @@ interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly wo
     }, 500);
 });
 
-// By default, rasters have their autolevel set by the 
-// first 16 raster-lines.   
+// By default, rasters have their autolevel set by the
+// first 16 raster-lines.
 interactiveTest('t2000 file (default autol)', 'Is the plot red below the ~16th line?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
@@ -4056,7 +4056,7 @@ interactiveTest('slider', 'Do you see a sliders?', function() {
     // slidertag events happen whenever a slider is moved
     // programatically or by the user
     plot.addListener("slidertag", function(evt) {});
-    // sliderdrag events happen only when a slider is moved by 
+    // sliderdrag events happen only when a slider is moved by
     // the user
     plot.addListener("sliderdrag", function(evt) {});
 });
