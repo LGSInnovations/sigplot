@@ -1270,9 +1270,15 @@
                         } else if (keyCode === 112) { // 'p'
                             if (Gx.lyr[0].hcb["class"] !== 1) {
                                 Gx.p_press = true;
-                                plot.change_settings({
-                                    p_cuts: !Gx.p_cuts
-                                });
+                                if (Gx.lyr[0].buf.length === Gx.lyr[0].hcb.subsize) {
+                                    plot.change_settings({
+                                        enabled_streaming_pcut: !Gx.enabled_streaming_pcut
+                                    });
+                                } else {
+                                    plot.change_settings({
+                                        p_cuts: !Gx.p_cuts
+                                    });
+                                }
                             }
                         } else if (keyCode === 120) { // 'x'
                             if (Gx.x_cut_press_on) {
@@ -2077,6 +2083,8 @@
             if (settings.enabled_streaming_pcut !== undefined) {
                 Gx.enabled_streaming_pcut = !Gx.enabled_streaming_pcut;
                 if (Gx.enabled_streaming_pcut === false) {
+                    //clear the zbuf
+                    Gx.lyr[0].zbuf = [];
                     //ensure that the elements have a parent to remove them.
                     if (Gx.element1.parentNode === null) {
                         document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element1);
