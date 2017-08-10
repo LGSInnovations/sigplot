@@ -1452,7 +1452,8 @@
                     mx.draw_symbol(Mx, color, pixx[0], pixy[0], symb, rad, istart + n);
                 }
             }
-        } else if ((options.vertsym === true) && (symb !== 0)) {
+        }
+        if (options.vertsym === true) {
             for (var n = (skip - 1); n < npts; n += skip) {
                 var x = xpoint[n];
                 var y = ypoint[n];
@@ -1466,7 +1467,8 @@
                     }
                 }
             }
-        } else if ((options.horzsym === true) && (symb !== 0)) {
+        }
+        if (options.horzsym === true) {
             for (var n = (skip - 1); n < npts; n += skip) {
                 var x = xpoint[n];
                 var y = ypoint[n];
