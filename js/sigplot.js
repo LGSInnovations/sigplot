@@ -1882,39 +1882,59 @@
                 }
             }
 
+            var cmode;
+            var address = settings.cmode === undefined ? "" : settings.cmode;
+            if (typeof address === "string") {
+                address = address + "";
+                cmode = address.toUpperCase();
+            } else {
+                cmode = address;
+            }
+
             if (settings.cmode !== undefined) {
-                var cmode = settings.cmode;
                 if ((Gx.lyr.length > 0) && (Gx.lyr[0].cx)) {
                     Gx.cmode = 1;
                 } else {
                     Gx.cmode = 3;
                 }
-                if ((cmode === "MA") || (cmode === "Magnitude") || (cmode === 1)) {
+
+                if ((cmode === "MA") || (cmode === "INMA") || (cmode === "ABMA") ||
+                    (cmode === "__MA") || (cmode === "MAGNITUDE") || (cmode === 1)) {
                     Gx.cmode = 1;
                 }
-                if ((cmode === "PH") || (cmode === "Phase") || (cmode === 2)) {
+                if ((cmode === "PH") || (cmode === "INPH") || (cmode === "ABPH") ||
+                    (cmode === "__PH") || (cmode === "PHASE") || (cmode === 2)) {
                     Gx.cmode = 2;
                 }
-                if ((cmode === "RE") || (cmode === "Real") || (cmode === 3)) {
+                if ((cmode === "RE") || (cmode === "INRE") || (cmode === "ABRE") ||
+                    (cmode === "__RE") || (cmode === "REAL") || (cmode === 3)) {
                     Gx.cmode = 3;
                 }
-                if ((cmode === "IM") || (cmode === "Imaginary") || (cmode === 4)) {
+                if ((cmode === "IM") || (cmode === "INIM") || (cmode === "ABIM") ||
+                    (cmode === "__IM") || (cmode === "IMAGINARY") || (cmode === 4)) {
                     Gx.cmode = 4;
                 }
-                if ((cmode === "LO") || (cmode === "D1") || (cmode === "10*log10") || (cmode === 6)) {
+                if ((cmode === "LO") || (cmode === "D1") || (cmode === "INLO") || (cmode === "IND1") ||
+                    (cmode === "ABIM") || (cmode === "ABD1") || (cmode === "__LO") ||
+                    (cmode === "__D1") || (cmode === "10*LOG10") || (cmode === 6)) {
                     Gx.cmode = 6;
                 }
-                if ((cmode === "L2") || (cmode === "D2") || (cmode === "20*log10") || (cmode === 7)) {
+                if ((cmode === "L2") || (cmode === "D2") || (cmode === "INL2") || (cmode === "IND2") ||
+                    (cmode === "ABLO") || (cmode === "ABD2") || (cmode === "__L2") ||
+                    (cmode === "__D2") || (cmode === "20*LOG10") || (cmode === 7)) {
                     Gx.cmode = 7;
                 }
-                if ((cmode === "RI") || (cmode === "IR") ||
-                    (cmode === "Real/Imag") || (cmode === "Imag/Real") || (cmode === 5)) {
+                if ((cmode === "RI") || (cmode === "IR") || (cmode === "INRI") || (cmode === "INIR") ||
+                    (cmode === "ABRI") || (cmode === "ABIR") || (cmode === "__RI") ||
+                    (cmode === "__IR") || (cmode === "IMAG/REAL") || (cmode === "REAL/IMAG") || (cmode === 5)) {
                     if (Gx.index) {
                         alert("Imag/Real mode not permitted in INDEX mode");
                     } else {
                         Gx.cmode = 5;
                     }
                 }
+
+                Gx.basemode = Gx.cmode;
                 changemode(this, Gx.cmode);
             }
 
