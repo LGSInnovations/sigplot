@@ -6195,6 +6195,11 @@
                     mx.draw_symbol(Mx, ic, ix + tw - labelOffset, iy - 3,
                         Gx.lyr[n].symbol, thk);
                 }
+                if (Gx.lyr[n].hcb["class"] === 2) {
+                    //draw colormap
+                    mx.legend_colorbar(Mx, legendPos.x + 10, legendPos.y + (legendPos.height / 4),
+                        (legendPos.width / 4) - 10, legendPos.height / 2);
+                }
             }
             ix = ix + tw * 3;
             iy = iy + Mx.text_h * 0.3;

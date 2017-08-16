@@ -4440,3 +4440,8 @@ interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vert
         line: 4
     });
 });
+interactiveTest('colorbar in legend', 'does the colorbar show in the legend?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot.overlay_href("dat/penny.prm");
+});
