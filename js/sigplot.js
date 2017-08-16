@@ -4850,6 +4850,50 @@
                             }, radius);
                     }
                 }, {
+                    text: "Radius...",
+                    handler: function() {
+                        // Figure out the current thickness
+                        var radius = 3;
+                        if (index !== undefined) {
+                            radius = Math.abs(plot._Gx.lyr[index].radius);
+                        } else {
+                            if (Gx.lyr.length === 0) {
+                                return;
+                            }
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                if (radius !== Math.abs(plot._Gx.lyr[i].radius)) {
+                                    radius = 3;
+                                    break;
+                                }
+                            }
+                        }
+                        setupPrompt(
+                            plot,
+                            "Radius:",
+                            mx.intValidator,
+                            function(finalValue) {
+                                var sym;
+                                var rad;
+                                if (finalValue < 0) {
+                                    rad = Math.abs(finalValue);
+                                } else if (finalValue > 0) {
+                                    rad = finalValue;
+                                } else {
+                                    sym = 1;
+                                    rad = 0;
+                                }
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].line = 0;
+                                    plot._Gx.lyr[index].radius = rad;
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[i].line = 0;
+                                        plot._Gx.lyr[i].radius = rad;
+                                    }
+                                }
+                            }, radius);
+                    }
+                }, {
                     text: "Solid...",
                     handler: function() {
                         // Figure out the current thickness
