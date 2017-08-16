@@ -4427,3 +4427,16 @@ interactiveTest('radius menu', 'Do you see a working radius option in the traces
         line: 0
     });
 });
+interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vertical line on every point?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    var ramp = [];
+    for (var i = 0; i < 20; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, null, {
+        name: "x",
+        symbol: 0,
+        line: 4
+    });
+});

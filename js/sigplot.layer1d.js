@@ -293,7 +293,7 @@
             }
             this.hcb.setData(data);
 
-            // Setting these causes refresh() to refetch 
+            // Setting these causes refresh() to refetch
             this.imin = 0;
             this.xstart = undefined;
             this.size = 0;
@@ -583,6 +583,10 @@
                 }
                 if (this.line === 2) {
                     traceoptions.horzsym = true;
+                }
+                if (this.line === 4) {
+                    traceoptions.horzsym = true;
+                    traceoptions.vertsym = true;
                 }
             }
 
