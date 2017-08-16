@@ -1300,6 +1300,55 @@ test('Plugins still exist after plot and canvas height and width are 0', functio
         equal(plot._Gx.plugins[pos].canvas.width, plot._Mx.canvas.width, "Expected #" + pos + " slider plugin width to be plot width");
     }
 });
+
+test('unit strings test: x -> Power and y -> Angle rad', function() {
+    var container = document.getElementById('plot');
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    var ramp = [];
+    for (var i = 0; i < 20; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        xunits: "Power",
+        yunits: "Angle rad"
+    }, {
+        name: "x",
+        symbol: 1,
+        line: 0
+    });
+
+    equal(plot._Gx.HCB[0].xunits, 12);
+    equal(plot._Gx.HCB[0].yunits, 33);
+    equal(plot._Gx.xlab, 12);
+    equal(plot._Gx.ylab, 33);
+});
+
+test('unit strings test: x -> Hz and y -> Time_sec', function() {
+    var container = document.getElementById('plot');
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    var ramp = [];
+    for (var i = 0; i < 20; i++) {
+        ramp.push(i);
+    }
+    plot.overlay_array(ramp, {
+        xunits: "Hz",
+        yunits: "Time_sec"
+    }, {
+        name: "x",
+        symbol: 1,
+        line: 0
+    });
+
+    equal(plot._Gx.HCB[0].xunits, 3);
+    equal(plot._Gx.HCB[0].yunits, 1);
+    equal(plot._Gx.xlab, 3);
+    equal(plot._Gx.ylab, 1);
+});
+
 QUnit.module('sigplot-interactive', {
     setup: function() {
         ifixture.innerHTML = '';

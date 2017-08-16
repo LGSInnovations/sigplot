@@ -5504,6 +5504,17 @@
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 
+        if (!o.xlab) {
+            o.xlab = 0;
+        }
+        if (!o.ylab) {
+            o.ylab = 0;
+        }
+
+        //Convert xunits and yunits to numbers if they are strings
+        o.xlab = m.unit_lookup(o.xlab);
+        o.ylab = m.unit_lookup(o.ylab);
+
         // Equivalent to reading cmd line args
         Gx.xmin = o.xmin === undefined ? 0.0 : o.xmin;
         Gx.xmax = o.xmax === undefined ? 0.0 : o.xmax;

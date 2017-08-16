@@ -120,65 +120,65 @@
      * @global
      */
     var UNITS = {
-        0: ["None", "U"],
-        1: ["Time", "sec"],
-        2: ["Delay", "sec"],
-        3: ["Frequency", "Hz"],
-        4: ["Time code format", ""],
-        5: ["Distance", "m"],
-        6: ["Speed", "m/s"],
-        7: ["Acceleration", "m/sec^2"],
-        8: ["Jerk", "m/sec^3"],
-        9: ["Doppler", "Hz"],
-        10: ["Doppler rate", "Hz/sec"],
-        11: ["Energy", "J"],
-        12: ["Power", "W"],
-        13: ["Mass", "g"],
-        14: ["Volume", "l"],
-        15: ["Angular power density", "W/ster"],
-        16: ["Integrated power density", "W/rad"],
-        17: ["Spatial power density", "W/m^2"],
-        18: ["Integrated power density", "W/m"],
-        19: ["Spectral power density", "W/MHz"],
-        20: ["Amplitude", "U"],
-        21: ["Real", "U"],
-        22: ["Imaginary", "U"],
-        23: ["Phase", "rad"],
-        24: ["Phase", "deg"],
-        25: ["Phase", "cycles"],
-        26: ["10*Log", "U"],
-        27: ["20*Log", "U"],
-        28: ["Magnitude", "U"],
-        29: ["Unknown", "U"],
-        30: ["Unknown", "U"],
-        31: ["General dimensionless", ""],
-        32: ["Counts", ""],
-        33: ["Angle", "rad"],
-        34: ["Angle", "deg"],
-        35: ["Relative power", "dB"],
-        36: ["Relative power", "dBm"],
-        37: ["Relative power", "dBW"],
-        38: ["Solid angle", "ster"],
-        40: ["Distance", "ft"],
-        41: ["Distance", "nmi"],
-        42: ["Speed", "ft/sec"],
-        43: ["Speed", "nmi/sec"],
-        44: ["Speed", "knots=nmi/hr"],
-        45: ["Acceleration", "ft/sec^2"],
-        46: ["Acceleration", "nmi/sec^2"],
-        47: ["Acceleration", "knots/sec"],
-        48: ["Acceleration", "G"],
-        49: ["Jerk", "G/sec"],
-        50: ["Rotation", "rps"],
-        51: ["Rotation", "rpm"],
-        52: ["Angular velocity", "rad/sec"],
-        53: ["Angular velocity", "deg/sec"],
-        54: ["Angular acceleration", "rad/sec^2"],
-        55: ["Angular acceleration", "deg/sec^2"],
-        60: ["Latitude", "deg"],
-        61: ["Longitude", "deg"],
-        62: ["Altitude", "ft"],
-        63: ["Altitude", "m"]
+        0: ["None", "U", true, true],
+        1: ["Time", "sec", true, true],
+        2: ["Delay", "sec", true, false],
+        3: ["Frequency", "Hz", true, true],
+        4: ["Time code format", "", true, false],
+        5: ["Distance", "m", true, true],
+        6: ["Speed", "m/s", true, true],
+        7: ["Acceleration", "m/sec^2", true, true],
+        8: ["Jerk", "m/sec^3", true, true],
+        9: ["Doppler", "Hz", true, false],
+        10: ["Doppler rate", "Hz/sec", true, true],
+        11: ["Energy", "J", true, true],
+        12: ["Power", "W", true, true],
+        13: ["Mass", "g", true, true],
+        14: ["Volume", "l", true, true],
+        15: ["Angular power density", "W/ster", true, true],
+        16: ["Integrated power density", "W/rad", true, true],
+        17: ["Spatial power density", "W/m^2", true, true],
+        18: ["Integrated power density", "W/m", false, true],
+        19: ["Spectral power density", "W/MHz", true, true],
+        20: ["Amplitude", "U", true, false],
+        21: ["Real", "U", true, false],
+        22: ["Imaginary", "U", true, false],
+        23: ["Phase", "rad", true, true],
+        24: ["Phase", "deg", false, true],
+        25: ["Phase", "cycles", false, true],
+        26: ["10*Log", "U", true, false],
+        27: ["20*Log", "U", true, false],
+        28: ["Magnitude", "U", true, false],
+        29: ["Unknown", "U", true, false],
+        30: ["Unknown", "U", false, false],
+        31: ["General dimensionless", "", true, true],
+        32: ["Counts", "", true, false],
+        33: ["Angle", "rad", true, false],
+        34: ["Angle", "deg", false, false],
+        35: ["Relative power", "dB", true, true],
+        36: ["Relative power", "dBm", false, true],
+        37: ["Relative power", "dBW", false, true],
+        38: ["Solid angle", "ster", true, true],
+        40: ["Distance", "ft", false, true],
+        41: ["Distance", "nmi", false, true],
+        42: ["Speed", "ft/sec", false, true],
+        43: ["Speed", "nmi/sec", false, true],
+        44: ["Speed", "knots=nmi/hr", false, true],
+        45: ["Acceleration", "ft/sec^2", false, true],
+        46: ["Acceleration", "nmi/sec^2", false, true],
+        47: ["Acceleration", "knots/sec", false, true],
+        48: ["Acceleration", "G", false, true],
+        49: ["Jerk", "G/sec", false, true],
+        50: ["Rotation", "rps", true, false],
+        51: ["Rotation", "rpm", false, false],
+        52: ["Angular velocity", "rad/sec", true, true],
+        53: ["Angular velocity", "deg/sec", false, true],
+        54: ["Angular acceleration", "rad/sec^2", true, true],
+        55: ["Angular acceleration", "deg/sec^2", false, true],
+        60: ["Latitude", "deg", true, false],
+        61: ["Longitude", "deg", true, false],
+        62: ["Altitude", "ft", true, false],
+        63: ["Altitude", "m", false, false]
     };
 
     m.UNITS = UNITS;
@@ -476,6 +476,37 @@
     m.PIPESIZE = 1024 * 1024;
 
     /**
+     * Converts unit strings to number code
+     * @param	{string}	unitInput	User unit input
+     */
+    m.unit_lookup = function(unitInput) {
+        for (var i = 0; i < 64; i++) {
+            var u;
+            if (UNITS[i] === undefined) {
+                u = UNITS[0];
+            } else {
+                u = UNITS[i];
+            }
+            var first = u[0];
+            var second = u[1];
+            var comparer1 = u[0] + " " + u[1];
+            var comparer2 = u[0] + "_" + u[1];
+            if (unitInput === first) {
+                if (u[2]) {
+                    return i;
+                }
+            } else if (unitInput === second) {
+                if (u[3]) {
+                    return i;
+                }
+            } else if ((unitInput === comparer1) || (unitInput === comparer2)) {
+                return i;
+            }
+        }
+        return unitInput;
+    };
+
+    /**
      * Creates new file with header initialized to type-1000 defaults
      * and data appended. (tbd)
      * @param	{string}	filename	Name of File to Create
@@ -506,6 +537,11 @@
         for (var field in overrides) {
             hcb[field] = overrides[field];
         }
+
+        //Convert xunits and yunits to numbers if they are strings
+        hcb["xunits"] = m.unit_lookup(hcb["xunits"]);
+        hcb["yunits"] = m.unit_lookup(hcb["yunits"]);
+
 
         // Force type 2000 is subsize is specified
         if (hcb["subsize"] > 1) {
