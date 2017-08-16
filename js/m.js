@@ -183,7 +183,7 @@
 
     m.UNITS = UNITS;
 
-    /** Common structure 
+    /** Common structure
      * @private
      */
     m.Mc = {
@@ -470,7 +470,7 @@
         }]
     };
 
-    /** Pipe Size 
+    /** Pipe Size
      * @private
      */
     m.PIPESIZE = 1024 * 1024;
@@ -529,6 +529,7 @@
         hcb.ystart = 0.0;
         hcb.ydelta = 1.0;
         hcb.yunits = 0;
+        hcb.enabled_streaming_pcut = false;
 
         if (!overrides) { /* if no overrides provided...set it to empty*/
             overrides = {};
@@ -571,7 +572,7 @@
         return hcb;
     };
 
-    /** 
+    /**
      * Convert type-2000 header internals to force GRAB and FILAD routines to treat file as a 1000-type file.
      * @param	{header}	hcb		Bluefile header control block
      */
@@ -588,7 +589,7 @@
         }
     };
 
-    /** 
+    /**
      * Get data from file at specified start location.
      * @param	{header}	hcb		Bluefile header control block
      * @param	{array}		bufview		Data buffer to receive data
@@ -844,7 +845,7 @@
         return prefix;
     };
 
-    /** 
+    /**
      * @private
      */
     var VECTOR = {

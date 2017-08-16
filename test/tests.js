@@ -4336,6 +4336,82 @@ interactiveTest('p-cuts: x-cut and y-cut without p-cuts display', 'Do the x and 
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
+    //console.log(plot._Gx);
+});
+interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with p-cut functionality?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5,
+        enabled_streaming_pcut: true
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    }, {
+        drawmode: "falling"
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
+interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with p-cut functionality?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5,
+        enabled_streaming_pcut: true
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    }, {
+        drawmode: "rising"
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 100);
+});
+interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster with p-cut functionality?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5,
+        enabled_streaming_pcut: true
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    }, {
+        drawmode: "scrolling"
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+        plot.push(0, ramp);
+    }, 100);
 });
 interactiveTest('radius menu', 'Do you see a working radius option in the traces menu?', function() {
     var container = document.getElementById('plot');

@@ -1251,9 +1251,15 @@
                         } else if (keyCode === 112) { // 'p'
                             if (Gx.lyr[0].hcb["class"] !== 1) {
                                 Gx.p_press = true;
-                                plot.change_settings({
-                                    p_cuts: !Gx.p_cuts
-                                });
+                                if (Gx.lyr[0].buf.length === Gx.lyr[0].hcb.subsize) {
+                                    plot.change_settings({
+                                        enabled_streaming_pcut: !Gx.enabled_streaming_pcut
+                                    });
+                                } else {
+                                    plot.change_settings({
+                                        p_cuts: !Gx.p_cuts
+                                    });
+                                }
                             }
                         } else if (keyCode === 120) { // 'x'
                             if (Gx.x_cut_press_on) {
@@ -1267,6 +1273,10 @@
                                 plot.rescale();
                                 plot.refresh();
                                 Gx.xcut_layer = undefined;
+                                plot.change_settings({
+                                    drawmode: Gx.old_drawmode,
+                                    autol: Gx.old_autol
+                                });
                             } else if (Gx.xyKeys === "pop-up") {
                                 if (!Gx.x_pop_now) {
                                     sigplot_show_x(plot);
@@ -1288,7 +1298,7 @@
                                         Gx.x_cut_data = [];
                                         var plot_height = Mx.b - Mx.t;
                                         var plot_width = Mx.r - Mx.l;
-                                        var height = Gx.lyr[0].yframe;
+                                        var height = Gx.lyr[0].lps;
                                         var width = Gx.lyr[0].xframe;
                                         var row, start, finish = 0;
                                         row = Math.floor((height * (Mx.ypos - Mx.t)) / plot_height);
@@ -1297,11 +1307,20 @@
                                         Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
                                     }
                                     var xcut_display = [];
+                                    //make all values negative because of weird display
                                     for (var a = 0; a < Gx.x_cut_data.length; a++) {
                                         var item = Gx.x_cut_data[a];
                                         item = item * -1;
                                         xcut_display.push(item);
                                     }
+                                    //adjust for the values of the xcut
+                                    Gx.old_drawmode = Gx.lyr[0].drawmode;
+                                    Gx.old_autol = Gx.autol;
+                                    plot.change_settings({
+                                        drawmode: "undefined",
+                                        autol: -1
+                                    });
+
                                     Gx.ylabel_stash = Gx.ylabel;
 
                                     var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
@@ -1341,6 +1360,7 @@
                                     }
                                     Gx.x_cut_press_on = true;
                                     plot.rescale();
+
                                 }
                             }
                         } else if (keyCode === 121) { // 'y'
@@ -1355,6 +1375,10 @@
                                 plot.rescale();
                                 plot.refresh();
                                 Gx.ycut_layer = undefined;
+                                plot.change_settings({
+                                    drawmode: Gx.old_drawmode,
+                                    autol: Gx.old_autol
+                                });
                             } else if (Gx.xyKeys === "pop-up") {
                                 if (!Gx.y_pop_now) {
                                     sigplot_show_y(plot);
@@ -1373,9 +1397,10 @@
                                 //display the y-cut of the raster
                                 if (!Gx.x_cut_press_on) {
                                     if (!Gx.p_cuts) {
+                                        Gx.y_cut_data = [];
                                         var plot_height = Mx.b - Mx.t;
                                         var plot_width = Mx.r - Mx.l;
-                                        var height = Gx.lyr[0].yframe;
+                                        var height = Gx.lyr[0].lps;
                                         var width = Gx.lyr[0].xframe;
                                         var line, i = 0;
                                         Gx.y_cut_data = [];
@@ -1385,11 +1410,21 @@
                                         }
                                     }
                                     var ycut_display = [];
+                                    //make all values negative because of weird display
                                     for (var a = 0; a < Gx.y_cut_data.length; a++) {
                                         var item = Gx.y_cut_data[a];
                                         item = item * -1;
                                         ycut_display.push(item);
                                     }
+
+                                    //adjust for the values of the xcut
+                                    Gx.old_drawmode = Gx.lyr[0].drawmode;
+                                    Gx.old_autol = Gx.autol;
+                                    plot.change_settings({
+                                        drawmode: "undefined",
+                                        autol: -1
+                                    });
+
                                     Gx.ylabel_stash = Gx.ylabel;
 
                                     var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
@@ -2103,6 +2138,27 @@
                 Gx.lg_colorbar = !Gx.lg_colorbar;
             }
 
+            if (settings.enabled_streaming_pcut !== undefined) {
+                Gx.enabled_streaming_pcut = !Gx.enabled_streaming_pcut;
+                if (Gx.enabled_streaming_pcut === false) {
+                    //clear the zbuf
+                    Gx.lyr[0].zbuf = [];
+                    //ensure that the elements have a parent to remove them.
+                    if (Gx.element1.parentNode === null) {
+                        document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element1);
+                    }
+                    if (Gx.element2.parentNode === null) {
+                        document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element2);
+                    }
+
+                    Gx.element1.parentNode.removeChild(Gx.element1);
+                    Gx.element2.parentNode.removeChild(Gx.element2);
+                    Gx.ycut = undefined;
+                    Gx.xcut = undefined;
+                }
+                Gx.parent.setAttribute("style", "position:relative");
+            }
+
             if (settings.p_cuts !== undefined) {
                 // Change the plot area and then draw the p_cuts dipslay
                 Gx.p_cuts = !Gx.p_cuts;
@@ -2260,6 +2316,10 @@
                 return;
             }
 
+            if (Gx.lyr[n].display === false) {
+                return;
+            }
+
             var rescale = Gx.lyr[n].push(data, hdrmod, sync);
 
             if ((Mx.level === 0) && rescale) {
@@ -2269,8 +2329,14 @@
             }
 
             if (rsync) {
+                if (Gx.enabled_streaming_pcut) {
+                    draw_p_cuts(this);
+                }
                 this._refresh();
             } else {
+                if (Gx.enabled_streaming_pcut) {
+                    draw_p_cuts(this);
+                }
                 this.refresh();
             }
         },
@@ -3282,7 +3348,7 @@
 
             }
 
-            if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+            if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0].hcb["class"] === 2)) {
                 //turn cross hairs on
                 Gx.cross = true;
 
@@ -3769,6 +3835,12 @@
         this.x_pop_now = false;
         //true if the y value is being displayed on plot
         this.y_pop_now = false;
+
+        //enables streaming p-cuts
+        this.enabled_streaming_pcut = false;
+        //the drawmode and autol before the x or y cut was showing
+        this.old_drawmode = undefined;
+        this.old_autol = undefined;
     }
 
     /**
@@ -6372,6 +6444,31 @@
             }
             Gx.p_press = false;
         }
+
+        if (Gx.enabled_streaming_pcut) {
+            var line = 0;
+            var i = 0;
+            height = Gx.lyr[0].lps;
+            //fill data for y_cut for this mouse xpos
+            Gx.y_cut_data = [];
+            line = Math.floor((width * (Mx.xpos - Mx.l)) / plot_width);
+            for (i = line; i < (width * height); i += width) {
+                Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
+            }
+            mx.dispatchEvent(Mx, eventy);
+
+            var row = 0;
+            var start = 0;
+            var finish = 0;
+            //fill data for x_cut for this mouse ypos
+            Gx.x_cut_data = [];
+            row = Math.floor((height * (Mx.ypos - Mx.t)) / plot_height);
+            start = row * width;
+            finish = start + width;
+            Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
+            mx.dispatchEvent(Mx, eventx);
+
+        }
     }
 
     /**
@@ -7226,7 +7323,7 @@
         mx.colorbar(Mx, x, y, w, h);
 
         //draw boxes for the p_cuts
-        if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+        if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0].hcb["class"] === 2)) {
             var plot_height = Mx.b - Mx.t;
             var plot_width = Mx.r - Mx.l;
 
