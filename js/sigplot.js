@@ -106,12 +106,12 @@
      *
      * @constructor sigplot.Plot
      *
-     * @example plot = new sigplot.Plot(document.getElementById('plot'), {});
+     * @example plot = new sigplot.Plot(document.getElementById('plot'), {[options]});
      *
      * @param element
-     *            a 'div' DOM elements
+     *            a 'div' DOM element
      * @param [options]
-     *            alters the behavior of the plot.
+     *            Key-value pairs whose values alter the behavior of the plot.
      *
      * @param {String}
      *            options.cmode the plot rendering mode "IN" = Index, "AB" =
@@ -158,13 +158,13 @@
      *            options.nodragdrop prevent file drag drop
      *
      * @param {Number}
-     *            options.scroll_time_interval
+     *            options.scroll_time_interval set the time interval for scrolling
      *
      * @param {Boolean}
      *            options.index use the data-index in the X axis
      *
      * @param {Number}
-     *            options.autox auto-scaling settings for X axis
+     *            options.autox auto-scaling settings for X axis !!!!CHANGED
      *
      * @param {Number}
      *            options.xmin the minimum range to display on the X axis
@@ -201,7 +201,7 @@
      *            Horizontals, 3 (default) = Connecting
      *
      * @param {Number}
-     *            options.autoy auto-scaling settings for Y axis
+     *            options.autoy auto-scaling settings for Y axis !!!! CHANGED
      *            0 = Fix , 1 = Auto Min , 2 = Auto Max, 3 = Full Auto
      *
      * @param {Number}
@@ -238,9 +238,6 @@
      *            options.xi invert the foreground/background colors
      *
      * @param {Boolean}
-     *            options.forcelab
-     *
-     * @param {Boolean}
      *            options.all show all of the data on the plot instead of just
      *            one buffer
      *
@@ -260,25 +257,9 @@
      * @param {Boolean}
      *            options.nokeypress disable key press actions
      *
-     * @param options.anno_type
-     *            (Not implemented)
-     *
-     * @param options.pmt
-     *            (Not implemented)
-     *
-     * @param options.xfmt
-     *            (Not implemented)
-     *
-     * @param options.yfmt
-     *            (Not implemented)
-     *
-     * @param options.nsec
-     *            the number of sections to split the plot into (Not
-     *            implemented)
-     *
      * @param options.font_family
      *            the font family to use for text rendered on the plot.  Monospace
-     *            font's will generally work best.
+     *            font will generally work best.
      *
      * @returns {sigplot.Plot}
      */
@@ -1270,9 +1251,15 @@
                         } else if (keyCode === 112) { // 'p'
                             if (Gx.lyr[0].hcb["class"] !== 1) {
                                 Gx.p_press = true;
-                                plot.change_settings({
-                                    p_cuts: !Gx.p_cuts
-                                });
+                                if (Gx.lyr[0].buf.length === Gx.lyr[0].hcb.subsize) {
+                                    plot.change_settings({
+                                        enabled_streaming_pcut: !Gx.enabled_streaming_pcut
+                                    });
+                                } else {
+                                    plot.change_settings({
+                                        p_cuts: !Gx.p_cuts
+                                    });
+                                }
                             }
                         } else if (keyCode === 120) { // 'x'
                             if (Gx.x_cut_press_on) {
@@ -1286,6 +1273,10 @@
                                 plot.rescale();
                                 plot.refresh();
                                 Gx.xcut_layer = undefined;
+                                plot.change_settings({
+                                    drawmode: Gx.old_drawmode,
+                                    autol: Gx.old_autol
+                                });
                             } else if (Gx.xyKeys === "pop-up") {
                                 if (!Gx.x_pop_now) {
                                     sigplot_show_x(plot);
@@ -1307,7 +1298,7 @@
                                         Gx.x_cut_data = [];
                                         var plot_height = Mx.b - Mx.t;
                                         var plot_width = Mx.r - Mx.l;
-                                        var height = Gx.lyr[0].yframe;
+                                        var height = Gx.lyr[0].lps;
                                         var width = Gx.lyr[0].xframe;
                                         var row, start, finish = 0;
                                         row = Math.floor((height * (Mx.ypos - Mx.t)) / plot_height);
@@ -1316,11 +1307,20 @@
                                         Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
                                     }
                                     var xcut_display = [];
+                                    //make all values negative because of weird display
                                     for (var a = 0; a < Gx.x_cut_data.length; a++) {
                                         var item = Gx.x_cut_data[a];
                                         item = item * -1;
                                         xcut_display.push(item);
                                     }
+                                    //adjust for the values of the xcut
+                                    Gx.old_drawmode = Gx.lyr[0].drawmode;
+                                    Gx.old_autol = Gx.autol;
+                                    plot.change_settings({
+                                        drawmode: "undefined",
+                                        autol: -1
+                                    });
+
                                     Gx.ylabel_stash = Gx.ylabel;
 
                                     var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
@@ -1360,6 +1360,7 @@
                                     }
                                     Gx.x_cut_press_on = true;
                                     plot.rescale();
+
                                 }
                             }
                         } else if (keyCode === 121) { // 'y'
@@ -1374,6 +1375,10 @@
                                 plot.rescale();
                                 plot.refresh();
                                 Gx.ycut_layer = undefined;
+                                plot.change_settings({
+                                    drawmode: Gx.old_drawmode,
+                                    autol: Gx.old_autol
+                                });
                             } else if (Gx.xyKeys === "pop-up") {
                                 if (!Gx.y_pop_now) {
                                     sigplot_show_y(plot);
@@ -1392,9 +1397,10 @@
                                 //display the y-cut of the raster
                                 if (!Gx.x_cut_press_on) {
                                     if (!Gx.p_cuts) {
+                                        Gx.y_cut_data = [];
                                         var plot_height = Mx.b - Mx.t;
                                         var plot_width = Mx.r - Mx.l;
-                                        var height = Gx.lyr[0].yframe;
+                                        var height = Gx.lyr[0].lps;
                                         var width = Gx.lyr[0].xframe;
                                         var line, i = 0;
                                         Gx.y_cut_data = [];
@@ -1404,11 +1410,21 @@
                                         }
                                     }
                                     var ycut_display = [];
+                                    //make all values negative because of weird display
                                     for (var a = 0; a < Gx.y_cut_data.length; a++) {
                                         var item = Gx.y_cut_data[a];
                                         item = item * -1;
                                         ycut_display.push(item);
                                     }
+
+                                    //adjust for the values of the xcut
+                                    Gx.old_drawmode = Gx.lyr[0].drawmode;
+                                    Gx.old_autol = Gx.autol;
+                                    plot.change_settings({
+                                        drawmode: "undefined",
+                                        autol: -1
+                                    });
+
                                     Gx.ylabel_stash = Gx.ylabel;
 
                                     var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
@@ -1573,17 +1589,54 @@
         /**
          * Adds a listener to plot events.
          *
-         * @param what
-         *            the event to listen to mtag = a mouse 'tag' event has
-         *            occurred, mmove = a mouse move event has occurred, mdown =
-         *            a mouse down event has occurred, mup = a mouse up event
-         *            has occurred, showmenu = showmenu even has occurred,
-         *            sigplotexit = an exit plot event has occurred, reread = a
-         *            reread event has occurred, file_deoverlayed = a file has
-         *            been deoverlayed, file_overlayed = a file has been
-         *            overlayed,
+         * @example plot.addListener(what, function(event) {});
          *
-         * @param callback
+         * @param what
+         *            the name of the event to listen to.  "file_deoverlayed" is
+         *            emitted when a file is deoverlayed (the name of the deoverlayed
+         *            file can be found in evt.filename), "file_overlayed" is emitted
+         *            when a file is overlayed (the name of the overlayed file can
+         *            be found in evt.filename), "hidemenu"	is emitted when the
+         *            menu should be hidden (a selection is made or a mouse click
+         *            occurs away from the menu), "mdown"	is emitted when the mouse
+         *            down event occurs (the evt has parts evt.xpos (the mouse x-position
+         *            relative to the canvas), evt.ypos (the mouse y-position relative
+         *            to the canvas), evt.x (the mouse x-position relative to the data),
+         *            evt.y (the mouse y-position relative to the data) and evt.which
+         *            (returns which mouse button was pressed for the event)) "mmove"
+         *            is emitted when a mouse move event occurs (the evt has parts
+         *            evt.xpos (the mouse x-position relative to the canvas), evt.ypos
+         *            (the mouse y-position relative to the canvas), evt.x (the mouse
+         *            x-position relative to the data), evt.y (the mouse y-position
+         *            relative to the data) and evt.which (returns which mouse button
+         *            was pressed for the event)), "mtag"	is emitted when a mouse "tag"
+         *            event occurs (the evt of an mtag has different parts depending
+         *            on what triggered it. It will always contain evt.xpos (the mouse
+         *            x-position relative to the canvas), evt.ypos (the mouse y-position
+         *            relative to the canvas), evt.x (the mouse x-position relative
+         *            to the data), and evt.y (the mouse y-position relative to the data).
+         *            If the rubberboxes are enabled, evt.h and evt.w will contain
+         *            the width and height of the box. evt.shift will contain info
+         *            about the shift key if it is pressed), "mmove" is emitted when
+         *            a mouse move event has occurred, "mdown" is emitted when
+         *            a mouse down event has occurred (the evt has parts evt.xpos
+         *            (the mouse x-position relative to the canvas), evt.ypos (the
+         *            mouse y-position relative to the canvas), evt.x (the mouse
+         *            x-position relative to the data), evt.y (the mouse y-position
+         *            relative to the data) and evt.which (returns which mouse button
+         *            was pressed for the event)), "mup" is emitted when a mouse up
+         *            event occurs. (the evt has parts evt.xpos (the mouse x-position
+         *            relative to the canvas), evt.ypos (the mouse y-position relative
+         *            to the canvas), evt.x (the mouse x-position relative to the data),
+         *            evt.y (the mouse y-position relative to the data) and evt.which
+         *            (returns which mouse button was pressed for the event)),
+         *            "reread" is emitted when a reread has been performed, "sigplotexit"
+         *            is emitted when an exit plot event occurs, and "showmenu"	is
+         *            emitted when the menu should be shown (the evt.x and evt.y
+         *            contain the coordinates on the plot where the menu will be displayed.
+         *
+         * @param [function]
+         *            callback the function that will be called when the event is heard
          */
         addListener: function(what, callback) {
             var Mx = this._Mx;
@@ -1606,8 +1659,10 @@
          * Change one or more plot settings. For boolean types, passing null
          * will toggle the setting.
          *
+         * @example plot.change_settings({[settings]});
+         *
          * @param settings
-         *            the settings to change.
+         *            Key-value pairs whose values are the settings to change
          *
          * @param {Boolean}
          *            settings.grid change grid visibility
@@ -1619,53 +1674,71 @@
          *            settings.all change the plot to show all data
          *
          * @param {Boolean}
-         *            settings.show_x_axis
+         *            settings.show_x_axis true displays the x axis
          *
          * @param {Boolean}
-         *            settings.show_y_axis
+         *            settings.show_y_axis true displays the y axis
          *
          * @param {Boolean}
-         *            settings.show_readout
+         *            settings.show_readout true displays the readout
          *
          * @param {Boolean}
-         *            settings.specs
+         *            settings.specs turns on and off specs
          *
          * @param {String}
          *            settings.xcnt "leftmouse", "continuous", "disable",
          *            "enable"
          *
          * @param {Boolean}
-         *            settings.legend
+         *            settings.legend true displays the legend
          *
          * @param {Boolean}
-         *            settings.pan
+         *            settings.pan true will display scrollbars and enable panning
          *
          * @param {Boolean}
-         *            settings.cross
+         *            settings.cross true displays cross hairs
          *
          * @param {String}
-         *            settings.rubberbox_action
+         *            settings.rubberbox_action controls action of rubberbox.
+         *            "zoom" (default) = zoom to the selected area, "select" =
+         *            select the selected area, and "null" = disabled, no action
          *
          * @param {String}
-         *            settings.rubberbox_mode
+         *            settings.rubberbox_mode controls the behavior of the rubberbox.
+         *            "zoom" = zoom to the selected area, "box" = trigger an mtag
+         *            action on the selected area
          *
          * @param {String}
-         *            settings.rightclick_rubberbox_action
+         *            settings.rightclick_rubberbox_action controls action of
+         *            rubberbox on rightclick. "zoom" = zoom to the selected area,
+         *            "select" = select the selected area, and "null" (the default)
+         *            = disabled, no action
          *
          * @param {String}
-         *            settings.rightclick_rubberbox_mode
+         *            settings.rightclick_rubberbox_mode controls the behavior of
+         *            the rubberbox on rightclck. "zoom" = zoom to the selected area,
+         *            "box" = trigger an mtag action on the selected area. By default
+         *            is null to disable right-click boxes
          *
          * @param {String}
-         *            settings.wheelscroll_mode_natural
+         *            settings.wheelscroll_mode_natural true indicates natural
+         *            mode, where scrolling the mousewheel forward will pan down
+         *            and backwards will pan up
          *
          * @param {String}
-         *            settings.cmode
+         *            settings.cmode !!!! CHANGED
          *
          * @param {String}
-         *            settings.phunits
+         *            settings.phunits The phase units "D" = Degrees, "R" = Radians,
+         *            "C" = Cycles
+         *
          * @ param {Boolean}
-                      settings.lg_colorbar
+         *            settings.lg_colorbar true displays the large colorbar
+         *
+         * @param {Boolean}
+         *            settings.p_cuts true displays p_cuts on a 2D plot
          */
+
         change_settings: function(settings) {
             var Gx = this._Gx;
             var Mx = this._Mx;
@@ -1844,39 +1917,59 @@
                 }
             }
 
+            var cmode;
+            var address = settings.cmode === undefined ? "" : settings.cmode;
+            if (typeof address === "string") {
+                address = address + "";
+                cmode = address.toUpperCase();
+            } else {
+                cmode = address;
+            }
+
             if (settings.cmode !== undefined) {
-                var cmode = settings.cmode;
                 if ((Gx.lyr.length > 0) && (Gx.lyr[0].cx)) {
                     Gx.cmode = 1;
                 } else {
                     Gx.cmode = 3;
                 }
-                if ((cmode === "MA") || (cmode === "Magnitude") || (cmode === 1)) {
+
+                if ((cmode === "MA") || (cmode === "INMA") || (cmode === "ABMA") ||
+                    (cmode === "__MA") || (cmode === "MAGNITUDE") || (cmode === 1)) {
                     Gx.cmode = 1;
                 }
-                if ((cmode === "PH") || (cmode === "Phase") || (cmode === 2)) {
+                if ((cmode === "PH") || (cmode === "INPH") || (cmode === "ABPH") ||
+                    (cmode === "__PH") || (cmode === "PHASE") || (cmode === 2)) {
                     Gx.cmode = 2;
                 }
-                if ((cmode === "RE") || (cmode === "Real") || (cmode === 3)) {
+                if ((cmode === "RE") || (cmode === "INRE") || (cmode === "ABRE") ||
+                    (cmode === "__RE") || (cmode === "REAL") || (cmode === 3)) {
                     Gx.cmode = 3;
                 }
-                if ((cmode === "IM") || (cmode === "Imaginary") || (cmode === 4)) {
+                if ((cmode === "IM") || (cmode === "INIM") || (cmode === "ABIM") ||
+                    (cmode === "__IM") || (cmode === "IMAGINARY") || (cmode === 4)) {
                     Gx.cmode = 4;
                 }
-                if ((cmode === "LO") || (cmode === "D1") || (cmode === "10*log10") || (cmode === 6)) {
+                if ((cmode === "LO") || (cmode === "D1") || (cmode === "INLO") || (cmode === "IND1") ||
+                    (cmode === "ABIM") || (cmode === "ABD1") || (cmode === "__LO") ||
+                    (cmode === "__D1") || (cmode === "10*LOG10") || (cmode === 6)) {
                     Gx.cmode = 6;
                 }
-                if ((cmode === "L2") || (cmode === "D2") || (cmode === "20*log10") || (cmode === 7)) {
+                if ((cmode === "L2") || (cmode === "D2") || (cmode === "INL2") || (cmode === "IND2") ||
+                    (cmode === "ABLO") || (cmode === "ABD2") || (cmode === "__L2") ||
+                    (cmode === "__D2") || (cmode === "20*LOG10") || (cmode === 7)) {
                     Gx.cmode = 7;
                 }
-                if ((cmode === "RI") || (cmode === "IR") ||
-                    (cmode === "Real/Imag") || (cmode === "Imag/Real") || (cmode === 5)) {
+                if ((cmode === "RI") || (cmode === "IR") || (cmode === "INRI") || (cmode === "INIR") ||
+                    (cmode === "ABRI") || (cmode === "ABIR") || (cmode === "__RI") ||
+                    (cmode === "__IR") || (cmode === "IMAG/REAL") || (cmode === "REAL/IMAG") || (cmode === 5)) {
                     if (Gx.index) {
                         alert("Imag/Real mode not permitted in INDEX mode");
                     } else {
                         Gx.cmode = 5;
                     }
                 }
+
+                Gx.basemode = Gx.cmode;
                 changemode(this, Gx.cmode);
             }
 
@@ -2045,6 +2138,27 @@
                 Gx.lg_colorbar = !Gx.lg_colorbar;
             }
 
+            if (settings.enabled_streaming_pcut !== undefined) {
+                Gx.enabled_streaming_pcut = !Gx.enabled_streaming_pcut;
+                if (Gx.enabled_streaming_pcut === false) {
+                    //clear the zbuf
+                    Gx.lyr[0].zbuf = [];
+                    //ensure that the elements have a parent to remove them.
+                    if (Gx.element1.parentNode === null) {
+                        document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element1);
+                    }
+                    if (Gx.element2.parentNode === null) {
+                        document.getElementById(this._Gx.parent.id).appendChild(this._Gx.element2);
+                    }
+
+                    Gx.element1.parentNode.removeChild(Gx.element1);
+                    Gx.element2.parentNode.removeChild(Gx.element2);
+                    Gx.ycut = undefined;
+                    Gx.xcut = undefined;
+                }
+                Gx.parent.setAttribute("style", "position:relative");
+            }
+
             if (settings.p_cuts !== undefined) {
                 // Change the plot area and then draw the p_cuts dipslay
                 Gx.p_cuts = !Gx.p_cuts;
@@ -2178,6 +2292,8 @@
         /**
          * Push data into a layer that was created with overlay_pipe
          *
+         * @example plot.push(n, data);
+         *
          * @param {Number} n
          *            the layer to push data into
          * @param {Number[]} data
@@ -2200,6 +2316,10 @@
                 return;
             }
 
+            if (Gx.lyr[n].display === false) {
+                return;
+            }
+
             var rescale = Gx.lyr[n].push(data, hdrmod, sync);
 
             if ((Mx.level === 0) && rescale) {
@@ -2209,27 +2329,90 @@
             }
 
             if (rsync) {
+                if (Gx.enabled_streaming_pcut) {
+                    draw_p_cuts(this);
+                }
                 this._refresh();
             } else {
+                if (Gx.enabled_streaming_pcut) {
+                    draw_p_cuts(this);
+                }
                 this.refresh();
             }
         },
 
         /**
-         * Create a plot layer backed by an array
+         * Create a plot layer with an array overlay
          *
-         * @param filname
+         * @example plot.overlay_array(data, {[overrides]}, {[layerOptions]});
+         *
          * @param data
-         *            {Number[]} data to plot
-         * @param overrides
-         *            optional bluefile header overrides
-         * @param layerType
+         *            data the data that you will be plotting
+         *
+         * @param [overrides]
+         *            Key-value pairs whose values alter plot settings
+         *
+         * @param {Number}
+         *            overrides.type 1000 = one dimensional, 2000 = two dimensional.
+         *            this is a convention of X-midas
+         *
+         * @param {Number}
+         *            overrides.subsize the subsize for data being read in by the plot
+         *
+         * @param [layerOptions]
+         *            Key-value pairs whose values are the settings for the plot
+         *
+         * @param {String}
+         *            layerOptions.name the name of the layer
+         *
+         * @param {Number}
+         *            layerOptions.framesize the framsize of the plot
+         *
+         * @param {Varies}
+         *            layerOptions.etc all of the parameters for the change_settings
+         *            function except for lg_colorbar and p_cuts
+         *
+         * @returns data_layer
+         *
          */
+
         overlay_array: function(data, overrides, layerOptions) {
             m.log.debug("Overlay array");
             var hcb = m.initialize(data, overrides);
             return this.overlay_bluefile(hcb, layerOptions);
         },
+
+        /**
+         * Create a plot layer to hold data
+         *
+         * @example plot.overlay_pipe({[overrides]},{[layerOptions]});
+         *
+         * @param [overrides]
+         *            Key-value pairs whose values alter plot settings
+         *
+         * @param {Number}
+         *            overrides.type 1000 = one dimensional, 2000 = two dimensional.
+         *            this is a convention of X-midas
+         *
+         * @param {Number}
+         *            overrides.subsize the subsize for data being read in by the plot
+         *
+         * @param [layerOptions]
+         *            Key-value pairs whose values are the settings for the plot
+         *
+         * @param {String}
+         *            layerOptions.name the name of the layer
+         *
+         * @param {Number}
+         *            layerOptions.framesize the framsize of the plot
+         *
+         * @param {Varies}
+         *            layerOptions.etc all of the parameters for the change_settings
+         *            function except for lg_colorbar and p_cuts
+         *
+         * @returns data_layer
+         *
+         */
 
         overlay_pipe: function(overrides, layerOptions) {
             m.log.debug("Overlay pipe");
@@ -2241,6 +2424,39 @@
             //console.log("pipe filename: "+hcb.file_name);
             return this.overlay_bluefile(hcb, layerOptions);
         },
+
+        /**
+         * Create a plot layer to hold data
+         *
+         * @example plot.overlay_websocket({wsurl, {[overrides]}, {[layerOptions]}});
+         * @param {url:port_destination}
+         *            wsurl the url and port destination for the websocket being used
+         * @param [overrides]
+         *            Key-value pairs whose values alter plot settings
+         *
+         * @param {Number}
+         *            overrides.type 1000 = one dimensional, 2000 = two dimensional.
+         *            this is a convention of X-midas
+         *
+         * @param {Number}
+         *            overrides.subsize the subsize for data being read in by the plot
+         *
+         * @param [layerOptions]
+         *            Key-value pairs whose values are the settings for the plot
+         *
+         * @param {String}
+         *            layerOptions.name the name of the layer
+         *
+         * @param {Number}
+         *            layerOptions.framesize the framsize of the plot
+         *
+         * @param {Varies}
+         *            layerOptions.etc all of the parameters for the change_settings
+         *            function except for lg_colorbar and p_cuts
+         *
+         * @returns data_layer
+         *
+         */
 
         overlay_websocket: function(wsurl, overrides, layerOptions) {
             m.log.debug("Overlay websocket: " + wsurl);
@@ -2283,10 +2499,29 @@
         /**
          * Create a plot layer from an HREF that points to a BLUEFILE
          *
+         * @example plot.overlay_href(href, function() {}, {[layeroptions]});
+         *
          * @param {String}
          *            href the url to the bluefile
+         *
          * @param [onload]
          *            callback to be called when the file has been loaded
+         *
+         * @param [layerOptions]
+         *            Key-value pairs whose values are the settings for the plot
+         *
+         * @param {String}
+         *            layerOptions.name the name of the layer
+         *
+         * @param {Number}
+         *            layerOptions.framesize the framesize of the plot
+         *
+         * @param {Varies}
+         *            layerOptions.etc all of the parameters for the change_settings
+         *            function except for lg_colorbar and p_cuts
+         *
+         * @returns data_layer
+         *
          */
         overlay_href: function(href, onload, layerOptions) {
             m.log.debug("Overlay href: " + href);
@@ -2348,6 +2583,18 @@
                 Gx.lyr.push(layer);
             }
         },
+
+        /**
+         * Get a layer of the plot
+         *
+         * @example plot.get_layer(n);
+         *
+         * @param {Number}
+         *              n the index of the layer
+         *
+         * @returns data_layer
+         *
+         */
 
         get_layer: function(n) {
             var Gx = this._Gx;
@@ -2479,13 +2726,18 @@
         },
 
         /**
-         * Remove layers.
+         * Reemove layers
          *
-         * @param [index]
-         *            the layer to remove, if not provided all layers are
-         *            removed. Negative indices can be used to remove layers
-         *            from the back of the layer stack.
+         * @example plot.get_layer(n);
+         *
+         * @param {Number}
+         *             The index of the layer. If not provided, all layers will
+         *             be removed
+         *
+         * @returns data_layer
+         *
          */
+
         deoverlay: function(index) {
             var Gx = this._Gx;
             var Mx = this._Mx;
@@ -2862,6 +3114,7 @@
         /**
          * Like refresh, but doesn't rerender data
          *
+         * @example plot.redraw();
          */
         redraw: function() {
             var Gx = this._Gx;
@@ -2893,6 +3146,8 @@
 
         /**
          * Refresh the entire plot
+         *
+         * @example plot.refresh();
          */
         refresh: function() {
             var self = this;
@@ -2900,6 +3155,10 @@
                 self._refresh();
             });
         },
+
+        /**
+         * Enable listeners for events on plot
+         */
 
         enable_listeners: function() {
             var Mx = this._Mx;
@@ -2919,6 +3178,10 @@
             window.addEventListener("DOMMouseScroll", this.wheelHandler, false);
             window.addEventListener("keypress", this.onkeypress, false);
         },
+
+        /**
+         * Enable listeners for events on plot
+         */
 
         disable_listeners: function() {
             var Mx = this._Mx;
@@ -3086,7 +3349,7 @@
 
             }
 
-            if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+            if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0].hcb["class"] === 2)) {
                 //turn cross hairs on
                 Gx.cross = true;
 
@@ -3573,6 +3836,12 @@
         this.x_pop_now = false;
         //true if the y value is being displayed on plot
         this.y_pop_now = false;
+
+        //enables streaming p-cuts
+        this.enabled_streaming_pcut = false;
+        //the drawmode and autol before the x or y cut was showing
+        this.old_drawmode = undefined;
+        this.old_autol = undefined;
     }
 
     /**
@@ -4809,6 +5078,50 @@
                             }, radius);
                     }
                 }, {
+                    text: "Radius...",
+                    handler: function() {
+                        // Figure out the current thickness
+                        var radius = 3;
+                        if (index !== undefined) {
+                            radius = Math.abs(plot._Gx.lyr[index].radius);
+                        } else {
+                            if (Gx.lyr.length === 0) {
+                                return;
+                            }
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                if (radius !== Math.abs(plot._Gx.lyr[i].radius)) {
+                                    radius = 3;
+                                    break;
+                                }
+                            }
+                        }
+                        setupPrompt(
+                            plot,
+                            "Radius:",
+                            mx.intValidator,
+                            function(finalValue) {
+                                var sym;
+                                var rad;
+                                if (finalValue < 0) {
+                                    rad = Math.abs(finalValue);
+                                } else if (finalValue > 0) {
+                                    rad = finalValue;
+                                } else {
+                                    sym = 1;
+                                    rad = 0;
+                                }
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].line = 0;
+                                    plot._Gx.lyr[index].radius = rad;
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[i].line = 0;
+                                        plot._Gx.lyr[i].radius = rad;
+                                    }
+                                }
+                            }, radius);
+                    }
+                }, {
                     text: "Solid...",
                     handler: function() {
                         // Figure out the current thickness
@@ -5903,6 +6216,17 @@
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 
+        if (!o.xlab) {
+            o.xlab = 0;
+        }
+        if (!o.ylab) {
+            o.ylab = 0;
+        }
+
+        //Convert xunits and yunits to numbers if they are strings
+        o.xlab = m.unit_lookup(o.xlab);
+        o.ylab = m.unit_lookup(o.ylab);
+
         // Equivalent to reading cmd line args
         Gx.xmin = o.xmin === undefined ? 0.0 : o.xmin;
         Gx.xmax = o.xmax === undefined ? 0.0 : o.xmax;
@@ -6513,6 +6837,11 @@
                     mx.draw_symbol(Mx, ic, ix + tw - labelOffset, iy - 3,
                         Gx.lyr[n].symbol, thk);
                 }
+                if (Gx.lyr[n].hcb["class"] === 2) {
+                    //draw colormap
+                    mx.legend_colorbar(Mx, legendPos.x + 10, legendPos.y + (legendPos.height / 4),
+                        (legendPos.width / 4) - 10, legendPos.height / 2);
+                }
             }
             ix = ix + tw * 3;
             iy = iy + Mx.text_h * 0.3;
@@ -6772,6 +7101,31 @@
                 Gx.p_cuts_ypos = Mx.ypos;
             }
             Gx.p_press = false;
+        }
+
+        if (Gx.enabled_streaming_pcut) {
+            var line = 0;
+            var i = 0;
+            height = Gx.lyr[0].lps;
+            //fill data for y_cut for this mouse xpos
+            Gx.y_cut_data = [];
+            line = Math.floor((width * (Mx.xpos - Mx.l)) / plot_width);
+            for (i = line; i < (width * height); i += width) {
+                Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
+            }
+            mx.dispatchEvent(Mx, eventy);
+
+            var row = 0;
+            var start = 0;
+            var finish = 0;
+            //fill data for x_cut for this mouse ypos
+            Gx.x_cut_data = [];
+            row = Math.floor((height * (Mx.ypos - Mx.t)) / plot_height);
+            start = row * width;
+            finish = start + width;
+            Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
+            mx.dispatchEvent(Mx, eventx);
+
         }
     }
 
@@ -7627,7 +7981,7 @@
         mx.colorbar(Mx, x, y, w, h);
 
         //draw boxes for the p_cuts
-        if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+        if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0].hcb["class"] === 2)) {
             var plot_height = Mx.b - Mx.t;
             var plot_width = Mx.r - Mx.l;
 

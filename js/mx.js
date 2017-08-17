@@ -1452,7 +1452,8 @@
                     mx.draw_symbol(Mx, color, pixx[0], pixy[0], symb, rad, istart + n);
                 }
             }
-        } else if ((options.vertsym === true) && (symb !== 0)) {
+        }
+        if (options.vertsym === true) {
             for (var n = (skip - 1); n < npts; n += skip) {
                 var x = xpoint[n];
                 var y = ypoint[n];
@@ -1466,7 +1467,8 @@
                     }
                 }
             }
-        } else if ((options.horzsym === true) && (symb !== 0)) {
+        }
+        if (options.horzsym === true) {
             for (var n = (skip - 1); n < npts; n += skip) {
                 var x = xpoint[n];
                 var y = ypoint[n];
@@ -2842,11 +2844,6 @@
             _xmult = flags.xmult;
         } else if (!flags.xtimecode) {
             _xmult = mx.mult(stk1.xmin, stk1.xmax);
-        }
-        if (Gx.x_cut_press_on || Gx.y_cut_press_on) {
-            var new_max = stk1.ymax;
-            stk1.ymax = stk1.ymin;
-            stk1.ymin = new_max;
         }
         if (ydiv < 0) {
             yTIC.dtic1 = stk1.ymin;
@@ -4927,6 +4924,22 @@
         for (var j = 1; j < h; j++) {
             var cidx = Math.floor(Mx.pixel.length * (j - 1) / h);
             mx.draw_line(Mx, cidx, x, y + h - j, x + w, y + h - j);
+        }
+        mx.draw_box(Mx, Mx.fg, x + 0.5, y, w, h);
+    };
+
+    /**
+     * @param Mx
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @private
+     */
+    mx.legend_colorbar = function(Mx, x, y, w, h) {
+        for (var j = 1; j < w; j++) {
+            var cidx = Math.floor(Mx.pixel.length * (j - 1) / w);
+            mx.draw_line(Mx, cidx, x + w - j, y, x + w - j, y + h);
         }
         mx.draw_box(Mx, Mx.fg, x + 0.5, y, w, h);
     };

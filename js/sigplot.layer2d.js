@@ -63,7 +63,7 @@
         // the original code
         this.lpb = undefined;
 
-        this.yc = 1; // y-compression factor...not yet used 
+        this.yc = 1; // y-compression factor...not yet used
 
         this.options = {};
     };
@@ -289,6 +289,46 @@
             if (((Gx.autoz & 2) !== 0)) {
                 Gx.zmax = zmax;
             }
+            if (Gx.enabled_streaming_pcut) {
+                //if zbuf not right size, clear and fix
+                if (this.zbuf.length !== (this.lps * this.hcb.subsize)) {
+                    this.zbuf = [];
+                    this.zbuf = new m.PointArray(this.hcb.subsize * this.lps);
+                }
+                if (this.drawmode === "scrolling") {
+                    //fill in the next row of data.
+                    var start_write = this.position * this.hcb.subsize;
+                    var stop_write = start_write + this.hcb.subsize;
+                    var b = 0;
+                    for (var i = start_write; i < stop_write; i++) {
+                        this.zbuf[i] = zpoint[b];
+                        b++;
+                    }
+
+                }
+                if (this.drawmode === "falling") {
+                    //shift and fill in the next row of data.
+                    var cut_off = (this.lps - 1) * this.hcb.subsize;
+                    var tmp = this.zbuf.slice(0, cut_off);
+                    this.zbuf = [];
+                    for (var i = 0; i < this.hcb.subsize; i++) {
+                        this.zbuf.push(zpoint[i]);
+                    }
+                    this.zbuf.push.apply(this.zbuf, tmp);
+                    tmp = [];
+                }
+                if (this.drawmode === "rising") {
+                    //shift and fill in the next row of data.
+                    var cut_off = this.lps * this.hcb.subsize;
+                    var tmp = this.zbuf.slice(this.hcb.subsize, cut_off);
+                    this.zbuf = [];
+                    this.zbuf.push.apply(this.zbuf, tmp);
+                    for (var i = 0; i < this.hcb.subsize; i++) {
+                        this.zbuf.push(zpoint[i]);
+                    }
+                    tmp = [];
+                }
+            }
 
             if (this.img) {
                 mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax, Gx.xcompression);
@@ -404,6 +444,7 @@
                     if (this.hcb.pipe) {
                         this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
                         this.zbuf = new m.PointArray(this.hcb.subsize);
+
                     } else {
                         this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
                         this.zbuf = new m.PointArray(this.lps * this.hcb.subsize);
@@ -729,7 +770,7 @@
             this.img.cmap = Gx.cmap;
             this.img.origin = Mx.origin;
 
-            // Make the parts without data transparent 
+            // Make the parts without data transparent
             if (this.hcb.pipe && (this.frame < this.lps)) {
                 var imgd = new Uint32Array(this.img);
                 if (this.drawmode === "rising") {
