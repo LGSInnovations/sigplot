@@ -199,6 +199,10 @@
                     mx.shift_image_rows(Mx, this.img, -1);
                 }
             } else if (this.drawmode === "scrolling") {
+                var ylength = Math.abs(this.ymax - this.ymin);
+                this.ystart = 0;
+                this.ymin = 0;
+                this.ymax = ylength;
                 if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
                     this.position = 0;
                 }

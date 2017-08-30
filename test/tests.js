@@ -2,15 +2,22 @@
  * @license
  * File: tests.js
  *
- * Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- * Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ * Licensed to the LGS Innovations (LGS) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  LGS licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
- * (at your option) any later version. This library is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- * PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
- * GNU Lesser General Public License along with this library.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 /* globals QUnit, sigplot, sigplot_plugins, equal, test, strictEqual, asyncTest, notEqual, alert, BlueFileReader, start, ok */
@@ -4466,4 +4473,68 @@ interactiveTest('Legend', 'Are the correct functions modified from the legend??'
         symbol: 0,
         line: 3
     });
+});
+interactiveTest('raster drawmode change (scrolling -> rising -> scrolling)', 'Do you see the scrolling line?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(-1 * (i + 1));
+        }
+        plot.push(0, ramp);
+    }, 100);
+    setTimeout(function() {
+        plot.change_settings({
+            drawmode: "rising"
+        });
+        setTimeout(function() {
+            plot.change_settings({
+                drawmode: "scrolling"
+            });
+        }, 5000);
+    }, 5000);
+});
+interactiveTest('raster drawmode change (scrolling -> falling -> scrolling)', 'Do you see the scrolling line?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    plot.change_settings({
+        autol: 5
+    });
+    var framesize = 128;
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.25
+    });
+    ifixture.interval = window.setInterval(function() {
+        var ramp = [];
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(-1 * (i + 1));
+        }
+        plot.push(0, ramp);
+    }, 100);
+    setTimeout(function() {
+        plot.change_settings({
+            drawmode: "falling"
+        });
+        setTimeout(function() {
+            plot.change_settings({
+                drawmode: "scrolling"
+            });
+        }, 5000);
+    }, 5000);
 });
