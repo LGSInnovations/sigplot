@@ -22,8 +22,8 @@
   },
   "licenses": [
     {
-      "type": "LGPL",
-      "url": "https://www.gnu.org/licenses/lgpl.html"
+      "type": "apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
     }
   ],
   "scripts": {
