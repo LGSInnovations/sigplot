@@ -1,7 +1,8 @@
 *.o
 *.so
 *.exe
-/Makefile~
+.DS_Store
+*~
 *.gitignore
 Git_History
 node_modules

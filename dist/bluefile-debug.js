@@ -792,6 +792,198 @@ if (!window.Float64Array) {
             debug: f,
             error: f
         };
+  var f = function() {
+  };
+  if (!window.console) {
+    window.console = {log:f, info:f, warn:f, debug:f, error:f};
+  }
+  if ((new Int8Array([0, 1, 0])).subarray(1).subarray(1)[0]) {
+    var subarray = function(begin, end) {
+      if (arguments.length === 0) {
+        begin = 0;
+        end = this.length;
+      } else {
+        if (begin < 0) {
+          begin += this.length;
+        }
+        begin = Math.max(0, Math.min(this.length, begin));
+        if (arguments.length === 1) {
+          end = this.length;
+        } else {
+          if (end < 0) {
+            end += this.length;
+          }
+          end = Math.max(begin, Math.min(this.length, end));
+        }
+      }
+      var byteOffset = this.byteOffset + begin * this.BYTES_PER_ELEMENT;
+      return new this.constructor(this.buffer, byteOffset, end - begin);
+    };
+    var typedArrays = [Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array];
+    typedArrays.forEach(function(cls) {
+      cls.prototype.subarray = subarray;
+    });
+  }
+})();
+(function(window, document) {
+  var prefix = "", _addEventListener, onwheel, support;
+  if (window.addEventListener) {
+    _addEventListener = "addEventListener";
+  } else {
+    _addEventListener = "attachEvent";
+    prefix = "on";
+  }
+  support = "onwheel" in document.createElement("div") ? "wheel" : document.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll";
+  window.addWheelListener = function(elem, callback, useCapture) {
+    _addWheelListener(elem, support, callback, useCapture);
+    if (support === "DOMMouseScroll") {
+      _addWheelListener(elem, "MozMousePixelScroll", callback, useCapture);
+    }
+  };
+  function _addWheelListener(elem, eventName, callback, useCapture) {
+    elem[_addEventListener](prefix + eventName, support === "wheel" ? callback : function(originalEvent) {
+      !originalEvent && (originalEvent = window.event);
+      var event = {originalEvent:originalEvent, target:originalEvent.target || originalEvent.srcElement, type:"wheel", deltaMode:originalEvent.type === "MozMousePixelScroll" ? 0 : 1, deltaX:0, delatZ:0, preventDefault:function() {
+        originalEvent.preventDefault ? originalEvent.preventDefault() : originalEvent.returnValue = false;
+      }};
+      if (support === "mousewheel") {
+        event.deltaY = -1 / 40 * originalEvent.wheelDelta;
+        originalEvent.wheelDeltaX && (event.deltaX = -1 / 40 * originalEvent.wheelDeltaX);
+      } else {
+        event.deltaY = originalEvent.detail;
+      }
+      return callback(event);
+    }, useCapture || false);
+  }
+})(window, document);
+(function(global) {
+  var iOS = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false;
+  function endianness() {
+    var b = new ArrayBuffer(4);
+    var a = new Uint32Array(b);
+    var c = new Uint8Array(b);
+    a[0] = 3735928559;
+    if (c[0] === 239) {
+      return "LE";
+    }
+    if (c[0] === 222) {
+      return "BE";
+    }
+    throw new Error("unknown endianness");
+  }
+  var ARRAY_BUFFER_ENDIANNESS = endianness();
+  var _SPA = {"S":1, "C":2, "V":3, "Q":4, "M":9, "X":10, "T":16, "U":1, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9};
+  var _BPS = {"P":0.125, "A":1, "O":1, "B":1, "I":2, "L":4, "X":8, "F":4, "D":8};
+  var _XM_TO_TYPEDARRAY = {"P":null, "A":null, "O":Uint8Array, "B":Int8Array, "I":Int16Array, "L":Int32Array, "X":null, "F":Float32Array, "D":Float64Array};
+  var _applySupportsTypedArray = true;
+  try {
+    var uintbuf = new Uint8Array(new ArrayBuffer(4));
+    uintbuf[0] = 66;
+    uintbuf[1] = 76;
+    uintbuf[2] = 85;
+    uintbuf[3] = 69;
+    var test = String.fromCharCode.apply(null, uintbuf);
+    if (test !== "BLUE") {
+      _applySupportsTypedArray = false;
+    }
+  } catch (error) {
+    _applySupportsTypedArray = false;
+  }
+  function ab2str(buf) {
+    var uintbuf = new Uint8Array(buf);
+    if (_applySupportsTypedArray) {
+      return String.fromCharCode.apply(null, uintbuf);
+    } else {
+      var str = "";
+      for (var i = 0;i < uintbuf.length;i++) {
+        str += String.fromCharCode(uintbuf[i]);
+      }
+      return str;
+    }
+  }
+  function BlueHeader(buf) {
+    this.file = null;
+    this.file_name = null;
+    this.offset = 0;
+    this.buf = buf;
+    if (this.buf != null) {
+      var dvhdr = new DataView(this.buf);
+      this.version = ab2str(this.buf.slice(0, 4));
+      this.headrep = ab2str(this.buf.slice(4, 8));
+      this.datarep = ab2str(this.buf.slice(8, 12));
+      var littleEndianHdr = this.headrep === "EEEI";
+      var littleEndianData = this.datarep === "EEEI";
+      this.type = dvhdr.getUint32(48, littleEndianHdr);
+      this["class"] = this.type / 1E3;
+      this.format = ab2str(this.buf.slice(52, 54));
+      this.timecode = dvhdr.getFloat64(56, littleEndianHdr);
+      if (this["class"] === 1) {
+        this.xstart = dvhdr.getFloat64(256, littleEndianHdr);
+        this.xdelta = dvhdr.getFloat64(256 + 8, littleEndianHdr);
+        this.xunits = dvhdr.getInt32(256 + 16, littleEndianHdr);
+        this.yunits = dvhdr.getInt32(256 + 40, littleEndianHdr);
+        this.subsize = 1;
+      } else {
+        if (this["class"] === 2) {
+          this.xstart = dvhdr.getFloat64(256, littleEndianHdr);
+          this.xdelta = dvhdr.getFloat64(256 + 8, littleEndianHdr);
+          this.xunits = dvhdr.getInt32(256 + 16, littleEndianHdr);
+          this.subsize = dvhdr.getInt32(256 + 20, littleEndianHdr);
+          this.ystart = dvhdr.getFloat64(256 + 24, littleEndianHdr);
+          this.ydelta = dvhdr.getFloat64(256 + 32, littleEndianHdr);
+          this.yunits = dvhdr.getInt32(256 + 40, littleEndianHdr);
+        }
+      }
+      this.data_start = dvhdr.getFloat64(32, littleEndianHdr);
+      this.data_size = dvhdr.getFloat64(40, littleEndianHdr);
+      var ds = this.data_start;
+      var de = this.data_start + this.data_size;
+      this.setData(this.buf, ds, de, littleEndianData);
+    }
+  }
+  BlueHeader.prototype = {setData:function(buf, offset, data_end, littleEndian) {
+    if (this["class"] === 1) {
+      this.spa = _SPA[this.format[0]];
+      this.bps = _BPS[this.format[1]];
+      this.bpa = this.spa * this.bps;
+      this.ape = 1;
+      this.bpe = this.ape * this.bpa;
+    } else {
+      if (this["class"] === 2) {
+        this.spa = _SPA[this.format[0]];
+        this.bps = _BPS[this.format[1]];
+        this.bpa = this.spa * this.bps;
+        this.ape = this.subsize;
+        this.bpe = this.ape * this.bpa;
+      }
+    }
+    if (littleEndian === undefined) {
+      littleEndian = ARRAY_BUFFER_ENDIANNESS === "LE";
+    }
+    if (ARRAY_BUFFER_ENDIANNESS === "LE" && !littleEndian) {
+      throw "Not supported " + ARRAY_BUFFER_ENDIANNESS + " " + littleEndian;
+    } else {
+      if (ARRAY_BUFFER_ENDIANNESS === "BE" && this.littleEndianData) {
+        throw "Not supported " + ARRAY_BUFFER_ENDIANNESS + " " + littleEndian;
+      }
+    }
+    if (buf) {
+      if (offset && data_end) {
+        this.dview = this.createArray(buf, offset, (data_end - offset) / this.bps);
+      } else {
+        this.dview = this.createArray(buf);
+      }
+      this.size = this.dview.length / (this.spa * this.ape);
+    } else {
+      this.dview = this.createArray(null, null, this.size);
+    }
+  }, createArray:function(buf, offset, length) {
+    var TypedArray = _XM_TO_TYPEDARRAY[this.format[1]];
+    if (TypedArray === undefined) {
+      throw "unknown format " + this.format[1];
+    }
+    if (offset === undefined) {
+      offset = 0;
     }
 
     // Firefox 4 has a glaring subarray bug
