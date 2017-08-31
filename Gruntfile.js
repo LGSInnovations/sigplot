@@ -6,6 +6,57 @@ module.exports = function (grunt) {
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
+        concat: {
+          bluefile: {
+            src: [
+                    'js/license.js',
+                    'js/typedarray.js',
+                    'js/common.js',
+                    'js/bluefile.js'
+            ],
+            dest: 'dist/bluefile.js'
+          },
+          matfile: {
+            src: [
+                    'js/license.js',
+                    'js/typedarray.js',
+                    'js/common.js',
+                    'js/matfile.js'
+            ],
+            dest: 'dist/matfile.js'
+          },
+          sigplot: {
+            src: [
+                    'js/license.js',
+                    'js/typedarray.js',
+                    'js/common.js',
+                    'js/bluefile.js',
+                    'js/matfile.js',
+                    'js/tinycolor.js',
+                    'js/CanvasInput.js',
+                    'js/spin.js',
+                    'js/loglevel.js',
+                    'js/m.js',
+                    'js/mx.js',
+                    'js/sigplot.Utils.js',
+                    'js/sigplot.layer1d.js',
+                    'js/sigplot.layer2d.js',
+                    'js/sigplot.js'
+            ],
+            dest: 'dist/sigplot.js'
+          },
+          sigplot_plugins: {
+            src: [
+                    'js/license.js',
+                    'js/sigplot.annotations.js',
+                    'js/sigplot.slider.js',
+                    'js/sigplot.accordion.js',
+                    'js/sigplot.boxes.js',
+                    'js/sigplot.playback.js',
+            ],
+            dest: 'dist/sigplot.plugins.js'
+          }
+        },
         jshint: {
             options: {
                 jshintrc: '.jshintrc'
@@ -34,6 +85,15 @@ module.exports = function (grunt) {
                     compilation_level: 'WHITESPACE_ONLY'
                 }
             },
+            matfile_debug: {
+                closurePath: 'support/google-closure-compiler',
+                js: 'dist/matfile.js',
+                jsOutputFile: 'dist/matfile-debug.js',
+                options: {
+                    formatting: 'PRETTY_PRINT',
+                    compilation_level: 'WHITESPACE_ONLY'
+                }
+            },
             sigplot_debug: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/sigplot.js',
@@ -56,6 +116,14 @@ module.exports = function (grunt) {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/bluefile.js',
                 jsOutputFile: 'dist/bluefile-minimized.js',
+                options: {
+                    compilation_level: 'SIMPLE_OPTIMIZATIONS'
+                }
+            },
+            matfile_minimized: {
+                closurePath: 'support/google-closure-compiler',
+                js: 'dist/matfile.js',
+                jsOutputFile: 'dist/matfile-minimized.js',
                 options: {
                     compilation_level: 'SIMPLE_OPTIMIZATIONS'
                 }
@@ -116,6 +184,7 @@ module.exports = function (grunt) {
                 // Only check a subset of the files
                 src: [
                         'js/bluefile.js',
+                        'js/matfile.js',
                         'js/m.js',
                         'js/mx.js',
                         'js/sigplot.layer1d.js',
@@ -137,6 +206,7 @@ module.exports = function (grunt) {
                 // Only cleanup a subset of the files
                 src: [
                         'js/bluefile.js',
+                        'js/matfile.js',
                         'js/m.js',
                         'js/mx.js',
                         'js/sigplot.layer1d.js',
@@ -176,6 +246,15 @@ module.exports = function (grunt) {
                 options: {
                     browserifyOptions: {
                       standalone: 'bluefile'
+                    }
+                }
+            },
+            matfile: {
+                src: 'js/matfile.js',
+                dest: 'dist/matfile.js',
+                options: {
+                    browserifyOptions: {
+                      standalone: 'matfile'
                     }
                 }
             },

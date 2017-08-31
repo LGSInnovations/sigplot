@@ -50,7 +50,7 @@
     "grunt-contrib-qunit": "^0.5.0",
     "grunt-express-server": "^0.5.3",
     "grunt-jsbeautifier": "^0.2.13",
-    "grunt-jsdoc": "^0.5.8",
+    "grunt-jsdoc": "^0.5.4",
     "grunt-karma": "^0.12.2",
     "grunt-open": "^0.2.3",
     "grunt-services": "^0.1.0",

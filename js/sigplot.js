@@ -30,6 +30,7 @@
     var Spinner = require("spin");
     var common = require("./common");
     var bluefile = require("./bluefile");
+    var matfile = require("./matfile");
     var m = require("./m");
     var mx = require("./mx");
     var Layer1D = require("./sigplot.layer1d");
@@ -42,6 +43,7 @@
     }
 
     sigplot.bluefile = bluefile;
+    sigplot.matfile = matfile;
     sigplot.m = m;
     sigplot.mx = mx;
     sigplot.Layer1D = Layer1D;
@@ -2537,13 +2539,12 @@
         },
 
         /**
-         * Create a plot layer from an HREF that points to a BLUEFILE
+         * Create a plot layer from an HREF that points to a BLUEFILE or MATFILE
          *
          * @example plot.overlay_href(href, function() {}, {[layeroptions]});
          *
          * @param {String}
-         *            href the url to the bluefile
-         *
+         *            href the url to the bluefile or matfile
          * @param [onload]
          *            callback to be called when the file has been loaded
          *
@@ -2574,7 +2575,12 @@
                             if (!hcb) {
                                 alert("Failed to load data");
                             } else {
-                                var i = plot.overlay_bluefile(hcb, layerOptions);
+                                var i;
+                                if (href.endsWith(".mat")) {
+                                    i = plot.overlay_matfile(hcb, layerOptions);
+                                } else {
+                                    i = plot.overlay_bluefile(hcb, layerOptions);
+                                }
                                 if (onload) {
                                     onload(hcb, i);
                                 }
@@ -2585,10 +2591,15 @@
                     };
                 }(this, onload));
 
-                var br = new bluefile.BlueFileReader();
-                br.read_http(href, handleHeader);
+                var reader;
+                if (href.endsWith(".mat")) {
+                    reader = new matfile.MatFileReader();
+                } else {
+                    reader = new bluefile.BlueFileReader();
+                }
+                reader.read_http(href, handleHeader);
             } catch (error) {
-                console.log(error);
+                console.error(error);
                 alert("Failed to load data");
                 this.hide_spinner();
             }
@@ -2643,6 +2654,11 @@
             } else {
                 return null;
             }
+        },
+
+        overlay_matfile: function(mfile, layerOptions) {
+            m.log.debug("Overlay matfile: " + mfile.file_name);
+            return this.overlay_array(mfile.dview);
         },
 
         /**
