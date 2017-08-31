@@ -631,7 +631,6 @@
                 return false;
             };
         }(this));
-
         mx.addEventListener(Mx, "mousedown", this.onmousedown, false);
 
         // Putting a finger on the screen and moving it, simulates
@@ -797,8 +796,6 @@
                 Mx.touch_distance = undefined;
 
                 mx.widget_callback(Mx, event);
-
-
                 // Only clear the touches after a slight delay so we can
                 // detect double-tap
                 Mx.touchClear = window.setTimeout(
@@ -2077,6 +2074,7 @@
                     Gx.autoy = Gx.autoy & 0xD;
                     Gx.ymax = settings.ymax;
                     updateViewbox(this, Mx.stk[0].ymin, settings.ymax, "Y");
+                    this.redraw();
                 }
             }
 
@@ -2091,6 +2089,7 @@
                     Gx.autoy = Gx.autoy & 0xE;
                     Gx.ymin = settings.ymin;
                     updateViewbox(this, settings.ymin, Mx.stk[0].ymax, "Y");
+                    this.redraw();
                 }
             }
 
@@ -2109,10 +2108,14 @@
 
             if (settings.xmin !== undefined) {
                 updateViewbox(this, settings.xmin, Mx.stk[0].xmax, "X");
+                Gx.autox = (Gx.autox & 2);
+                this.redraw();
             }
 
             if (settings.xmax !== undefined) {
                 updateViewbox(this, Mx.stk[0].xmin, settings.xmax, "X");
+                Gx.autox = (Gx.autox & 1);
+                this.redraw();
             }
 
             if (settings.zmin !== undefined) {
@@ -2326,7 +2329,25 @@
                 return;
             }
 
-            var rescale = Gx.lyr[n].push(data, hdrmod, sync);
+            var hdrmod_clone = hdrmod;
+
+            // quick deep copy of the header so we can
+            // add some necessary fields if this is
+            // a header-only push
+            if (hdrmod) {
+                var hdrmod_clone = JSON.parse(JSON.stringify(hdrmod));
+
+                // if it's a header-only push, the data should
+                // be an empty array
+                if (data.length === 0) {
+                    hdrmod_clone.xmin = Mx.stk[n].xmin;
+                    hdrmod_clone.xmax = Mx.stk[n].xmax;
+                    hdrmod_clone.ymin = Mx.stk[n].ymin;
+                    hdrmod_clone.ymax = Mx.stk[n].ymax;
+                }
+            }
+
+            var rescale = Gx.lyr[n].push(data, hdrmod_clone, sync);
 
             if ((Mx.level === 0) && rescale) {
                 scale_base(this, {
@@ -2675,26 +2696,26 @@
                     Gx.basemode = Gx.cmode;
                     var xmin;
                     var xmax;
-                    if ((Gx.autox && 1) === 0) {
+                    if ((Gx.autox & 1) === 0) {
                         xmin = Gx.xmin;
                     }
-                    if ((Gx.autox && 2) === 0) {
+                    if ((Gx.autox & 2) === 0) {
                         xmax = Gx.xmin;
                     }
                     scale_base(this, {
                         get_data: true
                     }, xmin, xmax);
                     Mx.level = 0;
-                    if ((Gx.autox && 1) !== 0) {
+                    if ((Gx.autox & 1) !== 0) {
                         Gx.xmin = Mx.stk[0].xmin;
                     }
-                    if ((Gx.autox && 2) !== 0) {
+                    if ((Gx.autox & 2) !== 0) {
                         Gx.xmax = Mx.stk[0].xmax;
                     }
-                    if ((Gx.autoy && 1) !== 0) {
+                    if ((Gx.autoy & 1) !== 0) {
                         Gx.ymin = Mx.stk[0].ymin;
                     }
-                    if ((Gx.autoy && 2) !== 0) {
+                    if ((Gx.autoy & 2) !== 0) {
                         Gx.ymax = Mx.stk[0].ymax;
                     }
                     Mx.resize = true;

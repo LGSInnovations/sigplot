@@ -2344,6 +2344,131 @@ if (!window.Float64Array) {
         typedArrays.forEach(function(cls) {
             cls.prototype.subarray = subarray;
         });
+(function() {
+  var f = function() {
+  };
+  if (!window.console) {
+    window.console = {log:f, info:f, warn:f, debug:f, error:f};
+  }
+  if ((new Int8Array([0, 1, 0])).subarray(1).subarray(1)[0]) {
+    var subarray = function(begin, end) {
+      if (arguments.length === 0) {
+        begin = 0;
+        end = this.length;
+      } else {
+        if (begin < 0) {
+          begin += this.length;
+        }
+        begin = Math.max(0, Math.min(this.length, begin));
+        if (arguments.length === 1) {
+          end = this.length;
+        } else {
+          if (end < 0) {
+            end += this.length;
+          }
+          end = Math.max(begin, Math.min(this.length, end));
+        }
+      }
+      var byteOffset = this.byteOffset + begin * this.BYTES_PER_ELEMENT;
+      return new this.constructor(this.buffer, byteOffset, end - begin);
+    };
+    var typedArrays = [Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array];
+    typedArrays.forEach(function(cls) {
+      cls.prototype.subarray = subarray;
+    });
+  }
+})();
+(function(window, document) {
+  var prefix = "", _addEventListener, onwheel, support;
+  if (window.addEventListener) {
+    _addEventListener = "addEventListener";
+  } else {
+    _addEventListener = "attachEvent";
+    prefix = "on";
+  }
+  support = "onwheel" in document.createElement("div") ? "wheel" : document.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll";
+  window.addWheelListener = function(elem, callback, useCapture) {
+    _addWheelListener(elem, support, callback, useCapture);
+    if (support === "DOMMouseScroll") {
+      _addWheelListener(elem, "MozMousePixelScroll", callback, useCapture);
+    }
+  };
+  function _addWheelListener(elem, eventName, callback, useCapture) {
+    elem[_addEventListener](prefix + eventName, support === "wheel" ? callback : function(originalEvent) {
+      !originalEvent && (originalEvent = window.event);
+      var event = {originalEvent:originalEvent, target:originalEvent.target || originalEvent.srcElement, type:"wheel", deltaMode:originalEvent.type === "MozMousePixelScroll" ? 0 : 1, deltaX:0, delatZ:0, preventDefault:function() {
+        originalEvent.preventDefault ? originalEvent.preventDefault() : originalEvent.returnValue = false;
+      }};
+      if (support === "mousewheel") {
+        event.deltaY = -1 / 40 * originalEvent.wheelDelta;
+        originalEvent.wheelDeltaX && (event.deltaX = -1 / 40 * originalEvent.wheelDeltaX);
+      } else {
+        event.deltaY = originalEvent.detail;
+      }
+      return callback(event);
+    }, useCapture || false);
+  }
+})(window, document);
+function update(dst, src) {
+  for (var prop in src) {
+    var val = src[prop];
+    if (typeof val === "object") {
+      update(dst[prop], val);
+    } else {
+      dst[prop] = val;
+    }
+  }
+  return dst;
+}
+(function(global) {
+  var iOS = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false;
+  function endianness() {
+    var b = new ArrayBuffer(4);
+    var a = new Uint32Array(b);
+    var c = new Uint8Array(b);
+    a[0] = 3735928559;
+    if (c[0] === 239) {
+      return "LE";
+    }
+    if (c[0] === 222) {
+      return "BE";
+    }
+    throw new Error("unknown endianness");
+  }
+  var ARRAY_BUFFER_ENDIANNESS = endianness();
+  var _SPA = {"S":1, "C":2, "V":3, "Q":4, "M":9, "X":10, "T":16, "U":1, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9};
+  var _BPS = {"P":0.125, "A":1, "O":1, "B":1, "I":2, "L":4, "X":8, "F":4, "D":8};
+  var _XM_TO_TYPEDARRAY = {"P":null, "A":null, "O":Uint8Array, "B":Int8Array, "I":Int16Array, "L":Int32Array, "X":null, "F":Float32Array, "D":Float64Array};
+  function getInt64(dataView, index, littleEndian) {
+    var highIndex, lowIndex;
+    var MAX_INT = Math.pow(2, 53);
+    if (littleEndian) {
+      highIndex = 4;
+      lowIndex = 0;
+    } else {
+      highIndex = 0;
+      lowIndex = 4;
+    }
+    var high = dataView.getInt32(index + highIndex, littleEndian);
+    var low = dataView.getInt32(index + lowIndex, littleEndian);
+    var rv = low + pow2(32) * high;
+    if (rv >= MAX_INT) {
+      window.console.info("Int is bigger than JS can represent.");
+      return Infinity;
+    }
+    return rv;
+  }
+  var _XM_TO_DATAVIEW = {"P":null, "A":null, "O":"getUint8", "B":"getInt8", "I":"getInt16", "L":"getInt32", "X":getInt64, "F":"getFloat32", "D":"getFloat64"};
+  var _applySupportsTypedArray = true;
+  try {
+    var uintbuf = new Uint8Array(new ArrayBuffer(4));
+    uintbuf[0] = 66;
+    uintbuf[1] = 76;
+    uintbuf[2] = 85;
+    uintbuf[3] = 69;
+    var test = String.fromCharCode.apply(null, uintbuf);
+    if (test !== "BLUE") {
+      _applySupportsTypedArray = false;
     }
 
 }());
@@ -2412,6 +2537,156 @@ if (!window.Float64Array) {
             return callback(event);
 
         }, useCapture || false);
+  }
+  function str2ab(str) {
+    var buf = new ArrayBuffer(str.length * 2);
+    var bufView = new Uint16Array(buf);
+    for (var i = 0, strLen = str.length;i < strLen;i++) {
+      bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+  }
+  function pow2(n) {
+    return n >= 0 && n < 31 ? 1 << n : pow2[n] || (pow2[n] = Math.pow(2, n));
+  }
+  function BlueHeader(buf, options) {
+    this.options = {ext_header_type:"dict"};
+    global.update(this.options, options);
+    this.file = null;
+    this.file_name = null;
+    this.offset = 0;
+    this.buf = buf;
+    if (this.buf != null) {
+      var dvhdr = new DataView(this.buf);
+      this.version = ab2str(this.buf.slice(0, 4));
+      this.headrep = ab2str(this.buf.slice(4, 8));
+      this.datarep = ab2str(this.buf.slice(8, 12));
+      var littleEndianHdr = this.headrep === "EEEI";
+      var littleEndianData = this.datarep === "EEEI";
+      this.ext_start = dvhdr.getInt32(24, littleEndianHdr);
+      this.ext_size = dvhdr.getInt32(28, littleEndianHdr);
+      this.type = dvhdr.getUint32(48, littleEndianHdr);
+      this["class"] = this.type / 1E3;
+      this.format = ab2str(this.buf.slice(52, 54));
+      this.timecode = dvhdr.getFloat64(56, littleEndianHdr);
+      if (this["class"] === 1) {
+        this.xstart = dvhdr.getFloat64(256, littleEndianHdr);
+        this.xdelta = dvhdr.getFloat64(256 + 8, littleEndianHdr);
+        this.xunits = dvhdr.getInt32(256 + 16, littleEndianHdr);
+        this.yunits = dvhdr.getInt32(256 + 40, littleEndianHdr);
+        this.subsize = 1;
+      } else {
+        if (this["class"] === 2) {
+          this.xstart = dvhdr.getFloat64(256, littleEndianHdr);
+          this.xdelta = dvhdr.getFloat64(256 + 8, littleEndianHdr);
+          this.xunits = dvhdr.getInt32(256 + 16, littleEndianHdr);
+          this.subsize = dvhdr.getInt32(256 + 20, littleEndianHdr);
+          this.ystart = dvhdr.getFloat64(256 + 24, littleEndianHdr);
+          this.ydelta = dvhdr.getFloat64(256 + 32, littleEndianHdr);
+          this.yunits = dvhdr.getInt32(256 + 40, littleEndianHdr);
+        }
+      }
+      this.data_start = dvhdr.getFloat64(32, littleEndianHdr);
+      this.data_size = dvhdr.getFloat64(40, littleEndianHdr);
+      var ds = this.data_start;
+      var de = this.data_start + this.data_size;
+      if (this.ext_size) {
+        this.ext_header = this.unpack_keywords(this.buf, this.ext_size, this.ext_start * 512, littleEndianHdr);
+      }
+      this.setData(this.buf, ds, de, littleEndianData);
+    }
+  }
+  BlueHeader.prototype = {setData:function(buf, offset, data_end, littleEndian) {
+    if (this["class"] === 1) {
+      this.spa = _SPA[this.format[0]];
+      this.bps = _BPS[this.format[1]];
+      this.bpa = this.spa * this.bps;
+      this.ape = 1;
+      this.bpe = this.ape * this.bpa;
+    } else {
+      if (this["class"] === 2) {
+        this.spa = _SPA[this.format[0]];
+        this.bps = _BPS[this.format[1]];
+        this.bpa = this.spa * this.bps;
+        this.ape = this.subsize;
+        this.bpe = this.ape * this.bpa;
+      }
+    }
+    if (littleEndian === undefined) {
+      littleEndian = ARRAY_BUFFER_ENDIANNESS === "LE";
+    }
+    if (ARRAY_BUFFER_ENDIANNESS === "LE" && !littleEndian) {
+      throw "Not supported " + ARRAY_BUFFER_ENDIANNESS + " " + littleEndian;
+    } else {
+      if (ARRAY_BUFFER_ENDIANNESS === "BE" && this.littleEndianData) {
+        throw "Not supported " + ARRAY_BUFFER_ENDIANNESS + " " + littleEndian;
+      }
+    }
+    if (buf) {
+      if (offset && data_end) {
+        this.dview = this.createArray(buf, offset, (data_end - offset) / this.bps);
+      } else {
+        this.dview = this.createArray(buf);
+      }
+      this.size = this.dview.length / (this.spa * this.ape);
+    } else {
+      this.dview = this.createArray(null, null, this.size);
+    }
+  }, unpack_keywords:function(buf, lbuf, offset, littleEndian) {
+    var lkey, lextra, ltag, format, tag, data, ldata, itag, idata, dvk;
+    var keywords = [];
+    var dic_index = {};
+    var dict_keywords = {};
+    var ii = 0;
+    buf = buf.slice(offset, buf.length);
+    var dvhdr = new DataView(buf);
+    buf = ab2str(buf);
+    while (ii < lbuf) {
+      idata = ii + 8;
+      lkey = dvhdr.getUint32(ii, littleEndian);
+      lextra = dvhdr.getInt16(ii + 4, littleEndian);
+      ltag = dvhdr.getInt8(ii + 6, littleEndian);
+      format = buf.slice(ii + 7, ii + 8);
+      ldata = lkey - lextra;
+      itag = idata + ldata;
+      tag = buf.slice(itag, itag + ltag);
+      if (format === "A") {
+        data = buf.slice(idata, idata + ldata);
+      } else {
+        if (_XM_TO_DATAVIEW[format]) {
+          if (typeof _XM_TO_DATAVIEW[format] === "string") {
+            data = dvhdr[_XM_TO_DATAVIEW[format]](idata, littleEndian);
+          } else {
+            data = _XM_TO_DATAVIEW[format](dvhdr, idata, littleEndian);
+          }
+        } else {
+          window.console.info("Unsupported keyword format " + format + " for tag " + tag);
+        }
+      }
+      if (typeof dic_index[tag] === "undefined") {
+        dic_index[tag] = 1;
+      } else {
+        dic_index[tag]++;
+        tag = "" + tag + dic_index[tag];
+      }
+      dict_keywords[tag] = data;
+      keywords.push({tag:tag, value:data});
+      ii += lkey;
+    }
+    var dictTypes = ["dict", "json", {}, "XMTable", "JSON", "DICT"];
+    for (var k in dictTypes) {
+      if (dictTypes[k] === this.options.ext_header_type) {
+        return dict_keywords;
+      }
+    }
+    return keywords;
+  }, createArray:function(buf, offset, length) {
+    var TypedArray = _XM_TO_TYPEDARRAY[this.format[1]];
+    if (TypedArray === undefined) {
+      throw "unknown format " + this.format[1];
+    }
+    if (offset === undefined) {
+      offset = 0;
     }
     /* jshint +W030 */
 
@@ -2905,6 +3180,71 @@ module.exports.update = function update(dst, src) {
             } else {
                 // assume the size is 0
                 hcb.size = 0;
+    setTimeout(worker, 0);
+  }
+  function BlueFileReader(options) {
+    this.options = options;
+  }
+  BlueFileReader.prototype = {readheader:function readheader(theFile, onload) {
+    var that = this;
+    var reader = new FileReader;
+    var blob = theFile.webkitSlice(0, 512);
+    reader.onloadend = function(theFile) {
+      return function(e) {
+        if (e.target.error) {
+          onload(null);
+          return;
+        }
+        var rawhdr = reader.result;
+        var hdr = new BlueHeader(rawhdr, that.options);
+        hdr.file = theFile;
+        onload(hdr);
+      };
+    }(theFile);
+    reader.readAsArrayBuffer(blob);
+  }, read:function read(theFile, onload) {
+    var that = this;
+    var reader = new FileReader;
+    reader.onloadend = function(theFile) {
+      return function(e) {
+        if (e.target.error) {
+          onload(null);
+          return;
+        }
+        var raw = reader.result;
+        var hdr = new BlueHeader(raw, that.options);
+        hdr.file = theFile;
+        hdr.file_name = theFile.name;
+        onload(hdr);
+      };
+    }(theFile);
+    reader.readAsArrayBuffer(theFile);
+  }, read_http:function read_http(href, onload) {
+    var that = this;
+    var oReq = new XMLHttpRequest;
+    oReq.open("GET", href, true);
+    oReq.responseType = "arraybuffer";
+    oReq.overrideMimeType("text/plain; charset=x-user-defined");
+    oReq.onload = function(oEvent) {
+      if (oReq.readyState === 4) {
+        if (oReq.status === 200 || oReq.status === 0) {
+          var arrayBuffer = null;
+          if (oReq.response) {
+            arrayBuffer = oReq.response;
+            var hdr = new BlueHeader(arrayBuffer, that.options);
+            parseURL(href);
+            var fileUrl = parseURL(href);
+            hdr.file_name = fileUrl.file;
+            onload(hdr);
+          } else {
+            if (oReq.responseText) {
+              text2buffer(oReq.responseText, function(arrayBuffer) {
+                var hdr = new BlueHeader(arrayBuffer, that.options);
+                parseURL(href);
+                var fileUrl = parseURL(href);
+                hdr.file_name = fileUrl.file;
+                onload(hdr);
+              });
             }
             hcb.bpe = hcb.bpe / hcb.subsize;
             hcb.ape = 1;
@@ -2984,6 +3324,360 @@ module.exports.update = function update(dst, src) {
                 }
             }
         }
+      }
+      if (color.hasOwnProperty("a")) {
+        a = color.a;
+      }
+    }
+    a = parseFloat(a);
+    if (isNaN(a) || (a < 0 || a > 1)) {
+      a = 1;
+    }
+    return{ok:ok, format:color.format || format, r:mathMin(255, mathMax(rgb.r, 0)), g:mathMin(255, mathMax(rgb.g, 0)), b:mathMin(255, mathMax(rgb.b, 0)), a:a};
+  }
+  function rgbToRgb(r, g, b) {
+    return{r:bound01(r, 255) * 255, g:bound01(g, 255) * 255, b:bound01(b, 255) * 255};
+  }
+  function rgbToHsl(r, g, b) {
+    r = bound01(r, 255);
+    g = bound01(g, 255);
+    b = bound01(b, 255);
+    var max = mathMax(r, g, b), min = mathMin(r, g, b);
+    var h, s, l = (max + min) / 2;
+    if (max == min) {
+      h = s = 0;
+    } else {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch(max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
+      }
+      h /= 6;
+    }
+    return{h:h, s:s, l:l};
+  }
+  function hslToRgb(h, s, l) {
+    var r, g, b;
+    h = bound01(h, 360);
+    s = bound01(s, 100);
+    l = bound01(l, 100);
+    function hue2rgb(p, q, t) {
+      if (t < 0) {
+        t += 1;
+      }
+      if (t > 1) {
+        t -= 1;
+      }
+      if (t < 1 / 6) {
+        return p + (q - p) * 6 * t;
+      }
+      if (t < 1 / 2) {
+        return q;
+      }
+      if (t < 2 / 3) {
+        return p + (q - p) * (2 / 3 - t) * 6;
+      }
+      return p;
+    }
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      var p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
+    }
+    return{r:r * 255, g:g * 255, b:b * 255};
+  }
+  function rgbToHsv(r, g, b) {
+    r = bound01(r, 255);
+    g = bound01(g, 255);
+    b = bound01(b, 255);
+    var max = mathMax(r, g, b), min = mathMin(r, g, b);
+    var h, s, v = max;
+    var d = max - min;
+    s = max === 0 ? 0 : d / max;
+    if (max == min) {
+      h = 0;
+    } else {
+      switch(max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
+      }
+      h /= 6;
+    }
+    return{h:h, s:s, v:v};
+  }
+  function hsvToRgb(h, s, v) {
+    h = bound01(h, 360) * 6;
+    s = bound01(s, 100);
+    v = bound01(v, 100);
+    var i = math.floor(h), f = h - i, p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s), mod = i % 6, r = [v, q, p, p, t, v][mod], g = [t, v, v, q, p, p][mod], b = [p, p, t, v, v, q][mod];
+    return{r:r * 255, g:g * 255, b:b * 255};
+  }
+  function rgbToHex(r, g, b, allow3Char) {
+    var hex = [pad2(mathRound(r).toString(16)), pad2(mathRound(g).toString(16)), pad2(mathRound(b).toString(16))];
+    if (allow3Char && (hex[0].charAt(0) == hex[0].charAt(1) && (hex[1].charAt(0) == hex[1].charAt(1) && hex[2].charAt(0) == hex[2].charAt(1)))) {
+      return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0);
+    }
+    return hex.join("");
+  }
+  tinycolor.equals = function(color1, color2) {
+    if (!color1 || !color2) {
+      return false;
+    }
+    return tinycolor(color1).toRgbString() == tinycolor(color2).toRgbString();
+  };
+  tinycolor.random = function() {
+    return tinycolor.fromRatio({r:mathRandom(), g:mathRandom(), b:mathRandom()});
+  };
+  tinycolor.desaturate = function(color, amount) {
+    amount = amount === 0 ? 0 : amount || 10;
+    var hsl = tinycolor(color).toHsl();
+    hsl.s -= amount / 100;
+    hsl.s = clamp01(hsl.s);
+    return tinycolor(hsl);
+  };
+  tinycolor.saturate = function(color, amount) {
+    amount = amount === 0 ? 0 : amount || 10;
+    var hsl = tinycolor(color).toHsl();
+    hsl.s += amount / 100;
+    hsl.s = clamp01(hsl.s);
+    return tinycolor(hsl);
+  };
+  tinycolor.greyscale = function(color) {
+    return tinycolor.desaturate(color, 100);
+  };
+  tinycolor.lighten = function(color, amount) {
+    amount = amount === 0 ? 0 : amount || 10;
+    var hsl = tinycolor(color).toHsl();
+    hsl.l += amount / 100;
+    hsl.l = clamp01(hsl.l);
+    return tinycolor(hsl);
+  };
+  tinycolor.darken = function(color, amount) {
+    amount = amount === 0 ? 0 : amount || 10;
+    var hsl = tinycolor(color).toHsl();
+    hsl.l -= amount / 100;
+    hsl.l = clamp01(hsl.l);
+    return tinycolor(hsl);
+  };
+  tinycolor.complement = function(color) {
+    var hsl = tinycolor(color).toHsl();
+    hsl.h = (hsl.h + 180) % 360;
+    return tinycolor(hsl);
+  };
+  tinycolor.triad = function(color) {
+    var hsl = tinycolor(color).toHsl();
+    var h = hsl.h;
+    return[tinycolor(color), tinycolor({h:(h + 120) % 360, s:hsl.s, l:hsl.l}), tinycolor({h:(h + 240) % 360, s:hsl.s, l:hsl.l})];
+  };
+  tinycolor.tetrad = function(color) {
+    var hsl = tinycolor(color).toHsl();
+    var h = hsl.h;
+    return[tinycolor(color), tinycolor({h:(h + 90) % 360, s:hsl.s, l:hsl.l}), tinycolor({h:(h + 180) % 360, s:hsl.s, l:hsl.l}), tinycolor({h:(h + 270) % 360, s:hsl.s, l:hsl.l})];
+  };
+  tinycolor.splitcomplement = function(color) {
+    var hsl = tinycolor(color).toHsl();
+    var h = hsl.h;
+    return[tinycolor(color), tinycolor({h:(h + 72) % 360, s:hsl.s, l:hsl.l}), tinycolor({h:(h + 216) % 360, s:hsl.s, l:hsl.l})];
+  };
+  tinycolor.analogous = function(color, results, slices) {
+    results = results || 6;
+    slices = slices || 30;
+    var hsl = tinycolor(color).toHsl();
+    var part = 360 / slices;
+    var ret = [tinycolor(color)];
+    for (hsl.h = (hsl.h - (part * results >> 1) + 720) % 360;--results;) {
+      hsl.h = (hsl.h + part) % 360;
+      ret.push(tinycolor(hsl));
+    }
+    return ret;
+  };
+  tinycolor.monochromatic = function(color, results) {
+    results = results || 6;
+    var hsv = tinycolor(color).toHsv();
+    var h = hsv.h, s = hsv.s, v = hsv.v;
+    var ret = [];
+    var modification = 1 / results;
+    while (results--) {
+      ret.push(tinycolor({h:h, s:s, v:v}));
+      v = (v + modification) % 1;
+    }
+    return ret;
+  };
+  tinycolor.readability = function(color1, color2) {
+    var a = tinycolor(color1).toRgb();
+    var b = tinycolor(color2).toRgb();
+    var brightnessA = (a.r * 299 + a.g * 587 + a.b * 114) / 1E3;
+    var brightnessB = (b.r * 299 + b.g * 587 + b.b * 114) / 1E3;
+    var colorDiff = Math.max(a.r, b.r) - Math.min(a.r, b.r) + Math.max(a.g, b.g) - Math.min(a.g, b.g) + Math.max(a.b, b.b) - Math.min(a.b, b.b);
+    return{brightness:Math.abs(brightnessA - brightnessB), color:colorDiff};
+  };
+  tinycolor.readable = function(color1, color2) {
+    var readability = tinycolor.readability(color1, color2);
+    return readability.brightness > 125 && readability.color > 500;
+  };
+  tinycolor.mostReadable = function(baseColor, colorList) {
+    var bestColor = null;
+    var bestScore = 0;
+    var bestIsReadable = false;
+    for (var i = 0;i < colorList.length;i++) {
+      var readability = tinycolor.readability(baseColor, colorList[i]);
+      var readable = readability.brightness > 125 && readability.color > 500;
+      var score = 3 * (readability.brightness / 125) + readability.color / 500;
+      if (readable && !bestIsReadable || (readable && (bestIsReadable && score > bestScore) || !readable && (!bestIsReadable && score > bestScore))) {
+        bestIsReadable = readable;
+        bestScore = score;
+        bestColor = tinycolor(colorList[i]);
+      }
+    }
+    return bestColor;
+  };
+  var names = tinycolor.names = {aliceblue:"f0f8ff", antiquewhite:"faebd7", aqua:"0ff", aquamarine:"7fffd4", azure:"f0ffff", beige:"f5f5dc", bisque:"ffe4c4", black:"000", blanchedalmond:"ffebcd", blue:"00f", blueviolet:"8a2be2", brown:"a52a2a", burlywood:"deb887", burntsienna:"ea7e5d", cadetblue:"5f9ea0", chartreuse:"7fff00", chocolate:"d2691e", coral:"ff7f50", cornflowerblue:"6495ed", cornsilk:"fff8dc", crimson:"dc143c", cyan:"0ff", darkblue:"00008b", darkcyan:"008b8b", darkgoldenrod:"b8860b", darkgray:"a9a9a9", 
+  darkgreen:"006400", darkgrey:"a9a9a9", darkkhaki:"bdb76b", darkmagenta:"8b008b", darkolivegreen:"556b2f", darkorange:"ff8c00", darkorchid:"9932cc", darkred:"8b0000", darksalmon:"e9967a", darkseagreen:"8fbc8f", darkslateblue:"483d8b", darkslategray:"2f4f4f", darkslategrey:"2f4f4f", darkturquoise:"00ced1", darkviolet:"9400d3", deeppink:"ff1493", deepskyblue:"00bfff", dimgray:"696969", dimgrey:"696969", dodgerblue:"1e90ff", firebrick:"b22222", floralwhite:"fffaf0", forestgreen:"228b22", fuchsia:"f0f", 
+  gainsboro:"dcdcdc", ghostwhite:"f8f8ff", gold:"ffd700", goldenrod:"daa520", gray:"808080", green:"008000", greenyellow:"adff2f", grey:"808080", honeydew:"f0fff0", hotpink:"ff69b4", indianred:"cd5c5c", indigo:"4b0082", ivory:"fffff0", khaki:"f0e68c", lavender:"e6e6fa", lavenderblush:"fff0f5", lawngreen:"7cfc00", lemonchiffon:"fffacd", lightblue:"add8e6", lightcoral:"f08080", lightcyan:"e0ffff", lightgoldenrodyellow:"fafad2", lightgray:"d3d3d3", lightgreen:"90ee90", lightgrey:"d3d3d3", lightpink:"ffb6c1", 
+  lightsalmon:"ffa07a", lightseagreen:"20b2aa", lightskyblue:"87cefa", lightslategray:"789", lightslategrey:"789", lightsteelblue:"b0c4de", lightyellow:"ffffe0", lime:"0f0", limegreen:"32cd32", linen:"faf0e6", magenta:"f0f", maroon:"800000", mediumaquamarine:"66cdaa", mediumblue:"0000cd", mediumorchid:"ba55d3", mediumpurple:"9370db", mediumseagreen:"3cb371", mediumslateblue:"7b68ee", mediumspringgreen:"00fa9a", mediumturquoise:"48d1cc", mediumvioletred:"c71585", midnightblue:"191970", mintcream:"f5fffa", 
+  mistyrose:"ffe4e1", moccasin:"ffe4b5", navajowhite:"ffdead", navy:"000080", oldlace:"fdf5e6", olive:"808000", olivedrab:"6b8e23", orange:"ffa500", orangered:"ff4500", orchid:"da70d6", palegoldenrod:"eee8aa", palegreen:"98fb98", paleturquoise:"afeeee", palevioletred:"db7093", papayawhip:"ffefd5", peachpuff:"ffdab9", peru:"cd853f", pink:"ffc0cb", plum:"dda0dd", powderblue:"b0e0e6", purple:"800080", red:"f00", rosybrown:"bc8f8f", royalblue:"4169e1", saddlebrown:"8b4513", salmon:"fa8072", sandybrown:"f4a460", 
+  seagreen:"2e8b57", seashell:"fff5ee", sienna:"a0522d", silver:"c0c0c0", skyblue:"87ceeb", slateblue:"6a5acd", slategray:"708090", slategrey:"708090", snow:"fffafa", springgreen:"00ff7f", steelblue:"4682b4", tan:"d2b48c", teal:"008080", thistle:"d8bfd8", tomato:"ff6347", turquoise:"40e0d0", violet:"ee82ee", wheat:"f5deb3", white:"fff", whitesmoke:"f5f5f5", yellow:"ff0", yellowgreen:"9acd32"};
+  var hexNames = tinycolor.hexNames = flip(names);
+  function flip(o) {
+    var flipped = {};
+    for (var i in o) {
+      if (o.hasOwnProperty(i)) {
+        flipped[o[i]] = i;
+      }
+    }
+    return flipped;
+  }
+  function bound01(n, max) {
+    if (isOnePointZero(n)) {
+      n = "100%";
+    }
+    var processPercent = isPercentage(n);
+    n = mathMin(max, mathMax(0, parseFloat(n)));
+    if (processPercent) {
+      n = parseInt(n * max, 10) / 100;
+    }
+    if (math.abs(n - max) < 1E-6) {
+      return 1;
+    }
+    return n % max / parseFloat(max);
+  }
+  function clamp01(val) {
+    return mathMin(1, mathMax(0, val));
+  }
+  function parseHex(val) {
+    return parseInt(val, 16);
+  }
+  function isOnePointZero(n) {
+    return typeof n == "string" && (n.indexOf(".") != -1 && parseFloat(n) === 1);
+  }
+  function isPercentage(n) {
+    return typeof n === "string" && n.indexOf("%") != -1;
+  }
+  function pad2(c) {
+    return c.length == 1 ? "0" + c : "" + c;
+  }
+  function convertToPercentage(n) {
+    if (n <= 1) {
+      n = n * 100 + "%";
+    }
+    return n;
+  }
+  var matchers = function() {
+    var CSS_INTEGER = "[-\\+]?\\d+%?";
+    var CSS_NUMBER = "[-\\+]?\\d*\\.\\d+%?";
+    var CSS_UNIT = "(?:" + CSS_NUMBER + ")|(?:" + CSS_INTEGER + ")";
+    var PERMISSIVE_MATCH3 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+    var PERMISSIVE_MATCH4 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+    return{rgb:new RegExp("rgb" + PERMISSIVE_MATCH3), rgba:new RegExp("rgba" + PERMISSIVE_MATCH4), hsl:new RegExp("hsl" + PERMISSIVE_MATCH3), hsla:new RegExp("hsla" + PERMISSIVE_MATCH4), hsv:new RegExp("hsv" + PERMISSIVE_MATCH3), hex3:/^([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/, hex6:/^([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/};
+  }();
+  function stringInputToObject(color) {
+    color = color.replace(trimLeft, "").replace(trimRight, "").toLowerCase();
+    var named = false;
+    if (names[color]) {
+      color = names[color];
+      named = true;
+    } else {
+      if (color == "transparent") {
+        return{r:0, g:0, b:0, a:0, format:"name"};
+      }
+    }
+    var match;
+    if (match = matchers.rgb.exec(color)) {
+      return{r:match[1], g:match[2], b:match[3]};
+    }
+    if (match = matchers.rgba.exec(color)) {
+      return{r:match[1], g:match[2], b:match[3], a:match[4]};
+    }
+    if (match = matchers.hsl.exec(color)) {
+      return{h:match[1], s:match[2], l:match[3]};
+    }
+    if (match = matchers.hsla.exec(color)) {
+      return{h:match[1], s:match[2], l:match[3], a:match[4]};
+    }
+    if (match = matchers.hsv.exec(color)) {
+      return{h:match[1], s:match[2], v:match[3]};
+    }
+    if (match = matchers.hex6.exec(color)) {
+      return{r:parseHex(match[1]), g:parseHex(match[2]), b:parseHex(match[3]), format:named ? "name" : "hex"};
+    }
+    if (match = matchers.hex3.exec(color)) {
+      return{r:parseHex(match[1] + "" + match[1]), g:parseHex(match[2] + "" + match[2]), b:parseHex(match[3] + "" + match[3]), format:named ? "name" : "hex"};
+    }
+    return false;
+  }
+  root.tinycolor = tinycolor;
+})(this);
+(function() {
+  var inputs = [];
+  var CanvasInput = window.CanvasInput = function(o) {
+    var self = this;
+    o = o ? o : {};
+    self._canvas = o.canvas || null;
+    self._ctx = self._canvas ? self._canvas.getContext("2d") : null;
+    self._x = o.x || 0;
+    self._y = o.y || 0;
+    self._extraX = o.extraX || 0;
+    self._extraY = o.extraY || 0;
+    self._fontSize = o.fontSize || 14;
+    self._fontFamily = o.fontFamily || "Arial";
+    self._fontColor = o.fontColor || "#000";
+    self._placeHolderColor = o.placeHolderColor || "#bfbebd";
+    self._fontWeight = o.fontWeight || "normal";
+    self._fontStyle = o.fontStyle || "normal";
+    self._readonly = o.readonly || false;
+    self._maxlength = o.maxlength || null;
+    self._width = o.width || 150;
+    self._height = o.height || self._fontSize;
+    self._padding = o.padding >= 0 ? o.padding : 5;
+    self._borderWidth = o.borderWidth >= 0 ? o.borderWidth : 1;
+    self._borderColor = o.borderColor || "#959595";
+    self._borderRadius = o.borderRadius >= 0 ? o.borderRadius : 3;
+    self._backgroundImage = o.backgroundImage || "";
+    self._boxShadow = o.boxShadow || "1px 1px 0px rgba(255, 255, 255, 1)";
+    self._innerShadow = o.innerShadow || "0px 0px 4px rgba(0, 0, 0, 0.4)";
+    self._selectionColor = o.selectionColor || "rgba(179, 212, 253, 0.8)";
+    self._placeHolder = o.placeHolder || "";
+    self._value = o.value || self._placeHolder;
+    self._onsubmit = o.onsubmit || function() {
     };
 
     /**
@@ -11929,6 +12623,277 @@ if (!window.Float64Array) {
                 // so create a new level
                 Mx.stk.push(zstk);
                 Mx.level = Mx.stk.length - 1;
+          }
+        }
+      }
+    }
+    if (keyCode == 13 && self._renderOnReturn || keyCode !== 13) {
+      return self.render();
+    } else {
+      return function() {
+      };
+    }
+  }, click:function(e, self) {
+    var mouse = self._mousePos(e), x = mouse.x, y = mouse.y;
+    if (self._endSelection) {
+      delete self._endSelection;
+      delete self._selectionUpdated;
+      return;
+    }
+    if (self._canvas && self._overInput(x, y) || !self._canvas) {
+      if (self._mouseDown) {
+        self._mouseDown = false;
+        self.click(e, self);
+        return self.focus(self._clickPos(x, y));
+      }
+    } else {
+      return self.blur();
+    }
+  }, mousemove:function(e, self) {
+    var mouse = self._mousePos(e), x = mouse.x, y = mouse.y, isOver = self._overInput(x, y);
+    if (isOver && self._canvas) {
+      self._canvas.style.cursor = "text";
+      self._wasOver = true;
+    } else {
+      if (self._wasOver && self._canvas) {
+        self._canvas.style.cursor = "default";
+        self._wasOver = false;
+      }
+    }
+    if (self._hasFocus && self._selectionStart >= 0) {
+      var curPos = self._clickPos(x, y), start = Math.min(self._selectionStart, curPos), end = Math.max(self._selectionStart, curPos);
+      if (!isOver) {
+        self._selectionUpdated = true;
+        self._endSelection = true;
+        delete self._selectionStart;
+        self.render();
+        return;
+      }
+      if (self._selection[0] !== start || self._selection[1] !== end) {
+        self._selection = [start, end];
+        self.render();
+      }
+    }
+  }, mousedown:function(e, self) {
+    var mouse = self._mousePos(e), x = mouse.x, y = mouse.y, isOver = self._overInput(x, y);
+    self._mouseDown = isOver;
+    if (self._hasFocus && isOver) {
+      self._selectionStart = self._clickPos(x, y);
+    }
+  }, mouseup:function(e, self) {
+    var mouse = self._mousePos(e), x = mouse.x, y = mouse.y;
+    var isSelection = self._clickPos(x, y) !== self._selectionStart;
+    if (self._hasFocus && (self._selectionStart >= 0 && (self._overInput(x, y) && isSelection))) {
+      self._selectionUpdated = true;
+      delete self._selectionStart;
+      self.render();
+    } else {
+      delete self._selectionStart;
+    }
+    self.click(e, self);
+  }, renderCanvas:function() {
+    return this._renderCanvas;
+  }, cleanup:function() {
+    this._canvas.removeEventListener("mouseup", this.mouseupCanvasListener, false);
+    this._canvas.removeEventListener("mousedown", this.mousedownCanvasListener, false);
+    this._canvas.removeEventListener("mousemove", this.mousemoveCanvasListener, false);
+    window.removeEventListener("keydown", this.keydownWindowListener, false);
+    window.removeEventListener("keyup", this.keyupWindowListener, false);
+    window.removeEventListener("mouseup", this.mouseupWindowListener, true);
+    window.removeEventListener("paste", this.pasteWindowListener, false);
+    clearInterval(this._cursorInterval);
+    this._canvas.style.cursor = "default";
+    for (var i = 0;i < inputs.length;i++) {
+      if (inputs[i] === this) {
+        inputs.remove(i);
+      }
+    }
+  }, render:function() {
+    var self = this, ctx = self._renderCtx, w = self.outerW, h = self.outerH, br = self._borderRadius, bw = self._borderWidth, sw = self.shadowW, sh = self.shadowH;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.shadowOffsetX = self._boxShadow.x;
+    ctx.shadowOffsetY = self._boxShadow.y;
+    ctx.shadowBlur = self._boxShadow.blur;
+    ctx.shadowColor = self._boxShadow.color;
+    if (self._borderWidth > 0) {
+      ctx.fillStyle = self._borderColor;
+      self._roundedRect(ctx, self.shadowL, self.shadowT, w - sw, h - sh, br);
+      ctx.fill();
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.shadowBlur = 0;
+    }
+    self._drawTextBox(function() {
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.shadowBlur = 0;
+      var text = self._clipText();
+      var paddingBorder = self._padding + self._borderWidth + self.shadowT;
+      if (self._selection[1] > 0) {
+        var selectOffset = self._textWidth(text.substring(0, self._selection[0])), selectWidth = self._textWidth(text.substring(self._selection[0], self._selection[1]));
+        ctx.fillStyle = self._selectionColor;
+        ctx.fillRect(paddingBorder + selectOffset, paddingBorder, selectWidth, self._height);
+      }
+      ctx.fillStyle = self._placeHolder === self._value && self._value !== "" ? self._placeHolderColor : self._fontColor;
+      if (self._cursor) {
+        var cursorOffset = self._textWidth(text.substring(0, self._cursorPos));
+        ctx.fillRect(paddingBorder + cursorOffset, paddingBorder, 1, self._height);
+      }
+      var textX = self._padding + self._borderWidth + self.shadowL, textY = Math.round(paddingBorder + self._height / 2);
+      ctx.font = self._fontStyle + " " + self._fontWeight + " " + self._fontSize + "px " + self._fontFamily;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, textX, textY);
+      var innerShadow = self._innerShadow.split("px "), isOffsetX = self._innerShadow === "none" ? 0 : parseInt(innerShadow[0], 10), isOffsetY = self._innerShadow === "none" ? 0 : parseInt(innerShadow[1], 10), isBlur = self._innerShadow === "none" ? 0 : parseInt(innerShadow[2], 10), isColor = self._innerShadow === "none" ? "" : innerShadow[3];
+      if (isBlur > 0) {
+        var shadowCtx = self._shadowCtx, scw = shadowCtx.canvas.width, sch = shadowCtx.canvas.height;
+        shadowCtx.clearRect(0, 0, scw, sch);
+        shadowCtx.shadowBlur = isBlur;
+        shadowCtx.shadowColor = isColor;
+        shadowCtx.shadowOffsetX = 0;
+        shadowCtx.shadowOffsetY = isOffsetY;
+        shadowCtx.fillRect(-1 * w, -100, 3 * w, 100);
+        shadowCtx.shadowOffsetX = isOffsetX;
+        shadowCtx.shadowOffsetY = 0;
+        shadowCtx.fillRect(scw, -1 * h, 100, 3 * h);
+        shadowCtx.shadowOffsetX = 0;
+        shadowCtx.shadowOffsetY = isOffsetY;
+        shadowCtx.fillRect(-1 * w, sch, 3 * w, 100);
+        shadowCtx.shadowOffsetX = isOffsetX;
+        shadowCtx.shadowOffsetY = 0;
+        shadowCtx.fillRect(-100, -1 * h, 100, 3 * h);
+        self._roundedRect(ctx, bw + self.shadowL, bw + self.shadowT, w - bw * 2 - sw, h - bw * 2 - sh, br);
+        ctx.clip();
+        ctx.drawImage(self._shadowCanvas, 0, 0, scw, sch, bw + self.shadowL, bw + self.shadowT, scw, sch);
+      }
+      if (self._ctx) {
+        self._ctx.clearRect(self._x, self._y, ctx.canvas.width, ctx.canvas.height);
+        self._ctx.drawImage(self._renderCanvas, self._x, self._y);
+      }
+      return self;
+    });
+  }, _drawTextBox:function(fn) {
+    var self = this, ctx = self._renderCtx, w = self.outerW, h = self.outerH, br = self._borderRadius, bw = self._borderWidth, sw = self.shadowW, sh = self.shadowH;
+    if (self._backgroundImage === "") {
+      ctx.fillStyle = self._backgroundColor;
+      self._roundedRect(ctx, bw + self.shadowL, bw + self.shadowT, w - bw * 2 - sw, h - bw * 2 - sh, br);
+      ctx.fill();
+      fn();
+    } else {
+      var img = new Image;
+      img.src = self._backgroundImage;
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, img.width, img.height, bw + self.shadowL, bw + self.shadowT, w, h);
+        fn();
+      };
+    }
+  }, _clearSelection:function() {
+    var self = this;
+    if (self._selection[1] > 0) {
+      var start = self._selection[0], end = self._selection[1];
+      self._value = self._value.substr(0, start) + self._value.substr(end);
+      self._cursorPos = start;
+      self._cursorPos = self._cursorPos < 0 ? 0 : self._cursorPos;
+      self._selection = [0, 0];
+      return true;
+    }
+    return false;
+  }, _clipText:function(value) {
+    var self = this;
+    value = typeof value === "undefined" ? self._value : value;
+    var textWidth = self._textWidth(value), fillPer = textWidth / (self._width - self._padding), text = fillPer > 1 ? value.substr(-1 * Math.floor(value.length / fillPer)) : value;
+    return text + "";
+  }, _textWidth:function(text) {
+    var self = this, ctx = self._renderCtx;
+    ctx.font = self._fontStyle + " " + self._fontWeight + " " + self._fontSize + "px " + self._fontFamily;
+    ctx.textAlign = "left";
+    return ctx.measureText(text).width;
+  }, _calcWH:function() {
+    var self = this;
+    self.outerW = self._width + self._padding * 2 + self._borderWidth * 2 + self.shadowW;
+    self.outerH = self._height + self._padding * 2 + self._borderWidth * 2 + self.shadowH;
+  }, _updateCanvasWH:function() {
+    var self = this, oldW = self._renderCanvas.width, oldH = self._renderCanvas.height;
+    self._renderCanvas.setAttribute("width", self.outerW);
+    self._renderCanvas.setAttribute("height", self.outerH);
+    self._shadowCanvas.setAttribute("width", self._width + self._padding * 2);
+    self._shadowCanvas.setAttribute("height", self._height + self._padding * 2);
+    if (self._ctx) {
+      self._ctx.clearRect(self._x, self._y, oldW, oldH);
+    }
+  }, _roundedRect:function(ctx, x, y, w, h, r) {
+    if (w < 2 * r) {
+      r = w / 2;
+    }
+    if (h < 2 * r) {
+      r = h / 2;
+    }
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }, _overInput:function(x, y) {
+    var self = this, xLeft = x >= self._x + self._extraX, xRight = x <= self._x + self._extraX + self._width + self._padding * 2, yTop = y >= self._y + self._extraY, yBottom = y <= self._y + self._extraY + self._height + self._padding * 2;
+    return xLeft && (xRight && (yTop && yBottom));
+  }, _clickPos:function(x, y) {
+    var self = this, value = self._value;
+    if (self._value === self._placeHolder) {
+      value = "";
+    }
+    var text = self._clipText(value), totalW = 0, pos = text.length;
+    if (x - (self._x + self._extraX) < self._textWidth(text)) {
+      for (var i = 0;i < text.length;i++) {
+        totalW += self._textWidth(text[i]);
+        if (totalW >= x - (self._x + self._extraX)) {
+          pos = i;
+          break;
+        }
+      }
+    }
+    return pos;
+  }, _mousePos:function(e) {
+    var elm = e.target, style = document.defaultView.getComputedStyle(elm, undefined), paddingLeft = parseInt(style["paddingLeft"], 10) || 0, paddingTop = parseInt(style["paddingLeft"], 10) || 0, borderLeft = parseInt(style["borderLeftWidth"], 10) || 0, borderTop = parseInt(style["borderLeftWidth"], 10) || 0, htmlTop = document.body.parentNode.offsetTop || 0, htmlLeft = document.body.parentNode.offsetLeft || 0, offsetX = 0, offsetY = 0, x, y;
+    if (typeof elm.offsetParent !== "unefined") {
+      do {
+        offsetX += elm.offsetLeft;
+        offsetY += elm.offsetTop;
+      } while (elm = elm.offsetParent);
+    }
+    offsetX += paddingLeft + borderLeft + htmlLeft;
+    offsetY += paddingTop + borderTop + htmlTop;
+    return{x:e.pageX - offsetX, y:e.pageY - offsetY};
+  }, _mapCodeToKey:function(isShift, keyCode) {
+    var self = this, blockedKeys = [8, 9, 13, 16, 17, 18, 20, 27, 91, 92], key = "";
+    for (var i = 0;i < blockedKeys.length;i++) {
+      if (keyCode === blockedKeys[i]) {
+        return;
+      }
+    }
+    if (typeof isShift !== "boolean" || typeof keyCode !== "number") {
+      return;
+    }
+    var charMap = {32:" ", 48:")", 49:"!", 50:"@", 51:"#", 52:"$", 53:"%", 54:"^", 55:"&", 56:"*", 57:"(", 59:":", 107:"+", 173:"_", 189:"_", 186:":", 187:"+", 188:"<", 190:">", 191:"?", 192:"~", 219:"{", 220:"|", 221:"}", 222:'"'};
+    if (isShift) {
+      key = keyCode >= 65 && keyCode <= 90 ? String.fromCharCode(keyCode) : charMap[keyCode];
+    } else {
+      if (keyCode >= 65 && keyCode <= 90) {
+        key = String.fromCharCode(keyCode).toLowerCase();
+      } else {
+        if (keyCode === 96) {
+          key = "0";
+        } else {
+          if (keyCode === 97) {
+            key = "1";
+          } else {
+            if (keyCode === 98) {
+              key = "2";
             } else {
                 // Once in continuous zoom mode update the current level
                 Mx.stk[Mx.level] = zstk;
@@ -12261,6 +13226,55 @@ if (!window.Float64Array) {
                             Mx.b = Mx.height - Mx.text_h * 3;
                         } else {
                             Mx.b = Mx.height - Mx.text_h * 2;
+                          if (keyCode === 105) {
+                            key = "9";
+                          } else {
+                            if (keyCode === 188) {
+                              key = ",";
+                            } else {
+                              if (keyCode === 190) {
+                                key = ".";
+                              } else {
+                                if (keyCode === 191) {
+                                  key = "/";
+                                } else {
+                                  if (keyCode === 192) {
+                                    key = "`";
+                                  } else {
+                                    if (keyCode === 220) {
+                                      key = "\\";
+                                    } else {
+                                      if (keyCode === 187) {
+                                        key = "=";
+                                      } else {
+                                        if (keyCode === 189 || keyCode === 173) {
+                                          key = "-";
+                                        } else {
+                                          if (keyCode === 222) {
+                                            key = "'";
+                                          } else {
+                                            if (keyCode === 186) {
+                                              key = ";";
+                                            } else {
+                                              if (keyCode === 219) {
+                                                key = "[";
+                                              } else {
+                                                if (keyCode === 221) {
+                                                  key = "]";
+                                                } else {
+                                                  key = String.fromCharCode(keyCode);
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
                         }
                     } else {
                         if (Gx.show_x_axis) {
@@ -13989,6 +15003,22 @@ window.m = window.m || {};
         }
       }
     }
+    var prefix = m.mult_prefix(mult);
+    if (u[1]) {
+      return u[0] + " (" + prefix + u[1] + ")";
+    } else {
+      return u[0];
+    }
+  };
+  m.bound = function(a, b, c) {
+    return a < b ? b : a > c ? c : a;
+  };
+  m.touch_distance = function(touchA, touchB) {
+    var xd = touchA.pageX - touchB.pageX;
+    var yd = touchA.pageY - touchB.pageY;
+    return Math.sqrt(xd * xd + yd * yd);
+  };
+  m.mult_prefix = function(mult) {
     var prefix = "?";
     if (mult == 1) {
       prefix = "";
@@ -14692,6 +15722,7 @@ window.m = window.m || {};
     } else {
       return u[0];
     }
+    return prefix;
   };
   var VECTOR = {MV:"F", MS:"F", nbpt:4, view:undefined};
   m.vstype = function(ctype) {
@@ -14714,6 +15745,12 @@ window.m = window.m || {};
         }
       }
     }
+  };
+  m.log10 = function(v, lo_thresh) {
+    if (lo_thresh === undefined) {
+      lo_thresh = 1E-20;
+    }
+    return Math.log(Math.max(v, lo_thresh)) / Math.log(10);
   };
   m.vlog10 = function(src, lo_thresh, dst) {
     if (lo_thresh === undefined) {
@@ -15005,6 +16042,43 @@ window.m = window.m || {};
         }
       }
     }
+      }
+    }
+    var fractional = sec % 1;
+    if (fractional === 0) {
+      tod += ".000000";
+    } else {
+      tod += "." + Math.abs(sec % 1).toPrecision(6).slice(2, 8);
+    }
+    if (trim_trailing_zeros) {
+      var dloc = tod.indexOf(".");
+      var zloc = -1;
+      if (dloc !== -1) {
+        zloc = tod.substr(dloc, tod.length).indexOf("0");
+      }
+      if (zloc !== -1) {
+        tod = tod.substr(0, dloc + zloc);
+      }
+    }
+    return tod;
+  };
+  var j1950offset = (20 * 365 + 5) * (24 * 3600);
+  m.sec2tspec = function(sec, mode, trim_trailing_zeros) {
+    mode = mode || "";
+    if (sec >= 0 && sec <= 86400) {
+      return m.sec2tod(sec, trim_trailing_zeros);
+    } else {
+      sec = sec % 86400;
+      if (mode !== "delta" && sec <= 0) {
+        return m.sec2tod(sec + 86400, trim_trailing_zeros);
+      } else {
+        if (mode === "delta" && sec <= 0) {
+          return "-" + m.sec2tod(-1 * sec, trim_trailing_zeros);
+        } else {
+          return m.sec2tod(sec, trim_trailing_zeros);
+        }
+      }
+    }
   };
   m.sec2tod_j1970 = function(sec) {
     var tod = "";
@@ -15158,6 +16232,8 @@ window.mx = window.mx || {};
     this.wid_canvas.width = element.clientWidth;
     this.wid_canvas.height = element.clientHeight;
     this.parent.appendChild(this.wid_canvas);
+    this.font = undefined;
+    this.font_family = "Courier New, monospace";
     this.text_w = 0;
     this.text_h = 0;
     this.level = 0;
@@ -15861,6 +16937,7 @@ window.mx = window.mx || {};
     var ctx = Mx.active_canvas.getContext("2d");
     var r = 0;
     var d = 0;
+    var d2 = 0;
     var rmode = false;
     var fill = false;
     var tri = [];
@@ -15910,6 +16987,12 @@ window.mx = window.mx || {};
           tri[2].x = x * 2;
           tri[2].y = 0;
           tri[3].x = -x;
+          d2 = m.trunc(r * 0.8);
+          tri[1].x = -d2;
+          tri[1].y = d;
+          tri[2].x = d2 * 2;
+          tri[2].y = 0;
+          tri[3].x = -d2;
           tri[3].y = -d;
           var tempTri = [];
           for (var cnt = 0;cnt < 4;cnt++) {
@@ -16172,6 +17255,7 @@ window.mx = window.mx || {};
                   for (var cn = colors.length - 1;cn >= 0;cn--) {
                     if (rxs <= colors[cn].start && rxe >= colors[cn].end) {
                       colors.splice(cn, 1);
+                      continue;
                     } else {
                       if (rxs >= colors[cn].start && rxe <= colors[cn].end) {
                         colors.push({start:rxe, end:colors[cn].end, color:colors[cn].color});
@@ -16275,6 +17359,7 @@ window.mx = window.mx || {};
               }
               if (symb !== 0 && ib - ie > 1) {
                 mx.draw_symbols(Mx, color, pixx.subarray(ie - 1, ib), pixy.subarray(ie - 1, ib), ib, symb, rad, n - ib + istart);
+                mx.draw_symbols(Mx, color, pixx.subarray(ie - 1, ib), pixy.subarray(ie - 1, ib), ib - ie - 1, symb, rad, n - ib + istart);
               }
             }
             if (options.fillStyle) {
@@ -16895,17 +17980,17 @@ window.mx = window.mx || {};
       ctx.font = Mx.font.font;
       ctx_wid.font = Mx.font.font;
     } else {
-      var font = "Courier New, monospace";
       var text_h = 1;
       do {
         text_h = text_h + 1;
-        ctx.font = text_h + "px " + font;
-        ctx_wid.font = text_h + "px " + font;
+        ctx.font = text_h + "px " + Mx.font_family;
+        ctx_wid.font = text_h + "px " + Mx.font_family;
         var font_size = ctx.measureText("M");
         Mx.text_w = font_size.width;
         Mx.text_h = text_h;
       } while (Mx.text_w < width);
       Mx.font = {font:text_h + "px " + font, width:width};
+      Mx.font = {font:text_h + "px " + Mx.font_family, width:width};
     }
   };
   mx.textline = function(Mx, xstart, ystart, xend, yend, style) {
@@ -17087,12 +18172,14 @@ window.mx = window.mx || {};
       xTIC.dtic = (stk1.xmin - stk1.xmax) / xdiv;
     } else {
       xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv, xtimecode);
+      xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv, flags.xtimecode);
     }
     var _xmult = 1;
     if (flags.xmult) {
       _xmult = flags.xmult;
     } else {
       if (!xtimecode) {
+      if (!flags.xtimecode) {
         _xmult = mx.mult(stk1.xmin, stk1.xmax);
       }
     }
@@ -17101,12 +18188,14 @@ window.mx = window.mx || {};
       yTIC.dtic = (stk1.ymin - stk1.ymax) / ydiv;
     } else {
       yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv, ytimecode);
+      yTIC = mx.tics(stk1.ymin, stk1.ymax, ydiv, flags.ytimecode);
     }
     var _ymult = 1;
     if (flags.ymult) {
       _ymult = flags.ymult;
     } else {
       if (!ytimecode) {
+      if (!flags.ytimecode) {
         _ymult = mx.mult(stk1.ymin, stk1.ymax);
       }
     }
@@ -17128,6 +18217,26 @@ window.mx = window.mx || {};
       }
       if (!flags.noxplab) {
         xlabel = m.label(xlab, _xmult);
+        if (flags.ylabel instanceof Function) {
+          ylabel = flags.ylabel(ylab, _ymult);
+        } else {
+          if (flags.ylabel !== undefined) {
+            ylabel = flags.ylabel;
+          } else {
+            ylabel = m.label(ylab, _ymult);
+          }
+        }
+      }
+      if (!flags.noxplab) {
+        if (flags.xlabel instanceof Function) {
+          xlabel = flags.ylabel(xlab, _xmult);
+        } else {
+          if (flags.xlabel !== undefined) {
+            xlabel = flags.xlabel;
+          } else {
+            xlabel = m.label(xlab, _xmult);
+          }
+        }
       }
     }
 
@@ -17223,6 +18332,7 @@ window.mx = window.mx || {};
     var xlbl = "";
     if (xticlabels) {
       if (xtimecode) {
+      if (flags.xtimecode) {
         xlbl = m.sec2tod(xTIC.dtic1);
         sp = xlbl.length * Mx.text_w < (iscr - iscl) / 2;
       } else {
@@ -17265,6 +18375,7 @@ window.mx = window.mx || {};
         if (sp) {
           xlbl = null;
           if (xtimecode) {
+          if (flags.xtimecode) {
             if (i > ix) {
               xlbl = m.sec2tod(x, true);
               ix = i + Mx.text_w * (xlbl.length + 1);
@@ -17286,6 +18397,7 @@ window.mx = window.mx || {};
         } else {
           if (x === xTIC.dtic1) {
             if (xtimecode) {
+            if (flags.xtimecode) {
               xlbl = m.sec2tod(x, true);
               if (flags.inside) {
                 i = Math.floor(Math.max(iscl + itext, i));
@@ -17535,6 +18647,7 @@ window.mx = window.mx || {};
         if (flags.inside && (i < isct + Mx.text_h || i > iscb - Mx.text_h * 2)) {
         } else {
           if (ytimecode) {
+          if (flags.ytimecode) {
             ylbl = m.sec2tod(y);
             var k = i + jtext - Mx.text_h;
             var sep = ylbl.indexOf("::");
@@ -17763,6 +18876,29 @@ window.mx = window.mx || {};
                 Gx.lyr[n].xdata = true;
             } else {
                 Gx.lyr[n].xdata = false; // TODO (Gx.lyr(n).xsub > 0)
+        _menu_redraw(Mx, menu);
+      } else {
+        if (event.type === "mouseup") {
+          if (event.which === 1) {
+            if (menu.drag_x !== undefined && menu.drag_y !== undefined) {
+              menu.drag_x = undefined;
+              menu.drag_y = undefined;
+            } else {
+              _menu_takeaction(Mx, menu);
+            }
+          } else {
+            if (event.which === 3) {
+              _menu_dismiss(Mx, menu);
+            }
+          }
+        } else {
+          if (event.type === "mousedown") {
+            event.preventDefault();
+            if (event.which === 1) {
+              if (Mx.xpos > menu.x && (Mx.xpos < menu.x + menu.w && (Mx.ypos > menu.y && Mx.ypos < menu.y + Mx.text_h * 1.5))) {
+                menu.drag_x = Mx.xpos;
+                menu.drag_y = Mx.ypos;
+              }
             }
             if (Gx.lyr[n].xdata) {
                 Gx.xdata = true;
@@ -18511,8 +19647,8 @@ window.mx = window.mx || {};
     var eventYPos = mouseEvent.offsetX === undefined ? mouseEvent.pageY - rect.top - window.scrollY : mouseEvent.offsetY;
     switch(mouseEvent.type) {
       case "mousedown":
-        Mx.xpos = bound(eventXPos, 0, Mx.width);
-        Mx.ypos = bound(eventYPos, 0, Mx.height);
+        Mx.xpos = m.bound(eventXPos, 0, Mx.width);
+        Mx.ypos = m.bound(eventYPos, 0, Mx.height);
         switch(mouseEvent.which) {
           case 1:
             Mx.button_press = 1;
@@ -18531,8 +19667,8 @@ window.mx = window.mx || {};
         }
         break;
       case "mouseup":
-        Mx.xpos = bound(eventXPos, 0, Mx.width);
-        Mx.ypos = bound(eventYPos, 0, Mx.height);
+        Mx.xpos = m.bound(eventXPos, 0, Mx.width);
+        Mx.ypos = m.bound(eventYPos, 0, Mx.height);
         switch(mouseEvent.which) {
           case 1:
             Mx.button_release = 1;
@@ -18650,9 +19786,6 @@ window.mx = window.mx || {};
     sv.s1 = s1;
     sv.sw = sw;
   };
-  function bound(a, b, c) {
-    return a < b ? b : a > c ? c : a;
-  }
   mx.real_to_pixel = function(Mx, x, y, clip) {
     var stk4 = mx.origin(Mx.origin, 4, Mx.stk[Mx.level]);
     if (stk4.xscl === 0 || stk4.yscl === 0) {
@@ -18966,8 +20099,58 @@ window.mx = window.mx || {};
             Gx.dretx = rwh.x - re.x;
             Gx.drety = rwh.y - re.y;
     return buf;
+    return buf;
   };
-  mx.create_image = function(Mx, data, w, h, zmin, zmax) {
+  mx.update_image_row = function(Mx, buf, data, row, zmin, zmax, xcompression) {
+    var imgd = new Uint32Array(buf, row * buf.width * 4, buf.width);
+    var fscale = 1;
+    if (zmax !== zmin) {
+      fscale = Mx.pixel.length / Math.abs(zmax - zmin);
+    }
+    var xc = Math.max(1, data.length / buf.width);
+    for (var i = 0;i < buf.width;i++) {
+      var didx = Math.floor(i * xc);
+      var value = data[didx];
+      if (xc > 1) {
+        if (xcompression === 1) {
+          for (var j = 1;j < xc;j++) {
+            value += data[didx + j];
+          }
+          value = value / xc;
+        } else {
+          if (xcompression === 2) {
+            for (var j = 1;j < xc;j++) {
+              value = Math.min(value, data[didx + j]);
+            }
+          } else {
+            if (xcompression === 3) {
+              for (var j = 1;j < xc;j++) {
+                value = Math.max(value, data[didx + j]);
+              }
+            } else {
+              if (xcompression === 4) {
+                value = data[i];
+              } else {
+                if (xcompression === 5) {
+                  for (var j = 1;j < xc;j++) {
+                    value = Math.max(Math.abs(value), Math.abs(data[didx + j]));
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      var cidx = Math.floor((value - zmin) * fscale);
+      cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
+      var color = Mx.pixel[cidx];
+      if (color) {
+        imgd[i] = 255 << 24 | color.blue << 16 | color.green << 8 | color.red;
+      }
+    }
+    return imgd;
+  };
+  mx.create_image = function(Mx, data, subsize, w, h, zmin, zmax, xcompression) {
     var ctx = Mx.active_canvas.getContext("2d");
     if (!Mx.pixel || Mx.pixel.length === 0) {
       m.log.warn("COLORMAP not initialized, defaulting to foreground");
@@ -18982,26 +20165,63 @@ window.mx = window.mx || {};
     var buf = new ArrayBuffer(w * h * 4);
     buf.width = w;
     buf.height = h;
+    var nxc = Math.max(1, subsize / w);
     var imgd = new Uint32Array(buf);
-    for (var i = 0;i < imgd.length;i++) {
-      var ix;
-      var iy;
-      if (Mx.origin === 1 || Mx.origin === 4) {
-        ix = Math.floor(i % w);
-      } else {
-        ix = w - Math.floor(i % w) - 1;
-      }
-      if (Mx.origin === 3 || Mx.origin === 4) {
-        iy = Math.floor(i / w);
-      } else {
-        iy = h - Math.floor(i / w) - 1;
-      }
-      var didx = iy * w + ix;
-      var cidx = Math.floor((data[didx] - zmin) * fscale);
-      cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
-      var color = Mx.pixel[cidx];
-      if (color) {
-        imgd[i] = 255 << 24 | color.blue << 16 | color.green << 8 | color.red;
+    if (data) {
+      for (var i = 0;i < imgd.length;i++) {
+        var ix;
+        var iy;
+        if (Mx.origin === 1 || Mx.origin === 4) {
+          ix = Math.floor(i % w);
+        } else {
+          ix = w - Math.floor(i % w) - 1;
+        }
+        if (Mx.origin === 3 || Mx.origin === 4) {
+          iy = Math.floor(i / w);
+        } else {
+          iy = h - Math.floor(i / w) - 1;
+        }
+        if (iy === 1) {
+          var test = 1
+        }
+        var didx = iy * subsize + Math.floor(ix * nxc);
+        var value = data[didx];
+        if (nxc > 1) {
+          if (xcompression === 1) {
+            for (var j = 1;j < nxc;j++) {
+              value += data[didx + j];
+            }
+            value = value / nxc;
+          } else {
+            if (xcompression === 2) {
+              for (var j = 1;j < nxc;j++) {
+                value = Math.min(value, data[didx + j]);
+              }
+            } else {
+              if (xcompression === 3) {
+                for (var j = 1;j < nxc;j++) {
+                  value = Math.max(value, data[didx + j]);
+                }
+              } else {
+                if (xcompression === 4) {
+                  value = data[didx];
+                } else {
+                  if (xcompression === 5) {
+                    for (var j = 1;j < nxc;j++) {
+                      value = Math.max(Math.abs(value), Math.abs(data[didx + j]));
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        var cidx = Math.floor((value - zmin) * fscale);
+        cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
+        var color = Mx.pixel[cidx];
+        if (color) {
+          imgd[i] = 255 << 24 | color.blue << 16 | color.green << 8 | color.red;
+        }
       }
     }
     return buf;
@@ -19158,7 +20378,16 @@ window.mx = window.mx || {};
         this.size = hcb.size;
       }
     } else {
+      if (hcb["class"] === 2) {
+        m.force1000(hcb);
+        this.size = hcb.subsize;
+      }
+    }
+    if (options.framesize) {
       this.size = options.framesize;
+    }
+    if (!this.size) {
+      throw "1D layer could not determine appropriate size";
     }
     if (hcb["class"] <= 2) {
       this.xsub = -1;
@@ -19273,6 +20502,7 @@ window.mx = window.mx || {};
     }
     this.position = (this.position + tle) % this.size;
     if (this.plot._Gx.autol > 1) {
+    if (this.plot._Gx.autol !== 0) {
       this.plot.rescale();
     }
   }, get_data:function(xmin, xmax) {
@@ -19413,12 +20643,14 @@ window.mx = window.mx || {};
         }
       }
       var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.size - 1);
-      this.xmin = Math.min(this.hcb.xstart, d);
-      this.xmax = Math.max(this.hcb.xstart, d);
+      this.xmin = this.hcb.xmin || Math.min(this.hcb.xstart, d);
+      this.xmax = this.hcb.xmax || Math.max(this.hcb.xstart, d);
       this.xdelta = this.hcb.xdelta;
       this.xstart = this.hcb.xstart;
     }
-    m.filad(this.hcb, data, sync);
+    if (data.length > 0) {
+      m.filad(this.hcb, data, sync);
+    }
     return hdrmod ? true : false;
   }, prep:function(xmin, xmax) {
     var Gx = this.plot._Gx;
@@ -19633,7 +20865,7 @@ window.mx = window.mx || {};
     }
     if (npts <= 0) {
       m.log.debug("Nothing to plot");
-      return;
+      return{num:npts, start:n1, end:n2};
     }
     if (this.cx) {
       if (Gx.cmode === 1) {
@@ -20638,8 +21870,6 @@ window.mx = window.mx || {};
       m.addPipeWriteListener(this.hcb, function() {
         self._onpipewrite();
       });
-      this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
-      this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
     } else {
       this.lps = this.hcb.lps || Math.ceil(hcb.size);
     }
@@ -20670,13 +21900,13 @@ window.mx = window.mx || {};
       this.xstart = hcb.xstart;
       this.xdelta = hcb.xdelta;
       var d = hcb.xstart + hcb.xdelta * (hcb.subsize - 1);
-      this.xmin = Math.min(hcb.xstart, d);
-      this.xmax = Math.max(hcb.xstart, d);
+      this.xmin = this.hcb.xmin || Math.min(hcb.xstart, d);
+      this.xmax = this.hcb.xmax || Math.max(hcb.xstart, d);
       this.ystart = hcb.ystart;
       this.ydelta = hcb.ydelta;
       var d = hcb.ystart + hcb.ydelta * (this.lps - 1);
-      this.ymin = Math.min(hcb.ystart, d);
-      this.ymax = Math.max(hcb.ystart, d);
+      this.ymin = this.hcb.ymin || Math.min(hcb.ystart, d);
+      this.ymax = this.hcb.ymax || Math.max(hcb.ystart, d);
     }
     this.xframe = this.hcb.subsize;
     this.yframe = this.lps * this.hcb.subsize / this.xframe;
@@ -20703,14 +21933,12 @@ window.mx = window.mx || {};
     }
     if (this.drawmode === "falling") {
       this.position = 0;
-      this.buf.set(this.buf.subarray(0, (this.lps - 1) * this.hcb.subsize * this.hcb.spa), this.hcb.subsize * this.hcb.spa);
       if (this.img) {
         mx.shift_image_rows(Mx, this.img, 1);
       }
     } else {
       if (this.drawmode === "rising") {
         this.position = this.lps - 1;
-        this.buf.set(this.buf.subarray(this.hcb.subsize * this.hcb.spa), 0);
         if (this.img) {
           mx.shift_image_rows(Mx, this.img, -1);
         }
@@ -20724,24 +21952,23 @@ window.mx = window.mx || {};
         }
       }
     }
-    var ngot = m.grabx(this.hcb, this.buf, this.hcb.subsize * this.hcb.spa, this.position * this.hcb.subsize * this.hcb.spa);
+    var ngot = m.grabx(this.hcb, this.buf, this.hcb.subsize * this.hcb.spa);
     if (ngot === 0) {
       m.log.error("Internal error");
       return;
     }
-    var dbuf = this.buf.subarray(this.position * this.hcb.subsize * this.hcb.spa, (this.position + 1) * this.hcb.subsize * this.hcb.spa);
     var zpoint = new sigplot.PointArray(this.hcb.subsize);
     if (this.cx) {
       if (Gx.cmode === 1) {
-        m.cvmag(dbuf, zpoint, zpoint.length);
+        m.cvmag(this.buf, zpoint, zpoint.length);
       } else {
         if (Gx.cmode === 2) {
           if (Gx.plab === 25) {
-            m.cvpha(dbuf, zpoint, zpoint.length);
+            m.cvpha(this.buf, zpoint, zpoint.length);
             m.vsmul(zpoint, 1 / (2 * Math.PI), zpoint, zpoint.length);
           } else {
             if (Gx.plab !== 24) {
-              m.cvpha(dbuf, zpoint, zpoint.length);
+              m.cvpha(this.buf, zpoint, zpoint.length);
             } else {
                 Gx.panxmin = Math.min(Gx.panxmin, qmin);
                 Gx.panxmax = Math.max(Gx.panxmax, qmax);
@@ -20785,6 +22012,25 @@ window.mx = window.mx || {};
                     for (var i = 0; i < npts; i++) {
                         this.ypoint[i] = dbuf[i];
                     }
+              m.cvphad(this.buf, zpoint, zpoint.length);
+            }
+          }
+        } else {
+          if (Gx.cmode === 3) {
+            m.vmov(this.buf, this.skip, zpoint, 1, zpoint.length);
+          } else {
+            if (Gx.cmode === 4) {
+              m.vmov(this.buf.subarray(1), this.skip, zpoint, 1, zpoint.length);
+            } else {
+              if (Gx.cmode === 5) {
+                m.vfill(zpoint, 0, zpoint.length);
+              } else {
+                if (Gx.cmode === 6) {
+                  m.cvmag2logscale(this.buf, Gx.dbmin, 10, zpoint);
+                } else {
+                  if (Gx.cmode === 7) {
+                    m.cvmag2logscale(this.buf, Gx.dbmin, 20, zpoint);
+                  }
                 }
             }
 
@@ -20825,6 +22071,31 @@ window.mx = window.mx || {};
                 } else {
                     Gx.panymin = Math.min(Gx.panymin, qmin);
                     Gx.panymax = Math.max(Gx.panymax, qmax);
+          }
+        }
+      }
+    } else {
+      if (Gx.cmode === 1) {
+        m.vabs(this.buf, zpoint);
+      } else {
+        if (Gx.cmode === 2) {
+          m.vfill(zpoint, 0, zpoint.length);
+        } else {
+          if (Gx.cmode === 3) {
+            m.vmov(this.buf, this.skip, zpoint, 1, zpoint.length);
+          } else {
+            if (Gx.cmode === 4) {
+              m.vfill(zpoint, 0, zpoint.length);
+            } else {
+              if (Gx.cmode === 5) {
+                m.vfill(zpoint, 0, zpoint.length);
+              } else {
+                if (Gx.cmode === 6) {
+                  m.vlogscale(this.buf, Gx.dbmin, 10, zpoint);
+                } else {
+                  if (Gx.cmode === 7) {
+                    m.vlogscale(this.buf, Gx.dbmin, 20, zpoint);
+                  }
                 }
 
                 if (Gx.autol > 1) {
@@ -20883,6 +22154,12 @@ window.mx = window.mx || {};
         var fac = 1 / Math.max(Gx.autol, 1);
         zmin = Gx.zmin * fac + min * (1 - fac);
         zmax = Gx.zmax * fac + max * (1 - fac);
+      } else {
+        if (Gx.autol < 0) {
+          var fac = 1 / Math.max(5, 1);
+          zmin = Gx.zmin * fac + min * (1 - fac);
+          zmax = Gx.zmax * fac + max * (1 - fac);
+        }
       }
     }
     if ((Gx.autoz & 1) !== 0) {
@@ -20892,7 +22169,7 @@ window.mx = window.mx || {};
       Gx.zmax = zmax;
     }
     if (this.img) {
-      mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax);
+      mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax, Gx.xcompression);
     }
     this.frame += 1;
     if (this.drawmode === "scrolling") {
@@ -20907,8 +22184,13 @@ window.mx = window.mx || {};
   }, get_data:function() {
     var HCB = this.hcb;
     if (!this.buf) {
-      this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
-      this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+      if (this.hcb.pipe) {
+        this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
+        this.zbuf = new sigplot.PointArray(this.hcb.subsize);
+      } else {
+        this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+        this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+      }
     }
     if (!this.hcb.pipe) {
       m.grab(HCB, this.buf, 0, HCB.subsize);
@@ -20939,8 +22221,13 @@ window.mx = window.mx || {};
       this.drawmode = settings.drawmode;
       this.position = 0;
       this.frame = 0;
-      this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
-      this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+      if (this.hcb.pipe) {
+        this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
+        this.zbuf = new sigplot.PointArray(this.hcb.subsize);
+      } else {
+        this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+        this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+      }
       this.img = undefined;
       if (this.drawmode === "falling") {
         this.plot._Mx.origin = 1;
@@ -20962,6 +22249,13 @@ window.mx = window.mx || {};
         this.hcb.subsize = hdrmod.subsize;
         this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
         this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+        if (this.hcb.pipe) {
+          this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
+          this.zbuf = new sigplot.PointArray(this.hcb.subsize);
+        } else {
+          this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+          this.zbuf = new sigplot.PointArray(this.lps * this.hcb.subsize);
+        }
         rescale = true;
       }
       for (var k in hdrmod) {
@@ -20998,6 +22292,19 @@ window.mx = window.mx || {};
       }
     }
     m.filad(this.hcb, data, sync);
+      }
+    }
+    if (this.hcb.yunits === 1 || this.hcb.yunits === 4) {
+      if (!this.hcb["timecode"] && timestamp) {
+        this.hcb.timecode = m.j1970toj1950(timestamp);
+        this.hcb.ystart = 0;
+        rescale = true;
+      } else {
+      }
+    }
+    if (data.length > 0) {
+      m.filad(this.hcb, data, sync);
+    }
     return rescale;
   }, prep:function(xmin, xmax) {
     var Gx = this.plot._Gx;
@@ -21007,86 +22314,88 @@ window.mx = window.mx || {};
     var qmin = this.xmin;
     var qmax = this.xmax;
     var n1, n2;
-    this.get_data(xmin, xmax);
-    if (Gx.cmode === 5 || this.xsub > 0) {
-    } else {
-      if (npts > 0) {
-        var xstart = this.xstart;
-        var xdelta = this.xdelta;
-        var d = npts;
-        if (Gx.index) {
-          n1 = 0;
-          n2 = npts - 1;
-        } else {
-          if (xdelta >= 0) {
-            n1 = Math.max(1, Math.min(d, Math.round((xmin - xstart) / xdelta))) - 1;
-            n2 = Math.max(1, Math.min(d, Math.round((xmax - xstart) / xdelta) + 2)) - 1;
-          } else {
-            n1 = Math.max(1, Math.min(d, Math.round((xmax - xstart) / xdelta) - 1)) - 1;
-            n2 = Math.max(1, Math.min(d, Math.round((xmin - xstart) / xdelta) + 2)) - 1;
-          }
-        }
-        npts = n2 - n1 + 1;
-        if (npts < 0) {
-          m.log.debug("Nothing to plot");
-          npts = 0;
-        }
-      }
+    var xsize = this.hcb.subsize;
+    if (Gx.xcompression > 0) {
+      xsize = Math.ceil(Mx.r - Mx.l);
     }
-    if (Gx.panxmin > Gx.panxmax) {
-      Gx.panxmin = qmin;
-      Gx.panxmax = qmax;
-    } else {
-      Gx.panxmin = Math.min(Gx.panxmin, qmin);
-      Gx.panxmax = Math.max(Gx.panxmax, qmax);
-    }
-    if (npts <= 0) {
-      m.log.debug("Nothing to plot");
-      return;
-    }
-    if (Gx.cmode === 5 || this.ysub > 0) {
-    } else {
-      if (npts > 0) {
-        var ystart = this.ystart;
-        var ydelta = this.ydelta;
-        var d = npts;
-        if (Gx.index) {
-          n1 = 0;
-          n2 = npts - 1;
-        } else {
-          if (ydelta >= 0) {
-            n1 = Math.max(1, Math.min(d, Math.round((xmin - ystart) / ydelta))) - 1;
-            n2 = Math.max(1, Math.min(d, Math.round((xmax - ystart) / ydelta) + 2)) - 1;
-          } else {
-            n1 = Math.max(1, Math.min(d, Math.round((xmax - ystart) / ydelta) - 1)) - 1;
-            n2 = Math.max(1, Math.min(d, Math.round((xmin - ystart) / ydelta) + 2)) - 1;
-          }
-        }
-        npts = n2 - n1 + 1;
-        if (npts < 0) {
-          m.log.debug("Nothing to plot");
-          npts = 0;
-        }
-      }
-    }
-    if (Gx.panymin > Gx.panxmax) {
-      Gx.panymin = this.ymin;
-      Gx.panymax = this.ymax;
-    } else {
-      Gx.panymin = Math.min(Gx.panymin, this.ymin);
-      Gx.panymax = Math.max(Gx.panymax, this.ymax);
-    }
-    if (this.cx) {
-      if (Gx.cmode === 1) {
-        m.cvmag(this.buf, this.zbuf, this.zbuf.length);
+    if (!this.hcb.pipe) {
+      this.get_data(xmin, xmax);
+      if (Gx.cmode === 5 || this.xsub > 0) {
       } else {
-        if (Gx.cmode === 2) {
-          if (Gx.plab === 25) {
-            m.cvpha(this.buf, this.zbuf, this.zbuf.length);
-            m.vsmul(this.zbuf, 1 / (2 * Math.PI), this.zbuf, this.zbuf.length);
+        if (npts > 0) {
+          var xstart = this.xstart;
+          var xdelta = this.xdelta;
+          var d = npts;
+          if (Gx.index) {
+            n1 = 0;
+            n2 = npts - 1;
           } else {
-            if (Gx.plab !== 24) {
+            if (xdelta >= 0) {
+              n1 = Math.max(1, Math.min(d, Math.round((xmin - xstart) / xdelta))) - 1;
+              n2 = Math.max(1, Math.min(d, Math.round((xmax - xstart) / xdelta) + 2)) - 1;
+            } else {
+              n1 = Math.max(1, Math.min(d, Math.round((xmax - xstart) / xdelta) - 1)) - 1;
+              n2 = Math.max(1, Math.min(d, Math.round((xmin - xstart) / xdelta) + 2)) - 1;
+            }
+          }
+          npts = n2 - n1 + 1;
+          if (npts < 0) {
+            m.log.debug("Nothing to plot");
+            npts = 0;
+          }
+        }
+      }
+      if (Gx.panxmin > Gx.panxmax) {
+        Gx.panxmin = qmin;
+        Gx.panxmax = qmax;
+      } else {
+        Gx.panxmin = Math.min(Gx.panxmin, qmin);
+        Gx.panxmax = Math.max(Gx.panxmax, qmax);
+      }
+      if (npts <= 0) {
+        m.log.debug("Nothing to plot");
+        return;
+      }
+      if (Gx.cmode === 5 || this.ysub > 0) {
+      } else {
+        if (npts > 0) {
+          var ystart = this.ystart;
+          var ydelta = this.ydelta;
+          var d = npts;
+          if (Gx.index) {
+            n1 = 0;
+            n2 = npts - 1;
+          } else {
+            if (ydelta >= 0) {
+              n1 = Math.max(1, Math.min(d, Math.round((xmin - ystart) / ydelta))) - 1;
+              n2 = Math.max(1, Math.min(d, Math.round((xmax - ystart) / ydelta) + 2)) - 1;
+            } else {
+              n1 = Math.max(1, Math.min(d, Math.round((xmax - ystart) / ydelta) - 1)) - 1;
+              n2 = Math.max(1, Math.min(d, Math.round((xmin - ystart) / ydelta) + 2)) - 1;
+            }
+          }
+          npts = n2 - n1 + 1;
+          if (npts < 0) {
+            m.log.debug("Nothing to plot");
+            npts = 0;
+          }
+        }
+      }
+      if (Gx.panymin > Gx.panxmax) {
+        Gx.panymin = this.ymin;
+        Gx.panymax = this.ymax;
+      } else {
+        Gx.panymin = Math.min(Gx.panymin, this.ymin);
+        Gx.panymax = Math.max(Gx.panymax, this.ymax);
+      }
+      if (this.cx) {
+        if (Gx.cmode === 1) {
+          m.cvmag(this.buf, this.zbuf, this.zbuf.length);
+        } else {
+          if (Gx.cmode === 2) {
+            if (Gx.plab === 25) {
               m.cvpha(this.buf, this.zbuf, this.zbuf.length);
+              m.vsmul(this.zbuf, 1 / (2 * Math.PI), this.zbuf, this.zbuf.length);
             } else {
                 line = 1;
                 if (this.thick > 0) {
@@ -21126,6 +22435,29 @@ window.mx = window.mx || {};
                     xmax = Math.min(xmax, xmin + xran);
                 } else {
                     xmin = Math.max(xmin, xmax + xran);
+              if (Gx.plab !== 24) {
+                m.cvpha(this.buf, this.zbuf, this.zbuf.length);
+              } else {
+                m.cvphad(this.buf, this.zbuf, this.zbuf.length);
+              }
+            }
+          } else {
+            if (Gx.cmode === 3) {
+              m.vmov(this.buf, this.skip, this.zbuf, 1, this.zbuf.length);
+            } else {
+              if (Gx.cmode === 4) {
+                m.vmov(this.buf.subarray(1), this.skip, this.zbuf, 1, this.zbuf.length);
+              } else {
+                if (Gx.cmode === 5) {
+                  m.vfill(this.zbuf, 0, this.zbuf.length);
+                } else {
+                  if (Gx.cmode === 6) {
+                    m.cvmag2logscale(this.buf, Gx.dbmin, 10, this.zbuf);
+                  } else {
+                    if (Gx.cmode === 7) {
+                      m.cvmag2logscale(this.buf, Gx.dbmin, 20, this.zbuf);
+                    }
+                  }
                 }
             }
 
@@ -21339,6 +22671,29 @@ window.mx = window.mx || {};
                     layer.name = m.trim_name(hcb.file_name);
                 } else {
                     layer.name = "layer_" + Gx.lyr.length;
+      } else {
+        if (Gx.cmode === 1) {
+          m.vabs(this.buf, this.zbuf);
+        } else {
+          if (Gx.cmode === 2) {
+            m.vfill(this.zbuf, 0, this.zbuf.length);
+          } else {
+            if (Gx.cmode === 3) {
+              m.vmov(this.buf, this.skip, this.zbuf, 1, this.zbuf.length);
+            } else {
+              if (Gx.cmode === 4) {
+                m.vfill(this.zbuf, 0, this.zbuf.length);
+              } else {
+                if (Gx.cmode === 5) {
+                  m.vfill(this.zbuf, 0, this.zbuf.length);
+                } else {
+                  if (Gx.cmode === 6) {
+                    m.vlogscale(this.buf, Gx.dbmin, 10, this.zbuf);
+                  } else {
+                    if (Gx.cmode === 7) {
+                      m.vlogscale(this.buf, Gx.dbmin, 20, this.zbuf);
+                    }
+                  }
                 }
                 layer.offset = 0;
             }
@@ -21366,17 +22721,103 @@ window.mx = window.mx || {};
       }
     }
     this.img = mx.create_image(Mx, this.zbuf, this.hcb.subsize, this.lps, Gx.zmin, Gx.zmax);
+      var zpoint = this.zbuf;
+      var min = 0;
+      var max = 0;
+      if (Gx.autol <= 0 || this.hcb.pipe) {
+        if (zpoint.length > 0) {
+          min = zpoint[0];
+          max = zpoint[0];
+          for (var i = 0;i < zpoint.length;i++) {
+            if (i / this.xframe >= this.lpb) {
+              break;
+            }
+            if (zpoint[i] < min) {
+              min = zpoint[i];
+            }
+            if (zpoint[i] > max) {
+              max = zpoint[i];
+            }
+          }
+        }
+        if ((Gx.autoz & 1) !== 0) {
+          if (Gx.zmin !== undefined) {
+            Gx.zmin = Math.min(Gx.zmin, min);
+          } else {
+            Gx.zmin = min;
+          }
+        }
+        if ((Gx.autoz & 2) !== 0) {
+          if (Gx.zmax !== undefined) {
+            Gx.zmax = Math.min(Gx.zmax, max);
+          } else {
+            Gx.zmax = max;
+          }
+        }
+        this.img = mx.create_image(Mx, this.zbuf, this.hcb.subsize, xsize, this.lps, Gx.zmin, Gx.zmax, Gx.xcompression);
+      } else {
+        var nny = this.hcb.size;
+        var fac = 1 / Math.max(Gx.autol, 1);
+        if (!this.img) {
+          this.img = mx.create_image(Mx, this.zbuf, this.hcb.subsize, xsize, this.lps, Gx.zmin, Gx.zmax);
+        }
+        Gx.zmin = 0;
+        Gx.zmax = 0;
+        if (zpoint.length > 0) {
+          for (var yy = 0;yy < nny;yy++) {
+            var noff = yy * this.xframe;
+            var min = zpoint[noff];
+            var max = zpoint[noff];
+            for (var i = 0;i < this.xframe;i++) {
+              min = Math.min(zpoint[noff + i], min);
+              max = Math.max(zpoint[noff + i], max);
+            }
+            if (Gx.autoz !== 2 && min !== undefined) {
+              Gx.zmin = min * fac + Gx.zmin * (1 - fac);
+            }
+            if (Gx.autoz !== 1 && max !== undefined) {
+              Gx.zmax = max * fac + Gx.zmax * (1 - fac);
+            }
+            mx.update_image_row(Mx, this.img, zpoint.subarray(noff, noff + this.xframe), yy, Gx.zmin, Gx.zmax);
+          }
+        }
+      }
+    } else {
+      if (Gx.panxmin > Gx.panxmax) {
+        Gx.panxmin = qmin;
+        Gx.panxmax = qmax;
+      } else {
+        Gx.panxmin = Math.min(Gx.panxmin, qmin);
+        Gx.panxmax = Math.max(Gx.panxmax, qmax);
+      }
+      if (Gx.panymin > Gx.panxmax) {
+        Gx.panymin = this.ymin;
+        Gx.panymax = this.ymax;
+      } else {
+        Gx.panymin = Math.min(Gx.panymin, this.ymin);
+        Gx.panymax = Math.max(Gx.panymax, this.ymax);
+      }
+      if (!this.img) {
+        if (Gx.zmin === undefined) {
+          Gx.zmin = 0;
+        }
+        if (Gx.zmax === undefined) {
+          Gx.zmax = 0;
+        }
+        this.img = mx.create_image(Mx, null, this.hcb.subsize, xsize, this.lps, Gx.zmin, Gx.zmax, Gx.xcompression);
+      }
+    }
     this.img.cmode = Gx.cmode;
     this.img.cmap = Gx.cmap;
     this.img.origin = Mx.origin;
     if (this.hcb.pipe && this.frame < this.lps) {
       var imgd = new Uint32Array(this.img);
       if (this.drawmode === "rising") {
-        for (var i = 0;i < imgd.length - this.frame * this.hcb.subsize;i++) {
+        for (var i = 0;i < imgd.length - this.frame * xsize;i++) {
           imgd[i] = 0;
         }
       } else {
-        for (var i = this.frame * this.hcb.subsize;i < imgd.length;i++) {
+        for (var i = this.frame * xsize;i < imgd.length;i++) {
           imgd[i] = 0;
         }
       }
@@ -21389,12 +22830,6 @@ window.mx = window.mx || {};
     if (this.hcb.pipe) {
       var lps = this.hcb.lps || Math.ceil(Math.max(1, Mx.b - Mx.t));
       if (lps !== this.lps && this.buf) {
-        var new_buf = this.hcb.createArray(null, 0, lps * this.hcb.subsize * this.hcb.spa);
-        var new_zbuf = new sigplot.PointArray(lps * this.hcb.subsize);
-        new_buf.set(this.buf.subarray(0, new_buf.length));
-        new_zbuf.set(this.zbuf.subarray(0, new_zbuf.length));
-        this.buf = new_buf;
-        this.zbuf = new_zbuf;
         this.lps = lps;
         if (this.position >= this.lps) {
           this.position = 0;
@@ -21402,6 +22837,7 @@ window.mx = window.mx || {};
         var d = HCB.ystart + HCB.ydelta * (this.lps - 1);
         this.ymin = Math.min(HCB.ystart, d);
         this.ymax = Math.max(HCB.ystart, d);
+        this.img = null;
         this.plot.rescale();
       }
     }
@@ -21428,12 +22864,8 @@ window.mx = window.mx || {};
     var ry = ih / h;
     Gx.xe = Math.max(1, Math.round(rx));
     Gx.ye = Math.max(1, Math.round(ry));
-    if (!this.img) {
+    if (!this.img || (Gx.cmode !== this.img.cmode || (Gx.cmap !== this.img.cmap || Mx.origin !== this.img.origin))) {
       this.prep(xmin, xmax);
-    } else {
-      if (Gx.cmode !== this.img.cmode || (Gx.cmap !== this.img.cmap || Mx.origin !== this.img.origin)) {
-        this.prep(xmin, xmax);
-      }
     }
     if (this.img) {
       mx.draw_image(Mx, this.img, this.xmin, this.ymin, this.xmax, this.ymax, this.opacity, Gx.rasterSmoothing);
@@ -21664,7 +23096,9 @@ window.sigplot = window.sigplot || {};
             Gx.cross_xpos = undefined;
             Gx.cross_ypos = undefined;
           } else {
-            draw_crosshairs(plot);
+            if (plot.mouseOnCanvas) {
+              draw_crosshairs(plot);
+            }
           }
         }
         if (Gx.cntrls === 2) {
@@ -21676,12 +23110,6 @@ window.sigplot = window.sigplot || {};
           evt.ypos = ypos;
           mx.dispatchEvent(Mx, evt);
         }
-      };
-    }(this);
-    this.ontouchmove = function(plot) {
-      return function(event) {
-        event.preventDefault();
-        plot.onmousemove(event);
       };
     }(this);
     this.throttledOnMouseMove = m.throttle(this._Gx.scroll_time_interval, this.onmousemove);
@@ -21970,13 +23398,134 @@ window.sigplot = window.sigplot || {};
         return false;
       };
     }(this);
+    mx.addEventListener(Mx, "mousedown", this.onmousedown, false);
     this.ontouchstart = function(plot) {
       return function(event) {
         event.preventDefault();
-        plot.onmousedown({which:1});
+        if (event.targetTouches.length === 1) {
+          if (Mx.touchClear && Mx.touches) {
+            window.clearTimeout(Mx.touchClear);
+            plot.unzoom();
+            middleClickScrollMenuAction(plot, mx.SB_FULL, "XPAN");
+            middleClickScrollMenuAction(plot, mx.SB_FULL, "YPAN");
+          } else {
+            var touchEvent = event.targetTouches[0];
+            var rect = touchEvent.target.getBoundingClientRect();
+            var position = {x:touchEvent.pageX - rect.left - window.scrollX, y:touchEvent.pageY - rect.top - window.scrollY};
+            Mx.xpos = m.bound(position.x, 0, Mx.width);
+            Mx.ypos = m.bound(position.y, 0, Mx.height);
+            var inPan = inPanRegion(plot, position);
+            if (!inPan.inPanRegion) {
+              Mx.touches = event.targetTouches;
+            }
+          }
+        } else {
+          if (event.targetTouches.length === 2) {
+            Mx.touch_distance = m.touch_distance(event.targetTouches[0], event.targetTouches[1]);
+          }
+        }
       };
     }(this);
-    mx.addEventListener(Mx, "mousedown", this.onmousedown, false);
+    mx.addEventListener(Mx, "touchstart", this.ontouchstart, false);
+    this.ontouchmove = function(plot) {
+      return function(event) {
+        var Mx = plot._Mx;
+        var Gx = plot._Gx;
+        var k = Mx.level;
+        event.preventDefault();
+        if (event.targetTouches.length === 1) {
+          var touchStart = Mx.touches[0];
+          var rect = touchStart.target.getBoundingClientRect();
+          var startPosition = {x:touchStart.pageX - rect.left - window.scrollX, y:touchStart.pageY - rect.top - window.scrollY};
+          var touchEvent = event.targetTouches[0];
+          var rect = touchEvent.target.getBoundingClientRect();
+          var position = {x:touchEvent.pageX - rect.left - window.scrollX, y:touchEvent.pageY - rect.top - window.scrollY};
+          var new_xpos = m.bound(position.x, 0, Mx.width);
+          var new_ypos = m.bound(position.y, 0, Mx.height);
+          var delta_xpos = new_xpos - Mx.xpos;
+          var delta_ypos = new_ypos - Mx.ypos;
+          Mx.xpos = new_xpos;
+          Mx.ypos = new_ypos;
+          var inPan = inPanRegion(plot, position);
+          if (inPan.inPanRegion) {
+            return;
+          }
+          var xdelta = Mx.stk[k].xscl * delta_xpos;
+          var ydelta = Mx.stk[k].yscl * delta_ypos;
+          if (Mx.origin === 1) {
+            xdelta *= -1;
+          } else {
+            if (Mx.origin === 2) {
+              ydelta *= -1;
+            } else {
+              if (Mx.origin === 3) {
+                ydelta *= -1;
+              } else {
+                if (Mx.origin === 4) {
+                  xdelta *= -1;
+                  ydelta *= -1;
+                }
+              }
+            }
+          }
+          var xmin = Mx.stk[k].xmin + xdelta;
+          var xmax = Mx.stk[k].xmax + xdelta;
+          var ymin = Mx.stk[k].ymin + ydelta;
+          var ymax = Mx.stk[k].ymax + ydelta;
+          if (xmin >= Gx.xmin && xmax <= Gx.xmax) {
+            Mx.stk[k].xmin = xmin;
+            Mx.stk[k].xmax = xmax;
+          }
+          if (ymin >= Gx.ymin && ymax <= Gx.ymax) {
+            Mx.stk[k].ymin = ymin;
+            Mx.stk[k].ymax = ymax;
+          }
+          if (Gx.cmode === Gx.basemode && Mx.level === 1) {
+            Gx.xmin = Math.min(Gx.xmin, xmin);
+            Gx.xmax = Math.max(Gx.xmax, xmax);
+            Gx.ymin = Math.min(Gx.ymin, ymin);
+            Gx.ymax = Math.max(Gx.ymax, ymax);
+          }
+          plot.refresh();
+        } else {
+          if (event.targetTouches.length === 2) {
+            var cur_distance = m.touch_distance(event.targetTouches[0], event.targetTouches[1]);
+            var scaling = (1 - Mx.touch_distance / cur_distance) * 0.05;
+            var xran = Mx.stk[k].xmax - Mx.stk[k].xmin;
+            var yran = Mx.stk[k].ymax - Mx.stk[k].ymin;
+            var xmin = Mx.stk[k].xmin + scaling * xran;
+            var xmax = Mx.stk[k].xmax - scaling * xran;
+            var ymin = Mx.stk[k].ymin + scaling * yran;
+            var ymax = Mx.stk[k].ymax - scaling * yran;
+            Mx.stk[k].xmin = Math.max(Gx.xmin, xmin);
+            Mx.stk[k].xmax = Math.min(Gx.xmax, xmax);
+            Mx.stk[k].ymin = Math.max(Gx.ymin, ymin);
+            Mx.stk[k].ymax = Math.min(Gx.ymax, ymax);
+            plot.refresh();
+          }
+        }
+      };
+    }(this);
+    this.throttledOnTouchMove = m.throttle(this._Gx.scroll_time_interval, this.ontouchmove);
+    mx.addEventListener(Mx, "touchmove", this.throttledOnTouchMove, false);
+    this.ontouchend = function(plot) {
+      return function(event) {
+        var Gx = plot._Gx;
+        var Mx = plot._Mx;
+        event.preventDefault();
+        console.log("on touch end ", event.targetTouches.length);
+        Gx.panning = undefined;
+        plot._Mx.scrollbar_x.action = 0;
+        plot._Mx.scrollbar_y.action = 0;
+        Mx.touch_distance = undefined;
+        mx.widget_callback(Mx, event);
+        Mx.touchClear = window.setTimeout(function() {
+          Mx.touches = undefined;
+          Mx.touchClear = undefined;
+        }, 100);
+      };
+    }(this);
+    mx.addEventListener(Mx, "touchend", this.ontouchend, false);
     this.docMouseUp = function(plot) {
       return function(event) {
         var Gx = plot._Gx;
@@ -22015,6 +23564,9 @@ window.sigplot = window.sigplot || {};
         evt.which = event.which;
         var executeDefault = mx.dispatchEvent(Mx, evt);
         if (executeDefault) {
+          if (Mx.warpbox || (Mx.widget || Mx.prompt)) {
+            return;
+          }
           if (event.which === 1) {
             var inCenter = inPanCenterRegion(plot);
             if (inCenter.inCenterRegion) {
@@ -22068,6 +23620,67 @@ window.sigplot = window.sigplot || {};
                   document.addEventListener("mouseup", emit_hidemenu, false);
                 }
               }
+            } else {
+              if (event.which === 3) {
+                event.preventDefault();
+                plot.unzoom(1);
+                plot.refresh();
+              }
+            }
+          }
+        }
+      };
+    }(this);
+    mx.addEventListener(Mx, "mouseup", this.mouseup, false);
+    this.mouseclick = function(plot) {
+      return function(event) {
+        event.preventDefault();
+        var Gx = plot._Gx;
+        var Mx = plot._Mx;
+        mx.ifevent(plot._Mx, event);
+        var evt = document.createEvent("Event");
+        evt.initEvent("mclick", true, true);
+        evt.xpos = Mx.xpos;
+        evt.ypos = Mx.ypos;
+        evt.x = Gx.retx;
+        evt.y = Gx.rety;
+        evt.which = event.which;
+        if (mx.dispatchEvent(Mx, evt)) {
+        }
+        return false;
+      };
+    }(this);
+    mx.addEventListener(Mx, "click", this.mouseclick, false);
+    this.mousedblclick = function(plot) {
+      return function(event) {
+        event.preventDefault();
+        var Gx = plot._Gx;
+        var Mx = plot._Mx;
+        mx.ifevent(plot._Mx, event);
+        var evt = document.createEvent("Event");
+        evt.initEvent("mdblclick", true, true);
+        evt.xpos = Mx.xpos;
+        evt.ypos = Mx.ypos;
+        evt.x = Gx.retx;
+        evt.y = Gx.rety;
+        evt.which = event.which;
+        if (mx.dispatchEvent(Mx, evt)) {
+        }
+        return false;
+      };
+    }(this);
+    mx.addEventListener(Mx, "dblclick", this.mousedblclick, false);
+    this.dragMouseDownHandler = function(plot) {
+      return function(event) {
+        var Mx = plot._Mx;
+        var Gx = plot._Gx;
+        var inPan = inPanRegion(plot);
+        if (inPan.inPanRegion) {
+          event.preventDefault();
+          if (inPan.command !== " ") {
+            var scrollbar;
+            if (inPan.command === "XPAN") {
+              scrollbar = Mx.scrollbar_x;
             } else {
               if (event.which === 3) {
                 event.preventDefault();
@@ -22697,7 +24310,9 @@ window.sigplot = window.sigplot || {};
       } else {
         Gx.cross_xpos = undefined;
         Gx.cross_ypos = undefined;
-        draw_crosshairs(this);
+        if (!Mx.warpbox && this.mouseOnCanvas) {
+          draw_crosshairs(this);
+        }
       }
     }
     if (settings.cmode !== undefined) {
@@ -22777,17 +24392,66 @@ window.sigplot = window.sigplot || {};
         Gx.nomenu = settings.nomenu;
       }
     }
-    if (settings.ymin !== undefined) {
-      updateViewbox(this, settings.ymin, Mx.stk[0].ymax, "Y");
-    }
     if (settings.ymax !== undefined) {
-      updateViewbox(this, Mx.stk[0].ymin, settings.ymax, "Y");
+      if (settings.ymax === null) {
+        Gx.autoy = Gx.autoy | 2;
+        Gx.panymax = undefined;
+        scale_base(this, {});
+        Gx.ymax = Gx.panymax;
+      } else {
+        Gx.autoy = Gx.autoy & 13;
+        Gx.ymax = settings.ymax;
+        updateViewbox(this, Mx.stk[0].ymin, settings.ymax, "Y");
+      }
+    }
+    if (settings.ymin !== undefined) {
+      if (settings.ymin === null) {
+        Gx.autoy = Gx.autoy | 1;
+        Gx.panymin = undefined;
+        scale_base(this, {});
+        Gx.ymin = Gx.panymin;
+      } else {
+        Gx.autoy = Gx.autoy & 14;
+        Gx.ymin = settings.ymin;
+        updateViewbox(this, settings.ymin, Mx.stk[0].ymax, "Y");
+      }
+    }
+    if (settings.autoy !== undefined) {
+      Gx.autoy = settings.autoy;
+      if ((Gx.autoy & 1) !== 0) {
+        Gx.ymin = undefined;
+      }
+      if ((Gx.autoy & 2) !== 0) {
+        Gx.ymax = undefined;
+      }
     }
     if (settings.xmin !== undefined) {
       updateViewbox(this, settings.xmin, Mx.stk[0].xmax, "X");
+      Gx.autox = Gx.autox & 2;
     }
     if (settings.xmax !== undefined) {
       updateViewbox(this, Mx.stk[0].xmin, settings.xmax, "X");
+      Gx.autox = Gx.autox & 1;
+    }
+    if (settings.zmin !== undefined) {
+      Gx.zmin = settings.zmin;
+      Gx.autoz = Gx.autoz & 2;
+    }
+    if (settings.zmax !== undefined) {
+      Gx.zmax = settings.zmax;
+      Gx.autoz = Gx.autoz & 1;
+    }
+    if (settings.autoz !== undefined) {
+      Gx.autoz = settings.autoz;
+      if ((Gx.autoz & 1) !== 0) {
+        Gx.zmin = undefined;
+      }
+      if ((Gx.autoz & 2) !== 0) {
+        Gx.zmax = undefined;
+      }
+    }
+    if (settings.note !== undefined) {
+      Gx.note = settings.note;
     }
     if (settings.zmin !== undefined) {
       Gx.zmin = settings.zmin;
@@ -22866,7 +24530,17 @@ window.sigplot = window.sigplot || {};
     if (Gx.lyr[n].push === undefined) {
       return;
     }
-    var rescale = Gx.lyr[n].push(data, hdrmod, sync);
+    var hdrmod_clone = hdrmod;
+    if (hdrmod) {
+      var hdrmod_clone = JSON.parse(JSON.stringify(hdrmod));
+      if (data.length === 0) {
+        hdrmod_clone.xmin = Mx.stk[n].xmin;
+        hdrmod_clone.xmax = Mx.stk[n].xmax;
+        hdrmod_clone.ymin = Mx.stk[n].ymin;
+        hdrmod_clone.ymax = Mx.stk[n].ymax;
+      }
+    }
+    var rescale = Gx.lyr[n].push(data, hdrmod_clone, sync);
     if (Mx.level === 0 && rescale) {
       scale_base(this, {get_data:false});
     }
@@ -23019,24 +24693,24 @@ window.sigplot = window.sigplot || {};
         Gx.basemode = Gx.cmode;
         var xmin;
         var xmax;
-        if ((Gx.autox && 1) === 0) {
+        if ((Gx.autox & 1) === 0) {
           xmin = Gx.xmin;
         }
-        if ((Gx.autox && 2) === 0) {
+        if ((Gx.autox & 2) === 0) {
           xmax = Gx.xmin;
         }
         scale_base(this, {get_data:true}, xmin, xmax);
         Mx.level = 0;
-        if ((Gx.autox && 1) !== 0) {
+        if ((Gx.autox & 1) !== 0) {
           Gx.xmin = Mx.stk[0].xmin;
         }
-        if ((Gx.autox && 2) !== 0) {
+        if ((Gx.autox & 2) !== 0) {
           Gx.xmax = Mx.stk[0].xmax;
         }
-        if ((Gx.autoy && 1) !== 0) {
+        if ((Gx.autoy & 1) !== 0) {
           Gx.ymin = Mx.stk[0].ymin;
         }
-        if ((Gx.autoy && 2) !== 0) {
+        if ((Gx.autoy & 2) !== 0) {
           Gx.ymax = Mx.stk[0].ymax;
         }
         Mx.resize = true;
@@ -23292,6 +24966,9 @@ window.sigplot = window.sigplot || {};
       Gx.cross_xpos = undefined;
       Gx.cross_ypos = undefined;
       draw_crosshairs(this);
+      if (!Mx.warpbox && this.mouseOnCanvas) {
+        draw_crosshairs(this);
+      }
       if (Gx.always_show_marker || Gx.show_marker) {
         draw_marker(this);
       }
@@ -23305,6 +24982,10 @@ window.sigplot = window.sigplot || {};
     var Mx = this._Mx;
     mx.addEventListener(Mx, "mousedown", this.onmousedown, false);
     mx.addEventListener(Mx, "mousemove", this.throttledOnMouseMove, false);
+    window.addEventListener("mouseup", Mx.onmouseup, false);
+    window.addEventListener("keydown", Mx.onkeydown, false);
+    window.addEventListener("keyup", Mx.onkeyup, false);
+    window.addEventListener("resize", this.onresize, false);
     document.addEventListener("mouseup", this.docMouseUp, false);
     mx.addEventListener(Mx, "mouseup", this.mouseup, false);
     window.addEventListener("mousedown", this.dragMouseDownHandler, false);
@@ -23318,8 +24999,12 @@ window.sigplot = window.sigplot || {};
     var Mx = this._Mx;
     mx.removeEventListener(Mx, "mousedown", this.onmousedown, false);
     mx.removeEventListener(Mx, "mousemove", this.throttledOnMouseMove, false);
-    document.removeEventListener("mouseup", this.docMouseUp, false);
     mx.removeEventListener(Mx, "mouseup", this.mouseup, false);
+    window.removeEventListener("mouseup", Mx.onmouseup, false);
+    window.removeEventListener("keydown", Mx.onkeydown, false);
+    window.removeEventListener("keyup", Mx.onkeyup, false);
+    window.removeEventListener("resize", this.onresize, false);
+    document.removeEventListener("mouseup", this.docMouseUp, false);
     window.removeEventListener("mousedown", this.dragMouseDownHandler, false);
     window.removeEventListener("mousemove", this.throttledDragOnMouseMove, false);
     window.removeEventListener("mouseup", this.dragMouseUpHandler, false);
@@ -23360,7 +25045,7 @@ window.sigplot = window.sigplot || {};
       if (Gx.pan === true) {
         Mx.r = Mx.width - (Gx.pthk + 2 * Mx.text_w);
       } else {
-        Mx.r = Mx.width - 2;
+        Mx.r = Mx.width - 5;
       }
       if (Gx.show_readout) {
         Mx.t = Mx.text_h * 2;
@@ -23370,21 +25055,42 @@ window.sigplot = window.sigplot || {};
           Mx.b = Mx.height - Mx.text_h * 3;
         }
       } else {
-        if (Gx.pan) {
-          Mx.t = Gx.pthk + 2 * Mx.text_w;
+        if (Gx.x_scrollbar_location === "bottom") {
+          Mx.t = Mx.text_h * 2;
+          if (Gx.pan) {
+            if (Gx.show_x_axis) {
+              Mx.b = Mx.height - Mx.text_h * 3;
+            } else {
+              Mx.b = Mx.height - Mx.text_h * 2;
+            }
+          } else {
+            if (Gx.show_x_axis) {
+              Mx.b = Mx.height - Mx.text_h * 2;
+            } else {
+              Mx.b = Mx.height - 5;
+            }
+          }
         } else {
-          Mx.t = 1;
-        }
-        if (Gx.show_x_axis) {
-          Mx.b = Mx.height - Mx.text_h * 3 / 2;
-        } else {
-          Mx.b = Mx.height - 2;
+          if (Gx.pan) {
+            Mx.t = Gx.pthk + 2 * Mx.text_w;
+          } else {
+            Mx.t = 1;
+          }
+          if (Gx.show_x_axis) {
+            Mx.b = Mx.height - Mx.text_h * 3 / 2;
+          } else {
+            Mx.b = Mx.height - 2;
+          }
         }
       }
       if (Gx.show_readout) {
         Gx.pl = Mx.text_w * 50;
       } else {
-        Gx.pl = Mx.text_w * 35;
+        if (Gx.x_scrollbar_location === "bottom") {
+          Gx.pl = Mx.l;
+        } else {
+          Gx.pl = Mx.text_w * 35;
+        }
       }
       Gx.pr = Math.max(Gx.pl + Mx.text_w * 9, Mx.r);
       if (Gx.show_readout) {
@@ -23394,7 +25100,15 @@ window.sigplot = window.sigplot || {};
           Gx.pt = Mx.b + (Mx.height - Mx.b - Gx.pthk) / 2;
         }
       } else {
-        Gx.pt = (Mx.t - Gx.pthk) / 2;
+        if (Gx.x_scrollbar_location === "bottom") {
+          if (Gx.show_x_axis) {
+            Gx.pt = Mx.b + Mx.text_h + (Mx.height - Mx.b - Mx.text_h - Gx.pthk) / 2;
+          } else {
+            Gx.pt = Mx.b + (Mx.height - Mx.b - Gx.pthk) / 2;
+          }
+        } else {
+          Gx.pt = (Mx.t - Gx.pthk) / 2;
+        }
       }
       Gx.lbtn = Mx.text_h + Mx.text_w + 2;
     } else {
@@ -23519,10 +25233,22 @@ window.sigplot = window.sigplot || {};
         if (Gx.ymult) {
           drawaxis_flags.ymult = Gx.ymult;
         }
+        if (xlab === 4) {
+          drawaxis_flags.xtimecode = true;
+        }
+        if (ylab === 4) {
+          drawaxis_flags.ytimecode = true;
+        }
+        if (Gx.xlabel !== undefined) {
+          drawaxis_flags.xlabel = Gx.xlabel;
+        }
+        if (Gx.ylabel !== undefined) {
+          drawaxis_flags.ylabel = Gx.ylabel;
+        }
         mx.drawaxis(Mx, Gx.xdiv, Gx.ydiv, xlab, ylab, drawaxis_flags);
       }
       var i = Gx.lbtn - 2;
-      if (Gx.show_readout && Gx.pan) {
+      if (Gx.show_readout && (Gx.pan && !Gx.no_legend_button)) {
         if (Gx.legend) {
           Gx.legendBtnLocation = {x:Mx.width - Gx.lbtn, y:2, width:i, height:i};
           mx.shadowbox(Mx, Mx.width - Gx.lbtn, 2, i, i, 1, -2, "L");
@@ -23554,6 +25280,9 @@ window.sigplot = window.sigplot || {};
     Gx.cross_xpos = undefined;
     Gx.cross_ypos = undefined;
     draw_crosshairs(this);
+    if (!Mx.warpbox && this.mouseOnCanvas) {
+      draw_crosshairs(this);
+    }
     if (Gx.always_show_marker || Gx.show_marker) {
       draw_marker(this);
     }
@@ -23655,7 +25384,10 @@ window.sigplot = window.sigplot || {};
     this.nsec = 0;
     this.isec = 0;
     this.xlab = undefined;
+    this.xlabel = undefined;
     this.ylab = undefined;
+    this.ylabel = undefined;
+    this.xcompression = 0;
     this.default_rubberbox_action = "zoom";
     this.default_rubberbox_mode = "box";
     this.wheelscroll_mode_natural = true;
@@ -24439,18 +26171,30 @@ window.sigplot = window.sigplot || {};
       link.href = img;
       link.download = "SigPlot." + (new Date).getTime() + ".png";
       link.click();
+      link.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }}, {text:"JPG", handler:function() {
       var img = plot._Mx.active_canvas.toDataURL("image/jpg");
       var link = document.createElement("a");
       link.href = img;
       link.download = "SigPlot." + (new Date).getTime() + ".jpg";
       link.click();
+      link.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }}, {text:"SVG", handler:function() {
       var img = plot._Mx.active_canvas.toDataURL("image/svg");
       var link = document.createElement("a");
       link.href = img;
       link.download = "SigPlot." + (new Date).getTime() + ".svg";
       link.click();
+      link.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }}]}};
     var REFRESH_ITEM = {text:"Refresh"};
     var KEYPRESSINFO_ITEM = {text:"Keypress Info", handler:function() {
@@ -24522,6 +26266,31 @@ window.sigplot = window.sigplot || {};
         if (typeof window !== undefinedType &&
                window.log === defaultLogger) {
             window.log = _log;
+        }
+      }
+      if (!takeAction) {
+        plot.mouseup(event);
+      } else {
+        if (action === undefined || action === "zoom") {
+          plot.pixel_zoom(xo, yo, xl, yl);
+          plot.refresh();
+        } else {
+          if (action === "select") {
+            var evt = document.createEvent("Event");
+            evt.initEvent("mtag", true, true);
+            var re = pixel_to_real(plot, x, y);
+            var rwh = pixel_to_real(plot, x + w, y + h);
+            evt.x = re.x;
+            evt.y = re.y;
+            evt.xpos = x;
+            evt.ypos = y;
+            evt.w = Math.abs(rwh.x - re.x);
+            evt.h = Math.abs(rwh.y - re.y);
+            evt.wpxl = w;
+            evt.hpxl = h;
+            evt.shift = event.shiftKey;
+            mx.dispatchEvent(Mx, evt);
+          }
         }
 
         return defaultLogger;
@@ -24644,6 +26413,7 @@ function merge(obj) {
     var address = o.cmode === undefined ? "" : o.cmode.toUpperCase();
     var line = o.line === undefined ? 3 : o.line;
     Gx.ylab = o.ylab;
+    Gx.ylabel = o.ylabel;
     Gx.ymin = o.ymin === undefined ? 0 : o.ymin;
     Gx.ymax = o.ymax === undefined ? 0 : o.ymax;
     var haveymin = o.ymin !== undefined;
@@ -24662,6 +26432,7 @@ function merge(obj) {
     Gx.all = o.all === undefined ? false : o.all;
     Gx.expand = o.expand === undefined ? false : o.expand;
     Gx.xlab = o.xlab;
+    Gx.xlabel = o.xlabel;
     Gx.segment = o.segment === undefined ? false : o.segment;
     Gx.plab = 24;
     var phunits = o.phunits === undefined ? "D" : o.phunits;
@@ -24674,6 +26445,8 @@ function merge(obj) {
     }
     Gx.xdiv = o.xdiv === undefined ? 5 : o.xdiv;
     Gx.ydiv = o.ydiv === undefined ? 5 : o.ydiv;
+    Gx.xcompression = o.xcmp || 0;
+    Gx.rasterSmoothing = o.smoothing || false;
     Mx.origin = 1;
     if (o.yinv) {
       Mx.origin = 4;
@@ -25271,6 +27044,42 @@ function inputToRGB(color) {
         if (color.hasOwnProperty("a")) {
             a = color.a;
         }
+        Gx.ymin = m.log10(Gx.ymin) * dbscale;
+        Gx.ymax = m.log10(Gx.ymax) * dbscale;
+      } else {
+        if (Gx.lyr.length > 0 && Gx.lyr[0].cx) {
+          Gx.ymin = Math.max(-18 * dbscale, Gx.ymin);
+          Gx.ymax = Math.max(-18 * dbscale, Gx.ymax);
+          Gx.dbmin = 1E-37;
+        } else {
+          if (Math.min(Gx.ymin, Gx.ymax) < -20 * dbscale) {
+            Gx.ymin = Math.max(-37 * dbscale, Gx.ymin);
+            Gx.ymax = Math.max(-37 * dbscale, Gx.ymax);
+            Gx.dbmin = Math.pow(10, Math.min(Gx.ymin, Gx.ymax) / dbscale);
+          }
+        }
+      }
+    }
+    Mx.level = 0;
+    if (imode && !Gx.index) {
+      if (havexmin) {
+        Gx.xmin = Gx.xstart + Gx.xdelta * (Gx.xmin - 1);
+      }
+      if (havexmin) {
+        Gx.xmax = Gx.xstart + Gx.xdelta * (Gx.xmax - 1);
+      }
+    }
+    Gx.xmult = o.xmult;
+    Gx.ymult = o.xmult;
+    Gx.autox = o.autox === undefined ? -1 : o.autox;
+    if (Gx.autox < 0) {
+      Gx.autox = 0;
+      if (!havexmin) {
+        Gx.autox += 1;
+      }
+      if (!havexmax) {
+        Gx.autox += 2;
+      }
     }
 
     a = boundAlpha(a);
@@ -25341,6 +27150,16 @@ function rgbToHsl(r, g, b) {
         Gx.autoz += 2;
       }
     }
+    Gx.autoz = o.autoz === undefined ? -1 : o.autoz;
+    if (Gx.autoz < 0) {
+      Gx.autoz = 0;
+      if (!havezmin) {
+        Gx.autoz += 1;
+      }
+      if (!havezmax) {
+        Gx.autoz += 2;
+      }
+    }
     Gx.autol = o.autol === undefined ? -1 : o.autol;
     if (!havexmin) {
       Gx.xmin = undefined;
@@ -25381,6 +27200,9 @@ function rgbToHsl(r, g, b) {
     Gx.panymax = Math.max(Gx.panymax, Gx.ymax);
     Gx.xmin = Mx.stk[0].xmin;
     Gx.ymin = Mx.stk[0].ymin;
+    if (o.font_family) {
+      Mx.font_family = o.font_family;
+    }
     mx.set_font(Mx, Math.min(7, Mx.width / 64));
     Gx.ncolors = o.ncolors === undefined ? 16 : o.ncolors;
     Gx.cmap = null;
@@ -25411,6 +27233,7 @@ function rgbToHsl(r, g, b) {
     Gx.wheelZoom = o.wheelZoom;
     Gx.wheelZoomPercent = o.wheelZoomPercent;
     Gx.legend = o.legend === undefined ? false : o.legend;
+    Gx.no_legend_button = o.no_legend_button === undefined ? false : o.no_legend_button;
     Gx.legendBtnLocation = null;
     Gx.pan = o.nopan === undefined ? true : !o.nopan;
     Gx.nomenu = o.nomenu === undefined ? false : o.nomenu;
@@ -25427,6 +27250,7 @@ function rgbToHsl(r, g, b) {
     Gx.scroll_time_interval = o.scroll_time_interval === undefined ? Gx.scroll_time_interval : o.scroll_time_interval;
     Gx.autohide_readout = o.autohide_readout;
     Gx.autohide_panbars = o.autohide_panbars;
+    Gx.x_scrollbar_location = o.x_scrollbar_location;
     if (Gx.specs) {
       Gx.show_x_axis = !o.noxaxis;
       Gx.show_y_axis = !o.noyaxis;
@@ -25511,6 +27335,79 @@ function hslToRgb(h, s, l) {
         canvas = Gx.plugins[plugin_index].canvas;
         if (canvas.width !== plot._Mx.canvas.width) {
           canvas.width = plot._Mx.canvas.width;
+        }
+        if (canvas.height !== plot._Mx.canvas.height) {
+          canvas.height = plot._Mx.canvas.height;
+        }
+        if (canvas.height !== 0 && canvas.width !== 0) {
+          if (canvas.width !== plot._Mx.canvas.width) {
+            canvas.width = plot._Mx.canvas.width;
+          }
+          if (canvas.height !== plot._Mx.canvas.height) {
+            canvas.height = plot._Mx.canvas.height;
+          }
+          canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+          Gx.plugins[plugin_index].impl.refresh(canvas);
+          ctx.drawImage(canvas, 0, 0);
+        }
+      }
+      plugin_index = plugin_index + 1;
+    }
+  }
+  function draw_legend(plot) {
+    var Mx = plot._Mx;
+    var Gx = plot._Gx;
+    var ctx = Mx.canvas.getContext("2d");
+    var n = 0;
+    var ix = 0;
+    var iy = 0;
+    var ln = 0;
+    var tw = 0;
+    var xc = 0;
+    var yc = 0;
+    var xs = 0;
+    var ys = 0;
+    var thk = 0;
+    var ic = 0;
+    tw = Mx.text_w;
+    xs = tw * 23;
+    ys = (Gx.lyr.length + 1) * Mx.text_h;
+    xc = Mx.r - xs;
+    yc = Mx.t;
+    var legendPos = {x:xc + 2, y:yc + 2, width:xs - 5, height:ys - 5};
+    var defLabelWidth = 98;
+    var maxLabelWidth = 0;
+    var labelOffset = 0;
+    for (n = 0;n < Gx.lyr.length;n++) {
+      var labelLength = ctx.measureText(Gx.lyr[n].name).width;
+      if (labelLength > maxLabelWidth) {
+        maxLabelWidth = labelLength;
+      }
+    }
+    if (maxLabelWidth > defLabelWidth) {
+      labelOffset = maxLabelWidth - defLabelWidth;
+      legendPos.width += labelOffset;
+      legendPos.x -= labelOffset;
+    }
+    ctx.strokeStyle = Mx.fg;
+    ctx.fillStyle = Mx.bg;
+    ctx.fillRect(legendPos.x, legendPos.y, legendPos.width, legendPos.height);
+    ctx.strokeRect(legendPos.x, legendPos.y, legendPos.width, legendPos.height);
+    for (n = 0;n < Gx.lyr.length;n++) {
+      ix = xc + 4 * tw;
+      iy = yc + n * Mx.text_h + Mx.text_h;
+      if (n === Gx.modlayer) {
+        mx.text(Mx, xc + tw - labelOffset, iy + Math.floor(Mx.text_w / 2), "**");
+      }
+      if (Gx.lyr[n].display) {
+        ic = Gx.lyr[n].color;
+        if (Gx.lyr[n].line > 0) {
+          thk = m.sign(Math.min(tw, Math.abs(Gx.lyr[n].thick)), Gx.lyr[n].thick);
+          if (thk < 0 || thk === mx.L_dashed) {
+            mx.draw_line(Mx, ic, ix - labelOffset, iy - 3, ix + tw * 2 - labelOffset, iy - 3, Math.abs(thk), {mode:"dashed", on:4, off:4});
+          } else {
+            mx.draw_line(Mx, ic, ix - labelOffset, iy - 3, ix + tw * 2 - labelOffset, iy - 3, Math.abs(thk));
+          }
         }
         if (canvas.height !== plot._Mx.canvas.height) {
           canvas.height = plot._Mx.canvas.height;
@@ -25916,6 +27813,30 @@ tinycolor.mostReadable = function(baseColor, colorList, args) {
             bestColor = tinycolor(colorList[i]);
         }
       }
+    }
+  }
+  function draw_marker(plot) {
+    var Gx = plot._Gx;
+    var Mx = plot._Mx;
+    if (Gx.xmrk !== null && Gx.ymrk !== null) {
+      var pix = mx.real_to_pixel(Mx, Gx.xmrk, Gx.ymrk);
+      if (pix.clipped) {
+        return;
+      }
+      var ctx = Mx.active_canvas.getContext("2d");
+      ctx.beginPath();
+      ctx.strokeStyle = Mx.xwfg;
+      ctx.fillStyle = Mx.xwfg;
+      ctx.arc(pix.x, pix.y, 2, 0, 360);
+      ctx.stroke();
+      ctx.textBaseline = "alphabetic";
+      ctx.textAlign = "left";
+      ctx.fillStyle = Mx.fg;
+      ctx.font = Mx.font.font;
+      var text = "x:" + mx.format_g(Gx.xmrk, 6, 3, true);
+      ctx.fillText(text, pix.x + 5, pix.y - 5);
+      text = "y:" + mx.format_g(Gx.ymrk, 6, 3, true);
+      ctx.fillText(text, pix.x + 5, pix.y - 5 + Mx.text_h);
     }
   }
   function draw_marker(plot) {
@@ -26535,7 +28456,7 @@ function stringInputToObject(color) {
     }
     ctx.fillStyle = Mx.bg;
     var iy = Math.floor(Mx.height - 2.5 * Mx.text_h);
-    ctx.fillRect(Mx.text_w, iy, 49 * Mx.text_w, iy + 1.5 * Mx.text_h);
+    ctx.fillRect(Mx.text_w, iy - 1, 49 * Mx.text_w, iy + 1.5 * Mx.text_h);
     iy = Math.floor(Mx.height - 0.5 * Mx.text_h);
     var k = Math.max(Gx.pr + Mx.text_w, Mx.width - Mx.text_w * 2);
     ctx.fillStyle = Mx.bg;
@@ -26673,6 +28594,53 @@ function stringInputToObject(color) {
     }
     if ((match = matchers.hsv.exec(color))) {
         return { h: match[1], s: match[2], v: match[3] };
+    return ret;
+  }
+  function coordsInRectangle(x, y, rect_x, rect_y, rect_width, rect_height) {
+    return x >= rect_x && (x <= rect_x + rect_width && (y >= rect_y && y <= rect_y + rect_height));
+  }
+  function inPanRegion(plot, coord) {
+    var inPanRegion = false;
+    var Gx = plot._Gx;
+    var Mx = plot._Mx;
+    var x = 0;
+    var y = 0;
+    if (coord === undefined) {
+      x = Mx.xpos;
+      y = Mx.ypos;
+      if (!plot.mouseOnCanvas) {
+        return false;
+      }
+    } else {
+      x = coord.x;
+      y = coord.y;
+    }
+    var command = " ";
+    if (!Gx.pan) {
+      return false;
+    }
+    var outside_right_border = x > Mx.r;
+    var above_top_border = y <= Gx.pt + Gx.pthk + 2;
+    var below_bottom_border = y > Gx.pt - 2;
+    var between_top_and_bottom = y >= Mx.t && y <= Mx.b;
+    var between_left_and_right = x >= Gx.pl && x <= Gx.pr;
+    var has_bottom_scrollbar = Gx.show_readout || Gx.x_scrollbar_location === "bottom";
+    if (outside_right_border && between_top_and_bottom) {
+      command = "YPAN";
+      Mx.xpos = Gx.pyl + m.trunc(Gx.pthk / 2);
+      inPanRegion = true;
+    } else {
+      if (has_bottom_scrollbar && (between_left_and_right && below_bottom_border)) {
+        command = "XPAN";
+        Mx.ypos = Gx.pt + m.trunc(Gx.pthk / 2);
+        inPanRegion = true;
+      } else {
+        if (!has_bottom_scrollbar && (between_left_and_right && above_top_border)) {
+          command = "XPAN";
+          Mx.ypos = Gx.pt + m.trunc(Gx.pthk / 2);
+          inPanRegion = true;
+        }
+      }
     }
     if ((match = matchers.hsva.exec(color))) {
         return { h: match[1], s: match[2], v: match[3], a: match[4] };

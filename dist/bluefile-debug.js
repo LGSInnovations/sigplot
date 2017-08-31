@@ -856,6 +856,17 @@ if (!window.Float64Array) {
     }, useCapture || false);
   }
 })(window, document);
+function update(dst, src) {
+  for (var prop in src) {
+    var val = src[prop];
+    if (typeof val === "object") {
+      update(dst[prop], val);
+    } else {
+      dst[prop] = val;
+    }
+  }
+  return dst;
+}
 (function(global) {
   var iOS = navigator.userAgent.match(/(iPad|iPhone|iPod)/i) ? true : false;
   function endianness() {
@@ -875,6 +886,26 @@ if (!window.Float64Array) {
   var _SPA = {"S":1, "C":2, "V":3, "Q":4, "M":9, "X":10, "T":16, "U":1, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9};
   var _BPS = {"P":0.125, "A":1, "O":1, "B":1, "I":2, "L":4, "X":8, "F":4, "D":8};
   var _XM_TO_TYPEDARRAY = {"P":null, "A":null, "O":Uint8Array, "B":Int8Array, "I":Int16Array, "L":Int32Array, "X":null, "F":Float32Array, "D":Float64Array};
+  function getInt64(dataView, index, littleEndian) {
+    var highIndex, lowIndex;
+    var MAX_INT = Math.pow(2, 53);
+    if (littleEndian) {
+      highIndex = 4;
+      lowIndex = 0;
+    } else {
+      highIndex = 0;
+      lowIndex = 4;
+    }
+    var high = dataView.getInt32(index + highIndex, littleEndian);
+    var low = dataView.getInt32(index + lowIndex, littleEndian);
+    var rv = low + pow2(32) * high;
+    if (rv >= MAX_INT) {
+      window.console.info("Int is bigger than JS can represent.");
+      return Infinity;
+    }
+    return rv;
+  }
+  var _XM_TO_DATAVIEW = {"P":null, "A":null, "O":"getUint8", "B":"getInt8", "I":"getInt16", "L":"getInt32", "X":getInt64, "F":"getFloat32", "D":"getFloat64"};
   var _applySupportsTypedArray = true;
   try {
     var uintbuf = new Uint8Array(new ArrayBuffer(4));
@@ -901,7 +932,20 @@ if (!window.Float64Array) {
       return str;
     }
   }
-  function BlueHeader(buf) {
+  function str2ab(str) {
+    var buf = new ArrayBuffer(str.length * 2);
+    var bufView = new Uint16Array(buf);
+    for (var i = 0, strLen = str.length;i < strLen;i++) {
+      bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+  }
+  function pow2(n) {
+    return n >= 0 && n < 31 ? 1 << n : pow2[n] || (pow2[n] = Math.pow(2, n));
+  }
+  function BlueHeader(buf, options) {
+    this.options = {ext_header_type:"dict"};
+    global.update(this.options, options);
     this.file = null;
     this.file_name = null;
     this.offset = 0;
@@ -913,6 +957,8 @@ if (!window.Float64Array) {
       this.datarep = ab2str(this.buf.slice(8, 12));
       var littleEndianHdr = this.headrep === "EEEI";
       var littleEndianData = this.datarep === "EEEI";
+      this.ext_start = dvhdr.getInt32(24, littleEndianHdr);
+      this.ext_size = dvhdr.getInt32(28, littleEndianHdr);
       this.type = dvhdr.getUint32(48, littleEndianHdr);
       this["class"] = this.type / 1E3;
       this.format = ab2str(this.buf.slice(52, 54));
@@ -938,6 +984,9 @@ if (!window.Float64Array) {
       this.data_size = dvhdr.getFloat64(40, littleEndianHdr);
       var ds = this.data_start;
       var de = this.data_start + this.data_size;
+      if (this.ext_size) {
+        this.ext_header = this.unpack_keywords(this.buf, this.ext_size, this.ext_start * 512, littleEndianHdr);
+      }
       this.setData(this.buf, ds, de, littleEndianData);
     }
   }
@@ -977,6 +1026,54 @@ if (!window.Float64Array) {
     } else {
       this.dview = this.createArray(null, null, this.size);
     }
+  }, unpack_keywords:function(buf, lbuf, offset, littleEndian) {
+    var lkey, lextra, ltag, format, tag, data, ldata, itag, idata, dvk;
+    var keywords = [];
+    var dic_index = {};
+    var dict_keywords = {};
+    var ii = 0;
+    buf = buf.slice(offset, buf.length);
+    var dvhdr = new DataView(buf);
+    buf = ab2str(buf);
+    while (ii < lbuf) {
+      idata = ii + 8;
+      lkey = dvhdr.getUint32(ii, littleEndian);
+      lextra = dvhdr.getInt16(ii + 4, littleEndian);
+      ltag = dvhdr.getInt8(ii + 6, littleEndian);
+      format = buf.slice(ii + 7, ii + 8);
+      ldata = lkey - lextra;
+      itag = idata + ldata;
+      tag = buf.slice(itag, itag + ltag);
+      if (format === "A") {
+        data = buf.slice(idata, idata + ldata);
+      } else {
+        if (_XM_TO_DATAVIEW[format]) {
+          if (typeof _XM_TO_DATAVIEW[format] === "string") {
+            data = dvhdr[_XM_TO_DATAVIEW[format]](idata, littleEndian);
+          } else {
+            data = _XM_TO_DATAVIEW[format](dvhdr, idata, littleEndian);
+          }
+        } else {
+          window.console.info("Unsupported keyword format " + format + " for tag " + tag);
+        }
+      }
+      if (typeof dic_index[tag] === "undefined") {
+        dic_index[tag] = 1;
+      } else {
+        dic_index[tag]++;
+        tag = "" + tag + dic_index[tag];
+      }
+      dict_keywords[tag] = data;
+      keywords.push({tag:tag, value:data});
+      ii += lkey;
+    }
+    var dictTypes = ["dict", "json", {}, "XMTable", "JSON", "DICT"];
+    for (var k in dictTypes) {
+      if (dictTypes[k] === this.options.ext_header_type) {
+        return dict_keywords;
+      }
+    }
+    return keywords;
   }, createArray:function(buf, offset, length) {
     var TypedArray = _XM_TO_TYPEDARRAY[this.format[1]];
     if (TypedArray === undefined) {
@@ -1085,6 +1182,71 @@ if (!window.Float64Array) {
                 originalEvent.wheelDeltaX && (event.deltaX = -1 / 40 * originalEvent.wheelDeltaX);
             } else {
                 event.deltaY = originalEvent.detail;
+    setTimeout(worker, 0);
+  }
+  function BlueFileReader(options) {
+    this.options = options;
+  }
+  BlueFileReader.prototype = {readheader:function readheader(theFile, onload) {
+    var that = this;
+    var reader = new FileReader;
+    var blob = theFile.webkitSlice(0, 512);
+    reader.onloadend = function(theFile) {
+      return function(e) {
+        if (e.target.error) {
+          onload(null);
+          return;
+        }
+        var rawhdr = reader.result;
+        var hdr = new BlueHeader(rawhdr, that.options);
+        hdr.file = theFile;
+        onload(hdr);
+      };
+    }(theFile);
+    reader.readAsArrayBuffer(blob);
+  }, read:function read(theFile, onload) {
+    var that = this;
+    var reader = new FileReader;
+    reader.onloadend = function(theFile) {
+      return function(e) {
+        if (e.target.error) {
+          onload(null);
+          return;
+        }
+        var raw = reader.result;
+        var hdr = new BlueHeader(raw, that.options);
+        hdr.file = theFile;
+        hdr.file_name = theFile.name;
+        onload(hdr);
+      };
+    }(theFile);
+    reader.readAsArrayBuffer(theFile);
+  }, read_http:function read_http(href, onload) {
+    var that = this;
+    var oReq = new XMLHttpRequest;
+    oReq.open("GET", href, true);
+    oReq.responseType = "arraybuffer";
+    oReq.overrideMimeType("text/plain; charset=x-user-defined");
+    oReq.onload = function(oEvent) {
+      if (oReq.readyState === 4) {
+        if (oReq.status === 200 || oReq.status === 0) {
+          var arrayBuffer = null;
+          if (oReq.response) {
+            arrayBuffer = oReq.response;
+            var hdr = new BlueHeader(arrayBuffer, that.options);
+            parseURL(href);
+            var fileUrl = parseURL(href);
+            hdr.file_name = fileUrl.file;
+            onload(hdr);
+          } else {
+            if (oReq.responseText) {
+              text2buffer(oReq.responseText, function(arrayBuffer) {
+                var hdr = new BlueHeader(arrayBuffer, that.options);
+                parseURL(href);
+                var fileUrl = parseURL(href);
+                hdr.file_name = fileUrl.file;
+                onload(hdr);
+              });
             }
 
             // it's time to fire the callback
