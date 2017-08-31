@@ -3520,6 +3520,8 @@
                     menu.drag_x = Mx.xpos;
                     menu.drag_y = Mx.ypos;
                 }
+            } else if (event.which === 2) {
+                _menu_takeaction(Mx, menu);
             }
         } else if (event.type === "keydown") {
             // Remember that keydown triggers periodically while a key is held
