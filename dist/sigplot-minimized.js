@@ -23,43 +23,55 @@
  Licensed under the MIT license
 
  File: sigplot.layer1d.js
- Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ Copyright (c) 2012-2017, LGS Innovations Inc., All rights reserved.
 
  This file is part of SigPlot.
 
- SigPlot is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
- General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
- (at your option) any later version. This library is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
- GNU Lesser General Public License along with SigPlot.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
 
  File: sigplot.layer2d.js
- Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ Copyright (c) 2012-2017, LGS Innovations Inc., All rights reserved.
 
  This file is part of SigPlot.
 
- SigPlot is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
- General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
- (at your option) any later version. This library is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
- GNU Lesser General Public License along with SigPlot.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
 
  File: license.js
- Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- Copyright (c) 2012-2014, Axios Inc., All rights reserved.
-
  This file is part of SigPlot.
 
- SigPlot is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser 
- General Public License as published by the Free Software Foundation; either version 3.0 of the License, or 
- (at your option) any later version. This library is distributed in the hope that it will be useful, but 
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the 
- GNU Lesser General Public License along with SigPlot.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
  Portions of SigPlot may utilize the following open-source software:
 
@@ -98,71 +110,94 @@
  Copyright (c) 2013, Michael Ihde - Added big-endian/little-endian support
 
  File: common.js
- Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ Copyright (c) 2012-2017, LGS Innovations Inc., All rights reserved.
 
  This file is part of SigPlot.
 
- SigPlot is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
- General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
- (at your option) any later version. This library is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
- GNU Lesser General Public License along with SigPlot.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
 
  File: bluefile.js
- Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ Copyright (c) 2012-2017, LGS Innovations Inc., All rights reserved.
 
  This file is part of SigPlot.
 
- SigPlot is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
- General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
- (at your option) any later version. This library is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
- GNU Lesser General Public License along with SigPlot.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
 
  File: m.js
- Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ Copyright (c) 2012-2017, LGS Innovations Inc., All rights reserved.
 
  This file is part of SigPlot.
 
- SigPlot is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
- General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
- (at your option) any later version. This library is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
- GNU Lesser General Public License along with SigPlot.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
 
  File: mx.js
- Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ Copyright (c) 2012-2017, LGS Innovations Inc., All rights reserved.
 
  This file is part of SigPlot.
 
- SigPlot is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
- General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
- (at your option) any later version. This library is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
- GNU Lesser General Public License along with SigPlot.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
 
  File: sigplot.js
- Copyright (c) 2012-2014, Michael Ihde, All rights reserved.
- Copyright (c) 2012-2014, Axios Inc., All rights reserved.
+ Copyright (c) 2012-2017, LGS Innovations Inc., All rights reserved.
 
  This file is part of SigPlot.
 
- SigPlot is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser
- General Public License as published by the Free Software Foundation; either version 3.0 of the License, or
- (at your option) any later version. This library is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the
- GNU Lesser General Public License along with SigPlot.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
 */
 var ArrayBuffer,ArrayBufferView,Int8Array,Uint8Array,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,DataView;
 (function(){function e(){document&&document.createTextNode("").splitText(1);throw new RangeError("INDEX_SIZE_ERR");}function a(c){if(Object.getOwnPropertyNames&&Object.defineProperty){var q=Object.getOwnPropertyNames(c),s;for(s=0;s<q.length;s+=1)Object.defineProperty(c,q[s],{value:c[q[s]],writable:!1,enumerable:!1,configurable:!1})}}function d(c){function q(s){Object.defineProperty(c,s,{get:function(){return c._getter(s)},set:function(q){c._setter(s,q)},enumerable:!0,configurable:!1})}if(Object.defineProperty){var s;
