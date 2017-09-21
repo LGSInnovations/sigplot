@@ -37,6 +37,10 @@ plot = new sigplot.Plot(document.getElementById('plot'), {autohide_panbars: true
 Additional [examples and demos](http://demo.axiosengineering.com/sigplot/) are
 available along with [API](http://TODO) documentation. 
 
+Help
+=============
+Join the discussion on [Slack](https://join.slack.com/t/sigplot/shared_invite/enQtMjQ0NzkwMjc2NzcxLWEzZTQwMzdiYTBkMGM3N2QwZDc0OGU5MTY5MDMyN2U5NjNmNjc3MDhmZDMxMTY1MmQzNmIzZWQ2OGEzMDYzZDE).
+
 Building
 =============
 
