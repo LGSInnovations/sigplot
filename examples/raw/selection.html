@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <#define TITLE|Zoom and Select>
+        <#include common-head.html>
+            <#include common-css.html>
+</head>
+
+<body>
+    <div class="container">
+        <#include header.html>
+            <div class="jumbotron">
+                <div class="text-center">
+                    <div class="btn-group">
+                        <label class="btn btn-primary">
+                            <input type="checkbox" name="toggle-highlights" id="toggle-highlights"> Enable Range Highlight (Hold Ctrl While Drawing Box)
+                        </label>
+                    </div>
+                    <button id="clear-highlights" class="btn btn-primary">Clear All Highlights</button>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="box-mode" checked="true"> Box Zoom/Selection Mode
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="hor-mode">Horizontal Zoom/Selection Mode
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="ver-mode">Vertical Zoom/Selection Mode
+                        </label>
+                    </div>
+                </div>
+                <div id="plot"></div>
+                <div class="text-center">
+                    <span id="mtagx" class="label label-default">X:</span>
+                    <span id="mtagy" class="label label-default">Y:</span>
+                    <span id="mtagw" class="label label-default">W:</span>
+                    <span id="mtagh" class="label label-default">H:</span>
+                </div>
+                <div class="text-center">
+                    <span class="label label-default">Double-click to remove a highlight</span>
+                </div>
+            </div>
+            <div>
+                <h2><#TITLE></h2>
+                <p>
+                    In addition to using the 'mouse-box' to zoom, you can use the 'mouse-box' to select an area of the plot. Selection mode is enabled by holding down <b>CTRL</b> while drawing a box.
+                </p>
+                <p>
+                    The resulting mtag message will include both width and height...give it a try! If you want range-selection to be the default, you can use the "rubberbox_action" setting.
+                </p>
+                <pre><code class="language-javascript">
+plot.change_settings({rubberbox_action: "select")
+			</code></pre>
+                <p>
+                    SigPlot allows you to specify one or more X-ranges to highlight. You provide a starting index, ending index, and alternate color. Enable the selection highlight and select a few regions to see highlighting work.
+                </p>
+
+                <pre><code class="language-javascript">
+plot.add_highlight(layer, {xstart: x1, xend: x2, color: "red"});
+plot.clear_highlights(layer);
+			</code></pre>
+
+                <p>
+                    SigPlot supports the ability to constrain the selection box to be a horizontal or vertical selection. By default, "box" mode is used but while drawing a box you can press the 'b' key to alternate between the various modes.
+                </p>
+                <pre><code class="language-javascript">
+plot.settings({rubberbox_mode: "horizontal")
+			</code></pre>
+            </div>
+    </div>
+    <#include footer.html>
+        <#include common-scripts.html>
+            <script id="example-source">
+                var plot;
+
+                function initialize() {
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('plot'), {
+                            xcnt: 0
+                        });
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SigPlot...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "black";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+                    plot.overlay_href('../dat/sin.tmp');
+
+                    plot.addListener("mtag", function(event) {
+                        $("#mtagx").html("X: " + event.x.toFixed(8));
+                        $("#mtagy").html("Y: " + event.y.toFixed(8));
+                        $("#mtagw").html("W: " + event.w.toFixed(8));
+                        $("#mtagh").html("H: " + event.h.toFixed(8));
+
+                        if ($("#toggle-highlights").is(':checked')) {
+                            plot.get_layer(0).add_highlight({
+                                xstart: event.x,
+                                xend: event.x + event.w,
+                                color: "red"
+                            });
+                        }
+                    });
+
+                    plot.addListener("mdblclick", function(event) {
+                        var highlights = plot.get_layer(0).get_highlights();
+                        for (var i = 0; i < highlights.length; i++) {
+                            var highlight = highlights[i];
+                            if ((highlight.xstart <= event.x) && (highlight.xend >= event.x)) {
+                                plot.get_layer(0).remove_highlight(highlight);
+                            }
+                        }
+                    });
+
+                    $("#box-mode").change(function() {
+                        if ($('#box-mode').is(':checked')) {
+                            plot.change_settings({
+                                rubberbox_mode: 'box'
+                            });
+                        }
+                    });
+
+                    $("#hor-mode").change(function() {
+                        if ($('#hor-mode').is(':checked')) {
+                            plot.change_settings({
+                                rubberbox_mode: 'horizontal'
+                            });
+                        }
+                    });
+
+                    $("#ver-mode").change(function() {
+                        if ($('#ver-mode').is(':checked')) {
+                            plot.change_settings({
+                                rubberbox_mode: 'vertical'
+                            });
+                        }
+                    });
+
+                    $("#clear-highlights").click(function() {
+                        plot.get_layer(0).clear_highlights();
+                    });
+                }
+
+                window.onload = function() {
+                    initialize();
+                }
+            </script>
+</body>
+
+</html>

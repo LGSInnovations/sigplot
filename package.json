@@ -1,0 +1,23 @@
+{
+  "name": "sigplotdemo",
+  "description": "Demo website for SigPlot",
+  "homepage": "http://demo.axiosengineering.com/sigplot",
+  "author": {
+    "name": "Axios Engineering",
+    "email": "sigplot@axiosengineering.com",
+    "url": "http://www.axiosengineering.com"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "^0.4.1",
+    "grunt-cli": "^0.1.9",
+    "grunt-bower": "^0.16.0",
+    "grunt-shell": "^1.1.1",
+    "grunt-rsync": "^0.6.2",
+    "grunt-web-server": "^1.2.3",
+    "grunt-run-grunt": "^0.1.4",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-copy": "^0.7.0",
+    "grunt-jsbeautifier": "^0.2.7"
+  }
+}

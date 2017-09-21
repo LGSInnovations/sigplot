@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <#define TITLE|Menus>
+        <#include common-head.html>
+            <#include common-css.html>
+</head>
+
+<body>
+    <div class="container">
+        <#include header.html>
+            <div class="jumbotron">
+                <div class="text-center">
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="default-menu" checked="true"> Use Default Menu
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="custom-menu"> Use Custom Menu
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="no-menu"> Disable Menu
+                        </label>
+                    </div>
+                </div>
+                <div id="plot"></div>
+            </div>
+            <div>
+                <h2><#TITLE></h2>
+                <p>
+                    By default, SigPlot provides a menu that is accessible via middle-click. From this menu the user can customize almost all aspects of the plot. To disable this menu, you can supply the 'nomenu' option when instantiating the plot.
+                </p>
+                <pre><code class="language-javascript">plot = new sigplot.Plot(document.getElementById('plot'), {nomenu: true});</code></pre>
+                <p>
+                    When the menu is disabled, a 'showmenu' event will be emitted. You can use this to provide a custom menu or take an alternate action. The event will include the 'x' and 'y' pixel location that can be used for displaying a menu. <em> </em>
+                </p>
+                <pre><code class="language-javascript">plot.addListener("showmenu", function(event) {
+  // Use a bootstrap dropdown menu as a popup
+  $("#contextMenu").css({
+	            display: "block",
+	            left: event.x,
+	            top: event.y,
+	            zIndex: 99999 // ensure the menu is above all plot layers
+	        });
+  // optional...make the plot not respond to mouse events while the menu is
+  // up
+  plot.disable_listeners();
+});
+
+plot.addListener("hidemenu", function() {
+  // If the plot wants us to hide the menu, do so now
+  $("#contextMenu").hide();
+});
+
+$(document).on("click.contextmenu", function () {
+  // handle menu clicks
+	try {
+    	$("#contextMenu").hide();
+	} finally  {
+	    // When you are done with the menu, renable the plot listeners
+    	plot.enable_listeners();	
+	}
+	
+	return false;
+});</code></pre>
+            </div>
+    </div>
+    <#include footer.html>
+        <#include common-scripts.html>
+            <div id="contextMenu" class="dropdown clearfix" style="position: absolute; display: none">
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="display:block;position:static;margin-bottom:5px;">
+                    <li><a tabindex="-1" href="#">Action</a>
+                    </li>
+                    <li><a tabindex="-1" href="#">Another action</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a tabindex="-1" href="#">Cancel</a>
+                    </li>
+                </ul>
+            </div>
+
+            <script id="example-source">
+                var plot;
+
+                function initialize() {
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('plot'));
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SigPlot...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "black";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+                    plot.overlay_href('../dat/sin.tmp');
+                }
+
+                $(window).ready(function() {
+                    initialize();
+
+                    var menu_listener = function(event) {
+                        $("#contextMenu").css({
+                            display: "block",
+                            left: event.x,
+                            top: event.y,
+                            zIndex: 100
+                        });
+                        event.preventDefault();
+
+                        return false;
+                    };
+
+                    plot.addListener("hidemenu", function() {
+                        $("#contextMenu").hide();
+                    });
+
+                    $("#default-menu").change(function() {
+                        if ($('#default-menu').is(':checked')) {
+                            plot.change_settings({
+                                nomenu: false
+                            });
+                            plot.removeListener("showmenu", menu_listener);
+                        }
+                    });
+
+                    $("#custom-menu").change(function() {
+                        if ($('#custom-menu').is(':checked')) {
+                            plot.change_settings({
+                                nomenu: false
+                            });
+                            plot.addListener("showmenu", menu_listener);
+                        }
+                    });
+
+                    $("#no-menu").change(function() {
+                        if ($('#no-menu').is(':checked')) {
+                            plot.change_settings({
+                                nomenu: true
+                            });
+                            plot.removeListener("showmenu", menu_listener);
+                        }
+                    });
+
+                    $("#contextMenu").on("click", "a", function() {
+                        var message = "You clicked selected the menu item '" + $(this).text() + "'"
+                        alert(message);
+                        try {
+                            $("#contextMenu").hide();
+                        } finally {
+                            plot.enable_listeners();
+                        }
+                    });
+                });
+            </script>
+</body>
+
+</html>

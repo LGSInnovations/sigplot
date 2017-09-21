@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+        <title>SigPlot Examples: Zoom and Select</title>
+<meta charset="utf-8">
+            <link href="../bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../prism/prism.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+#banner {
+	font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+	text-align: center;
+	width: 100%;
+}
+
+#subbanner {
+	font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+	text-align: center;
+	width: 100%;
+}
+
+#logos {
+	width: 600px;
+}
+
+.navbar-logo {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+a img {
+	border: 0;
+}
+
+.jumbotron {
+	-webkit-box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8)
+		0 1px 7px 0px inset;
+	-moz-box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8) 0
+		1px 7px 0px inset;
+	box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8) 0 1px
+		7px 0px inset;
+	background: #202020;
+	background-color: rgba(0, 0, 0, 0.3);
+	border: 0;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#88000000,
+		endColorstr=#88000000);
+	padding-top: 20px;
+}
+
+#footer {
+	text-align: center;
+}
+
+#sourceModal .modal-body
+{
+   max-height:80%;
+}
+#sourceModal .modal-dialog
+{
+   height:80%;
+   max-height:80%;
+   width:70%;
+}
+
+#plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	display: block;
+}
+
+#left-plot {
+	height: 400px;
+	width: 48%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-top: 10px;
+	float: left;
+}
+
+#right-plot {
+	height: 400px;
+	width: 48%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-top: 10px;
+	float: right;
+}
+
+#top-plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#bottom-plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+</style>
+
+</head>
+
+<body>
+    <div class="container">
+        <!-- Modal -->
+<div class="modal" id="sourceModal" tabindex="-1" role="dialog" aria-labelledby="sourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Zoom and Select Example Source Code</h4>
+      </div>
+      <div class="modal-body">
+        <pre class="line-numbers" style="overflow:scroll; max-height: 600px">
+        	<code id="source-code-example" class="language-javascript">
+        	</code>
+        </pre>
+        <p>
+        <a href="javascript:void(0)" onclick='window.location="view-source:" + window.location.href'>View Raw Source</a>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="header">
+	<div class="collapse navbar-collapse menu-above pull-right">
+		<div class="menu-header-container">
+			<ul id="menu-standard-top-navigation" class="nav navbar-nav menu">
+			    <li><a id="view-source" href="#sourceModal" data-toggle="modal">View Source</a></li>
+				<li class="dropdown menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children">
+					<a href="examples" class="dropdown-toggle" data-toggle="dropdown" title="Developer Examples">Developer Examples<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li class="menu-item menu-item-type-custom"><a href="basic_usage.html">Basic Usage</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="realtime.html">Streaming (i.e. Realtime) Plotting</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="audio.html">Plotting AudioBuffers</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="menu.html">Menu</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="mtag.html">Mouse Events (i.e. MTAGs)</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="selection.html">Mouse Selection</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="appearance.html">Appearance</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="plugins.html">Plugins</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div> <!-- /.nav-collapse -->
+	<a href="../index.html"> <span><img class="navbar-logo" alt='' src='../images/sigplot_2color_outline_sm.png' alt="SigPlot" />&nbsp;</span></a>
+</div> <!-- /header -->
+
+            <div class="jumbotron">
+                <div class="text-center">
+                    <div class="btn-group">
+                        <label class="btn btn-primary">
+                            <input type="checkbox" name="toggle-highlights" id="toggle-highlights"> Enable Range Highlight (Hold Ctrl While Drawing Box)
+                        </label>
+                    </div>
+                    <button id="clear-highlights" class="btn btn-primary">Clear All Highlights</button>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="box-mode" checked="true"> Box Zoom/Selection Mode
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="hor-mode">Horizontal Zoom/Selection Mode
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="ver-mode">Vertical Zoom/Selection Mode
+                        </label>
+                    </div>
+                </div>
+                <div id="plot"></div>
+                <div class="text-center">
+                    <span id="mtagx" class="label label-default">X:</span>
+                    <span id="mtagy" class="label label-default">Y:</span>
+                    <span id="mtagw" class="label label-default">W:</span>
+                    <span id="mtagh" class="label label-default">H:</span>
+                </div>
+                <div class="text-center">
+                    <span class="label label-default">Double-click to remove a highlight</span>
+                </div>
+            </div>
+            <div>
+                <h2>Zoom and Select</h2>
+                <p>
+                    In addition to using the 'mouse-box' to zoom, you can use the 'mouse-box' to select an area of the plot. Selection mode is enabled by holding down <b>CTRL</b> while drawing a box.
+                </p>
+                <p>
+                    The resulting mtag message will include both width and height...give it a try! If you want range-selection to be the default, you can use the "rubberbox_action" setting.
+                </p>
+                <pre><code class="language-javascript">
+plot.change_settings({rubberbox_action: "select")
+			</code></pre>
+                <p>
+                    SigPlot allows you to specify one or more X-ranges to highlight. You provide a starting index, ending index, and alternate color. Enable the selection highlight and select a few regions to see highlighting work.
+                </p>
+
+                <pre><code class="language-javascript">
+plot.add_highlight(layer, {xstart: x1, xend: x2, color: "red"});
+plot.clear_highlights(layer);
+			</code></pre>
+
+                <p>
+                    SigPlot supports the ability to constrain the selection box to be a horizontal or vertical selection. By default, "box" mode is used but while drawing a box you can press the 'b' key to alternate between the various modes.
+                </p>
+                <pre><code class="language-javascript">
+plot.settings({rubberbox_mode: "horizontal")
+			</code></pre>
+            </div>
+    </div>
+    <div class="well">
+    <div id="footer" class="footer">
+      <p>
+        <a style="border: none" href="http://www.lgsinnovations.com"><img src="../images/lgs-innovation.jpg"/></a><br/>
+      </p>
+      <p>
+        <small><img src="../images/creativecommons.png" alt="" /> All
+                documentation is under the Creative Commons Attribution Share-alike
+                license.<br /></small>
+      </p>
+      <p>
+        <small>&copy; 2012-2017 LGS Innovations, Inc.</small><br />
+      </p>
+
+    </div>
+</div>
+
+        <script src="../jquery/jquery.min.js" type="text/javascript"></script>
+<script src="../bootstrap/bootstrap.min.js" type="text/javascript"></script>
+<script src="../prism/prism.js"></script>
+<script src="../dsp.js"></script>
+<script src="../sigplot/sigplot-minimized.js"></script>
+<script>
+$(window).ready(function() {
+	var example_src_script = $("#example-source");
+	if ( example_src_script.length ) {
+		$("#source-code-example").text(example_src_script.text());
+    } else {
+    	$("#view-source").hide();
+    }
+});
+</script>
+
+            <script id="example-source">
+                var plot;
+
+                function initialize() {
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('plot'), {
+                            xcnt: 0
+                        });
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SigPlot...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "black";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+                    plot.overlay_href('../dat/sin.tmp');
+
+                    plot.addListener("mtag", function(event) {
+                        $("#mtagx").html("X: " + event.x.toFixed(8));
+                        $("#mtagy").html("Y: " + event.y.toFixed(8));
+                        $("#mtagw").html("W: " + event.w.toFixed(8));
+                        $("#mtagh").html("H: " + event.h.toFixed(8));
+
+                        if ($("#toggle-highlights").is(':checked')) {
+                            plot.get_layer(0).add_highlight({
+                                xstart: event.x,
+                                xend: event.x + event.w,
+                                color: "red"
+                            });
+                        }
+                    });
+
+                    plot.addListener("mdblclick", function(event) {
+                        var highlights = plot.get_layer(0).get_highlights();
+                        for (var i = 0; i < highlights.length; i++) {
+                            var highlight = highlights[i];
+                            if ((highlight.xstart <= event.x) && (highlight.xend >= event.x)) {
+                                plot.get_layer(0).remove_highlight(highlight);
+                            }
+                        }
+                    });
+
+                    $("#box-mode").change(function() {
+                        if ($('#box-mode').is(':checked')) {
+                            plot.change_settings({
+                                rubberbox_mode: 'box'
+                            });
+                        }
+                    });
+
+                    $("#hor-mode").change(function() {
+                        if ($('#hor-mode').is(':checked')) {
+                            plot.change_settings({
+                                rubberbox_mode: 'horizontal'
+                            });
+                        }
+                    });
+
+                    $("#ver-mode").change(function() {
+                        if ($('#ver-mode').is(':checked')) {
+                            plot.change_settings({
+                                rubberbox_mode: 'vertical'
+                            });
+                        }
+                    });
+
+                    $("#clear-highlights").click(function() {
+                        plot.get_layer(0).clear_highlights();
+                    });
+                }
+
+                window.onload = function() {
+                    initialize();
+                }
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <#define TITLE|Streaming>
+        <#include common-head.html>
+            <#include common-css.html>
+                <link href="../opentip/opentip.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class="container">
+        <#include header.html>
+            <div class="jumbotron">
+                <div class="controls">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon">fps</span>
+                        <input id="framerate" min="1" max="100" value="10" type="range" class="input-medium form-control">
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon">freq1</span>
+                        <input id="freq1" min="100" max="22000" value="10" type="range" class="input-medium form-control">
+                    </div>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon">freq2</span>
+                        <input id="freq2" min="100" max="22000" value="10" type="range" class="input-medium form-control">
+                    </div>
+                    <div class="btn-group">
+                        <button type="button-primary" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                            Raster Mode <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a id="scrolling" href="#">Scrolling</a>
+                            </li>
+                            <li><a id="rising" href="#">Rising</a>
+                            </li>
+                            <li><a id="falling" href="#">Falling</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button-primary" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                            Raster Color Map <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a id="defaultcmap" href="#">Default</a>
+                            </li>
+                            <li><a id="greyscale" href="#">Greyscale</a>
+                            </li>
+                            <li><a id="ramp" href="#">Ramp</a>
+                            </li>
+                            <li><a id="wheel" href="#">Wheel</a>
+                            </li>
+                            <li><a id="spectrum" href="#">Spectrum</a>
+                            </li>
+                            <li><a id="sunset" href="#">Sunset</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <span id="freq1val" class="label label-default">0 Hz</span>
+                    <span id="freq2val" class="label label-default">0 Hz</span>
+                </div>
+                <!-- /controls -->
+                <div id="top-plot"></div>
+                <div id="bottom-plot"></div>
+                <div style="clear: both"></div>
+            </div>
+            <!-- /jumbotron -->
+            <div id="content">
+                <h2>Streaming/Real-time Plotting</h2>
+                <p>For Layer1D, you can stream data to the plot by using the reload method.</p>
+                <pre>
+				<code class="language-javascript">
+plot_layer = plot.overlay_array(null, {
+	xdelta : xdelta,
+	xunits : 3,
+	yunits : 26,
+	size : fftsize / 2
+});
+
+// When new data comes in.
+var data = [...];
+plot.reload(plot_layer, data);
+				</code>
+			</pre>
+                <p>
+                    Currently the data <b>must</b> be a Javascript array. The plot will automatically be scaled to the new data based on the 'autox' and 'autoy' options. However, when plotting a stream of data you may want to have the scaling adjust more
+                    smoothly. This can be done with the 'autol' option which specifies how many frames are averaged together when rescaling.
+                </p>
+                <p>Often when using a plot to display streaming data you will also adjust the appearance (i.e. autohide panbars, etc.).</p>
+                <pre>
+				<code class="language-javascript">
+plot = new sigplot.Plot(document.getElementById('plot'), {all: true, expand: true, autol: 100, autohide_panbars: true});
+				</code>
+			</pre>
+                <p>
+                    For Layer2D, use the overlay_pipe() method and push()
+                </p>
+                <pre>
+				<code class="language-javascript">
+raster_layer = raster.overlay_pipe({
+	type : 2000,
+	subsize : fftsize / 2,
+	xdelta : xdelta,
+	xunits : 3
+});
+
+// When new data comes in.
+var data = [...];
+plot.push(data_layer, data);
+				</code>
+			</pre>
+            </div>
+    </div>
+
+    <!-- /container -->
+    <#include footer.html>
+        <#include common-scripts.html>
+            <script src="../opentip/opentip.js"></script>
+            <script src="../opentip/adapter-jquery.js"></script>
+            <script src="../sigplot/sigplot.plugins-minimized.js"></script>
+            <script id="example-source">
+                function getURLParameter(name) {
+                    return decodeURI((RegExp(name + '=' + '(.+?)(&|$)').exec(
+                        location.search) || [, null])[1]);
+                }
+
+                var plot;
+                var raster;
+                var annotaions;
+                var updater;
+
+                var plot_layer;
+                var raster_layer;
+
+                var fs = 44100;
+                var fftsize = 2048;
+                var xdelta = fs / fftsize;
+
+                var complex_mode = (getURLParameter("complex") === "true");
+                console.log('complex mode:', complex_mode)
+
+                var osc1 = new Oscillator(DSP.SINEWAVE, 440, 1, 2048, 44100);
+                var hann1 = new WindowFunction(DSP.HANN)
+                var fft1 = new FFT(fftsize, fs);
+
+                var osc2 = new Oscillator(DSP.SINEWAVE, 14400, 1, 2048, 44100);
+                var hann2 = new WindowFunction(DSP.HANN)
+                var fft2 = new FFT(fftsize, fs);
+
+                function initialize() {
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('top-plot'), {
+                            autol: 5,
+                            cmode: "LO",
+                            // Use click to tune xcnt : "continuous",
+                            autohide_panbars: true
+                        });
+
+                        raster = new sigplot.Plot(document.getElementById('bottom-plot'), {
+                            autol: 5,
+                            cmode: "LO",
+                            autohide_panbars: true
+                        });
+
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SigPlot...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "black";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('top-plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+
+                    annotations = new sigplot.AnnotationPlugin();
+                    raster.add_plugin(annotations);
+
+                    if (complex_mode) {
+                        plot_layer1 = plot.overlay_array(null, {
+                            format: 'CF',
+                            xdelta: xdelta,
+                            xunits: 3,
+                            size: fftsize / 2,
+                            yunits: 26
+                        });
+
+                        plot_layer2 = plot.overlay_array(null, {
+                            format: 'CF',
+                            xdelta: xdelta,
+                            xunits: 3,
+                            size: fftsize / 2,
+                            yunits: 26
+                        });
+
+                        raster_layer = raster.overlay_pipe({
+                            type: 2000,
+                            format: 'CF',
+                            subsize: fftsize / 2,
+                            xdelta: xdelta,
+                            pipesize: (fftsize / 2) * 8,
+                            xunits: 3
+                        });
+                    } else {
+                        plot_layer1 = plot.overlay_array(null, {
+                            xdelta: xdelta,
+                            xunits: 3,
+                            yunits: 26,
+                            size: fftsize / 2
+                        });
+
+                        plot_layer2 = plot.overlay_array(null, {
+                            xdelta: xdelta,
+                            xunits: 3,
+                            yunits: 26,
+                            size: fftsize / 2
+                        });
+
+                        raster_layer = raster.overlay_pipe({
+                            type: 2000,
+                            subsize: fftsize / 2,
+                            xdelta: xdelta,
+                            xunits: 3
+                        });
+                    }
+
+                    $("#freq").html(osc1.frequency.toFixed(2) + " Hz");
+                    raster.mimic(plot, {
+                        xzoom: true,
+                        unzoom: true,
+                        xpan: true
+                    });
+                    plot.mimic(raster, {
+                        xzoom: true,
+                        unzoom: true,
+                        xpan: true
+                    });
+                }
+
+                function update() {
+                    osc1.generate();
+                    hann1.process(osc1.signal)
+                    fft1.forward(osc1.signal);
+                    var spectrum1;
+                    if (complex_mode) {
+                        spectrum1 = DSP.interleave(fft1.real, fft1.imag);
+                        spectrum1 = spectrum.subarray(0, fftsize);
+                    } else {
+                        spectrum1 = fft1.spectrum;
+                    }
+
+                    // Reload the data layer
+                    if (plot_layer1 !== undefined) {
+                        plot.reload(plot_layer1, spectrum1);
+                    }
+
+                    osc2.generate();
+                    hann2.process(osc2.signal)
+                    fft2.forward(osc2.signal);
+                    var spectrum2;
+                    if (complex_mode) {
+                        spectrum2 = DSP.interleave(fft2.real, fft2.imag);
+                        spectrum2 = spectrum.subarray(0, fftsize);
+                    } else {
+                        spectrum2 = fft2.spectrum;
+                    }
+                    if (plot_layer2 !== undefined) {
+                        plot.reload(plot_layer2, spectrum2);
+                    }
+
+                    var mix = DSP.mixSampleBuffers(spectrum1, spectrum2, false, 1);
+                    if (raster_layer !== undefined) {
+                        raster.push(raster_layer, mix);
+                    }
+                }
+
+                $(window).ready(function() {
+                    initialize();
+
+                    $("#framerate").value = 10;
+                    $("#framerate").on('input', function() {
+                        change_framerate();
+                    });
+                    change_framerate();
+
+                    $("#freq1").val(osc1.frequency.toFixed(2));
+                    $("#freq1").on('input', function() {
+                        change_freq1();
+                    });
+                    change_freq1();
+
+                    $("#freq2").val(osc2.frequency.toFixed(2));
+                    $("#freq2").on('input', function() {
+                        change_freq2();
+                    });
+                    change_freq2();
+
+                    $('#scrolling').on('click', function(e) {
+                        raster.change_settings({
+                            drawmode: 'scrolling'
+                        });
+                        annotations.clear_annotations();
+                    });
+                    $('#rising').on('click', function(e) {
+                        raster.change_settings({
+                            drawmode: 'rising'
+                        });
+                        annotations.clear_annotations();
+                    });
+                    $('#falling').on('click', function(e) {
+                        raster.change_settings({
+                            drawmode: 'falling'
+                        });
+                        annotations.clear_annotations();
+                    });
+
+                    $('#defaultcmap').on('click', function(e) {
+                        console.log("DEFAULT!")
+                        raster.change_settings({
+                            cmap: null
+                        });
+                    });
+                    $('#greyscale').on('click', function(e) {
+                        raster.change_settings({
+                            cmap: 0
+                        });
+                    });
+                    $('#ramp').on('click', function(e) {
+                        raster.change_settings({
+                            cmap: 1
+                        });
+                    });
+                    $('#wheel').on('click', function(e) {
+                        raster.change_settings({
+                            cmap: 2
+                        });
+                    });
+                    $('#spectrum').on('click', function(e) {
+                        raster.change_settings({
+                            cmap: 3
+                        });
+                    });
+                    $('#sunset').on('click', function(e) {
+                        raster.change_settings({
+                            cmap: 4
+                        });
+                    });
+
+                    plot.addListener("mtag", function(event) {
+                        // values directly on the at the axis edges
+                        // will cause the osciallator problems...on the
+                        // upper edge you need to to stay one whole
+                        // frequency bin away from the axis
+                        if ((event.x > 0) && (event.x < 22028)) {
+                            if (event.x != osc1.frequency) {
+                                osc1.setFreq(event.x);
+                                $("#freq1").val(osc1.frequency.toFixed(2));
+                                $("#freq1val").html(osc1.frequency.toFixed(2) + " Hz");
+                            }
+                        }
+                    });
+
+                    raster.addListener("mtag", function(event) {
+                        annotations.add_annotation({
+                            x: event.x,
+                            y: event.y,
+                            value: "click"
+                        });
+                    });
+
+                    raster.addListener("annotationhighlight", function(evt) {
+                        if (evt.state) {
+                            if (!evt.annotation.tooltip) {
+                                var msg = "x=" + evt.annotation.x + " y=" + evt.annotation.y;
+                                evt.annotation.tooltip = new Opentip($('#bottom-plot'),
+                                    msg, {
+                                        "extends": "glass",
+                                        showOn: null
+                                    });
+                            }
+                            evt.annotation.tooltip.show();
+                        } else {
+                            if (evt.annotation.tooltip) {
+                                evt.annotation.tooltip.hide();
+                            }
+                        }
+                    });
+
+                });
+
+                function change_framerate() {
+                    var framerate = document.getElementById('framerate').value;
+
+                    framerate = parseFloat(framerate);
+                    if (isNaN(framerate)) {
+                        alert("Invalid framerate");
+                        return;
+                    }
+                    if (framerate <= 0) {
+                        alert("Invalid framerate");
+                        return;
+                    }
+
+                    var interval = (1.0 / framerate) * 1000;
+                    if (updater !== undefined) {
+                        window.clearInterval(updater);
+                    }
+                    updater = window.setInterval(update, interval);
+                }
+
+                function change_freq1() {
+                    var freq1 = document.getElementById('freq1').value;
+
+                    freq1 = parseFloat(freq1);
+                    if (isNaN(freq1)) {
+                        alert("Invalid freq1");
+                        return;
+                    }
+                    if (freq1 <= 0) {
+                        alert("Invalid freq1");
+                        return;
+                    }
+
+                    osc1.setFreq(freq1);
+                    $("#freq1val").html(osc1.frequency.toFixed(2) + " Hz");
+                }
+
+                function change_freq2() {
+                    var freq2 = document.getElementById('freq2').value;
+
+                    freq2 = parseFloat(freq2);
+                    if (isNaN(freq2)) {
+                        alert("Invalid freq2");
+                        return;
+                    }
+                    if (freq2 <= 0) {
+                        alert("Invalid freq2");
+                        return;
+                    }
+
+                    osc2.setFreq(freq2);
+                    $("#freq2val").html(osc2.frequency.toFixed(2) + " Hz");
+                }
+            </script>
+</body>
+
+</html>

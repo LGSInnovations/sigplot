@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+        <title>SigPlot Examples: Plugins</title>
+<meta charset="utf-8">
+            <link href="../bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../prism/prism.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+#banner {
+	font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+	text-align: center;
+	width: 100%;
+}
+
+#subbanner {
+	font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+	text-align: center;
+	width: 100%;
+}
+
+#logos {
+	width: 600px;
+}
+
+.navbar-logo {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+a img {
+	border: 0;
+}
+
+.jumbotron {
+	-webkit-box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8)
+		0 1px 7px 0px inset;
+	-moz-box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8) 0
+		1px 7px 0px inset;
+	box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8) 0 1px
+		7px 0px inset;
+	background: #202020;
+	background-color: rgba(0, 0, 0, 0.3);
+	border: 0;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#88000000,
+		endColorstr=#88000000);
+	padding-top: 20px;
+}
+
+#footer {
+	text-align: center;
+}
+
+#sourceModal .modal-body
+{
+   max-height:80%;
+}
+#sourceModal .modal-dialog
+{
+   height:80%;
+   max-height:80%;
+   width:70%;
+}
+
+#plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	display: block;
+}
+
+#left-plot {
+	height: 400px;
+	width: 48%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-top: 10px;
+	float: left;
+}
+
+#right-plot {
+	height: 400px;
+	width: 48%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-top: 10px;
+	float: right;
+}
+
+#top-plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#bottom-plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+</style>
+
+</head>
+
+<body>
+    <div class="container">
+        <!-- Modal -->
+<div class="modal" id="sourceModal" tabindex="-1" role="dialog" aria-labelledby="sourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Plugins Example Source Code</h4>
+      </div>
+      <div class="modal-body">
+        <pre class="line-numbers" style="overflow:scroll; max-height: 600px">
+        	<code id="source-code-example" class="language-javascript">
+        	</code>
+        </pre>
+        <p>
+        <a href="javascript:void(0)" onclick='window.location="view-source:" + window.location.href'>View Raw Source</a>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="header">
+	<div class="collapse navbar-collapse menu-above pull-right">
+		<div class="menu-header-container">
+			<ul id="menu-standard-top-navigation" class="nav navbar-nav menu">
+			    <li><a id="view-source" href="#sourceModal" data-toggle="modal">View Source</a></li>
+				<li class="dropdown menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children">
+					<a href="examples" class="dropdown-toggle" data-toggle="dropdown" title="Developer Examples">Developer Examples<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li class="menu-item menu-item-type-custom"><a href="basic_usage.html">Basic Usage</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="realtime.html">Streaming (i.e. Realtime) Plotting</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="audio.html">Plotting AudioBuffers</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="menu.html">Menu</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="mtag.html">Mouse Events (i.e. MTAGs)</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="selection.html">Mouse Selection</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="appearance.html">Appearance</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="plugins.html">Plugins</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div> <!-- /.nav-collapse -->
+	<a href="../index.html"> <span><img class="navbar-logo" alt='' src='../images/sigplot_2color_outline_sm.png' alt="SigPlot" />&nbsp;</span></a>
+</div> <!-- /header -->
+
+            <div class="jumbotron">
+                <div id="plot"></div>
+                <div class="text-center">
+                    Slider Position:
+                    <span id="slidertagpos" class="label label-default">Pos:</span>
+                    <span id="slidertagloc" class="label label-default">Loc:</span>
+                </div>
+                <div class="text-center">
+                    Accordion Position:
+                    <span id="accordiontagctr" class="label label-default">Center:</span>
+                    <span id="accordiontagwidth" class="label label-default">Width:</span>
+                </div>
+            </div>
+            <!-- /jumbotron -->
+            <div id="content">
+                <h2>Plugins</h2>
+                <p>
+                    SigPlot can be extended to provide new capabilities using the plugin mechanism. Plugins can draw on the plot, they can add to the menu, and they can interact with mouse events. SigPlot comes with some standard plugins in the sigplot.plugins.js file, but
+                    you many contribute others. To load the standard plugins:
+                </p>
+                <pre><code class="language-javascript">
+&lt;script src="../sigplot.plugins.js"&gt;&lt;/script&gt;
+	        </code></pre>
+                <p>
+                    Currently the standard plugins include:
+                    <ul>
+                        <li>Annotations - Draw text and images on the canvas</li>
+                        <li>Slider - Horizontal or vertical line that can be scrolled on the canvas or dragged by the user</li>
+                        <li>Accordion - Select a horizontal of vertical range between two sliders, useful for subband tuning</li>
+                    </ul>
+                </p>
+                <p>
+                    The annotation plugin behaves similar to the original SigPlot annotation mechanism. SigPlot annotations have two unique features:
+                    <ul>
+                        <li>Annotations can be images or videos (basically anything supported by canvas drawImage)</li>
+                        <li>Annotations can be placed relative to the real coordinates</li>
+                    </ul>
+                </p>
+                <p>
+                    The slider plugin creates a horizontal or vertical bar that can be used to display the current position in the file. It also provides the ability for the user to "grab" the bar and slide it .. go ahead, give it a try.
+                </p>
+                <p>
+                    A SigPlot plugin can be any JavaScript object, all methods are optional but here is a common plugin
+                </p>
+                <pre><code class="language-javascript">
+MyPlugin = function(options) { // Contructor };
+
+MyPlugin.prototype = {
+    init: function(plot) { // Called when the plugin is added to a plot }
+    dispose: function(plot) { // Called when removed from a plot }
+    refresh: function(plot { // Called when the plugin needs to redraw }
+    menu: // either an mx.menu compatible object or a function that returns one
+};
+	        </code></pre>
+            </div>
+    </div>
+    <div class="well">
+    <div id="footer" class="footer">
+      <p>
+        <a style="border: none" href="http://www.lgsinnovations.com"><img src="../images/lgs-innovation.jpg"/></a><br/>
+      </p>
+      <p>
+        <small><img src="../images/creativecommons.png" alt="" /> All
+                documentation is under the Creative Commons Attribution Share-alike
+                license.<br /></small>
+      </p>
+      <p>
+        <small>&copy; 2012-2017 LGS Innovations, Inc.</small><br />
+      </p>
+
+    </div>
+</div>
+
+        <script src="../jquery/jquery.min.js" type="text/javascript"></script>
+<script src="../bootstrap/bootstrap.min.js" type="text/javascript"></script>
+<script src="../prism/prism.js"></script>
+<script src="../dsp.js"></script>
+<script src="../sigplot/sigplot-minimized.js"></script>
+<script>
+$(window).ready(function() {
+	var example_src_script = $("#example-source");
+	if ( example_src_script.length ) {
+		$("#source-code-example").text(example_src_script.text());
+    } else {
+    	$("#view-source").hide();
+    }
+});
+</script>
+
+            <script src="../sigplot/sigplot.plugins-minimized.js"></script>
+            <script id="example-source">
+                var plot;
+                var annotations;
+                var slider;
+                var accordion;
+                var boxes;
+
+                var img = new Image(); // Create new img element
+                img.src = '../images/Ax_Web_Logo_22.png';
+
+                function initialize() {
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('plot'), {
+                            all: true,
+                            expand: true
+                        });
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SigPlot...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "black";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+
+                    annotations = new sigplot.AnnotationPlugin();
+                    plot.add_plugin(annotations);
+
+                    annotations.add_annotation({
+                        x: 0,
+                        y: 0,
+                        value: img,
+                        absolute_placement: true
+                    });
+
+                    annotations.add_annotation({
+                        x: img.width + 50,
+                        y: 20,
+                        value: "Absolutely Placed Annotation",
+                        absolute_placement: true
+                    });
+
+                    annotations.add_annotation({
+                        x: 0.0,
+                        y: 0.5,
+                        value: "Relative Annotation @ (0.0,0.5)",
+                    });
+
+                    boxes = new sigplot.BoxesPlugin();
+                    plot.add_plugin(boxes);
+
+                    boxes.add_box({
+                        x: 40,
+                        y: 40,
+                        w: 40,
+                        h: 40,
+                        absolute_placement: true
+                    }); // Place at pixels instead of values
+                    boxes.add_box({
+                        x: -0.25,
+                        y: -0.25,
+                        w: 0.1,
+                        h: 0.1,
+                        text: "1"
+                    });
+
+                    // Demonstrate some cipped boxes
+                    boxes.add_box({
+                        x: -1.25,
+                        y: 0,
+                        w: 0.5,
+                        h: 0.1,
+                        text: "A Box"
+                    });
+                    boxes.add_box({
+                        x: 0.75,
+                        y: 0,
+                        w: 0.5,
+                        h: 0.1,
+                        text: "A Box"
+                    });
+
+
+                    slider = new sigplot.SliderPlugin({
+                        style: {
+                            strokeStyle: "#FF2400"
+                        }
+                    });
+                    plot.add_plugin(slider, 1); // below annotations (default is max zorder)
+                    slider.addListener("slidertag", function(evt) {
+                        document.getElementById('slidertagpos').innerHTML = evt.position;
+                        document.getElementById('slidertagloc').innerHTML = evt.location;
+                    });
+
+                    accordion = new sigplot.AccordionPlugin({
+                        draw_center_line: true,
+                        shade_area: true,
+                        draw_edge_lines: false,
+                        direction: "horizontal",
+                        center_line_style: {
+                            strokeStyle: "#0000FF"
+                        }
+                    });
+                    plot.add_plugin(accordion, 2);
+                    accordion.addListener("accordiontag", function(evt) {
+                        document.getElementById('accordiontagctr').innerHTML = evt.center;
+                        document.getElementById('accordiontagwidth').innerHTML = evt.width;
+                    });
+
+                    accordion.set_center(-0.5);
+                    accordion.set_width(0.25);
+
+
+                    slider.set_position(0.0);
+                    window.setInterval(function() {
+                            var pos = slider.get_position() + 0.1;
+                            if (pos >= 1) {
+                                pos = (pos - 2);
+                            }
+                            slider.set_position(pos);
+                        },
+                        5000);
+
+                }
+
+                window.onload = function() {
+                    initialize();
+                }
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+        <title>SigPlot Examples: Streaming</title>
+<meta charset="utf-8">
+            <link href="../bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../prism/prism.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+#banner {
+	font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+	text-align: center;
+	width: 100%;
+}
+
+#subbanner {
+	font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+	text-align: center;
+	width: 100%;
+}
+
+#logos {
+	width: 600px;
+}
+
+.navbar-logo {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+a img {
+	border: 0;
+}
+
+.jumbotron {
+	-webkit-box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8)
+		0 1px 7px 0px inset;
+	-moz-box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8) 0
+		1px 7px 0px inset;
+	box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8) 0 1px
+		7px 0px inset;
+	background: #202020;
+	background-color: rgba(0, 0, 0, 0.3);
+	border: 0;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#88000000,
+		endColorstr=#88000000);
+	padding-top: 20px;
+}
+
+#footer {
+	text-align: center;
+}
+
+#sourceModal .modal-body
+{
+   max-height:80%;
+}
+#sourceModal .modal-dialog
+{
+   height:80%;
+   max-height:80%;
+   width:70%;
+}
+
+#plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	display: block;
+}
+
+#left-plot {
+	height: 400px;
+	width: 48%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-top: 10px;
+	float: left;
+}
+
+#right-plot {
+	height: 400px;
+	width: 48%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-top: 10px;
+	float: right;
+}
+
+#top-plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#bottom-plot {
+	height: 400px;
+	width: 90%;
+	box-shadow: 5px 5px 5px #888888;
+	border-style: solid;
+	border-width: 1px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+</style>
+
+</head>
+
+<body>
+    <div class="container">
+        <!-- Modal -->
+<div class="modal" id="sourceModal" tabindex="-1" role="dialog" aria-labelledby="sourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Streaming Example Source Code</h4>
+      </div>
+      <div class="modal-body">
+        <pre class="line-numbers" style="overflow:scroll; max-height: 600px">
+        	<code id="source-code-example" class="language-javascript">
+        	</code>
+        </pre>
+        <p>
+        <a href="javascript:void(0)" onclick='window.location="view-source:" + window.location.href'>View Raw Source</a>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="header">
+	<div class="collapse navbar-collapse menu-above pull-right">
+		<div class="menu-header-container">
+			<ul id="menu-standard-top-navigation" class="nav navbar-nav menu">
+			    <li><a id="view-source" href="#sourceModal" data-toggle="modal">View Source</a></li>
+				<li class="dropdown menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children">
+					<a href="examples" class="dropdown-toggle" data-toggle="dropdown" title="Developer Examples">Developer Examples<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li class="menu-item menu-item-type-custom"><a href="basic_usage.html">Basic Usage</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="realtime.html">Streaming (i.e. Realtime) Plotting</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="audio.html">Plotting AudioBuffers</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="menu.html">Menu</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="mtag.html">Mouse Events (i.e. MTAGs)</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="selection.html">Mouse Selection</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="appearance.html">Appearance</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="plugins.html">Plugins</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div> <!-- /.nav-collapse -->
+	<a href="../index.html"> <span><img class="navbar-logo" alt='' src='../images/sigplot_2color_outline_sm.png' alt="SigPlot" />&nbsp;</span></a>
+</div> <!-- /header -->
+
+            <div class="jumbotron">
+                <div id="left-plot"></div>
+                <div id="right-plot"></div>
+                <div style="clear: both"></div>
+            </div>
+            <!-- /jumbotron -->
+            <div id="content">
+                <h2>Streaming</h2>
+                <p>
+                    To plot audio, there are two options:
+                    <ul>
+                        <li>Convert the audio into a BLUEFILE on the server side and plot using overlay_href</li>
+                        <li>Convert the audio into an array using the new HTML5 AudioContext to convert the data into an array</li>
+                    </ul>
+                    The downside of the later is that it only works with <a href="http://caniuse.com/#feat=audio-api">newer web-browsers</a> If you are viewing this on Chrome, the WebAudio API will be used to produce a real-time spectral plot. If you
+                    are using Firefox or Safari you will only see the time domain plot. This page was tested with:
+                    <ul>
+                        <li>Chrome 28.0.1500.95 (includes spectral plot)</li>
+                        <li>Firefox 14</li>
+                        <li>Firefox 23</li>
+                        <li>Safari (has a bug prevent the spectral plot from working)
+                    </ul>
+            </div>
+    </div>
+    <div class="well">
+    <div id="footer" class="footer">
+      <p>
+        <a style="border: none" href="http://www.lgsinnovations.com"><img src="../images/lgs-innovation.jpg"/></a><br/>
+      </p>
+      <p>
+        <small><img src="../images/creativecommons.png" alt="" /> All
+                documentation is under the Creative Commons Attribution Share-alike
+                license.<br /></small>
+      </p>
+      <p>
+        <small>&copy; 2012-2017 LGS Innovations, Inc.</small><br />
+      </p>
+
+    </div>
+</div>
+
+        <script src="../jquery/jquery.min.js" type="text/javascript"></script>
+<script src="../bootstrap/bootstrap.min.js" type="text/javascript"></script>
+<script src="../prism/prism.js"></script>
+<script src="../dsp.js"></script>
+<script src="../sigplot/sigplot-minimized.js"></script>
+<script>
+$(window).ready(function() {
+	var example_src_script = $("#example-source");
+	if ( example_src_script.length ) {
+		$("#source-code-example").text(example_src_script.text());
+    } else {
+    	$("#view-source").hide();
+    }
+});
+</script>
+
+            <script src="../sigplot/sigplot.plugins-minimized.js"></script>
+            <script id="example-source">
+                var audioContext;
+                var audio;
+                var audioBuffer;
+
+                var source;
+                var analyser;
+
+                var plot;
+                var plot_freq;
+                var data_layer;
+
+                var start_time = 0;
+                var start_offset = 0;
+
+                window.onload = function() {
+                    if (typeof AudioContext !== 'undefined') {
+                        audioContext = new AudioContext();
+                    } else if (typeof webkitAudioContext !== 'undefined') {
+                        audioContext = new webkitAudioContext();
+                    } else if (typeof Audio !== 'undefined') {
+                        //Create an <audio> element dynamically.
+                        audio = new Audio();
+                        audio.src = '../dat/dial-up-modem.wav';
+                        audio.controls = false;
+                        audio.autoplay = false;
+                        document.body.appendChild(audio);
+                    } else {
+                        alert("Your brower does not support audio playback");
+                    }
+
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('left-plot'), {
+                            all: true,
+                            expand: true
+                        });
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SIGPLOT...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "white";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('plot').style.background = "black";
+                        document.getElementById('plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+
+
+                    if ((audioContext) && (audioContext.decodeAudioData)) {
+                        // Demonstrate how to plot an audio buffer directly if possible
+                        loadPlotFromWav();
+                    } else {
+                        loadPlotFromHref();
+                    }
+
+                    if (audio || audioContext) {
+                        slider = new sigplot.SliderPlugin({
+                            style: {
+                                strokeStyle: "#FF2400"
+                            }
+                        });
+                        plot.add_plugin(slider, 1);
+                        slider.set_position(0.0);
+
+                        slider.addListener("sliderdrag", function(evt) {
+                            start_offset = evt.position;
+                        });
+
+                        controls = new sigplot.PlaybackControlsPlugin();
+                        plot.add_plugin(controls);
+                        controls.addListener("playbackevt", function(evt) {
+                            if (evt.state === "playing") {
+                                if (audio) {
+                                    audio.currentTime = start_offset;
+                                    audio.play();
+                                } else if (audioContext && !source) {
+                                    source = audioContext.createBufferSource();
+                                    source.buffer = audioBuffer;
+                                    source.connect(analyser);
+                                    if (typeof source.start === 'undefined') {
+                                        var remainingTime = audioBuffer.duration - start_offset;
+                                        source.noteGrainOn(0, start_offset, remainingTime);
+                                    } else {
+                                        source.start(0, start_offset);
+                                    }
+                                    start_time = audioContext.currentTime;
+                                }
+                                slider.options.prevent_drag = true;
+                            } else {
+                                if (audio) {
+                                    audio.pause();
+                                } else if (audioContext && source) {
+                                    start_time = null;
+                                    if (typeof source.stop === 'undefined') {
+                                        source.noteOff(0);
+                                    } else {
+                                        source.stop(0);
+                                    }
+                                    source = null;
+                                }
+                                slider.options.prevent_drag = false;
+                            }
+                        });
+
+                        if (audio) {
+                            audio.onended = function() {
+                                audio.pause();
+                                audio.currentTime = start_offset;
+                                slider.set_position(start_offset)
+                                controls.toggle("paused");
+                            };
+                        }
+
+                        update_slider();
+                    }
+
+                    // If we have an audio context, we can create a cool analyzer
+                    if (audioContext && audioContext.createAnalyser) {
+                        analyser = audioContext.createAnalyser();
+                        analyser.connect(audioContext.destination);
+
+                        plot_freq = new sigplot.Plot(document.getElementById('right-plot'), {});
+
+                        // Don't run analyze in a requestAnimFrame because
+                        // it will cause too many calls to refresh on the plot
+                        var framerate = 10;
+                        var interval = (1.0 / framerate) * 1000;
+                        window.setInterval(analyze, interval);
+                    } else {
+                        $("#left-plot").css({
+                            height: "400px",
+                            width: "90%",
+                            "float": "none",
+                            "margin-left": "auto",
+                            "margin-right": "auto"
+                        });
+                        $("#right-plot").hide();
+                        plot.checkresize();
+                    }
+                }
+
+                function onerror(msg) {
+                    console.log("Error loading sound " + msg);
+                }
+
+                // Update the slider using an animation frame
+                // update so that it stays very in-sync with the current audio playback
+                function update_slider() {
+                    requestAnimFrame(update_slider);
+                    if (audio && !audio.paused) {
+                        slider.set_position(audio.currentTime);
+                    } else if (audioContext && start_time) {
+                        var position = start_offset + audioContext.currentTime - start_time;
+                        if (position >= source.buffer.duration) {
+                            controls.toggle("paused");
+                            slider.set_position(start_offset);
+                        } else {
+                            slider.set_position(position);
+                        }
+                    }
+                }
+
+
+                function analyze() {
+                    if (audio && audio.paused) return;
+                    if (audioContext && !source) return;
+
+                    if (analyser.frequencyBinCount > 0) {
+                        var freqData = new Float32Array(analyser.frequencyBinCount);
+                        analyser.getFloatFrequencyData(freqData); //analyser.getFloaTimeDomainData(timeData);
+                        // Reload the data layer
+                        if (data_layer !== undefined) {
+                            plot_freq.reload(data_layer, freqData);
+                        } else {
+
+                            data_layer = plot_freq.overlay_array(freqData, {
+                                xunits: 3,
+                                yunits: 35,
+                                xdelta: ((audioContext.sampleRate * 0.5) / analyser.frequencyBinCount)
+                            });
+                        }
+                    }
+                }
+
+                function loadPlotFromHref() {
+                    plot.overlay_href("../dat/dial-up-modem.tmp");
+                }
+
+                function loadPlotFromWav() {
+                    var request = new XMLHttpRequest();
+                    request.open('GET', "../dat/dial-up-modem.wav", true);
+                    request.responseType = 'arraybuffer';
+
+                    var handlebuffer = function(buffer) {
+                        audioBuffer = buffer;
+                        for (var i = 0; i < audioBuffer.numberOfChannels; i++) {
+                            // decimate the time domain data so that Firefox can plot it...chrome can handle the
+                            // larger data size
+                            var data = audioBuffer.getChannelData(i);
+                            var shortData = new Float32Array(data.length / 10);
+                            for (var j = 0; j < shortData.length; j++) {
+                                shortData[j] = data[j * 10];
+                            }
+
+                            plot.overlay_array(shortData, {
+                                xdelta: 10.0 / audioBuffer.sampleRate,
+                                xunits: 1
+                            });
+                        }
+                    };
+
+                    // Decode asynchronously
+                    request.onload = function() {
+                        audioContext.decodeAudioData(request.response, handlebuffer, onerror);
+                    }
+                    request.send();
+                }
+            </script>
+</body>
+
+</html>

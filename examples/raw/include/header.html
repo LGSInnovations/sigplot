@@ -1,0 +1,47 @@
+<!-- Modal -->
+<div class="modal" id="sourceModal" tabindex="-1" role="dialog" aria-labelledby="sourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title"><#TITLE> Example Source Code</h4>
+      </div>
+      <div class="modal-body">
+        <pre class="line-numbers" style="overflow:scroll; max-height: 600px">
+        	<code id="source-code-example" class="language-javascript">
+        	</code>
+        </pre>
+        <p>
+        <a href="javascript:void(0)" onclick='window.location="view-source:" + window.location.href'>View Raw Source</a>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="header">
+	<div class="collapse navbar-collapse menu-above pull-right">
+		<div class="menu-header-container">
+			<ul id="menu-standard-top-navigation" class="nav navbar-nav menu">
+			    <li><a id="view-source" href="#sourceModal" data-toggle="modal">View Source</a></li>
+				<li class="dropdown menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children">
+					<a href="examples" class="dropdown-toggle" data-toggle="dropdown" title="Developer Examples">Developer Examples<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li class="menu-item menu-item-type-custom"><a href="basic_usage.html">Basic Usage</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="realtime.html">Streaming (i.e. Realtime) Plotting</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="audio.html">Plotting AudioBuffers</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="menu.html">Menu</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="mtag.html">Mouse Events (i.e. MTAGs)</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="selection.html">Mouse Selection</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="appearance.html">Appearance</a></li>
+						<li class="menu-item menu-item-type-custom"><a href="plugins.html">Plugins</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div> <!-- /.nav-collapse -->
+	<a href="../index.html"> <span><img class="navbar-logo" alt='' src='../images/sigplot_2color_outline_sm.png' alt="SigPlot" />&nbsp;</span></a>
+</div> <!-- /header -->

@@ -1,8 +1,733 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>SigPlot Placeholder</title>
-  </head>
-  <body>
-    SigPlot Placeholder
-  </body>
+<head>
+<title>SigPlot Examples</title>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Pragma" content="no-cache">
+<link href="bootstrap/bootstrap.min.css" rel="stylesheet"
+        type="text/css">
+<style type="text/css">
+#plot {
+        height: 400px;
+        width: 90%;
+        box-shadow: 5px 5px 5px #888888;
+        border-style: solid;
+        border-width: 1px;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10px;
+        display: block;
+}
+
+#banner {
+        font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+        text-align: center;
+        width: 100%;
+}
+
+#subbanner {
+        font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+        text-align: center;
+        width: 100%;
+}
+
+#logos {
+        width: 600px;
+}
+
+.navbar-logo {
+        padding-top: 5px;
+        padding-bottom: 5px;
+}
+
+a img {
+        border: 0;
+}
+
+.jumbotron {
+        -webkit-box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8)
+                0 1px 7px 0px inset;
+        -moz-box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8) 0
+                1px 7px 0px inset;
+        box-shadow: rgba(255, 255, 255, 0.1) 0 1px 0, rgba(0, 0, 0, 0.8) 0 1px
+                7px 0px inset;
+        background: #202020;
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 0;
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#88000000,
+                endColorstr=#88000000);
+        padding-top: 20px;
+}
+
+#footer {
+        text-align: center;
+}
+</style>
+<script src="jquery/jquery.min.js" type="text/javascript"></script>
+<script src="bootstrap/bootstrap.min.js" type="text/javascript"></script>
+
+<script src="sigplot/sigplot-minimized.js" type="text/javascript"></script>
+<script type="text/javascript">
+        var plot;
+
+        function initialize() {
+                var random = [];
+                for (var i = 0; i <= 1000; i += 1) {
+                        random.push(Math.random());
+                }
+
+                //                try {
+                // Step #3
+                plot = new sigplot.Plot(document.getElementById('plot'), {autohide_panbars: true, hide_note: true});
+                update_rtplot();
+        }
+
+	var cnt = 0;
+        function update_rtplot() {
+                var random = [];
+                for (var i = 0; i <= 1000; i += 1) {
+                        random.push(Math.random());
+                }
+                
+                var data_layer = plot.get_layer(0);
+		if (data_layer) {
+			cnt += 1;
+			if (cnt === 10) {
+				console.log("changing xstart")
+				plot.get_layer(0).hcb.xstart = -100;
+				plot.get_layer(0).xmin = -100;
+				plot.change_settings({xmin: -100, xmax: -100+1000})
+			}
+                        plot.reload(0, random);
+                } else {
+                        plot.change_settings({
+                                cmode : 3,
+                                autol: -1
+                        });
+                        plot.overlay_array(random,{file_name: "random"});
+                }
+        }
+        
+        function update_rtraster() {
+                var random = [];
+                var framesize = 8192;
+                for (var i = 0; i < framesize; i += 1) {
+                        random.push(Math.random());
+                }
+                
+                var data_layer = plot.get_layer(0);
+                if (!data_layer) {
+               	        //console.log("initialize raster data layer");
+                        plot.change_settings({
+                                cmode : 3,
+                                autol: 5,
+                                all: true,
+                        });
+                        plot.overlay_pipe({type: 2000, subsize: framesize, file_name: "random"});
+                }
+                plot.push(0, random);
+        }
+
+	function update_rtline() {
+		var random = [];
+		for (var i = 0; i <= 128; i += 1) {
+			random.push(Math.random());
+		}
+
+		var data_layer = plot.get_layer(0);
+		if (!data_layer) {
+			plot.overlay_pipe({type: 1000}, { framesize: 32768, drawmode: "scrolling", file_name: "random"});
+			plot.change_settings({
+				ymin: -2,
+				ymax: 2
+			});
+		}
+		plot.push(0, random);
+	}
+	
+	function update_rtiq() {
+		var random = [];
+		for (var i = 0; i <= 1024; i += 1) {
+			random.push((Math.random()*2)-1);
+		}
+
+		var data_layer = plot.get_layer(0);
+		if (!data_layer) {
+			plot.overlay_pipe({type: 1000, format: "CF"}, { framesize: 512, line: 0, radius: 1, symbol: 1});
+			plot.change_settings({
+						cmode: 5,
+						ymin: -2,
+						ymax: 2,
+						xmin: -2,
+						xmax: 2,
+			});
+		}
+		plot.push(0, random);
+	}
+
+
+        function plot_href(href, cmode, layerOptions) {
+                if (!plot) {
+                        return;
+                }
+                //console.log("<index.html:plot_href> de-overlay");
+                plot.deoverlay();
+                //console.log("<index.html:plot_href> change mode setting");
+                plot.change_settings({
+                        cmode : cmode
+                });
+                //console.log("<index.html:plot_href> overlay new file: "+href);
+                plot.overlay_href(href, null, layerOptions);
+        }
+        
+        function show_layer_details() {
+                
+        }
+        
+        // This function runs as soon as all the html code in this web page finishes loading.
+        $(window).ready(function() {
+                // Step #2
+                initialize();
+
+                var hdl = window.setInterval(update_rtplot, 500);
+                // ------------------Button Group = Plot
+                $('#plot_modem').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/dial-up-modem.tmp", 3)
+                });
+                $('#plot_fft').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/fsk_fft.tmp", 3)
+                });
+                $('#plot_psd').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/psd.tmp", 6);
+                });
+                $('#plot_8psk').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/symbols_noise.tmp", 5, {line: 0, radius: 1, symbol: 2});
+                });
+                $('#plot_rtplot').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot.deoverlay();
+                        update_rtplot();
+                        hdl = window.setInterval(update_rtplot, 500);
+                });
+                $('#plot_rtraster').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot.deoverlay();
+                        update_rtraster();
+                        hdl = window.setInterval(update_rtraster, 100);
+                });
+		$('#plot_rtline').on('click', function(e) {
+			if (hdl) {
+				window.clearInterval(hdl); hdl = null;
+			}
+			plot.deoverlay();
+			update_rtline();
+			hdl = window.setInterval(update_rtline, 100);
+		});
+		$('#plot_rtiq').on('click', function(e) {
+			if (hdl) {
+				window.clearInterval(hdl); hdl = null;
+			}
+			plot.deoverlay();
+			update_rtiq();
+			hdl = window.setInterval(update_rtiq, 100);
+		});
+                $('#plot_sin').on('click', function(e) {
+                        window.clearInterval(hdl);
+                        plot_href("./dat/sin.tmp", 3)
+                });
+                $('#plot_sin_cx').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/sin_cx.tmp", 5)
+                });
+                $('#plot_fftdemo').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/fftdemo.prm", 6)
+                });
+                $('#plot_ramp').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/ramp.tmp", 3)
+                });
+                $('#plot_square').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/square.tmp", 3)
+                });
+                $('#plot_triangle').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/triangle.tmp", 3)
+                });
+                $('#plot_sawtooth').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/sawtooth.tmp", 3)
+                });
+                $('#plot_pulse').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/pulse3.tmp", 3)
+                });
+                $('#plot_pulse_cx').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/pulse_cx.tmp", 3)
+                });
+                $('#plot_penny').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/penny.prm", 3)
+                });
+                $('#plot_penny_lines').on('click', function(e) {
+                        if (hdl) {
+                                window.clearInterval(hdl); hdl = null;
+                        }
+                        plot_href("./dat/penny.prm", 3, {layerType: sigplot.Layer1D})
+                });
+                
+                // ------------------Button Group = Appearance
+                $('#dashedGrid').on('click', function(e) {
+                        plot.change_settings( {gridStyle: null}); // dashed is the default
+                });
+                $('#solidGrid').on('click', function(e) {
+                        plot.change_settings( {gridStyle: {"color": "#999999"}});
+                });
+                $('#noGrid').on('click', function(e) {
+                        plot.change_settings( {grid: false});
+                });
+                $('#xGrid').on('click', function(e) {
+                        plot.change_settings( {grid: "x"});
+                });
+                $('#yGrid').on('click', function(e) {
+                        plot.change_settings( {grid: "y"});
+                });
+                $('#xyGrid').on('click', function(e) {
+                        plot.change_settings( {grid: true});
+                });
+                $('#toggleCrosshairs').on('click', function(e) {
+                        plot.change_settings( {cross: null});
+                });
+                $('#toggleXAxis').on('click', function(e) {
+                        plot.change_settings( {show_x_axis: null});
+                });
+                $('#toggleYAxis').on('click', function(e) {
+                        plot.change_settings( {show_y_axis: null});
+                });
+                $('#toggleReadout').on('click', function(e) {
+                        plot.change_settings( {show_readout: null});
+                });
+                $('#toggleScrollbar').on('click', function(e) {
+                        plot.change_settings( {pan: null});
+                });
+                $('#toggleInvertColors').on('click', function(e) {
+                        plot.change_settings( {invert: null});
+                });
+                $('#fillClear').on('click', function(e) {
+                        plot.change_settings( {fillStyle: null});
+                });
+                $('#fillColor').on('click', function(e) {
+                        plot.change_settings( {fillStyle: "rgba(224, 255, 194, 0.5)"});
+                });
+                $('#fillGradient').on('click', function(e) {
+                        plot.change_settings( {fillStyle: ["rgba(224, 255, 194, 0.0)", "rgba(0, 153, 51, 0.7)", "rgba(0, 0, 0, 1.0)"]});
+                });
+                
+                 // ------------------Button Group = Features
+               $('#wheelZoomOff').on('click', function(e) {
+                        plot.change_settings( {wheelZoom: false});
+                });
+                $('#wheelZoomX').on('click', function(e) {
+                        plot.change_settings( {wheelZoom: "x"});
+                });
+                $('#wheelZoomY').on('click', function(e) {
+                        plot.change_settings( {wheelZoom: "y"});
+                });
+                $('#wheelZoomXY').on('click', function(e) {
+                        plot.change_settings( {wheelZoom: true});
+                });
+                
+                $('#boxOff').on('click', function(e) {
+                        plot.change_settings( {rubberbox_action: null});
+                });
+                $('#boxZoom').on('click', function(e) {
+                        plot.change_settings( {rubberbox_action: 'zoom'});
+                });
+                $('#boxSelect').on('click', function(e) {
+                        plot.change_settings( {rubberbox_action: 'select'});
+                });
+                
+                $('#boxHorizontal').on('click', function(e) {
+                        plot.change_settings( {rubberbox_mode: 'horizontal'});
+                });
+                $('#boxVertical').on('click', function(e) {
+                        plot.change_settings( {rubberbox_mode: 'vertical'});
+                });
+                $('#boxNormal').on('click', function(e) {
+                        plot.change_settings( {rubberbox_mode: 'box'});
+                });
+                
+                $('#scrollingRaster').on('click', function(e) {
+                        plot.change_settings( {drawmode: 'scrolling'});
+                });
+                $('#risingRaster').on('click', function(e) {
+                        plot.change_settings( {drawmode: 'rising'});
+                });
+                $('#fallingRaster').on('click', function(e) {
+                        plot.change_settings( {drawmode: 'falling'});
+                });
+		
+		$('#scrollingLine').on('click', function(e) {
+			plot.change_settings( {drawmode: 'scrolling'});
+		});
+		$('#lefttorightLine').on('click', function(e) {
+			plot.change_settings( {drawmode: 'lefttoright'});
+		});
+		$('#righttoleftLine').on('click', function(e) {
+			plot.change_settings( {drawmode: 'righttoleft'});
+		});
+                
+                $('#show_layer_details').on('click', function(e) {
+                        var lyr = plot.get_layer(0);
+                        if (lyr) {
+                                var hdr = lyr.hcb;
+                                $("#layerName").html(hdr.file_name);
+                                $("#numElements").html(hdr.size / hdr.subsize);
+                                $("#fileType").html(hdr.type);
+                                $("#dataFormat").html(hdr.format);
+                                $("#xUnits").html(m.units_name(hdr.xunits));
+                                $("#xStart").html(hdr.xstart);
+                                $("#xDelta").html(hdr.xdelta);
+                                
+                                if (hdr.class == 2) {
+                                        $("#frameLen").html(hdr.subsize);
+                                        $("#yUnits").html(m.units_name(hdr.yunits));
+                                        $("#yStart").html(hdr.ystart);
+                                        $("#yDelta").html(hdr.ydelta);
+                                } else {
+                                        $("#frameLen").html("N/A");
+                                        $("#yUnits").html("N/A");
+                                        $("#yStart").html("N/A");
+                                        $("#yDelta").html("N/A");
+                                }
+
+                        } else {
+                                $("#layerName").html();
+                                $("#numElements").html();
+                                $("#fileType").html();
+                                $("#dataFormat").html();
+                                $("#xUnits").html();
+                                $("#xStart").html();
+                                $("#xDelta").html();
+                                
+                                if (hdr.class == 2) {
+                                        $("#frameLen").html();
+                                        $("#yUnits").html();
+                                        $("#yStart").html();
+                                        $("#yDelta").html();
+                                } else {
+                                        $("#frameLen").html();
+                                        $("#yUnits").html();
+                                        $("#yStart").html();
+                                        $("#yDelta").html();
+                                }
+                        }
+
+                        $('#layerModal').modal({show: true});
+                });
+                
+                $('#layerModal').bind('show', function () {
+                        console.log("SHOW")
+                        
+                });
+
+        });
+</script>
+</head>
+<body>
+  <div class="container">
+
+  <!-- Modal -->
+  <div class="modal" id="layerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Layer Details</h4>
+        </div>
+        <div class="modal-body">
+          <dl>
+           <dt>Layer Name</dt><dd id="layerName"></dd>
+           <dt>Number of elements</dt><dd id="numElements"></dd>
+           <dt>File type</dt><dd id="fileType"></dd>
+           <dt>Data format</dt><dd id="dataFormat"></dd>
+           <dt>Abscissa units</dt><dd id="xUnits"></dd>
+           <dt>Abscissa start</dt><dd id="xStart"></dd>
+           <dt>Abscissa delta</dt><dd id="xDelta"></dd>
+           <dt>Frame length</dt><dd id="frameLen"></dd>
+           <dt>Secondary units</dt><dd id="yUnits"></dd>
+           <dt>Secondary start</dt><dd id="yStart"></dd>
+           <dt>Secondary delta</dt><dd id="yDelta"></dd>
+         </dl>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+  <!-- Modal -->
+  <div class="modal" id="usageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">SigPlot Usage</h4>
+        </div>
+        <div class="modal-body">
+          <h4>Mouse Actions</h4>
+          <dl>
+            <dt>Zoom</dt><dd>To zoom, press and drag the left mouse (LM) over the region of interest and release.</dd>
+            <dt>Unzoom</dt><dd>To unzoom, press the (RM).</dd>
+            <dt>Select</dt><dd>To zoom, press and drag the left mouse (LM) while holding CTRL over the region of interest and release.</dd>
+            <dt>Menu</dt><dd>Press the middle mouse (MM) button to bring up the menu. </dd>
+          </dl>
+          <h4>Keyboard Actions</h4>
+          <dl>
+            <dt>?</dt><dd>Display help</dd>
+            <dt>A</dt><dd>Toggle display x,y readouts: (absc) -> (index) -> (1/absc) -> (time).</dd>
+            <dt>B</dt><dd>Toggle Left Mouse Drag Mode: (box) -> (horizontal) -> (vertical).</dd>
+            <dt>C</dt><dd>Toggle controls.</dd>
+            <dt>L</dt><dd>Toggle legend.</dd>
+            <dt>M</dt><dd>Show menu.</dd>
+            <dt>R</dt><dd>Toggle display specs (x/y readout).</dd>
+            <dt>S</dt><dd>Toggle display specs and axes.</dd>
+            <dt>T</dt><dd>Popup box with timecode value at mouse.</dd>
+            <dt>X</dt><dd>Popup box with X value at mouse.</dd>
+            <dt>Y</dt><dd>Popup box with Y value at mouse.</dd>
+            <dt>F</dt><dd>Toggle fullscreen for plot.</dd>
+          </dl>
+        </div><!-- /.modal-body -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+  <!-- Header -->
+  <div class="header">
+    <div class="collapse navbar-collapse menu-above pull-right">
+      <div class="menu-header-container">
+        <ul id="menu-standard-top-navigation" class="nav navbar-nav menu">
+          <li
+            class="dropdown menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children">
+            <a href="examples" class="dropdown-toggle" data-toggle="dropdown"
+               title="Developer Examples">Developer Examples<b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="menu-item menu-item-type-custom"><a href="examples/basic_usage.html">Basic Useage</a></li>
+              <li class="menu-item menu-item-type-custom"><a href="examples/realtime.html">Streaming (i.e. Realtime) Plotting</a></li>
+              <li class="menu-item menu-item-type-custom"><a href="examples/audio.html">Plotting AudioBuffers</a></li>
+              <li class="menu-item menu-item-type-custom"><a href="examples/menu.html">Menu</a></li>
+              <li class="menu-item menu-item-type-custom"><a href="examples/mtag.html">Mouse Events (i.e. MTAGs)</a></li>
+              <li class="menu-item menu-item-type-custom"><a href="examples/selection.html">Mouse Selection</a></li>
+              <li class="menu-item menu-item-type-custom"><a href="examples/appearance.html">Appearance</a></li>
+              <li class="menu-item menu-item-type-custom"><a href="examples/plugins.html">Plugins</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- /.nav-collapse -->
+    <a href="index.html"> <span><img class="navbar-logo"
+       alt='' src='images/sigplot_2color_outline_sm.png' alt="SigPlot" />&nbsp;</span>
+    </a>
+  </div>
+
+  <!-- Jumbotron -->
+  <div class="jumbotron">
+
+    <!-- /btn-group Plot-->
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary dropdown-toggle"
+              data-toggle="dropdown">
+              Plot <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a id="plot_modem" href="#">Amplitude vs. Time</a></li>
+        <li><a id="plot_fft" href="#">FFT</a></li>
+        <li><a id="plot_psd" href="#">Time vs. Freq</a></li>
+        <li><a id="plot_8psk" href="#">I/Q Constellation</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a id="plot_rtplot" href="#">Realtime (Random Data)</a></li>
+        <li><a id="plot_rtraster" href="#">Realtime Raster (Random Data)</a></li>
+	<li><a id="plot_rtline" href="#">Realtime Line (Random Data)</a></li>
+	<li><a id="plot_rtiq" href="#">Realtime I/Q (Random Data)</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a id="plot_sin" href="#">Sin Wave</a></li>
+        <li><a id="plot_sin_cx" href="#">Sin Wave (I vs. Q)</a></li>
+        <li><a id="plot_fftdemo" href="#">10*Log Plot</a></li>
+        <li><a id="plot_ramp" href="#">Ramp</a></li>
+        <li><a id="plot_square" href="#">Square Wave</a></li>
+        <li><a id="plot_triangle" href="#">Triangle Wave</a></li>
+        <li><a id="plot_sawtooth" href="#">Sawtooth Wave</a></li>
+        <li><a id="plot_pulse" href="#">Pulse</a></li>
+        <li><a id="plot_pulse_cx" href="#">Pulse (Complex)</a></li>
+        <li><a id="plot_penny" href="#">Penny (Raster)</a></li>
+        <li><a id="plot_penny_lines" href="#">Penny (Lines)</a></li>
+      </ul>
+    </div>
+
+    <!-- /btn-group Appearance-->
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary dropdown-toggle"
+              data-toggle="dropdown">
+              Appearance <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a href="#" id="dashedGrid" >Dashed Grid (Default)</a></li>
+        <li><a href="#" id="solidGrid" >Solid Grid</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a href="#" id="noGrid" >No Grid</a></li>
+        <li><a href="#" id="xGrid" >X Grid</a></li>
+        <li><a href="#" id="yGrid" >Y Grid</a></li>
+        <li><a href="#" id="xyGrid" >X/Y Grid</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a href="#" id="toggleCrosshairs" >Toggle Crosshairs</a></li>
+        <li><a href="#" id="toggleXAxis" >Toggle X Axis</a></li>
+        <li><a href="#" id="toggleYAxis" >Toggle Y Axis</a></li>
+        <li><a href="#" id="toggleReadout" >Toggle Readout</a></li>
+        <li><a href="#" id="toggleScrollbar" >Toggle Scrollbars</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a href="#" id="toggleInvertColors" >Invert Colors</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a href="#" id="fillClear" >No Fill</a></li>
+        <li><a href="#" id="fillColor" >Color Fill</a></li>
+        <li><a href="#" id="fillGradient" >Gradient Fill</a></li>
+      </ul>
+    </div>
+
+    <!-- /btn-group Features -->
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary dropdown-toggle"
+              data-toggle="dropdown">
+              Features <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a href="#" id="wheelZoomOff" >Wheel Zoom Off (Default)</a></li>
+        <li><a href="#" id="wheelZoomX" >Wheel Zoom X</a></li>
+        <li><a href="#" id="wheelZoomY" >Wheel Zoom Y</a></li>
+        <li><a href="#" id="wheelZoomXY" >Wheel Zoom X/Y</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a href="#" id="boxZoom" >Mouse Box Zoom (Default)</a></li>
+        <li><a href="#" id="boxSelect" >Mouse Box Select</a></li>
+        <li><a href="#" id="boxOff" >Mouse Box Off</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a href="#" id="boxNormal" >Mouse Box Normal (Default)</a></li>
+        <li><a href="#" id="boxHorizontal" >Mouse Box Horizontal</a></li>
+        <li><a href="#" id="boxVertical" >Mouse Box Vertical</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a href="#" id="scrollingRaster" >Scrolling Raster (Default)</a></li>
+        <li><a href="#" id="risingRaster" >Rising Raster</a></li>
+        <li><a href="#" id="fallingRaster" >Falling Raster</a></li>
+        <li role="presentation" class="divider"></li>
+        <li><a href="#" id="scrollingLine" >Scrolling Line (Default)</a></li>
+        <li><a href="#" id="lefttorightLine" >Left to Right Line</a></li>
+        <li><a href="#" id="righttoleftLine" >Right to Left Line</a></li>
+      </ul>
+    </div>
+
+    <!-- /btn-group Help -->
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary dropdown-toggle"
+              data-toggle="dropdown">
+              Help <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a data-toggle="modal" href="#usageModal" >Basic Useage</a></li>
+        <li><a id="show_layer_details" data-toggle="modal" href="#" >Show Layer Details</a></li>
+        <li><a href="doc/index.html" >API (Provisional)</a></li>
+      </ul>
+    </div>
+
+    <!-- /btn-group Plot (Create PLOT Step #1) -->
+    <div id="plot"></div>
+
+  </div> <!-- End of Jumbotron -->
+
+  <div class="row marketing">
+    <div class="col-lg-6">
+      <h4>Tailored for Software Defined Radio (SDR) Applications</h4>
+      <p>SigPlot provides fast interactive plotting tailored for
+         signal processing applications.</p>
+      <h4>Extensible</h4>
+      <p>Extend the capabilities of the plot through the use of
+         plugins.</p>
+      <h4>Supports Direct Plotting of Binary Files</h4>
+      <p>Plot local or remote files directly without any server-side
+         code.</p>
+    </div>
+
+    <div class="col-lg-6">
+      <h4>Built on HTML5 technologies</h4>
+      <p>SigPlot is 100% pure JavaScript and easy to embedded into any
+         framework: jQuery, Bootstrap, ext.js, qooxdoo, etc.</p>
+
+      <h4>Compatible with most browsers</h4>
+      <p>Works best with Chrome. Supports Firefox 3.6+ and Safari
+         3.1+.</p>
+    </div>
+  </div>
+
+  </div><!-- /container -->
+  
+  <div class="well">
+    <div id="footer" class="footer">
+      <p>
+        <a style="border: none" href="http://www.lgsinnovations.com"><img src="./images/lgs-innovation.jpg"/></a><br/>
+      </p>
+      <p>
+        <small><img src="images/creativecommons.png" alt="" /> All
+                documentation is under the Creative Commons Attribution Share-alike
+                license.<br /></small>
+      </p>
+      <p>
+        <small>&copy; 2012-2017 LGS Innovations, Inc.</small><br />
+      </p>
+
+    </div>
+  </div>
+
+</body>
 </html>

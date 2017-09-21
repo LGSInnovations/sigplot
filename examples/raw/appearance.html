@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <#define TITLE|Appearance>
+        <#include common-head.html>
+            <#include common-css.html>
+</head>
+
+<body>
+    <div class="container">
+        <#include header.html>
+            <div class="jumbotron">
+                <div class="text-center">
+                    <div class="btn-group">
+                        <button id="toggle-grid" class="btn btn-primary" data-toggle="button">Toggle Grid</button>
+                        <button id="toggle-x-axis" class="btn btn-primary" data-toggle="button">Toggle X-Axis</button>
+                        <button id="toggle-y-axis" class="btn btn-primary" data-toggle="button">Toggle Y-Axis</button>
+                        <button id="toggle-readout" class="btn btn-primary" data-toggle="button">Toggle Readout</button>
+                        <button id="toggle-crosshairs" class="btn btn-primary" data-toggle="button">Toggle Crosshairs</button>
+                        <button id="toggle-scrollbars" class="btn btn-primary" data-toggle="button">Toggle Scrollbars</button>
+                        <button id="toggle-fill" class="btn btn-primary" data-toggle="button">Toggle Fill</button>
+                    </div>
+                </div>
+                <div id="plot"></div>
+            </div>
+            <div>
+                <h2><#TITLE></h2>
+                <p>
+                    The SIGPLOT appearance can be set during instantiation. For example, the above plot uses some options to change the style
+                </p>
+                <pre>
+			    <code class="language-javascript">
+plot = new sigplot.Plot(document.getElementById('plot'), {</br>
+  xi: true, // invert background and foreground </br>
+  gridBackground: ["#fff", "#ddd"], // set a gradient background </br>
+  autohide_readout: true, // only show the readout when the mouse is over the plot</br>
+  autohide_panbars: true // only show panbars when necessary and the mouse is over the plot</br>
+});
+			    </code>
+			</pre>
+                <p>
+                    Some of the appearance settings can also be modified using the sigplot.change_settings() method.
+                </p>
+                <pre>
+				<code class="language-javascript">
+plot.change_settings( {grid: state}); // enable/disable grid, null to toggle<br/>
+plot.change_settings( {show_x_axis: state}); // show/hide x-axis, null to toggle<br/>
+plot.change_settings( {show_y_axis: state}); // show/hide y-axis, null to toggle<br/>
+plot.change_settings( {show_readout: state}); // show/hide readout, null to toggle<br/>
+plot.change_settings( {cross: state}); // show/hide crosshair, null to toggle<br/>
+plot.change_settings( {pan: state}); // show/hide scrollbars, null to toggle<br/>
+plot.change_settings( {colors: {fg: '#fff' } } ); </br>
+plot.change_settings( {colors: {bg: '#000' } } ); </br>
+			        </code>
+			</pre>
+                <p>
+                    SigPlot also supports a few new features that can make the appearance more palatable.
+                </p>
+                <pre>
+				<code class="language-javascript">
+plot = new sigplot.Plot(document.getElementById('plot'), {"xi": true, gridBackground: ["#fff", "#ddd""]});
+				</code>
+			</pre> Finally, the plots appearance can be modified via the <b>Settings...</b> item under the main-menu (middle-click).
+                </p>
+            </div>
+    </div>
+
+    <#include footer.html>
+        <#include common-scripts.html>
+            <script id="example-source">
+                var plot;
+
+                function initialize() {
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('plot'), {
+                            xi: true, // Start with inverted colors
+                            gridBackground: ["#fff", "#ddd"], // Make a gradient background
+                            autohide_readout: true, // Hide the readout when until focus
+                            autohide_panbars: true // Hide the panbars unless needed
+                        });
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SIGPLOT...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "black";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+                    plot.overlay_href('../dat/sin.tmp');
+                }
+
+                $(window).ready(function() {
+                    initialize();
+
+                    $("#toggle-grid").click(function() {
+                        plot.change_settings({
+                            grid: null
+                        });
+                    });
+
+                    $("#toggle-x-axis").click(function() {
+                        plot.change_settings({
+                            show_x_axis: null
+                        });
+                    });
+
+                    $("#toggle-y-axis").click(function() {
+                        plot.change_settings({
+                            show_y_axis: null
+                        });
+                    });
+
+                    $("#toggle-readout").click(function() {
+                        plot.change_settings({
+                            show_readout: null
+                        });
+                    });
+
+                    $("#toggle-crosshairs").click(function() {
+                        plot.change_settings({
+                            cross: null
+                        });
+                    });
+
+                    $("#toggle-scrollbars").click(function() {
+                        plot.change_settings({
+                            pan: null
+                        });
+                    });
+
+                    var fillStyle = false;
+                    $('#toggle-fill').on('click', function(e) {
+                        if (!fillStyle) {
+                            plot.change_settings({
+                                fillStyle: ["rgba(224, 255, 194, 0.0)", "rgba(0, 153, 51, 0.7)", "rgba(0, 0, 0, 1.0)"]
+                            });
+                            fillStyle = true;
+                        } else {
+                            plot.change_settings({
+                                fillStyle: null
+                            });
+                            fillStyle = false;
+                        }
+
+                    });
+                });
+            </script>
+</body>
+
+</html>

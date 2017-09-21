@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <#define TITLE|Mouse Events>
+        <#include common-head.html>
+            <#include common-css.html>
+</head>
+
+<body>
+    <div class="container">
+        <#include header.html>
+            <div class="jumbotron">
+                <div class="text-center">
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="left-tag" selected="true"> Left-click Tag
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="cont-tag"> Continuous Tag
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" name="options" id="disable-tag"> Disable Tag
+                        </label>
+                    </div>
+                </div>
+                <div id="plot"></div>
+                <div class="text-center">
+                    <span id="mtagx" class="label label-default">X:</span>
+                    <span id="mtagy" class="label label-default">Y:</span>
+                </div>
+            </div>
+            <div>
+                <h2><#TITLE></h2>
+                <p>
+                    To receive "mtag" events, use the addListener() method:
+                </p>
+                <pre><code class="language-javascript">
+plot.addListener("mtag", callback);
+			</code></pre>
+                <p>
+                    The callback will be called whenever an "mtag" is emitted; the event will always include an 'x' and 'y'.
+                </p>
+                <pre><code class="language-javascript">
+function callback (event) {
+    $("#mtagx").html("X: " + event.x.toFixed(8));
+	$("#mtagy").html("Y: " + event.y.toFixed(8));
+};
+			</code></pre>
+                <p>
+                    By default, clicking on the plot will trigger an 'mtag'. Try clicking around and see the values. You can change the 'mtag' mode via <b>Cntrls...</b> item under the main-menu (middle-click). You can also use the SigPlot.settings call
+                    to change the modes:
+                </p>
+                <pre><code class="language-javascript">
+plot.change_settings( {xcnt: "leftmouse"});  // mtag on left click
+plot.change_settings( {xcnt: "continuous"}); // mtag on mouse movement
+plot.change_settings( {xcnt: "disable"});    // disable the mtag (i.e. no events)
+			</code></pre>
+            </div>
+    </div>
+    <#include footer.html>
+        <#include common-scripts.html>
+            <script id="example-source">
+                var plot;
+
+                function initialize() {
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('plot'), {});
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SigPlot...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "black";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+                    plot.overlay_href('../dat/sin.tmp');
+
+                    plot.addListener("mtag", function(event) {
+                        $("#mtagx").html("X: " + event.x.toFixed(8));
+                        $("#mtagy").html("Y: " + event.y.toFixed(8));
+                    });
+                }
+
+                window.onload = function() {
+                    initialize();
+
+                    $("#left-tag").change(function() {
+                        if ($('#left-tag').is(':checked')) {
+                            plot.change_settings({
+                                xcnt: 'leftmouse'
+                            });
+                        }
+                    });
+
+                    $("#cont-tag").change(function() {
+                        if ($('#cont-tag').is(':checked')) {
+                            plot.change_settings({
+                                xcnt: 'continuous'
+                            });
+                        }
+                    });
+
+                    $("#disable-tag").change(function() {
+                        if ($('#disable-tag').is(':checked')) {
+                            plot.change_settings({
+                                xcnt: 'disable'
+                            });
+                        }
+                    });
+                }
+            </script>
+</body>
+
+</html>

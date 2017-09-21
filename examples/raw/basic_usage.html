@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <#define TITLE|Basic Usage>
+        <#include common-head.html>
+            <#include common-css.html>
+</head>
+
+<body>
+    <div class="container">
+        <#include header.html>
+            <div class="jumbotron">
+                <div id="left-plot"></div>
+                <div id="right-plot"></div>
+                <div style="clear: both"></div>
+            </div>
+            <div>
+                <h2><#TITLE></h2>
+                <p>
+                    SigPlot is fairly simple to instantiate and use. First, create a placeholder for the plot:
+                </p>
+                <pre>
+			    <code class="language-html">
+&lt;div id="plot"&gt;&lt;/div&gt;
+			    </code>
+			</pre>
+                <p>
+                    Then ensure that it has a non-zero size by using CSS:
+                </p>
+                <pre>
+			    <code class="language-css">
+#plot { height: 400px; width: 600px; }
+			    </code>
+			</pre>
+                <p>
+                    Instantiate the plot:
+                </p>
+                <pre>
+			    <code class="language-javascript">
+plot = new sigplot.Plot(document.getElementById('plot'), {});
+			    </code>
+			</pre>
+                <p>
+                    Then add layers:
+                </p>
+                <pre>
+			    <code class="language-javascript">
+plot.overlay_array(data);
+			    </code>
+			</pre>
+                </p>
+                <p>
+                    SigPlot also directly supports the specialized BLUEFILE format:
+                </p>
+                <pre>
+			    <code class="language-javascript">
+plot.overlay_href('../dat/sin.tmp');
+			    </code>
+			</pre>
+                <p>
+                    By default, raster plots do not smooth so that each individual data element can be clearly seen. This is typically done when you want to clearly see individual FFTbins. If you prefer smoothing you can change the rasterSmoothing setting.
+                </p>
+                <pre>
+			    <code class="language-javascript">
+plot.change_settings({rasterSmoothing: true});
+			    </code>
+			</pre>
+                <h3>Asyncronous overlay_href</h3>
+                <p>
+                    The overlay_href method is asyncronous, because the underlying HTTP request is handle asyncronously. If you want to take an action when the layer has been downloaded, use the onload callback.
+                    <pre>
+			    <code class="language-javascript">
+plot.overlay_href('../dat/sin.tmp', function(hdr, layer_n) {
+  console.log("Finished overlay")
+});
+			    </code>
+			</pre> If you make two overlay_href calls, the order of the layers will be arbitrary.
+                    <pre>
+			    <code class="language-javascript">
+plot.overlay_href('../dat/sin.tmp');
+plot.overlay_href('../dat/square.tmp'); // If square.tmp downloads first, if will be the first layer
+			    </code>
+			</pre> You can avoid this with the following pattern:
+                    <pre>
+			    <code class="language-javascript">
+		// Use Immediately invoked function to create a closure
+		// so we can load files remotely, but keep the order
+		(function(p, files) {
+			var do_next_overlay = function() {
+				var f = files.shift();
+				if (f) {
+					p.overlay_href(f, do_next_overlay);
+				} else {
+                                        // We are done loading layers
+					p.rescale();
+			        }
+			}
+			do_next_overlay(); // Kick things off
+		})(plot, ["../dat/pulse.tmp", "../dat/sin.tmp"]);
+			    </code>
+			</pre>
+                    <h3>Mouse Actions</h3>
+                    <dl>
+                        <dt>Zoom</dt>
+                        <dd>To zoom, press and drag the left mouse (LM) over the region of interest and release.</dd>
+                        <dt>Unzoom</dt>
+                        <dd>To unzoom, press the (RM).</dd>
+                        <dt>Select</dt>
+                        <dd>To zoom, press and drag the left mouse (LM) while holding CTRL over the region of interest and release.</dd>
+                        <dt>Menu</dt>
+                        <dd>Press the middle mouse (MM) button to bring up the menu. </dd>
+                    </dl>
+
+                    <h3>Mousewheel Orientation</h3>
+                    <p>
+                        SigPlot defaults to an wheel scroll orientation, where scrolling the wheel forward will pan down while rolling backwards will pan up. You can change this setting if desired.
+                    </p>
+                    <pre>
+			    <code class="language-javascript">
+plot.change_settings({wheelscroll_mode_natural: false});
+			    </code>
+			</pre>
+
+                    <h3>Keyboard Actions</h3>
+                    <dl>
+                        <dt>?</dt>
+                        <dd>Display help</dd>
+                        <dt>A</dt>
+                        <dd>Toggle display x,y readouts: (absc) -> (index) -> (1/absc) -> (time).</dd>
+                        <dt>B</dt>
+                        <dd>Toggle Left Mouse Drag Mode: (box) -> (horizontal) -> (vertical).</dd>
+                        <dt>C</dt>
+                        <dd>Toggle controls.</dd>
+                        <dt>L</dt>
+                        <dd>Toggle legend.</dd>
+                        <dt>M</dt>
+                        <dd>Show menu.</dd>
+                        <dt>R</dt>
+                        <dd>Toggle display specs (x/y readout).</dd>
+                        <dt>S</dt>
+                        <dd>Toggle display specs and axes.</dd>
+                        <dt>T</dt>
+                        <dd>Popup box with timecode value at mouse.</dd>
+                        <dt>X</dt>
+                        <dd>Popup box with X value at mouse.</dd>
+                        <dt>Y</dt>
+                        <dd>Popup box with Y value at mouse.</dd>
+                        <dt>F</dt>
+                        <dd>Toggle fullscreen for plot.</dd>
+                        <dt>CTRL-I</dt>
+                        <dd>Invert colors</dd>
+                    </dl>
+            </div>
+            <h3>Panning</h3>
+            <p>
+                SigPlot provides scrollbars along each axis to allow panning of the plot. Zoom in to a region of the above plot and try out the following features:
+            </p>
+            <h3>Single stepping</h3>
+            <p>Arrows are provided at the end of each scrollbar for stepping through a plot in either direction. Single-clicking one of these arrows will pan the plot by one step.
+            </p>
+
+            <h3>Single paging</h3>
+            <p>
+                To pan a plot one page at a time, click anywhere in the trough between a panbar and one of the arrows at either end of a scrollbar.
+            </p>
+
+            <h3>Continuous stepping or paging</h3>
+            <p>SigPlot allows you to continuously pan a plot. To do this, keep your left mouse button held down while stepping or paging.
+            </p>
+
+            <h3>Panbar dragging</h3>
+            <p>
+                Dragging a panbar along an axis will allow you to quickly move from viewing one part of a plot to another.
+            </p>
+
+            <h3>Re-centering</h3>
+            <p>
+                SigPlot allows you to re-center your plot to a specific value along an axis. To do this, click on one of the numerical labels along an axis.
+            </p>
+
+            <h3>Range control</h3>
+            <p>
+                SigPlot allows you to expand or shrink the range of values visible within the plot area along an axis. To use this feature, middle-click with your mouse on a scrollbar and choose one of the options from the menu that pops up.
+            </p>
+
+            <h3>Wheel scrolling</h3>
+            <p>
+                SigPlot also allows you to pan a plot by scrolling your mousewheel up or down while hovering your mouse over a scrollbar.
+            </p>
+            <p>
+                By default the scroll orientation is inverted/natural, meaning that when you scroll the wheel forward the plot will pan down (away from you) and when you scroll the wheel backwards the plot will pan up (towards you). You can change to a "normal" orientation
+                using SigPlot's menu.
+            </p>
+    </div>
+    </div>
+    <#include footer.html>
+        <#include common-scripts.html>
+            <script id="example-source">
+                var plot;
+                var raster;
+
+                var ramp = [];
+                var val = 1;
+                for (var i = 0; i <= 1000; i += 1) {
+                    ramp.push(val / 1000);
+                }
+
+
+                function initialize() {
+                    try {
+                        plot = new sigplot.Plot(document.getElementById('left-plot'), {});
+                        raster = new sigplot.Plot(document.getElementById('right-plot'), {});
+                    } catch (error) {
+                        plot = undefined;
+                        errorMessage = document.createElement("span");
+                        errorMessage.innerHTML = "Your browser is not compatible with Web SigPlot...Sorry";
+                        errorMessage.style.display = "block";
+                        errorMessage.style.color = "black";
+                        errorMessage.style.top = "50%";
+                        errorMessage.style.width = "100%";
+                        errorMessage.style.fontSize = "150%";
+                        errorMessage.style.textAlign = "center";
+                        document.getElementById('plot').appendChild(errorMessage);
+                        console.log(error);
+                        return;
+                    }
+
+                    plot.overlay_array(ramp);
+                    (function(p, files) {
+                        var do_next_overlay = function() {
+                            var f = files.shift();
+                            if (f) {
+                                p.overlay_href(f, do_next_overlay);
+                            } else {
+                                // We are done loading layers
+                                p.rescale();
+                            }
+                        }
+                        do_next_overlay(); // Kick things off
+                    })(plot, ["../dat/pulse.tmp", "../dat/sin.tmp"]);
+                    raster.overlay_href('../dat/penny.prm');
+                }
+
+                window.onload = function() {
+                    initialize();
+                }
+            </script>
+</body>
+
+</html>
