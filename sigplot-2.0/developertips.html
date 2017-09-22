@@ -1,0 +1,2000 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Developer Tips</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/style-steph.css">
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a name="top" href="index.html" class="logo">Sigplot</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Basic Usage</a></li>
+							<li class="active"><a href="developertips.html">Developer Tips</a></li>
+							<li><a href="tryout.html">Try It Out</a></li>
+							<li><a href="inaction.html">In Action</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="https://github.com/LGSInnovations/sigplot" class="icon fa-gitlab"><span class="label">GitLab</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h3>Quick Links</h3>
+									<ul class="actions">
+										<li><a href="#plugins" class="button big">Plugins</a></li>
+										<li><a id="functions_button" href="#functions" class="button big">Functions</a></li>
+									</ul>
+									<br/>
+									<h1>Getting Started</h1>
+									<h6><a href="#g_s">Getting SigPlot</a> &middot <a href="#i_p">Instantiating a Plot</a> &middot <a href="#a_d">Adding Data</a> &middot
+										<a href="#o_h">Overlay_href</a> &middot <a href="#st_1">Streaming/Real-Time 1D</a> &middot <a href="#st_2">Streaming/Real-Time 2D</a>
+										&middot <a href="#s_d">Notes on Streaming Data</a> &middot <a href="#p_a">Plotting Audio Buffers</a> &middot <a href="#a">Appearance</a>
+										&middot <a href="#m_e">Mouse Events</a> &middot <a href="#m">Menu</a> &middot <a href="#m_s">Mouse Selection</a> &middot <a href="#h">Highlighting</a>
+										&middot <a href="#cb">Colorbar</a></h6>
+								</header>
+							</section>
+							<section class="posts">
+							<article>
+									<header>
+										<h2><a name="g_s">Getting Sigplot</a></h2>
+									</header>
+									<p>SigPlot is compatible with the following:</p>
+									<ul style="text-align: left;">
+										<li>Nodejs</li>
+										<li>Webpack (instructions available for ES5 and ES6)</li>
+										<li>Browserify</li>
+										<li>React</li>
+									</ul>
+									<p>Detailed instructions can be found in the Readme.</p>
+									<ul class="actions">
+										<li><a href="https://github.com/LGSInnovations/sigplot/blob/master/README.md" class="button big">README</a></li>
+									</ul>
+								</article>
+								<article>
+									<header>
+										<h2><a name="i_p">Instantiating a Plot</a></h2>
+									</header>
+									<div style="line-height: 1.8em;">
+									<p>To instantiate a plot, you will need a placeholder for the plot in HTML.</p>
+									<code>&ltdiv id="plot"&gt&lt/div&gt</code>
+									<br/> <br/>
+									<p>Sigplot requires that the html placeholder has a non-zero size, which can be ensured using CSS:</p>
+									<code>#plot {height: 400px; width: 600px;}</code>
+									<br/> <br/>
+									<p>In JavaScript, you can create the plot using this placeholder.</p>
+									<code style="font-size: 70%;">plot = new sigplot.Plot(document.getElementById('plot'), {});</code>
+									<br/><br/>
+									<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="a_d">Adding Data</a></h2>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+									<p>To add data, a layer must be added. Every overlay function returns a layer.
+										 The following syntax can be used to plot an array called "data" on a plot called "plot":</p>
+									<code>plot.overlay_array(data);</code>
+									<br/> <br/> <br/>
+									<p>SigPlot also supports the specialized BLUEFILE format.</p>
+									<code>plot.overlay_href('../../dat/sin.tmp');</code>
+									<br/> <br/> <br/>
+									<p>Scrolling 2D data is typically implemented using <code style="font-size: 80%;">overlay_pipe()</code> then pushing data onto the plot in some sort of loop.</p>
+									<code style="display: block; text-align: left;">plot.overlay_pipe({ <br/>
+							        &nbsp &nbsp type: 2000,<br/>
+							        &nbsp &nbsp subsize: 16384<br/>
+							    });</code>
+									<br/><br/>
+									<code>plot.push(data_layer, data);</code>
+									<br/><br/>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="o_h">Overlay_href</a></h2>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+									<p>The underlying HTTP request for overlay_href is handled <b>asynchronously.</b>
+										If you want to take an action when the layer has been downloaded, use the onload callback.</p>
+									<code style="font-size: 80%; display: block; text-align: left;">plot.overlay_href('../../dat/sin.tmp', function(hdr, layer_n) { <br/>
+										&nbsp &nbsp console.log("Finished overlay");<br/>
+									});</code>
+									<br/> <br/>
+									<p>If you make two <code style="font-size: 80%;">overlay_href()</code> calls, the order is arbitrary. You can avoid this with the following:</p>
+									<code style="font-size: 75%; display: block; text-align: left;">//Use Immediately invoked function to create a closure <br/>
+									//so we can load files remotely, but keep the order <br/>
+									(function(p, files) { <br/>
+									&nbsp &nbsp var do_next_overlay = function() { <br/>
+									&nbsp &nbsp &nbsp &nbsp var f = files.shift(); <br/>
+									&nbsp &nbsp &nbsp &nbsp if (f) { <br/>
+									&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp p.overlay_href(f, do next_overlay); <br/>
+									&nbsp &nbsp &nbsp &nbsp } else { <br/>
+									&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp p.rescale(); //we are done loading layers <br/>
+									&nbsp &nbsp &nbsp &nbsp} <br/>
+									&nbsp &nbsp }
+									&nbsp &nbsp do_next_overlay(); //kick things off <br/>
+									})(plot, ["../../dat/pulse.tmp", "../../dat/sin.tmp"]);</code>
+									<br/> <br/>
+									<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="st_1">Streaming/Real-time <br/>
+										1D Plotting</a></h2>
+									</header>
+									<div id="1d-sr" class="image_fit"></div>
+									<div style="line-height: 1.8em; font-size: 80%;">
+									<p>For Layer1D, you can stream data to the plot by using the reload method.</p>
+									<code style="font-size: 90%; display: block; text-align: left;">plot_layer = plot.overlay_array(null, { <br/>
+									&nbsp &nbsp xdelta: xdelta, <br/>
+									&nbsp &nbsp xunits: 3, <br/>
+									&nbsp &nbsp yunits: 26, <br/>
+									&nbsp &nbsp size: fftsize / 2 <br/>
+									}); <br/><br/>
+									//When new data comes in.<br/>
+									var data = [...]; <br/>
+									plot.reload(plot_layer, data);</code>
+									<br/> <br/>
+									<ul class="actions">
+										<li><a id="s_1"  class="button big">Code this Example</a></li>
+									</ul>
+									<a id="s_1_l" style="display: none;" class="button big" href="tryout.html"></a>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="st_2">Streaming/Real-time <br/>
+										2D Plotting</a></h2>
+									</header>
+									<div id="2d-sr" class="image_fit"></div>
+									<div style="line-height: 1.8em; font-size: 80%;">
+									<p>For Layer2D, stream data to plot by using the <code style="font-size: 80%;">overlay_pipe()</code> method and <code style="font-size: 80%;">push()</code>.</p>
+									<code style="font-size: 90%; display: block; text-align: left;">raster_layer = raster.ovrelay_pipe({ <br/>
+									&nbsp &nbsp type: 2000,<br/>
+									&nbsp &nbsp subsize: fftsize / 2 <br/>
+									&nbsp &nbsp xdelta: xdelta, <br/>
+									&nbsp &nbsp xunits: 3 <br/>
+								}); <br/><br/>
+									//When new data comes in. <br/>
+									var data = [...]; <br/>
+									raster.push(raster_layer, data);</code>
+									<br/> <br/>
+									<ul class="actions">
+										<li><a id="s_2" class="button big">Code this Example</a></li>
+									</ul>
+									<a id="s_2_l" style="display: none;" class="button big" href="tryout.html"></a>
+									<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="s_d">Notes on Streaming Data</a></h2>
+									</header>
+										<div id="2d-stream" class="image_fitr"></div>
+										<div id="1d-stream" class="image_fitl"></div>
+									<br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<span>Raster Draw mode:</span> <br/>
+										<h6 style="text-align: center;">
+											<a id="scrolling">scrolling</a>
+											&middot <a id="rising">rising</a>
+											&middot <a id="falling">falling</a></h6> <br />
+											<span>Colormap:</span> <br/>
+											<h6>
+												<a id="defaultcmap">default</a>
+												&middot <a id="greyscale">greyscale</a>
+												&middot <a id="ramp">ramp</a>
+												&middot <a id="wheel">wheel</a>
+												&middot <a id="spectrum">spectrum</a>
+												&middot <a id="sunset">sunset</a>
+											</h6>
+										<div style="display: none">
+											<p id="framerate">framerate</p>
+											<p id="freq1">freq1</p>
+											<p id="freq2">freq2</p>
+											<p id="freq1val">440.00 Hz</p>
+											<p id="freq2val">14400.00 Hz</p>
+										</div>
+										<p>Currently the data <b>must</b> be a JavaScript array.</p>
+										<p>The plot will scale automatically based on the 'autox' and 'autoy' options.
+											Smoother scaling can be achieved by adjusting the 'autol' option which specifies how many frames are averaged together when rescaling.</p>
+										<ul class="actions">
+											<li><a id="stream" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="stream_l" style="display: none;" class="button big" href="tryout.html"></a>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="p_a">Plotting Audio Buffers</a></h2>
+									</header>
+										<div id="audio-array" class="image_fitr"></div>
+										<div id="audio-bf" class="image_fitl"></div>
+									<br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>&nbsp To plot audio, there are two options:</p>
+										<ul style="text-align: left;">
+											<li>Convert the audio into a BLUEFILE on the server side and plot using <code style="font-size: 80%;">overlay_href()</code>.</li>
+											<li>Convert the audio into an array using the new HTML5 AudioContext and plot using <code style="font-size: 80%;">overlay_array()</code>.</li>
+										</ul>
+										<p>The downside of the latter is that it only works with <a href="http://caniuse.com/#feat=audio-api">newer web-browsers</a>.
+											Users on Firefox and Safari will not see data in the plot on the right.</p>
+										<br/> <br/>
+										<ul class="actions">
+											<li><a id="aud" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="aud_l" style="display: none;" class="button big" href="tryout.html"></a>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="a">Appearance</a></h2>
+									</header>
+									<div id="appearance" class="image_fit"></div>
+									<ul class="actions small">
+										<li><a id="invert" class="button small">Invert</a></li>
+									</ul>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>Appearance for the plot above was set during instantiation:</p>
+										<code style="display: block; text-align: left; font-size: 65%;">plot = new sigplot.Plot(document.getElementById('plot'), { <br/>
+											&nbsp xi: true, //invert backrgound and foreground <br/>
+											&nbsp gridBackground: ["#fff", "#ddd"], //set a gradient background <br/>
+											&nbsp autohide_readout: true, //only show readout when mouse is over plot <br/>
+											&nbsp autohide_readout: true, //only show readout when mouse is over plot <br/>
+											&nbsp autohide_panbars: true //show panbars when necessary and mouse is over plot<br/>
+										});</code>
+										<br/>
+										<p>Some appearance settings can be modified using the <code style="font-size: 80%;">change_settings()</code> method.
+											For a complete list of settings that can be changed via the <code style="font-size: 80%;">change_settings()</code> method,
+										refer to the <a href="#">functions documentation.</a> For most settings, valid inputs are true, false, and null,
+										which will toggle the setting. Other settings will allow other input, such as the the colors setting.</p>
+										<code style="display: block; text-align: left; font-size: 65%;">plot.change_settings( {invert: null}); //inverts colors <br/>
+											plot.change_settings( {show_x_axis: false}); //sets x-axis display<br/>
+											plot.change_settings( {cross: true}); //sets crosshairs <br/>
+											plot.change_settings( {colors: {fg: '#fff' } } ); //sets foreground</code>
+										<br/>
+										<ul class="actions">
+											<li><a id="appear" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="appear_l" style="display: none;" class="button big" href="tryout.html"></a>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="m_e">Mouse Events</a></h2>
+									</header>
+									<div id="mtags" class="image_fit"></div>
+									<ul class="actions small">
+										<li><a id="mtagx" class="button small">X: </a></li>
+										<li><a id="mtagy" class="button small">Y: </a></li>
+									</ul>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>To recieve "mtag" events, use the<code style="font-size: 80%;">addListener()</code> method.
+											The callback will be called whenever an "mtag" is emmitted; the event will always include an 'x' and 'y' value.
+											Try clicking on the plot to see these values.</p>
+										<code style="display: block; text-align: left; font-size: 65%;">plot.addListener('mtag', function(event) { <br/>
+										  &nbsp var elt1 = document.getElementById('mtagx'); <br/>
+										  &nbsp elt1.innerHTML = "X: " + event.x.toFixed(8); <br/>
+										  &nbsp var elt2 = document.getElementById('mtagy'); <br/>
+										  &nbsp elt2.innerHTML = "Y: " + event.y.toFixed(8); <br/>
+										});</code>
+										<br/> <br/>
+										<p>By default, clicking on the plot will trigger an "mtag".
+											You can change the "mtag" mode via <b>Cntrls...</b> in the main menu
+											or by using the <code style="font-size: 80%;">change_settings()</code> method.</p>
+										<code style="display: block; text-align: left; font-size: 65%;">plot.change_settings( {xcnt: "leftmouse"});  // mtag on left click<br/>
+											plot.change_settings( {xcnt: "continuous"}); // mtag on mouse movement<br/>
+											plot.change_settings( {xcnt: "disable"});    // disable the mtag (i.e. no events)</code>
+										<br/> <br/>
+										<ul class="actions">
+											<li><a id="mo_ev" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="mo_ev_l" style="display: none;" class="button big" href="tryout.html"></a>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="m">Menu</a></h2>
+									</header>
+									<div id="menu-plot" class="image_fit"></div>
+									<div id="custom-menu">
+										<h5>Custom Menu</h5>
+										<ul id="mymenu" class="actions small">
+											<li><a id="go_red" class="button small">R</a></li>
+											<li><a id="go_orange" class="button small">O</a></li>
+											<li><a id="go_yellow" class="button small">Y</a></li>
+											<li><a id="go_green" class="button small">G</a></li>
+											<li><a id="go_blue" class="button small">B</a></li>
+											<li><a id="go_purple" class="button small">V</a></li>
+										</ul>
+									</div>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>By default, the main menu is accesible via middle-click. This can be disabled
+											by setting the <code style="font-size: 80%;">nomenu</code> option to true.</p>
+										<code style="font-size: 70%;">plot = new sigplot.Plot(document.getElementById('plot'), {nomenu: true});</code>
+										<br/> <br/>
+										<p>When the menu is disabled, a <code style="font-size: 80%;">showmenu</code> event will be emitted which
+											can be used to provide a custom menu or take an alternate action.
+											If you choose to display the custom menu where the main menu typically appears,
+											you can use the 'x' and 'y' pixel locations emitted by the event. A
+											<code style="font-size: 80%;">hidemenu</code> event will emit when the plot
+											or a menu option is clicked that can be used to hide the menu.</p>
+										<ul class="actions">
+											<li><a id="menu" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="menu_l" style="display: none;" class="button big" href="tryout.html"></a>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="m_s">Mouse Selection</a></h2>
+									</header>
+									<div id="mselection-plot" class="image_fit"></div>
+									<ul class="actions small">
+										<li><a id="horizontal" class="button small">Horizontal</a></li>
+										<li><a id="vertical" class="button small">Vertical</a></li>
+										<li><a id="box" class="button small">Box</a></li>
+									</ul>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>In addition to zooming, the 'mouse-box' can be used to select an
+											area on the plot by holding down <b>CTRL</b> while drawing a box.
+											The "mtag" (see <a href="#">Mouse Events</a>) emmited will include width and height.
+											The default selection mode is "box", but this can be changed by modifying the
+											<code style="font-size: 80%">rubberbox_mode</code> variable.</p>
+										<code style="display: block; text-align: left; font-size: 65%;">plot.change_settings({rubberbox_mode: "vertical"}); //selects a y range<br/>
+											plot.change_settings({rubberbox_mode: "horizontal"}); //selects an x range<br/>
+											plot.change_settings({rubberbox_mode: "box"}); //default setting</code>
+										<br/> <br/>
+										<ul class="actions">
+											<li><a id="mo_se" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="mo_se_l" style="display: none;" class="button big" href="tryout.html"></a>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="h">Highlighting</a></h2>
+									</header>
+									<div id="hl-plot" class="image_fit"></div>
+									<ul class="actions small">
+										<li><a id="clear" class="button small">Clear All Highlights</a></li>
+									</ul>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>SigPlot allows one or more x-ranges to be highlighted given a starting index, ending index, and alternate color.
+											In the example above, highlighting is enabled with 'mouse-box' selection (hold down <b>CTRL</b> while selecting with mouse).
+											 Double-click to remove a highlight.</p>
+										<p>Basic higlighting can be added and removed with the following code:</p>
+										<code style="display: block; text-align: left; font-size: 70%;">plot.add_highlight(layer, {xstart: x1, xend: x2, color: "red"}); //add<br/>
+											//the following code clears all highlights<br/>
+											var highlights = hl_plot.get_layer(0).get_highlights();<br/>
+										  for (var i = 0; i &lt highlights.length; i++) {<br/>
+										    &nbsp var highlight = highlights[i];<br/>
+										    &nbsp hl_plot.get_layer(0).remove_highlight(highlight)<br/>
+										  }</code>
+										<br/> <br/>
+										<ul class="actions">
+											<li><a id="high" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="high_l" style="display: none;" class="button big" href="tryout.html"></a>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="cb">Colorbar</a></h2>
+									</header>
+									<div id="cb-plot" class="image_fit"></div>
+									<ul class="actions small">
+										<li><a id="colorbar" class="button small">Toggle Colorbar</a></li>
+									</ul>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>By default, sigPlot has a small colorbar that is displayed with the readout
+											along the bottom of the plot which shows the colormap used for the plot.
+											When in 2D mode, (a raster is being displayed), an interactive large colorbar can be enabled.</p>
+										<p>The large colorbar can be displayed by either selecting "Large Colorbar"
+											from the main menu under "Settings" or by using the
+											<code style="font-size: 80%">change_settings</code> method as shown below.</p>
+										<code syle="font-size: 85%">plot.change_settings({lg_colorbar: true});</code>
+										<br/> <br/>
+										<p>By clicking the arrows above and below the colorbar, the colormap can be modified,
+											updating the plot in real-time. This can be used to focus on certain characteristics of the plot.</p>
+											<br/>
+										<ul class="actions">
+											<li><a id="color" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="color_l" style="display: none;" class="button big" href="tryout.html"></a>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+							</section>
+							<section class="post">
+								<header class="major">
+									<h1><a name="plugins">PLUGINS</a></h1>
+									<p>SigPlot's capabilities can be extended using the plugin mechanism.
+										Plugins can draw on the plot, add to the menu, and interact with mouse events.
+										SigPlot comes with some standard plugins in the sigplot.plugins.js file, but you
+										may contribute others. To load the standard plugins, include the plugins file:</p>
+									<code>&lt script src="sigplot.plugins.js" &gt &lt /script &gt</code>
+									<br/> <br/>
+									<p>A SigPlot plugin can be any JavaScript object. All methods are optional, but here is a common plugin:</p>
+									<code style="display: block; text-align: left;">MyPlugin = function(options) { /*Constructor*/ };<br/><br/>
+										MyPlugin.prototype = {<br/>
+    								&nbsp init: function(plot) { /*Called when the plugin is added to a plot*/ }<br/>
+    								&nbsp dispose: function(plot) { /*Called when removed from a plot*/ }<br/>
+    						    &nbsp refresh: function(plot) { /*Called when the plugin needs to redraw*/ }<br/>
+										};</code>
+								</header>
+								<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+							</section>
+							<section class="posts">
+								<article>
+									<header>
+										<h2><a name="acc">Accordion</a></h2>
+									</header>
+									<div id="acc-plot" class="image_fit"></div>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>An accordian can be implemented both horizontally and vertically.</p>
+										<br/>
+										<ul class="actions">
+											<li><a id="acc" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="acc_l" style="display: none;" class="button big" href="tryout.html"></a>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="ann">Annotations</a></h2>
+									</header>
+									<div id="annotate-plot" class="image_fit"></div>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>The annotations plugin allows for text and images to be drawn on the canvas.</p>
+										<ul class="actions">
+											<li><a id="ann" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="ann_l" style="display: none;" class="button big" href="tryout.html"></a>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="box">Boxes</a></h2>
+									</header>
+									<div id="box-plot" class="image_fit"></div>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>Boxes can drawn to highlight areas or mark a specific spot on the plot.</p>
+										<ul class="actions">
+											<li><a id="boxes" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="boxes_l" style="display: none;" class="button big" href="tryout.html"></a>
+									</div>
+								</article>
+								<article>
+									<header>
+										<h2><a name="sl">Slider</a></h2>
+									</header>
+									<div id="slider-plot" class="image_fit"></div>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<p>Sliders can be implemented individually or as pairs. These sliders are paired
+											and the x-distance between them is shown when they are moved or clicked.</p>
+										<ul class="actions">
+											<li><a id="slide" class="button big">Code this Example</a></li>
+										</ul>
+										<a id="slide_l" style="display: none;" class="button big" href="tryout.html"></a>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+								</article>
+							</section>
+							<section class="post">
+								<header class="major">
+									<h1><a name="functions">FUNCTIONS</a></h1>
+									<p>An overview of the main functions used in SigPlot and their arguments.</p>
+									<h6><a class="sig_func">sigplot.Plot</a> &middot <a class="cs_func">change_settings</a>
+										&middot <a class="oh_func">overlay_href</a> &middot <a class="oa_func">overlay_array</a>
+										&middot <a class="op_func">overlay_pipe</a> &middot <a class="ow_func">overlay_websocket</a>
+										&middot <a class="push_func">push</a> &middot <a class="get_layer_func">get_layer</a>
+										&middot <a class="deoverlay_func">deoverlay</a> &middot <a class="el_func">enable_listeners</a>
+										&middot <a class="dl_func">disable_listeners</a> &middot <a class="al_func">addListener</a>
+										&middot <a class="refresh_func">refresh</a> &middot <a class="redraw_func">redraw</a></h6>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+								</header>
+								<article id="sig" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="sig_func" name="sig">sigplot.Plot</a></h2>
+										<p  style="text-align: center; line-height: 1.8em; font-size: 80%;">Instantiates a plot.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>var plot = new sigplot.Plot(document.getElementById('plot'), {/*options*/});</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>element</td>
+														<td>'div' where the plot will appear in the HTML.</td>
+														<td>DOM 'div'</td>
+													</tr>
+													<tr>
+														<td>options</td>
+														<td>Key-value pairs whose values alter the behavior of the plot.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>options.cmode</td>
+														<td> The plot rendering mode: 1 or "MA" or "magnitude"
+															= Magnitude, 2 or "PH" or "phase" = Phase, 3 or "RE"
+															or "real" = Real, 4 or "IM" or "imaginary" = Imaginary,
+															5 or "RI" or "real/imag" or "IR" or "imag/real" =
+															Real vs. Imaginary, 6 or "LO" or "D1" or "10*log10"
+															= 10*log10, 7 or "L2" or "D2" or "20*log1010" = 20*log10.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>options.phunits</td>
+														<td>The phase units "D" = Degrees, "R" = Radians, "C" = Cycles.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>options.cross</td>
+														<td>Display cross hairs on the plot.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.nogrid</td>
+														<td>Hide the background grid.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.legend</td>
+														<td>Set to false to hide the legend.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.no_legend_button</td>
+														<td>Set to true to hide the legend button.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.nopan</td>
+														<td>Disable panning on the plot.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.nomenu</td>
+														<td>Disable the middle-click menu.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.nospec</td>
+														<td>Hide all plot specification displays.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.noxaxis</td>
+														<td>Hide the x-axis.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.noyaxis</td>
+														<td>Hide the y-axis.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.noreadout</td>
+														<td>Hide the plot readout area.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.nodragdrop</td>
+														<td>Prevent file drag drop.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.scroll_time_interval</td>
+														<td>Set the time interval for scrolling.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.index</td>
+														<td>Use the data-index in the X axis.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.scroll_time_interval</td>
+														<td>Set the time interval for scrolling.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.autox</td>
+														<td>Auto-scaling settings for X axis. -1 or "none" =
+															None, 1 or "min" = Min Auto, 2 or "max" = Max Auto,
+															3 or "full" = Full Auto.</td>
+														<td>number/string</td>
+													</tr>
+													<tr>
+														<td>options.xmin</td>
+														<td>The minimum range to display on the X axis.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.xmax</td>
+														<td>The maximum range to display on the X axis.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.xlab</td>
+														<td>The units that X-axis uses. The name of anything
+															in the "unit-name" or "unit" column of the UNITS
+															table below is a valid input. "unit-name_unit" and
+															"unit-name unit" are also valid input. For example,
+															you could use "Time", "sec", "Time_sec" or "Time sec"
+															as valid inputs. The default by unit-name and unit
+															are also listed in the table. If something is a default
+															by unit-name, then that unit will automatically be
+															chosen. If something is a default by unit, then that
+															unit will automatically be chosen.</td>
+														<td>number/string</td>
+													</tr>
+													<tr>
+														<td>options.xlabel</td>
+														<td>Function or string for custom X-axis label.</td>
+														<td>object</td>
+													</tr>
+													<tr>
+														<td>options.xdiv</td>
+														<td>The number of divisions on the X axis.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.xcnt</td>
+														<td>Configure the mtag mouse controls 0 = Off, 1
+															(default) = LM Click, 2 = Continuous.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.rubberbox_mode</td>
+														<td>Controls the behavior of the rubberbox
+															"zoom" (default) = zoom to the selected area "box" = trigger
+															an mtag action on the selected area.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>options.rightclick_rubberbox_mode</td>
+														<td>Controls the behavior of the rubberbox. "zoom" = zoom to
+															the selected area, "box" = trigger an mtag action on the selected
+															area.  By default is null to disable right-click boxes.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>options.line</td>
+														<td>The line type to draw 0 or "none" = None, 1 or "veritcal" = Verticals, 2 or "horizontal" =
+															Horizontals, 3 or "connecting"(default) = Connecting.</td>
+														<td>number/string</td>
+													</tr>
+													<tr>
+														<td>options.autoy</td>
+														<td>Auto-scaling settings for Y axis. -1 or "none" =
+															None, 1 or "min" = Min Auto, 2 or "max" = Max Auto,
+															3 or "full" = Full Auto.</td>
+														<td>number/string</td>
+													</tr>
+													<tr>
+														<td>options.ylab</td>
+														<td>The units that Y-axis uses. The name of anything
+															in the unit-name or unit column of the UNITS
+															table below is a valid input. "unit-name_unit" and
+															"unit-name unit" are also valid input. For example,
+															you could use "Time", "sec", "Time_sec" or "Time sec"
+															as valid inputs. The default by unit-name and unit
+															are also listed in the table. If something is a default
+															by unit-name, then that unit will automatically be
+															chosen. If something is a default by unit, then that
+															unit will automatically be chosen.</td>
+														<td>number/string</td>
+													</tr>
+													<tr>
+														<td>options.ylabel</td>
+														<td>Function or string for custom Y-axis label.</td>
+														<td>object</td>
+													</tr><tr>
+														<td>options.ymin</td>
+														<td>The minimum range to display on the Y axis.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.ymax</td>
+														<td>The maximum range to display on the Y axis.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.ydiv</td>
+														<td>The number of divisions on the Y axis.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.zmin</td>
+														<td>The minimum range to display on the Z axis.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.zmax</td>
+														<td>The maximum range to display on the Z axis.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.yinv</td>
+														<td>Invert the y-axis.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.colors.fg</td>
+														<td>The foreground color as a CSS color.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>options.colors.bg</td>
+														<td>The background color as a CSS color.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>options.xi</td>
+														<td>Invert the foreground/background colors.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.all</td>
+														<td>Show all of the data on the plot instead of just one buffer.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.expand</td>
+														<td>Auto-scale the plot based on all the data (when combined with the all option).</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.origin</td>
+														<td><b>1</b> (default) = x1:xmin, x2:xmax, y1:ymax, y2:ymin,
+															 <b>2</b> = x1:xmax, x2:xmin, y1:ymax, y2:ymin (x inverted),
+															 <b>3</b> = x1:xmax, x2:xmin, y1:ymin, y2:ymax (x & y inverted),
+															 <b>4</b> = x1:xmin, x2:xmax, y1:ymin, y2:ymax (y inverted)</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.bufmax</td>
+														<td>The buffer size to use.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>options.nokeypress</td>
+														<td>Disable key press actions.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>options.font_family</td>
+														<td>The font family to use for text rendered on the plot.
+															Monospace font will generally work best.</td>
+														<td>string</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>sigplot.Plot (a plot)</p>
+										<div class="table-wrapper">
+											<h3>UNITS</h3>
+											<table>
+												<thead>
+													<tr>
+														<th>unit-name</th>
+														<th>unit</th>
+														<th>defualt by unit-name</th>
+														<th>default by unit</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>None</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Time</td>
+														<td>sec</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Delay</td>
+														<td>sec</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Frequency</td>
+														<td>Hz</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Time code format</td>
+														<td></td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Distance</td>
+														<td>m</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Speed</td>
+														<td>m/s</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Acceleration</td>
+														<td>m/sec^2</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Jerk</td>
+														<td>m/sec^3</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Doppler</td>
+														<td>Hz</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Doppler Ratae</td>
+														<td>Hz/sec</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Energy</td>
+														<td>J</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Power</td>
+														<td>W</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Mass</td>
+														<td>g</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Volume</td>
+														<td>l</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Angular power density</td>
+														<td>W/ster</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Integrated power density</td>
+														<td>W/rad</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Spatial power density</td>
+														<td>W/m^2</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Integrated power density</td>
+														<td>W/m</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Spectral power density</td>
+														<td>W/MHz</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Amplitude</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Real</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Imaginary</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Phase</td>
+														<td>rad</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Phase</td>
+														<td>deg</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Phase</td>
+														<td>cycles</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>10*Log</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>20*Log</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Magnitude</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Unknown</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>General Dimensionless</td>
+														<td>U</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Counts</td>
+														<td></td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Angle</td>
+														<td>rad</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Angle</td>
+														<td>deg</td>
+														<td>no</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Relative power</td>
+														<td>dB</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Relative power</td>
+														<td>dBm</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Relative power</td>
+														<td>dBw</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Solid angle</td>
+														<td>ster</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Distance</td>
+														<td>ft</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Distance</td>
+														<td>nmi</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Speed</td>
+														<td>ft/sec</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Speed</td>
+														<td>nmi/sec</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Speed</td>
+														<td>knots=nmi/hr</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Acceleration</td>
+														<td>ft/sec^2</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Acceleration</td>
+														<td>nmi/sec^2</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Acceleration</td>
+														<td>knots/sec</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Acceleration</td>
+														<td>G</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Jerk</td>
+														<td>G/sec</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Rotation</td>
+														<td>rps</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Rotation</td>
+														<td>rpm</td>
+														<td>no</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Angular velocity</td>
+														<td>rad/sec</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Angular velocity</td>
+														<td>deg/sec</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Angular acceleration</td>
+														<td>rad/sec^2</td>
+														<td>yes</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Angular acceleration</td>
+														<td>deg/sec^2</td>
+														<td>no</td>
+														<td>yes</td>
+													</tr>
+													<tr>
+														<td>Latitude</td>
+														<td>deg</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Longitude</td>
+														<td>deg</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Altitude</td>
+														<td>ft</td>
+														<td>yes</td>
+														<td>no</td>
+													</tr>
+													<tr>
+														<td>Altitude</td>
+														<td>m</td>
+														<td>no</td>
+														<td>no</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6>
+									</div>
+									<hr />
+								</article>
+								<article id="chs" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="chs_func" name="chs">change_settings</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Change one or more plot settings. For boolean types, passing null will toggle the setting.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.change_settings({/*options*/});</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>settings</td>
+														<td>Key-value pairs whose values are the settings to change.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>settings.grid</td>
+														<td>Change grid visibility.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.index</td>
+														<td>Change index setting.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.all</td>
+														<td>Change the plot to show all data.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.show_x_axis</td>
+														<td>True displays the x axis.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.show_y_axis</td>
+														<td>True displays the y axis.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.show_readout</td>
+														<td>True displays the readout.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.specs</td>
+														<td>Turns on and off specs.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.xcnt</td>
+														<td>Options are "leftmouse", "continuous", "disable", and "enable".</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>settings.legend</td>
+														<td>True displays the legend.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.pan</td>
+														<td>True will display scrollbars and enable panning.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.cross</td>
+														<td>True displays cross hairs.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.rubberbox_action</td>
+														<td>Controls action of rubberbox. "zoom" (default) = zoom to the selected area,
+															"select" = select the selected area, and "null" = disabled, no action.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>settings.rubberbox_mode</td>
+														<td>Controls the behavior of the rubberbox.
+															 "zoom" = zoom to the selected area, "box" = trigger
+															 an mtag action on the selected area.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>settings.rightclick_rubberbox_action</td>
+														<td>Controls action of rubberbox on rightclick. "zoom" = zoom to the selected area,
+															"select" = select the selected area, and "null" (the default)
+															= disabled, no action.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>settings.rightclick_rubberbox_mode</td>
+														<td>Controls the behavior of the rubberbox on rightclck.
+															 "zoom" = zoom to the selected area, "box" = trigger
+															 an mtag action on the selected area. By default is
+															 null to disable right-click boxes.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>settings.wheelscroll_mode_natural</td>
+														<td>True indicates natural mode, where scrolling the mousewheel forward will pan down and backwards will pan up.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.cmode</td>
+														<td>The plot rendering mode: 1 or "MA" or "magnitude"
+															= Magnitude, 2 or "PH" or "phase" = Phase, 3 or "RE"
+															or "real" = Real, 4 or "IM" or "imaginary" = Imaginary,
+															5 or "RI" or "real/imag" or "IR" or "imag/real" =
+															Real vs. Imaginary, 6 or "LO" or "D1" or "10*log10"
+															= 10*log10, 7 or "L2" or "D2" or "20*log10" = 20*log10.</td>
+														<td>number/string</td>
+													</tr>
+													<tr>
+														<td>settings.phunits</td>
+														<td>The phase units "D" = Degrees, "R" = Radians, "C" = Cycles.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>settings.lg_colorbar</td>
+														<td>True displays the large colorbar.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>settings.p_cuts</td>
+														<td>True displays p_cuts on a 2D plot.</td>
+														<td>boolean</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>Nothing. Just modifies the plot.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6> <br />
+									</div>
+									<hr />
+								</article>
+								<article id="ovh" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="oh_func" name="ovh">overlay_href</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Adds data to the plot from a file.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code style="display: block; text-align: left"> plot.overlay_href('../../dat/sin.tmp', //href<br/>
+											&nbsp function(hdr, layer_n) { //callback function<br/>
+    									&nbsp &nbsp console.log("Finished overlay");<br/>
+											&nbsp }, <br/>
+											{/*layeroptions*/}); //layeroptions</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>href</td>
+														<td>The file that you will be loading.</td>
+														<td>href</td>
+													</tr>
+													<tr>
+														<td>onload</td>
+														<td>Action that will occur once the data has loaded.</td>
+														<td>function</td>
+													</tr>
+													<tr>
+														<td>layerOptions</td>
+														<td>Key-value pairs whose values are the settings for the plot.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>layerOptions.name</td>
+														<td>The name of the layer.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>layerOptions.framesize</td>
+														<td>The framesize of the plot.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>layerOptions.etc</td>
+														<td>All of the parameters for the <code style="font-size: 80%">change_settings</code> function
+															 <b>except for lg_colorbar and p_cuts.</b></td>
+														<td>vary</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>A layer containing data.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6> <br />
+									</div>
+									<hr />
+								</article>
+								<article id="ova" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="oa_func" name="ova">overlay_array</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Adds data to the plot from a file</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.overlay_array(data, {/*overrides*/}, {/*layerOptions*/});</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>data</td>
+														<td>The data that you will be plotting.</td>
+														<td>JavaScript array</td>
+													</tr>
+													<tr>
+														<td>overrides</td>
+														<td>Key-value pairs whose values alter plot settings.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>overrides.type</td>
+														<td>1000 = one dimensional, 2000 = two dimensional. This is a convention of X-midas.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>overrides.subsize</td>
+														<td>The subsize for data being read in by the plot.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>layerOptions</td>
+														<td>Key-value pairs whose values are the settings for the plot.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>layerOptions.name</td>
+														<td>The name of the layer.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>layerOptions.framesize</td>
+														<td>The framesize of the plot.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>layerOptions.etc</td>
+														<td>All of the parameters for the <code style="font-size: 80%">change_settings</code> function
+															 <b>except for lg_colorbar and p_cuts.</b></td>
+														<td>vary</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>A layer containing data.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6> <br />
+									</div>
+									<hr />
+								</article>
+								<article id="ovp" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="op_func" name="ovp">overlay_pipe</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Adds data to the plot from a file</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code style="display: block; text-align: left;">plot.overlay_pipe({ <br />
+											&nbsp type: 2000,<br />
+											&nbsp subsize: 16348}, //overrides <br />
+											{/*layerOptions*/});</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>overrides</td>
+														<td>Key-value pairs whose values alter plot settings.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>overrides.type</td>
+														<td>1000 = one dimensional, 2000 = two dimensional. This is a convention of X-midas.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>overrides.subsize</td>
+														<td>The subsize for data being read in by the plot.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>layerOptions</td>
+														<td>Key-value pairs whose values are the settings for the plot.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>layerOptions.name</td>
+														<td>The name of the layer.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>layerOptions.framesize</td>
+														<td>The framesize of the plot.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>layerOptions.etc</td>
+														<td>All of the parameters for the <code style="font-size: 80%">change_settings</code> function
+															 <b>except for lg_colorbar and p_cuts.</b></td>
+														<td>vary</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>A layer containing data.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6> <br />
+									</div>
+									<hr />
+								</article>
+								<article id="ovw" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="ow_func" name="ovw">overlay_websocket</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Adds data to the plot from a file</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.overlay_websocket({url:port_destination, {/*overrides*/}, {/*layerOptions*/}});</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>wsurl</td>
+														<td>The url and port destination for the websocket that you use.</td>
+														<td>url:port destination</td>
+													</tr>
+													<tr>
+														<td>overrides</td>
+														<td>Key-value pairs whose values alter plot settings.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>overrides.type</td>
+														<td>1000 = one dimensional, 2000 = two dimensional. This is a convention of X-midas.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>overrides.subsize</td>
+														<td>The subsize for data being read in by the plot.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>layerOptions</td>
+														<td>Key-value pairs whose values are the settings for the plot.</td>
+														<td>array</td>
+													</tr>
+													<tr>
+														<td>layerOptions.name</td>
+														<td>The name of the layer.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>layerOptions.framesize</td>
+														<td>The framesize of the plot.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>layerOptions.etc</td>
+														<td>All of the parameters for the <code style="font-size: 80%">change_settings</code> function
+															 <b>except for lg_colorbar and p_cuts.</b></td>
+														<td>vary</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>A layer containing data.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+								<article id="push" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="push_func" name="push">push</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Push data into a layer that was created with <code style="font-size: 85%">overlay_pipe</code></p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>raster.push(raster_layer, data);</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>layer</td>
+														<td>The layer to push the data into.</td>
+														<td>number</td>
+													</tr>
+													<tr>
+														<td>data</td>
+														<td>Data to push.</td>
+														<td>JavaScript array</td>
+													</tr>
+													<tr>
+														<td>hdrmod</td>
+														<td>Optional changes to the file header.</td>
+														<td>object</td>
+													</tr>
+													<tr>
+														<td>sync</td>
+														<td>optional dispatch onpipewrite syncronously.</td>
+														<td>boolean</td>
+													</tr>
+													<tr>
+														<td>rsync</td>
+														<td>Optional dispatch refresh syncronously.</td>
+														<td>boolean</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>Nothing, adds data to plot.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+								<article id="get_layer" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="get_layer_func" name="push">get_layer</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Return a layer given an index. (Typically used to modify a specific layer.)</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.get_layer(0);</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>n</td>
+														<td>The index of the layer.</td>
+														<td>number</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>A plot layer.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+								<article id="deoverlay" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="deoverlay_func" name="push">deoverlay</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Removes a layer from the plot.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.deoverlay(0);</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>n</td>
+														<td>The index of the layer. If not provided, all layers will be removed.</td>
+														<td>number</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>Nothing, just removes layers from the plot.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+								<article id="el" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="el_func" name="push">enable_listeners</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Enables built-in listeners on the plot.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.enable_listeners();</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td></td>
+														<td>There are no parameters for this function.</td>
+														<td></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>Nothing, just enables listeners on the plot.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+								<article id="dl" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="dl_func" name="push">disable_listeners</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Disables built-in listeners on the plot.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.disable_listeners();</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td></td>
+														<td>There are no parameters for this function.</td>
+														<td></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>Nothing, just disables listeners on the plot.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+								<article id="al" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="al_func" name="push">addListener</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Adds a listener to the plot.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code style="display: block;">plot.addListener("showmenu", function(event) { <br/>
+									    &nbsp document.getElementById('custom-menu').style.display = "block"; <br/>
+									  });</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>what</td>
+														<td>The event emitted for which the plot will listen.</td>
+														<td>string</td>
+													</tr>
+													<tr>
+														<td>callback</td>
+														<td>The function that will be called when the event is heard.</td>
+														<td>function</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Possible "what"s</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>"file_deoverlayed"</td>
+														<td>Is emitted when a file is deoverlayed. The name
+															of the deoverlayed file can be found in evt.filename.</td>
+													</tr>
+													<tr>
+														<td>"file_overlayed"</td>
+														<td>Is emitted when a file is overlayed. The name
+															of the overlayed file can be found in evt.filename.</td>
+													</tr>
+													<tr>
+														<td>"hidemenu"</td>
+														<td>Is emitted when the menu should be hidden.
+															(A selection is made or a mouse click occurs away from the menu.)</td>
+													</tr>
+													<tr>
+														<td>"mdown"</td>
+														<td>Is emitted when the mouse down event occurs.
+															The evt has parts evt.xpos (the mouse x-position relative to the canvas), evt.ypos (the mouse y-position relative to the canvas),
+															evt.x (the mouse x-position relative to the data), evt.y (the mouse y-position relative to the data)
+															and evt.which (returns which mouse button was pressed for the event).</td>
+													</tr>
+													<tr>
+														<td>"mmove"</td>
+														<td>Is emitted when a mouse move event occurs.
+															The evt has parts evt.xpos (the mouse x-position relative to the canvas), evt.ypos (the mouse y-position relative to the canvas),
+															evt.x (the mouse x-position relative to the data), evt.y (the mouse y-position relative to the data)
+															and evt.which (returns which mouse button was pressed for the event).</td>
+													</tr>
+													<tr>
+														<td>"mtag"</td>
+														<td>Is emitted when a mouse "tag" event occurs. The evt of an mtag
+															has different parts depending on what triggered it. It will always
+															contain evt.xpos (the mouse x-position relative to the canvas),
+															evt.ypos (the mouse y-position relative to the canvas),
+															evt.x (the mouse x-position relative to the data), and evt.y
+															(the mouse y-position relative to the data). If the rubberboxes are enabled,
+															evt.h and evt.w will contain the width and height of the box. evt.shift will
+															contain info about the shift key if it is pressed.</td>
+													</tr>
+													<tr>
+														<td>"mup"</td>
+														<td>Is emitted when a mouse up event occurs.
+															The evt has parts evt.xpos (the mouse x-position relative to the canvas), evt.ypos (the mouse y-position relative to the canvas),
+															evt.x (the mouse x-position relative to the data), evt.y (the mouse y-position relative to the data)
+															and evt.which (returns which mouse button was pressed for the event).</td>
+													</tr>
+													<tr>
+														<td>"reread"</td>
+														<td>Is emitted when a reread has been performed.</td>
+													</tr>
+													<tr>
+														<td>"sigplotexit"</td>
+														<td>Is emitted when an exit plot event occurs.</td>
+													</tr>
+													<tr>
+														<td>"showmenu"</td>
+														<td>Is emitted when the menu should be shown.
+															The evt.x and evt.y contain the coordinates on the plot
+															where the menu will be displayed.</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>Nothing, just adds an event listener to the plot.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+								<article id="refresh" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="refresh_func" name="push">refresh</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Refreshes the plot.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.refresh();</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td></td>
+														<td>There are no parameters for this function.</td>
+														<td></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>Nothing, just refreshes the plot.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+								<article id="redraw" style="display: none;">
+									<header style="text-align: center;">
+										<h2><a class="redraw_func" name="push">redraw</a></h2>
+										<p style="text-align: center; line-height: 1.8em; font-size: 80%;">Refreshes the plot but does not rerender data.</p>
+									</header>
+									<div style="line-height: 1.8em; font-size: 80%;">
+										<h3>Example</h3>
+										<code>plot.redraw();</code>
+										<br/> <br/>
+										<h3>Parameters</h3>
+										<div class="table-wrapper">
+											<table>
+												<thead>
+													<tr>
+														<th>Name</th>
+														<th>Description</th>
+														<th>Type</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td></td>
+														<td>There are no parameters for this function.</td>
+														<td></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<h3>Returns</h3>
+										<p>Nothing, just redraws the plot.</p>
+										<h6 style="float: right;"><a href="#top">Back to Top</a></h6><br />
+									</div>
+									<hr />
+								</article>
+							</section>
+									<script src="sigplot-minimized.js"></script>
+									<script src="sigplot.plugins-minimized.js"></script>
+									<script src="dsp.js"></script>
+
+					</div>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Michael Ihde</li><li>&copy; Axios Inc.</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="devtips.js"></script>
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

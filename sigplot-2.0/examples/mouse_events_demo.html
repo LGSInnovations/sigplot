@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Mouse Events Demo</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main" style="width: 100%; max-width: 100%;">
+
+						<!-- Post -->
+							<section class="post featured">
+								<article>
+									<header class="major">
+										<h1>Mouse Events</h1>
+									</header>
+									<a class="jsbin-embed" href="http://jsbin.com/pavixig/embed?js,output">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?4.0.4"></script>
+									<h2>Understand the Code</h2>
+									<p>An event listener has been added to the plot. It listens
+										for an event called <code>'mtag'</code> and performs a
+										nameless function that takes in the event itself as its
+										argument. It first print the values stored in the plot for x
+										and y in both Mx structure and the Gx structure. Then it
+										changes the values of the dom elements under the plot to the
+										x and y value associated with the mtag event.</p>
+									<p>Click the "JavaScript" button on the top of the example to
+										hide the JavaScript and click the "Console" button to show
+										the console. Click anywhere on the plot to see the Mx values
+										for y and x printed on the first line of the console and the
+										Gx values for y and x printed on the second line of the
+										console. You will see that the x and y values associated with
+										the mtag match the x and y values stored in the Gx structure.
+										This is because both the Gx structure and the mtag event are
+										showing the x and y values in terms of the y and x axis labels,
+										while the Mx structure stores the values as postitions on the
+										canvas as a whole, not just the plot.</p>
+										<br />
+								</article>
+							</section>
+
+					</div>
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

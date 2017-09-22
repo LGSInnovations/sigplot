@@ -1,0 +1,281 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Try It Out</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/style-steph.css">
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Sigplot</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Basic Usage</a></li>
+							<li><a href="developertips.html">Developer Tips</a></li>
+							<li><a href="tryout.html">Try It Out</a></li>
+              <li class="active"><a href="inaction.html">In Action</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="https://github.com/LGSInnovations/sigplot" class="icon fa-gitlab"><span class="label">GitLab</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<h1>Sigplot In Action</h1>
+								</header>
+                <ul id="ia-menu">
+                  <li class="dropdown">
+                    <span class="dropbtn">STATIC PLOTS</span>
+                    <div class="dropdown-content">
+                      <a id="basic-btn">Basic Plot</a>
+                      <a id="fft-btn">FFT</a>
+                      <a id="penny-btn">Raster (Penny)</a>
+                      <a id="iq-btn">I/Q</a>
+                      <a id="lines-btn">Lines (Penny)</a>
+                      <a id="modem-btn">Amplitude vs. Time</a>
+                    </div>
+                  </li>
+                  <li class="dropdown">
+                    <span class="dropbtn">REAL-TIME PLOTS</span>
+                    <div class="dropdown-content">
+                      <a id="rt-plot-btn">Real-time Plot</a>
+                      <a id="rt-raster-btn">Real-time Raster</a>
+                      <a id="rt-iq-btn">Real-time I/Q</a>
+                      <a id="rt-line-btn">Real-time Line</a>
+                      <a id="stream-btn">Streaming</a>
+                      <a id="audio-btn">Audio</a>
+                    </div>
+                  </li>
+                  <li class="dropdown">
+                    <span class="dropbtn">GRID</span>
+                    <div class="dropdown-content">
+                      <a id="solid-grid-btn">Solid</a>
+                      <a id="dotted-grid-btn">Dotted</a>
+                      <a id="no-grid-btn">None</a>
+                      <a id="x-grid-btn">X Grid</a>
+                      <a id="y-grid-btn">Y Grid</a>
+                      <a id="xy-grid-btn">X/Y Grid</a>
+                    </div>
+                  </li>
+                  <li class="dropdown">
+                    <span class="dropbtn">TOGGLE</span>
+                    <div class="dropdown-content">
+                      <a id="crosshair-btn">Crosshairs</a>
+                      <a id="x-axis-btn">X Axis</a>
+                      <a id="y-axis-btn">Y Axis</a>
+                      <a id="readout-btn">Readout</a>
+                      <a id="scrollbar-btn">Scrollbars</a>
+                      <a id="colors-btn">Colors</a>
+                      <a id="color-fill-btn">Color Fill</a>
+                      <a id="gradient-fill-btn">Gradient Fill</a>
+                    </div>
+                  </li>
+                  <li class="dropdown">
+                    <span class="dropbtn">WHEEL ZOOM</span>
+                    <div class="dropdown-content">
+                      <a id="wz-off-btn">Off (Default)</a>
+                      <a id="wz-x-btn">X</a>
+                      <a id="wz-y-btn">Y</a>
+                      <a id="wz-xy-btn">X/Y</a>
+                    </div>
+                  </li>
+                  <li class="dropdown">
+                    <span class="dropbtn">MOUSE BOX</span>
+                    <div class="dropdown-content">
+                      <a id="mb-zoom-btn">Zoom</a>
+                      <a id="mb-select-btn">Select</a>
+                      <a id="mb-off-btn">Off</a>
+                      <a id="mb-box-btn">Box</a>
+                      <a id="mb-horizontal-btn">Horizontal</a>
+                      <a id="mb-vertical-btn">Vertical</a>
+                    </div>
+                  </li>
+                  <li class="dropdown">
+                    <span class="dropbtn">DRAWMODE</span>
+                    <div class="dropdown-content">
+                      <a id="raster-scrolling-btn">Scrolling Raster</a>
+                      <a id="raster-rising-btn">Rising Raster</a>
+                      <a id="raster-falling-btn">Falling Raster</a>
+                      <a id="scroll-line-btn">Scrolling Line</a>
+                      <a id="l-to-r-btn">Left to Right Line</a>
+                      <a id="r-to-l-btn">Right to Left Line</a>
+                    </div>
+                  </li>
+                  <li class="dropdown">
+                    <span class="dropbtn">HELP</span>
+                    <div class="dropdown-content">
+                      <a href="index.html">Basic Usage</a>
+                      <a href="#">API</a>
+                    </div>
+                  </li>
+                </ul>
+                <br/>
+                <p>View different types of plots by selecting options from
+                  either the static or real-time plot dropdowns. Change the appearance
+                  of the plot by modifying the grid using the grid dropdown or toggling
+                  other appearance features using the toggle dropdown. Select different
+                  options from the wheel zoom, mouse box, and drawmode dropdowns to
+                  see how they affect the plot. Additional information can be found in the help dropdown.</p>
+                <div id="basic-wt">
+                  <div id="basic" class="inaction"></div>
+                  <p>This is a basic plot of sin(10x). Use the drop down menus to
+                    change settings and appearance.</p>
+                </div>
+                <div id="fft-wt">
+                  <div id="fft-plot" class="inaction"></div>
+                  <p>This is a simple example of an FFT plot. Note the slider plugin
+                    featured on the plot. You can move these sliders with your mouse
+                    and see the distance between them.</p>
+                </div>
+                <div id="penny-wt">
+                  <div id="penny-plot" class="inaction"></div>
+                  <p>This a raster representation of 2D data. This plot is also
+                    available in 1D under Lines(Penny).</p>
+                </div>
+                <div id="iq-wt">
+                  <div id="iq-plot" class="inaction"></div>
+                  <p>This is an example of clustered data.</p>
+                </div>
+                <div id="penny-line-wt">
+                  <div id="line-penny" class="inaction"></div>
+                  <p>This is a 1D representation of 2D data.
+                    This plot can be viewed in 2D as Raster(Penny).</p>
+                </div>
+                <div id="modem-wt">
+                  <div id="modem" class="inaction"></div>
+                  <p>Notice the accordion plugin featured in this plot. You can
+                    move it by dragging it to different areas of the plot. The width
+                    is also adjustable by dragging.</p>
+                </div>
+                <div id="rt-plot-wt">
+                  <div id="rt-plot" class="inaction"></div>
+                  <p>This plot is updating random data on a set time interval, but
+                    incoming data could be displayed in real-time as well.</p>
+                </div>
+                <div id="rt-raster-wt">
+                  <div id="rt-raster" class="inaction"></div>
+                  <p>This raster is updating random data on a set time interval, but
+                    incoming data could be displayed in real-time as well.</p>
+                </div>
+                <div id="rt-iq-wt">
+                  <div id="rt-iq" class="inaction"></div>
+                  <p>This is an example of updating I/Q data.</p>
+                </div>
+                <div id="rt-line-wt">
+                  <div id="rt-line" class="inaction"></div>
+                  <p>This is an example of data that updated horizontally along a line.</p>
+                </div>
+                <div id="2-plot-stream">
+                  <div id="1d-stream" class="inaction-left"></div>
+                  <div id="2d-stream" class="inaction-right"></div>
+                  <p>You can adjust the peak of the green signal by clicking on
+                    different areas of the plot. When you click on the raster, an
+                    annotation will be added. To see how this annotation behaves
+                    in different drawmodes, change the raster drawmode using the dropdown.</p>
+                </div>
+                <br/>
+                <div style="display: none">
+                  <p id="framerate">framerate</p>
+                  <p id="freq1">freq1</p>
+                  <p id="freq2">freq2</p>
+                  <p id="freq1val">440.00 Hz</p>
+                  <p id="freq2val">14400.00 Hz</p>
+                </div>
+                <div id="2-plot-audio">
+                  <div id="audio-bf" class="inaction-left"></div>
+                  <div id="audio-array" class="inaction-right"></div>
+                  <p>Click the play button to hear the audio and watch the graphs
+                    update. the plot on the left is plotting aufio converted to
+                    bluefile and the plot on the right is plotting an HTML5 AudioContext.
+                    Older browsers may not be able to see the plot on the right.
+                    Chrome has been proven to be able to display this plot.</p>
+                </div>
+                <br/>
+                <article class="post featured">
+  								<header class="major">
+  									<h2>About SigPlot</h2>
+  								</header>
+  								<div class="row">
+  									<div class="6u 12u$(small)">
+  										<dl>
+  											<dt style="text-align:left">Tailored for Software Defined Radio</dt>
+  											<dd>
+  												<p>SigPlot provides fast interactive plotting tailored for signal processing applications.</p>
+  											</dd>
+  										</dl>
+  										<dl>
+  											<dt style="text-align:left">Extensible</dt>
+  											<dd>
+  												<p>Extend the capabilities of the plot through the use of plugins.</p>
+  											</dd>
+  										</dl>
+  										<dl>
+  											<dt style="text-align:left">Supports Direct Plotting of Binary Files</dt>
+  											<dd>
+  												<p>Plot local or remote files directly without any server-side code.</p>
+  											</dd>
+  										</dl>
+  									</div>
+  									<div class="6u 12u$(small)">
+  										<dl>
+  											<dt>Built on HTML5 Technologies</dt>
+  											<dd>
+  												<p>SigPlot is 100% pure JavaScript and easy to embed into any framework: jQuery, Bootstrap, ext.js, qooxdoo, etc.</p>
+  											</dd>
+  										</dl>
+  										<dl>
+  											<dt>Compatible with Most Browsers</dt>
+  											<dd>
+  												<p>Works best with Chrome. Supports Firefox 3.6+ and Safari 3.1+.</p>
+  											</dd>
+  										</dl>
+  									</div>
+  								</div>
+  							</article>
+
+                <script src="sigplot-minimized.js"></script>
+                <script src="sigplot.plugins-minimized.js"></script>
+                <script src="dsp.js"></script>
+                <script src="inaction.js"></script>
+              </section>
+					</div>
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Michael Ihde</li><li>&copy; Axios Inc.</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

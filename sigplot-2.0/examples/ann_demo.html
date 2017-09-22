@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Annotation Plugin</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main" style="width: 100%; max-width: 100%;">
+
+						<!-- Post -->
+							<section class="post featured">
+								<article>
+									<header class="major">
+										<h1>Annotaion Plugin</h1>
+									</header>
+									<a class="jsbin-embed" href="http://jsbin.com/rozijes/embed?js,output">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?4.0.4"></script>
+									<h2>Understand the code</h2>
+									<p>When declaring a plugin, the syntax is <code>new sigplot_plugins.[plugin name]</code>.</p>
+									<p>To add a plugin to the plot, use the syntax <code>plot.add_pluin([plugin_name])</code>.</p>
+									<p>For the annotation plugin, a variable called <code>annotations</code>
+										is declared, and the syntax <code>annotations.add_annotation</code>
+										is used to fill the annotations variable with the all of the
+										annotations that will be present on the plot.</p>
+									<p>The <code>add_annotation</code> method uses key-value pairs
+										to initialize the annotation. For the text annotation, the
+										key-value pairs are <code>x: 20</code> (x coordinate),
+										<code>y: 0</code> (y coordinate), <code>value: "Text"</code>
+										(What will be shown on the plot), <code>color: "#FA7B92"</code>,
+										<code>highlight_color: "green"</code> (color on hover), and
+										<code>popup: "[Pop-up text]"</code>.</p>
+										<p>The image annotation is declared in the image element's
+											onload function and does not have a color or highlight_color
+											listed. Its value is set to the image element whose source
+											is set to the path to the image.</p>
+										<h2>Experiment with the Code</h2>
+										<p>Use the <code>annotations.add_annotation</code> method to
+											add another annotation to the plot.</p>
+										<br />
+								</article>
+							</section>
+
+					</div>
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

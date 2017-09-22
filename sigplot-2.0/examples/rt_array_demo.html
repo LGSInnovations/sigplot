@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Real-Time Demo</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main" style="width: 100%; max-width: 100%;">
+
+						<!-- Post -->
+							<section class="post featured">
+								<article>
+									<header class="major">
+										<h1>Real-Time Plotting</h1>
+									</header>
+									<a class="jsbin-embed" href="http://jsbin.com/sobijen/embed?js,output">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?4.0.4"></script>
+									<p>The <code>update_rtplot</code> function updates the plot by
+										using the <code>reload</code> method. If the data layer does
+										not exist (the function is being called for the first time),
+										then then <code>overlay_array</code> is used to create the
+										layer that will contain the data.</p>
+									<p>The <code>Math.random</code> function is being used to fill
+										a JavaScript array that will be reloaded into the plot.</p>
+									<h2>Experiment with the data</h2>
+									<p>In the for loop, where <code>i &lt= 1000</code>, change 1000
+										to a different number to see how the x values of the plot
+										change.</p>
+									<p>In the <code>window.setInterval</code> function, change the value of 500 to see the plot update more quickly or slowly.</p>
+									<br />
+								</article>
+							</section>
+
+					</div>
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

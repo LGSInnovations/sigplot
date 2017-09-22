@@ -1,0 +1,256 @@
+		#banner {
+			font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+			text-align: center;
+			width: 100%;
+		}
+
+		#subbanner {
+			font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
+			text-align: center;
+			width: 100%;
+		}
+
+		#logos {
+			width: 600px;
+		}
+
+		.navbar-logo {
+			padding-top: 5px;
+			padding-bottom: 5px;
+		}
+
+		a img {
+			border: 0;
+		}
+
+		#footer {
+			text-align: center;
+		}
+
+		#sourceModal .modal-body
+		{
+		   max-height:80%;
+		}
+		#sourceModal .modal-dialog
+		{
+		   height:80%;
+		   max-height:80%;
+		   width:70%;
+		}
+
+		#ia-menu {
+    	list-style-type: none;
+    	margin: 0;
+    	padding: 0;
+    	overflow: hidden;
+    	background-color: #2a276c;
+		}
+
+		.dropbtn {
+			font-family: "Source Sans Pro", Helvetica, sans-serif;
+			font-weight: bold;
+		}
+
+		li span, .dropbtn {
+	    display: inline-block;
+	    color: white;
+	    text-align: center;
+	    padding: 14px 16px;
+		}
+
+		li span:hover, .dropdown:hover .dropbtn {
+		   background-color: #1d1b4b;
+		}
+
+		li.dropdown {
+		   display: inline-block;
+			 float: left;
+		}
+
+		.dropdown-content {
+		   display: none;
+		   position: absolute;
+		   background-color: #f9f9f9;
+	    min-width: 100px;
+	    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	    z-index: 1;
+			font-family: "Source Sans Pro", Helvetica, sans-serif;
+			line-height: 0.8;
+		}
+
+
+		.dropdown-content a {
+		   padding: 5px 5px;
+		   display: block;
+	    text-align: left;
+		}
+
+
+		.dropdown-content a:hover {background-color: #f1f1f1}
+
+		.dropdown:hover .dropdown-content {
+    	display: inline-block;
+		}
+
+		.inaction {
+				height: 400px;
+				width: 100%;
+				box-shadow: 5px 5px 5px #888888;
+				border-style: solid;
+				border-width: 1px;
+				padding-left: 0;
+				padding-right: 0;
+				margin-left: auto;
+				margin-right: auto;
+				margin-top: 10px;
+				display: block;
+		}
+
+		.inaction-left {
+			height: 400px;
+			width: 48%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin-top: 10px;
+			margin-bottom: 10px;
+			float: left;
+		}
+
+		.inaction-right {
+			height: 400px;
+			width: 48%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin-top: 10px;
+			margin-bottom: 10px;
+			float: right;
+		}
+
+		#plot {
+			height: 400px;
+			width: 100%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin-left: auto;
+			margin-right: auto;
+			margin-top: 10px;
+			display: block;
+		}
+
+		#left-plot {
+			height: 400px;
+			width: 48%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin-top: 10px;
+			float: left;
+		}
+
+		.image_fit {
+			height: 360px;
+			width: 100%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			display: block;
+			margin: 2.5rem 0;
+		}
+
+		.image_fitr {
+			height: 300px;
+			width: 48%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin: 2.5rem 0;
+			float: right;
+			display: block;
+		}
+
+		.image_fitl {
+			height: 300px;
+			width: 48%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin: 2.5rem 0;
+			float: left;
+			display: block;
+		}
+
+		.colormap-list-item {
+			border: #2A276C 2px solid;
+			padding: 5px;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+
+		#custom-menu {
+			display: none;
+		}
+
+		#right-plot {
+			height: 400px;
+			width: 48%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin-top: 10px;
+			float: right;
+		}
+
+		#top-plot {
+			height: 400px;
+			width: 90%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		#middle-plot {
+			height: 400px;
+			width: 90%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		#bottom-plot {
+			height: 400px;
+			width: 90%;
+			box-shadow: 5px 5px 5px #888888;
+			border-style: solid;
+			border-width: 1px;
+			padding-left: 0;
+			padding-right: 0;
+			margin-left: auto;
+			margin-right: auto;
+		}

@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Audio Demo</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main" style="width: 100%; max-width: 100%;">
+
+						<!-- Post -->
+							<section class="post featured">
+								<article>
+									<header class="major">
+										<h1>Plotting Audio</h1>
+									</header>
+									<a class="jsbin-embed" href="http://jsbin.com/fikefe/embed?js,output">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?4.0.4"></script>
+									<h2>Understand the Code</h2>
+									<p>Once the plots are intstantiated, an audio context and audio
+										are declared if the browser supports it.</p>
+									<p>If possible, the function <code>loadPlotFromWav</code> will
+										be called which uses a get request to directly load the .wav
+										file then shortens the data to make it more manageable for
+										the browswer. If not, then the function <code>loadPlotFromHref</code>
+										is called, which calls <code>overlay_href</code>.</p>
+									<p>A slider is created to swipe along the plot as the audio is
+										played.</p>
+									<p>This plot uses the <code>PlaybackControlsPlugin</code> that
+										listens for when the audio is playing and updates the buffer
+										and start times accordingly.</p>
+									<p>The code then checks if the audio is ended, and if it is,
+										it will be paused.</p>
+									<p>The slider is updated using a function called <code>update_slider</code>
+										as the data is played.</p>
+									<p>If the broswer supports creating an analyser, then one is
+										created and the <code>analyze</code> function is called in a
+										set interval.</p>
+									<br />
+								</article>
+							</section>
+
+					</div>
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

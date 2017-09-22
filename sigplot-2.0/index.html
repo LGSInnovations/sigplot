@@ -1,0 +1,235 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Sigplot Demo</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/style-steph.css">
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Intro -->
+					<div id="intro">
+						<img src="images/axios_logo_outlines.png" alt="logo" style="width:800px" class="logo">
+						<br>
+						<br>
+						<h1>Sigplot</h1>
+						<p>Fast interactive plotting tailored for signal processing applications.</p>
+						<ul class="actions">
+							<li><a href="#header" class="button icon solo fa-arrow-down scrolly">Continue</a></li>
+						</ul>
+					</div>
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Sigplot</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li class="active"><a href="index.html">Basic Usage</a></li>
+							<li><a href="developertips.html">Developer Tips</a></li>
+							<li><a href="tryout.html">Try It Out</a></li>
+							<li><a href="inaction.html">In Action</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="https://github.com/LGSInnovations/sigplot" class="icon fa-gitlab"><span class="label">GitLab</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Featured Post -->
+							<article class="post featured">
+								<header class="major">
+									<h2>Basic Usage</h2>
+								</header>
+								<div id="plot" class="main image"></div>
+
+								<dl>
+									<dt><h3>Mouse Actions</h3></dt>
+									<dd>
+										<p>To <b>zoom,</b> press and drag the left mouse (LM) over the region of interest and release.
+											To <b>unzoom,</b> press the right mouse (RM).
+											To <b>select, </b> press and drag the left mouse (LM) while holding CTRL over the region of interest and release.
+											To <b>view the menu,</b> press the middle mouse (MM) button.</p>
+									</dd>
+									<dt><h3>Keyboard Actions</h3></dt>
+									<dd>
+										<p>To view the keyboard actions, open the menu by pressing the middle mouse (MM) button on the plot and selecting "Keypress Info"</p>
+									</dd>
+									<dt><h3>View Manipulation</h3></dt>
+									<dd>
+										<ul style="text-align: left; font-size: 85%;">
+											<li><b>Panning:</b> There are scrollbars along each axis for panning. Once zoomed, the following features can be used:</li>
+											<li><b>Single Stepping:</b> Single-click the arrows at the end of each scrollbar to pan the plot by one step.</li>
+											<li><b>Single Paging:</b>Click anywhere in the trough between a panbar and one of the arrows on either end to page by one step.</li>
+											<li><b>Continuous Stepping or Paging:</b> Keep the left mouse button held down while stepping or paging.</li>
+											<li><b>Panbar Dragging:</b> Dragging the panbar along an axis allows you to quickly move from one part of the plot to another.</li>
+											<li><b>Re-Centering:</b> Click one of the numerical labels along an axis to re-center your plot to a specific value.</li>
+											<li><b>Range Control:</b> Middle-click on a scrollbar and use the options from the popup menu to expand or shrink values visible within the plot area.</li>
+											<li><b>Wheel Scrolling:</b> Scrolll the mousewheel up or down while hovering your mouse over a scrollbar to pan. By default, the scroll orientation is inverted/natural, meaning that scrolling forward (away from you) will pan the plot down while scrolling backwards (towards you) will pan the plot up. This setting can be changed in SigPlot's main menu.</li>
+										</ul>
+									</dd>
+								</dl>
+								<br/>
+								<ul class="actions">
+									<li><a id="basic"  class="button big">Code this Example</a></li>
+								</ul>
+								<a id="basic_l" style="display: none;" class="button big" href="tryout.html"></a>
+							</article>
+
+							<article class="post featured">
+								<header class="major">
+									<h2>About SigPlot</h2>
+								</header>
+								<div class="row">
+									<div class="6u 12u$(small)">
+										<dl>
+											<dt style="text-align:left">Tailored for Software Defined Radio</dt>
+											<dd>
+												<p>SigPlot provides fast interactive plotting tailored for signal processing applications.</p>
+											</dd>
+										</dl>
+										<dl>
+											<dt style="text-align:left">Extensible</dt>
+											<dd>
+												<p>Extend the capabilities of the plot through the use of plugins.</p>
+											</dd>
+										</dl>
+										<dl>
+											<dt style="text-align:left">Supports Direct Plotting of Binary Files</dt>
+											<dd>
+												<p>Plot local or remote files directly without any server-side code.</p>
+											</dd>
+										</dl>
+									</div>
+									<div class="6u 12u$(small)">
+										<dl>
+											<dt>Built on HTML5 Technologies</dt>
+											<dd>
+												<p>SigPlot is 100% pure JavaScript and easy to embed into any framework: jQuery, Bootstrap, ext.js, qooxdoo, etc.</p>
+											</dd>
+										</dl>
+										<dl>
+											<dt>Compatible with Most Browsers</dt>
+											<dd>
+												<p>Works best with Chrome. Supports Firefox 3.6+ and Safari 3.1+.</p>
+											</dd>
+										</dl>
+									</div>
+								</div>
+							</article>
+							<article class="post featured">
+								<header class="major">
+									<h2>Examples</h2>
+						</header>
+							</article>
+
+						<!-- Posts -->
+							<section class="posts">
+								<article>
+									<header>
+										<h2><a href="#">Raster (Penny)</a></h2>
+									</header>
+									<div id="penny-plot" class="image_fit"></div>
+									<ul class="actions">
+										<li><a id="penny"  class="button big">Code this Example</a></li>
+									</ul>
+									<a id="penny_l" style="display: none;" class="button big" href="tryout.html"></a>
+								</article>
+								<article>
+									<header>
+										<h2><a href="#">Realtime Raster (Random)</a></h2>
+									</header>
+									<div id="rt-raster" class="image_fit"></div>
+									<ul class="actions">
+										<li><a id="rt_raster"  class="button big">Code this Example</a></li>
+									</ul>
+									<a id="rt_raster_l" style="display: none;" class="button big" href="tryout.html"></a>
+								</article>
+								<article>
+									<header>
+										<h2><a href="#">FFT</a></h2>
+									</header>
+									<div id="fft-plot" class="image_fit"></div>
+									<ul class="actions">
+										<li><a id="fft"  class="button big">Code this Example</a></li>
+									</ul>
+									<a id="fft_l" style="display: none;" class="button big" href="tryout.html"></a>
+								</article>
+								<article>
+									<header>
+										<h2><a href="#">Realtime (Random Data)</a></h2>
+									</header>
+									<div id="rt-plot" class="image_fit"></div>
+									<ul class="actions">
+										<li><a id="rt_array"  class="button big">Code this Example</a></li>
+									</ul>
+									<a id="rt_array_l" style="display: none;" class="button big" href="tryout.html"></a>
+								</article>
+								<article>
+									<header>
+										<h2><a href="#">I/Q Constellation</a></h2>
+									</header>
+									<div id="iq-plot" class="image_fit"></div>
+									<ul class="actions">
+										<li><a id="iq"  class="button big">Code this Example</a></li>
+									</ul>
+									<a id="iq_l" style="display: none;" class="button big" href="tryout.html"></a>
+								</article>
+								<article>
+									<header>
+										<h2><a href="#">Realtime I/Q (Random Data)</a></h2>
+									</header>
+									<div id="rt-iq" class="image_fit"></div>
+									<script src="sigplot-minimized.js"></script>
+									<script src="sigplot.plugins-minimized.js"></script>
+									<script src="demo.js"></script>
+									<ul class="actions">
+										<li><a id="rt_iq"  class="button big">Code this Example</a></li>
+									</ul>
+									<a id="rt_iq_l" style="display: none;" class="button big" href="tryout.html"></a>
+								</article>
+							</section>
+
+						<!-- Footer -->
+							<footer>
+								<div class="pagination">
+									<!--<a href="#" class="previous">Prev</a>-->
+									<a href="#" class="page active">Return to Top</a>
+								</div>
+							</footer>
+
+					</div>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; Michael Ihde</li><li>&copy; Axios Inc.</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="demo.js"></script>
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

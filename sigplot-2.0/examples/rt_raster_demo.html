@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Real-Time Raster Demo</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main" style="width: 100%; max-width: 100%;">
+
+						<!-- Post -->
+							<section class="post featured">
+								<article>
+									<header class="major">
+										<h1>Real-Time Raster</h1>
+									</header>
+									<a class="jsbin-embed" href="http://jsbin.com/xezozur/embed?js,output">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?4.0.4"></script>
+									<h2>Understand the code</h2>
+									<p>The function <code>update_rtraster</code> creates a line of
+										horizontal data that is pushed to the plot using <code>plot.push</code>.
+										If the the plot layer does not exist yet (the first time that
+										the function is called), then the <code>overlay_pipe</code> method
+										is used to create the layer.</p>
+									<h2>Experiment with the data</h2>
+									<p>The <code>framesize</code> refers to the length horizontally of the data. Try modifying this value to see how it affects the plot.</p>
+									<p>Change the <code>Math.random</code> function to something different, like <code>Math.cos</code> for example, and see how it affects the data.</p>
+									<br />
+								</article>
+							</section>
+
+					</div>
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>

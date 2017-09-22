@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Streaming Data Demo</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="../assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main" style="width: 100%; max-width: 100%;">
+
+						<!-- Post -->
+							<section class="post featured">
+								<article>
+									<header class="major">
+										<h1>Streaming Data</h1>
+									</header>
+									<a class="jsbin-embed" href="http://jsbin.com/semuter/embed?js,output">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?4.0.4"></script>
+									<h2>Understand the Code</h2>
+									<p>This code includes a file called "dsp.js" which can be found
+										<a href="http://demo.axiosengineering.com/sigplot/dsp.js">here</a>.
+										Read through this document to gain a better understanding of
+										some of the functions used to control these plots.</p>
+									<p>Once some of the dsp variables are declared, the data layers
+										for the plots are declared using <code>overlay_array</code>
+										with null data and <code>overlay_pipe</code>.</p>
+									<p>The two plots are then set to mimic each other using the
+										<code>plot.mimic()</code> method.</p>
+									<p>The <code>update</code> function generate ocsillations using
+										dsp functions, and reloads data to the layers of the 1D plot
+										using <code>plot.reload([layer], [data]);</code>. To update
+										the data in the 2D plot, the <code>plot.push([layer], [data]);</code>
+										method is used.</p>
+									<p>The <code>window.onload</code> function initializes the plot
+										and enables the possibility to use dom elements called
+										<code>framerate</code>, <code>freq1</code>, and <code>freq2</code>
+										to get input from the user and update the framerate, and
+										frequency of the two oscillations on the 1D plot. This option
+										is not implemented in this example.</p>
+									<p>In this same function, other dom elements have onclick functions
+										that perform different actions on the plot. Click these elements
+										(appear below the plot) to see how they change they change the plots.</p>
+									<p>On the 1D plot, an mtag listener is added, which will move
+										the peak of one of the functions plotted when the mouse is clicked.</p>
+									<p>On the 2D plot, an mtag listener is added, which will add an
+										annotation that reads "click" wherever the mouse is clicked on the plot.</p>
+									<br />
+								</article>
+							</section>
+
+					</div>
+			</div>
+
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<script src="../assets/js/main.js"></script>
+
+	</body>
+</html>
