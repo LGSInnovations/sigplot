@@ -1,24 +1,24 @@
 {
   "name": "sigplot",
   "description": "Advanced plotting for signal processing applications",
-  "version": "2.0.0",
-  "homepage": "http://demo.axiosengineering.com/sigplot",
+  "version": "2.0.0rc",
+  "homepage": "http://sigplot.lgsinnovations.com",
   "main": "js/sigplot.js",
   "files": [
     "js",
     "dist"
   ],
   "author": {
-    "name": "Axios Engineering",
-    "email": "sigplot@axiosengineering.com",
-    "url": "http://www.axiosengineering.com"
+    "name": "LGS Innovations, Inc.",
+    "email": "sigplot@lgsinnovations.com",
+    "url": "http://www.lgsinnovations.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Axios-Engineering/sigplot.git"
+    "url": "git://github.com/LGSInnovations/sigplot.git"
   },
   "bugs": {
-    "url": "https://github.com/Axios-Engineering/sigplot/issues"
+    "url": "https://github.com/LGSInnovations/sigplot/issues"
   },
   "licenses": [
     {

@@ -1,6 +1,9 @@
 /**
  * @license
  * File: sigplot.layer2d.js
+ * Copyright (c) 2012-2017, LGS Innovations Inc., All rights reserved.
+ *
+ * This file is part of SigPlot.
  *
  * Licensed to the LGS Innovations (LGS) under one
  * or more contributor license agreements.  See the NOTICE file

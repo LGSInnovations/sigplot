@@ -57,7 +57,7 @@
         }
     };
 
-    var emptyBench = new POTATOES.GamingBench.Bench("Empty SigPlot", "http://demo.axiosengineering.com/sigplot",
+    var emptyBench = new POTATOES.GamingBench.Bench("Empty SigPlot", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -71,7 +71,7 @@
 
     POTATOES.GamingBench.registerBench(emptyBench);
     
-    var Layer1DSmallBench = new POTATOES.GamingBench.Bench("Layer 1D (1k points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer1DSmallBench = new POTATOES.GamingBench.Bench("Layer 1D (1k points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -92,7 +92,7 @@
 
     POTATOES.GamingBench.registerBench(Layer1DSmallBench);
     
-    var Layer1DLargeBench = new POTATOES.GamingBench.Bench("Layer 1D (1M points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer1DLargeBench = new POTATOES.GamingBench.Bench("Layer 1D (1M points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -113,7 +113,7 @@
 
     POTATOES.GamingBench.registerBench(Layer1DLargeBench);
     
-    var Layer1DSmallReloadBench = new POTATOES.GamingBench.Bench("Layer 1D Reload (1k points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer1DSmallReloadBench = new POTATOES.GamingBench.Bench("Layer 1D Reload (1k points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -134,7 +134,7 @@
 
     POTATOES.GamingBench.registerBench(Layer1DSmallReloadBench);
 
-    var Layer1DLargeReloadBench = new POTATOES.GamingBench.Bench("Layer 1D Reload (1M points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer1DLargeReloadBench = new POTATOES.GamingBench.Bench("Layer 1D Reload (1M points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -156,7 +156,7 @@
     POTATOES.GamingBench.registerBench(Layer1DLargeReloadBench);
 
 
-    var Layer2DSmallPushBench = new POTATOES.GamingBench.Bench("Streaming 2D (1k points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer2DSmallPushBench = new POTATOES.GamingBench.Bench("Streaming 2D (1k points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -185,7 +185,7 @@
 
     POTATOES.GamingBench.registerBench(Layer2DSmallPushBench);
 
-    var Layer2DMediumPushBench = new POTATOES.GamingBench.Bench("Streaming 2D (64k points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer2DMediumPushBench = new POTATOES.GamingBench.Bench("Streaming 2D (64k points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -214,7 +214,7 @@
 
     POTATOES.GamingBench.registerBench(Layer2DMediumPushBench);
     
-    var Layer2DLargePushBench = new POTATOES.GamingBench.Bench("Streaming 2D (256k points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer2DLargePushBench = new POTATOES.GamingBench.Bench("Streaming 2D (256k points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -244,7 +244,7 @@
 
     POTATOES.GamingBench.registerBench(Layer2DLargePushBench);
     
-    var Layer2DSmallBench = new POTATOES.GamingBench.Bench("Layer 2D (1k points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer2DSmallBench = new POTATOES.GamingBench.Bench("Layer 2D (1k points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
@@ -272,7 +272,7 @@
 
     POTATOES.GamingBench.registerBench(Layer2DSmallBench);
 
-    var Layer2DLargeBench = new POTATOES.GamingBench.Bench("Layer 2D (64k points)", "http://demo.axiosengineering.com/sigplot",
+    var Layer2DLargeBench = new POTATOES.GamingBench.Bench("Layer 2D (64k points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
             init(workbench, 600, 400);
             plot = new sigplot.Plot(container, {all: true, expand: true});
