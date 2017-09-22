@@ -34,7 +34,7 @@ Finally, invoke SigPlot:
 plot = new sigplot.Plot(document.getElementById('plot'), {autohide_panbars: true});
 ```
 
-Additional [examples and demos](http://demo.axiosengineering.com/sigplot/) are
+Additional [examples and demos](http://sigplot.lgsinnovations.com/) are
 available along with [API](http://TODO) documentation. 
 
 Help
