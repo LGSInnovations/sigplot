@@ -15,6 +15,19 @@ Redhat/CentOS you can download and build the source.
    SigPlot (as opposed to the latest release), use `grunt devbuild`, this
 assumes that SigPlot is available at `../sigplot`.
 
+Running Jekyll Locally
+=====================
+
+GitHub pages are built using Jekyll.  You can build and serve up the pages
+following the [GitHub Directions](https://help.github.com/articles/setting-up-your-github-pages-site-locally-with-jekyll/).  Below are some quick start directions for Ubuntu.
+
+```
+sudo apt-get install gcc ruby ruby-dev libxml2 libxml2-dev  libxslt1-dev
+gem install bundler
+bundle install
+bundle exec jekyll server
+```
+
 Testing
 ==========
 You can run `grunt web_server` to start a test web server and then load the
