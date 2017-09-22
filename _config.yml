@@ -1,0 +1,8 @@
+github: [metadata]
+encoding: UTF-8
+kramdown:
+   input: GFM
+   hard_wrap: false
+future: true
+jailed: false
+gfm_quirks: paragraph_end
