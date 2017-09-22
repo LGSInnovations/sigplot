@@ -136,21 +136,6 @@ module.exports = function (grunt) {
     
     grunt.registerTask('doc', ['run_grunt:sigplot_doc', 'copy:sigplot_doc']);
    
-    // Publish is kinda tricky, you need to first setup your SSH
-    // so you can login to ec2_user@demo.axiosengineering.com without using
-    // a password.
-    //
-    // The next thing to be aware of, it expects that you have ../sigplot
-    // available and that this checkout coorespondes to the version that
-    // you want to document with jsdoc.  This may change in the future if 
-    // we do one of the following:
-    //  - package that docs as part of bower
-    //  - have publish checkout a fresh version of the sigplot repository
-    //    and use the latest release version for documentation 
-    //  - we publish the sigplot-debug.js with *all* comments as opposed
-    //    to the currently slightly-minimized version
-    grunt.registerTask('publish', ['clean', 'build', 'doc']);
-
     // Default task.
     grunt.registerTask('default', 'build');
 
