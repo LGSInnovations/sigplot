@@ -225,9 +225,11 @@
         _applySupportsTypedArray = false;
     }
     /**
+     * Convert an ArrayBuffer to a string
+     *
+     * @private
      * @memberof bluefile
      * @param   {array}     buf         Data bffer
-     * @private
      */
     function ab2str(buf) {
         var uintbuf = new Uint8Array(buf);
@@ -243,9 +245,11 @@
         }
     }
     /**
+     * Convert a string to an ArrayBuffer
+     *
+     * @private
      * @memberof bluefile
      * @param   {string}
-     * @private
      */
     function str2ab(str) {
         var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
@@ -256,26 +260,72 @@
         return buf;
     }
     /**
+     * Calculate 2^n
+     *
+     * If 31 > n >= 0 then a left-shift is used, otherwise Math.pow is used.
+     *
+     * @private
      * @memberof bluefile
      * @param   {number}
-     * @private
      */
     function pow2(n) {
         return (n >= 0 && n < 31) ? (1 << n) : (pow2[n] || (pow2[n] = Math.pow(2, n)));
     }
     /**
-     * Create bluefile header and attach data buffer
+     * Constructor for a BlueHeader that extracts paramters from the 512-byte
+     * Bluefile binary header.  If the data segment of the bluefile is also
+     * included in the provided buffer it will be accessible as well
+     * via the dview property.
+     *
      * @memberof bluefile
-     * @param   {array}     buf         Data bffer
+     * @param {array} buf
+     *   - An existing ArrayBuffer of Bluefile data.
+     * @param {Object} options
+     *     - options that affect how the bluefile is read
+     * @param {string} ["dict"] options.ext_header_type
+     *     - if the BlueFile contains extended header keywords,
+     *       extract them either as a dictionary ("dict", "json", 
+     *       {}, "XMTable", "JSON", "DICT") or as a list of 
+     *       key value pairs.  The extended header keywords
+     *       will be accessible on the hdr.ext_header property
+     *       after the file has been read.
+     *
+     * See http://nextmidas.techma.com/nm/nxm/sys/docs/MidasBlueFileFormat.pdf for
+     * more details on header properties.
+     *
+     * @property {ArrayBuffer} buf
+     * @property {String} version - the header version extracted from the file, always 'BLUE'
+     * @property {String} headrep - endianness of header 'IEEE' or 'EEEI'
+     * @property {String} datarep - endianness of data 'IEEE' or 'EEEI'
+     * @property {Number} ext_start - byte offset for extended header binary data
+     * @property {Number} ext_size - byte size for extended header data
+     * @property {Number} type - the BLUEFILE type (1000 = 1-D data, 2000 = 2-D data)
+     * @property {Number} class - the BLUEFILE class (i.e. type/1000)
+     * @property {String} format - the BLUEFILE format, the format is a two character diagraph, such as SF.
+     * @property {Number} timecode - absolute time reference for the file (in seconds since Jan 1st 1950)
+     * @property {Number} xstart - relative offset for the first sample on the x-axis
+     * @property {Number} xdelta - delta between points on the x-axis 
+     * @property {Number} xunits - the unitcode for the x-axis (see m.UNITS)
+     * @property {Number} ystart - relative offset for the first sample on the y-axis
+     * @property {Number} ydelta - delta between points on the y-axis 
+     * @property {Number} yunits - the unitcode for the y-axis (see m.UNITS)
+     * @property {Number} subsize - the number of columns for a 2-D data file
+     * @property {Number} data_start - byte offset for data
+     * @property {Number} data_size - byte size for data
+     * @property {Object} ext_header - extracted extended header keywords
+     * @property {Number} spa - scalars per atom
+     * @property {Number} bps - bytes per scalar
+     * @property {Number} bpa - bytes per atom
+     * @property {Number} ape - atoms per element
+     * @property {Number} bpe - bytes per element
+     * @property {Number} size - number of elements in dview
+     * @property {DataView} dview - a Data
      */
     bluefile.BlueHeader = function(buf, options) {
         this.options = {
             ext_header_type: "dict"
         };
         common.update(this.options, options);
-        this.file = null;
-        this.file_name = null;
-        this.offset = 0;
         this.buf = buf;
         if (this.buf != null) {
             var dvhdr = new DataView(this.buf);
@@ -319,12 +369,15 @@
 
     bluefile.BlueHeader.prototype = {
         /**
+         * Internal method that sets the dview up based off the
+         * provided buffer and fields extracted from the header.
+         *
          * @memberof bluefile
+         * @private
          * @param   buf
          * @param   offset
          * @param   data_end
          * @param   littleEndian
-         *
          */
         setData: function(buf, offset, data_end, littleEndian) {
             if (this["class"] === 1) {
@@ -361,13 +414,17 @@
             }
         },
         /**
+         * Internal method that unpacks the extended header keywords into
+         * either a object (i.e. dictionary) or a list of key-value pairs
+         * depending on this.options.ext_header_type.
+         *
          * @author Sean Sullivan https://github.com/desean1625
+         * @private
          * @memberof bluefile
          * @param   buf
          * @param   lbuf
          * @param   offset
          * @param   littleEndian
-         *
          */
         unpack_keywords: function(buf, lbuf, offset, littleEndian) {
             var lkey, lextra, ltag, format, tag, data, ldata, itag, idata, dvk;
@@ -423,7 +480,10 @@
             return keywords;
         },
         /**
-         * Create typed array
+         * Internal method to create typed array for the data based on the
+         * format extracted from the header.
+         *
+         * @private
          * @memberof bluefile
          * @param   buf
          * @param   offset
@@ -451,16 +511,17 @@
         }
     };
 
-    // Internal method from http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
     /**
-     * This function creates a new anchor element and uses location
+     * Internal method to create a new anchor element and uses location
      * properties (inherent) to get the desired URL data. Some String
      * operations are used (to normalize results across browsers).
      *
-     * @memberof bluefile
      * @private
+     * @memberof bluefile
      * @param   url
      * @returns -
+     *
+     * Based off http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
      */
     function parseURL(url) {
         var a = document.createElement('a');
@@ -494,8 +555,11 @@
         };
     }
     /**
-     * @memberof bluefile
+     * Internal method to convert text from an HTTP response
+     * into an ArrayBuffer.
+     *
      * @private
+     * @memberof bluefile
      * @param   text
      * @param   oncomplete
      * @param   blocksize
@@ -519,9 +583,18 @@
         setTimeout(worker, 0);
     }
     /**
-     * Bluefile Reader
-     * @memberof    bluefile
-     * @param   options
+     * Bluefile Reader constructor.
+     *
+     * @memberof bluefile
+     * @param {Object} options
+     *     - options that affect how the bluefile is read
+     * @param {string} ["dict"] options.ext_header_type
+     *     - if the BlueFile contains extended header keywords,
+     *       extract them either as a dictionary ("dict", "json", 
+     *       {}, "XMTable", "JSON", "DICT") or as a list of 
+     *       key value pairs.  The extended header keywords
+     *       will be accessible on the hdr.ext_header property
+     *       after the file has been read.
      */
     bluefile.BlueFileReader = function(options) {
         this.options = options;
@@ -529,10 +602,19 @@
 
     bluefile.BlueFileReader.prototype = {
         /**
-         * @memberof bluefile
-         * @param   theFile
-         * @param   onload
+         * @callback readCallback
+         * @param {BlueHeader}
+         *     - the extracted header, or null on failure
+         */
+
+        /**
+         * Read only the header from a local Bluefile.
          *
+         * @memberof bluefile
+         * @param {File} theFile
+         *     - a File object for the bluefile
+         * @param {readCallback} onload
+         *     - callback when the header has been read
          */
         readheader: function readheader(theFile, onload) {
             var that = this;
@@ -554,11 +636,13 @@
             reader.readAsArrayBuffer(blob);
         },
         /**
+         * Read a local Bluefile on disk.
          *
          * @memberof bluefile
-         * @param   theFile
-         * @param   onload
-         *
+         * @param {File} theFile
+         *     - a File object for the bluefile
+         * @param {readCallback} onload
+         *     - callback when the header has been read
          */
         read: function read(theFile, onload) {
             var that = this;
@@ -580,11 +664,13 @@
             reader.readAsArrayBuffer(theFile);
         },
         /**
+         * Read a Bluefile from a URL
          *
          * @memberof bluefile
-         * @param   href
-         * @param   onload
-         *
+         * @param {string} href
+         *     - the URL for the bluefile
+         * @param {readCallback} onload
+         *     - callback when the header has been read
          */
         read_http: function read_http(href, onload) {
             var that = this;
