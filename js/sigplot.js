@@ -234,6 +234,9 @@ window.sigplot = window.sigplot || {};
      * @param {Boolean}
      *            options.yinv invert the y-axis
      *
+     * @param {Number}
+     *            options.autol auto-scaling time constant
+     *
      * @param {String}
      *            options.colors.fg the foreground color as a CSS color
      *
