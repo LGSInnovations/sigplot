@@ -55,6 +55,7 @@
     "grunt-open": "^0.2.3",
     "grunt-services": "^0.1.0",
     "grunt-shell-spawn": "^0.3.10",
+    "grunt-text-replace": "^0.4.0",
     "grunt-web-server": "^1.2.3",
     "jasmine": "^2.4.1",
     "karma": "^0.13.0",

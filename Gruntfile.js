@@ -171,6 +171,16 @@ module.exports = function (grunt) {
                 ]
             }
         },
+        replace: {
+            version: {
+                src: ["dist/*.js"],
+                overwrite: true,
+                replacements: [{
+                    from: /version-PLACEHOLDER/g,
+                    to: "<%= pkg.version %>",
+                }],
+            },
+        },
         web_server: {
             options: {
                 cors: true,
@@ -292,8 +302,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-express-server');
     grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-text-replace');
 
-    grunt.registerTask('build', ['jsbeautifier:check', 'jshint', 'browserify']);
+    grunt.registerTask('build', ['jsbeautifier:check', 'jshint', 'browserify', 'replace']);
 
     // Check everything is good
     grunt.registerTask('test', ['build', 'qunit']);
