@@ -3397,6 +3397,39 @@ interactiveTest('sigplot layer1d change_settings ymin/ymax ',
             ymax: null
         });
     });
+interactiveTest('sigplot layer1d framesize change',
+    'Do you see a plots where the x-axis grows in size and the triangle stays centered?',
+    function() {
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {});
+        notEqual(plot, null);
+
+        var current_framesize = 100;
+        plot.overlay_pipe({
+            type: 1000
+        }, {
+            framesize: current_framesize
+        });
+
+        ifixture.interval = window.setInterval(function() {
+            var data = [];
+            for (var i = 0; i < current_framesize; i += 1) {
+                if (i < current_framesize / 2) {
+                    data.push(i);
+                } else {
+                    data.push(current_framesize - i);
+                }
+            }
+            // change the framesize
+            plot.change_settings({
+                framesize: current_framesize
+            });
+            // push the data
+            plot.push(0, data);
+            // increate the framesize for the next pass
+            current_framesize = current_framesize + 100;
+        }, 2000);
+    });
 
 interactiveTest('LO ymin/ymax', 'Do you see a plot that scales -100 to -20?', function() {
     var container = document.getElementById('plot');
