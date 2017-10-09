@@ -22,26 +22,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 /*jslint nomen: true, browser: true, devel: true*/
-
 //Uses Immediately-invoked Function Expressions (IIFE)s for namespaces
 //See http://addyosmani.com/blog/essential-js-namespacing/ for details.
-
 /**
  * This namespace includes generic graphical routines and functions
  * the manipulate a canvas.
  *
  * @namespace
  */
-
 /* global module */
 /* global require */
 /* global requestAnimFrame */
 /* global cancelAnimFrame */
-
 (function() {
-
     var tinycolor = require("tinycolor2");
     var ColorMap = require("./ColorMap");
     var common = require("./common");
@@ -49,8 +43,6 @@
     var m = require("./m");
 
     function mx() {}
-
-
     mx.XW_INIT = -3;
     mx.XW_DRAW = 1;
     mx.XW_EVENT = 2;
@@ -66,7 +58,6 @@
     mx.SB_DRAG = 8;
     mx.SB_WHEELUP = 9;
     mx.SB_WHEELDOWN = 10;
-
     // Grayscale colors:
     // "15%,15%,10%" - very dark gray
     // "25%,25%,20%" - dark gray
@@ -75,7 +66,6 @@
     // "60%,60%,55%" - light gray
     // "70%,70%,65%" - very light gray
     // "80%,80%,75%" - very very light gray
-
     mx.L_ArrowLeft = 1001;
     mx.L_ArrowRight = 1002;
     mx.L_ArrowUp = 1003;
@@ -93,12 +83,10 @@
     mx.L_ITriangleSymbol = 7;
     mx.L_HLineSymbol = 8;
     mx.L_VLineSymbol = 9;
-
     /**
      * Set to True for a retro look that would make hipsters proud
      */
     mx.LEGACY_RENDER = false;
-
     /**
      * The zoom stack structure object
      * @private
@@ -115,7 +103,6 @@
         this.x2 = 0; // right edge relative to window (pixels)
         this.y2 = 0; // bottom edge relative to window (pixels)
     };
-
     /**
      * The scrollbar structure object used to hold state about scrolling
      * @private
@@ -135,7 +122,6 @@
         // drop
         this.initial_pause = null; // real_4
         this.repeat_pause = null; // real_4
-
         this.x = null;
         this.y = null;
         this.w = null;
@@ -151,7 +137,6 @@
         this.origin = null; // int_1
         this.repeat_count = null; // int_4
     };
-
     /**
      * @method WARPBOX
      * @private
@@ -168,7 +153,6 @@
         this.func = undefined;
         this.mode = undefined;
     }
-
     /**
      * Defines 2 canvas layers, canvas and wid_canvas
      * @method MX
@@ -177,7 +161,6 @@
      */
     function MX(element) { // this is where the canvases are setup/defined
         this.root = element;
-
         // Create a div to hold all the various canvas layers
         this.parent = document.createElement('div');
         this.parent.style.position = "relative";
@@ -187,7 +170,6 @@
         this.parent.width = element.clientWidth;
         this.parent.height = element.clientHeight;
         element.appendChild(this.parent);
-
         // Create the canvas that will hold the plot
         this.canvas = document.createElement('canvas');
         this.canvas.style.position = "absolute";
@@ -195,10 +177,8 @@
         this.canvas.style.left = "0px";
         this.canvas.width = element.clientWidth;
         this.canvas.height = element.clientHeight;
-
         this.parent.appendChild(this.canvas);
         this.active_canvas = this.canvas;
-
         // This canvas holds all widgets and reacts to mouse events
         this.wid_canvas = document.createElement('canvas');
         this.wid_canvas.style.position = "absolute";
@@ -207,13 +187,10 @@
         this.wid_canvas.style.zIndex = 1;
         this.wid_canvas.width = element.clientWidth;
         this.wid_canvas.height = element.clientHeight;
-
         this.parent.appendChild(this.wid_canvas);
-
         //if ((this.canvas.height <= 0) || (this.canvas.width <= 0)) {
-        //	throw "Plot could not be instantiated correctly; did you specify a size for your placeholder?";
+        //  throw "Plot could not be instantiated correctly; did you specify a size for your placeholder?";
         //}
-
         this.font = undefined; // the full calculated font string
         this.font_family = "Courier New, monospace"; // default font family
         this.text_w = 0; // text width
@@ -227,82 +204,63 @@
         this.ymrk = 0.0;
         this.origin = 1;
         this.stk = [new mx.STKSTRUCT()]; // zoom stack
-
         mx.setbgfg(this, "black", "white");
-
         // Custom stuff for the Javascript implementation
         this.event_cb = undefined;
         this.warpbox = undefined;
-
         // draw_mode flags;
         this.rmode = false;
         this.linewidth = 1;
         this.style = undefined;
         this.xi = false;
-
         // Button Eventing variables
         this.button_release = 0;
         this.button_press = 0;
         this.state_mask = 0;
-
         // Specifies display field
         this.l = 0;
         this.r = this.width;
         this.t = 0;
         this.b = this.height;
-
         // Scrollbar state
         this.scrollbar_x = new mx.SCROLLBAR();
         this.scrollbar_y = new mx.SCROLLBAR();
-
         // Prompt mode state variable
         this.prompt = undefined;
-
         // Colormap
         this.pixel = [];
-
         // Render Canvas
         this._renderCanvas = document.createElement("canvas");
     }
-
     /* This is used as a helper function for defining highlight ranges/
      */
-
     function in_fill_range(ele, range_begin, range_end) {
         var left = false;
         var right = false;
-
         if (ele >= range_begin) {
             left = true;
         }
-
-
         if (ele <= range_end) {
             right = true;
         }
-
         if (left === true && right === true) {
             return true;
         } else {
             return false;
         }
     }
-
     /**
      * Create Canvas and it's Mx structure and functions
-     * @param {element}	element 	Reference to a DOM window element
+     * @param {element} element     Reference to a DOM window element
      */
     /* Step #5*/
     mx.open = function(element) {
         var Mx = new MX(element); /* Step #6*/
-
         Mx.wid_canvas.oncontextmenu = function(event) {
             event.preventDefault();
             return false;
         };
-
         this._ctx = Mx.active_canvas.getContext("2d");
-
         Mx.onmousemove = (function(Mx) {
             return function(e) {
                 var rect = e.target.getBoundingClientRect();
@@ -312,10 +270,8 @@
                 // Plot relative x/y of mouse
                 Mx.xpos = (e.offsetX === undefined) ? (e.pageX - rect.left - window.scrollX) : e.offsetX;
                 Mx.ypos = (e.offsetX === undefined) ? (e.pageY - rect.top - window.scrollY) : e.offsetY;
-
-                //				Mx.xpos = (e.offsetX === undefined) ? e.layerX : e.offsetX;
-                //				Mx.ypos = (e.offsetY === undefined) ? e.layerY : e.offsetY;
-
+                //              Mx.xpos = (e.offsetX === undefined) ? e.layerX : e.offsetX;
+                //              Mx.ypos = (e.offsetY === undefined) ? e.layerY : e.offsetY;
                 if (Mx.warpbox) {
                     if ((e.ctrlKey || e.metaKey) && (Mx.warpbox.alt_style !== undefined)) {
                         Mx.warpbox.style = Mx.warpbox.alt_style;
@@ -324,28 +280,23 @@
                     }
                     mx.redraw_warpbox(Mx);
                 }
-
                 mx.widget_callback(Mx, e);
             };
         })(Mx);
-
         Mx.onmouseup = (function(Mx) {
             return function(event) {
                 if (Mx.warpbox) {
                     mx.onWidgetLayer(Mx, function() {
                         mx.erase_window(Mx);
                     });
-
                     var old_warpbox = Mx.warpbox;
                     Mx.warpbox = undefined;
-
                     if (event.which === 1 || event.which === 3) {
                         if (old_warpbox.func) {
                             var xo = old_warpbox.xo;
                             var yo = old_warpbox.yo;
                             var xl = old_warpbox.xl;
                             var yl = old_warpbox.yl;
-
                             if (old_warpbox.mode === "vertical") {
                                 xo = Mx.l;
                                 xl = Mx.r;
@@ -353,17 +304,13 @@
                                 yo = Mx.t;
                                 yl = Mx.b;
                             } // else "box"
-                            old_warpbox.func(event, xo, yo, xl, yl,
-                                old_warpbox.style.return_value,
-                                old_warpbox.mode);
+                            old_warpbox.func(event, xo, yo, xl, yl, old_warpbox.style.return_value, old_warpbox.mode);
                         }
                     }
-
                 }
                 mx.widget_callback(Mx, event);
             };
         })(Mx);
-
         Mx.onmousedown = (function(Mx) {
             return function(event) {
                 event.preventDefault();
@@ -371,7 +318,6 @@
                 return false;
             };
         })(Mx);
-
         Mx.onkeydown = (function(Mx) {
             return function(event) {
                 if (Mx.warpbox) {
@@ -385,11 +331,9 @@
                         mx.redraw_warpbox(Mx);
                     }
                 }
-
                 mx.widget_callback(Mx, event);
             };
         })(Mx);
-
         Mx.onkeyup = (function(Mx) {
             return function(event) {
                 if (Mx.warpbox) {
@@ -405,7 +349,6 @@
                 }
             };
         })(Mx);
-
         Mx.ontouchend = (function(Mx) {
             return function(event) {
                 Mx.onmouseup({
@@ -413,7 +356,6 @@
                 });
             };
         })(Mx);
-
         Mx.ontouchmove = (function(Mx) {
             return function(event) {
                 // Compute the total offset - consider caching offset and only calculating on resize
@@ -426,18 +368,14 @@
                         offsetY += element.offsetTop;
                     } while ((element = element.offsetParent));
                 }
-
                 Mx.xpos = event.targetTouches[0].pageX - offsetX;
                 Mx.ypos = event.targetTouches[0].pageY - offsetY;
                 mx.redraw_warpbox(Mx);
             };
         })(Mx);
-
         mx.enableListeners(Mx);
-
         return Mx;
     };
-
     /**
      * @param Mx
      * @private
@@ -450,9 +388,7 @@
         window.addEventListener("keyup", Mx.onkeyup, false);
         //mx.addEventListener(Mx, "touchend", Mx.ontouchend);
         //mx.addEventListener(Mx, 'touchmove', Mx.ontouchmove, false);
-
     };
-
     /**
      * @param Mx
      * @private
@@ -466,7 +402,6 @@
         //mx.addEventListener(Mx, "touchend", Mx.ontouchend);
         //mx.addEventListener(Mx, 'touchmove', Mx.ontouchmove, false);
     };
-
     /**
      * @param Mx
      * @param event
@@ -477,7 +412,6 @@
     mx.addEventListener = function(Mx, event, callback, useCapture) {
         return Mx.wid_canvas.addEventListener(event, callback, useCapture);
     };
-
     /**
      * @param Mx
      * @param event
@@ -488,7 +422,6 @@
     mx.removeEventListener = function(Mx, event, callback, useCapture) {
         return Mx.wid_canvas.removeEventListener(event, callback, useCapture);
     };
-
     /**
      * @param Mx
      * @param event
@@ -497,7 +430,6 @@
     mx.dispatchEvent = function(Mx, event) {
         return Mx.wid_canvas.dispatchEvent(event);
     };
-
     /**
      * @param Mx
      * @param func
@@ -506,7 +438,6 @@
     mx.onWidgetLayer = function(Mx, func) {
         mx.onCanvas(Mx, Mx.wid_canvas, func);
     };
-
     /**
      * @param Mx
      * @param func
@@ -523,7 +454,6 @@
             Mx.active_canvas = current_active;
         }
     };
-
     /**
      * @param Mx
      * @param func
@@ -535,7 +465,6 @@
         };
         return f;
     };
-
     /**
      * @param Mx
      * @param func
@@ -545,9 +474,7 @@
         if (!func) {
             return;
         }
-
         var active_canvas = Mx.active_canvas;
-
         if (!active_canvas._animationFrameHandle) {
             active_canvas._animationFrameHandle = requestAnimFrame(function() {
                 active_canvas._animationFrameHandle = undefined;
@@ -555,7 +482,6 @@
             });
         }
     };
-
     /**
      * @param Mx
      * @param value
@@ -591,7 +517,6 @@
         }
         mx.checkresize(Mx);
     };
-
     /**
      * @param Mx
      * @private
@@ -599,20 +524,16 @@
     mx.checkresize = function(Mx) {
         var canvas = Mx.canvas;
         if ((canvas.height !== Mx.root.clientHeight) || (canvas.width !== Mx.root.clientWidth)) {
-
             Mx.height = Mx.root.clientHeight;
             Mx.width = Mx.root.clientWidth;
-
             Mx.canvas.height = Mx.height;
             Mx.canvas.width = Mx.width;
             Mx.wid_canvas.height = Mx.height;
             Mx.wid_canvas.width = Mx.width;
-
             return true;
         }
         return false;
     };
-
     /**
      * @param Mx
      * @private
@@ -620,7 +541,6 @@
     mx.invertbgfg = function(Mx) {
         mx.setbgfg(Mx, Mx.fg, Mx.bg, !Mx.xi);
     };
-
     /**
      * @param color1
      * @param color2
@@ -636,7 +556,6 @@
         c2.b = c1.b * mix + c2.b * perc1to2;
         return tinycolor(c2).toHexString(true);
     };
-
     /**
      * @param Mx
      * @param x
@@ -656,7 +575,6 @@
         lingrad.addColorStop(1, fillStyle[fillStyle.length - 1]);
         return lingrad;
     };
-
     /**
      * Set's the background and foreground
      * xwfg : usually used for text on a widget
@@ -671,7 +589,6 @@
         Mx.bg = tinycolor(bg).toHexString();
         Mx.fg = tinycolor(fg).toHexString();
         Mx.xi = tinycolor(xi).toHexString();
-
         if ((tinycolor.equals(Mx.bg, "black")) && (tinycolor.equals(Mx.fg, "white"))) { ///mmm
             Mx.xwfg = Mx.fg; // X-Widget Foreground color
             Mx.xwbg = "rgb(35%,35%,30%)"; // X-Widget Background color
@@ -691,10 +608,7 @@
         } else {
             var clr = tinycolor(Mx.bg).toRgb();
             var hsp = Math.sqrt( // HSP equation from http://alienryderflex.com/hsp.html
-                0.299 * (clr.r * clr.r) +
-                0.587 * (clr.g * clr.g) +
-                0.114 * (clr.b * clr.b)
-            );
+                0.299 * (clr.r * clr.r) + 0.587 * (clr.g * clr.g) + 0.114 * (clr.b * clr.b));
             if (hsp > 127.5) { // light
                 Mx.xwfg = "black";
                 Mx.xwbg = "rgb(60%,60%,55%)"; // X-Widget Background color
@@ -714,7 +628,6 @@
             }
         }
     };
-
     /**
      * @param Mx
      * @param theme
@@ -731,7 +644,6 @@
         Mx.xwlo = theme.xwlo;
         Mx.hi = theme.hi;
     };
-
     /**
      * Close graphics windows.
      * @param Mx
@@ -742,12 +654,10 @@
         //canvas.removeEventListener("touchmove", Mx.ontouchmove);
         canvas.removeEventListener("mouseup", Mx.onmouseup, false);
         //canvas.addEventListener("touchend", Mx.onmouseup);
-
         if (Mx.parent && Mx.parent.parentNode) {
             Mx.parent.parentNode.removeChild(Mx.parent);
         }
     };
-
     /**
      * Draws and implements a scrollbar
      * @param Mx
@@ -770,20 +680,16 @@
         // mx.SCROLLBAR* sb,
         // int xs, int xe, int ys, int ye,
         // real* ps, real* pe, real qs, real qe
-
         var mode; // an int
         var action; // an int
         var origin; // an int
         var stat = 0; // an int
-
         var step; // a real_8
         var page; // a real_8
         var scale; // a real_8
         var sblocal = new mx.SCROLLBAR(); // a SCROLLBAR
-
         mode = (sb.flag !== undefined ? sb.flag : sb); // REFACTOR - if user sends in a number instead of a scrollbar
         action = Math.abs(mode);
-
         if (ye - ys > xe - xs) {
             if (Mx.origin < 3) {
                 origin = 2; /* inverted Y scrollbar */
@@ -797,7 +703,6 @@
                 origin = 1; /* normal X scrollbar */
             }
         }
-
         if (action < 10) {
             sb = sblocal; /* use local SB structure */
         }
@@ -809,7 +714,6 @@
             mx.scroll_loc(sb, xs, ys, xe - xs + 1, ye - ys + 1, origin, scrollbarState);
         }
         sb.srange = out.pe - out.ps;
-
         switch (action) {
             case 0:
                 step = page = scale = 1.0;
@@ -835,7 +739,6 @@
                 return 0;
         }
         mx.scroll_vals(sb, out.ps, sb.srange, qs, qe - qs, step, page, scale, scrollbarState);
-
         if (mode === 0) {
             mx.scroll(Mx, sb, mx.XW_DRAW, undefined, undefined); // No need for a mouse event
         } else {
@@ -852,7 +755,6 @@
         }
         return stat;
     };
-
     /**
      * Instantiate scrollbar on graphics window
      * @param Mx
@@ -869,11 +771,9 @@
         var smin; // a real_8
         var srange; // a real_8
         var s; // an int_4
-
         if (sv === undefined) {
             return false; /* an mx.SCROLLBAR */
         }
-
         switch (op) {
             case mx.XW_INIT:
                 mx.scroll_loc(sv, 0, 0, Mx.width, 20, 1, scrollbarState);
@@ -924,7 +824,6 @@
                         // TODO Do we need to worry about a release here?
                     }
                 }
-
                 if (sv.action === 0) {
                     /*  First-time action -- only interested in button presses
                      *  1 or 2 within our bounds
@@ -933,12 +832,8 @@
                     if (btn === 4 || btn === 5) {
                         Mx.xpos = sv.x;
                     }
-
-
                     /* Button !=1,2,4,5 OR NOT on scroll bar */
-                    if ((btn !== 1 && btn !== 2 && btn !== 4 && btn !== 5) ||
-                        Mx.xpos < sv.x || Mx.ypos < sv.y ||
-                        Mx.xpos > sv.x + sv.w || Mx.ypos > sv.y + sv.h) {
+                    if ((btn !== 1 && btn !== 2 && btn !== 4 && btn !== 5) || Mx.xpos < sv.x || Mx.ypos < sv.y || Mx.xpos > sv.x + sv.w || Mx.ypos > sv.y + sv.h) {
                         return false;
                     }
                 } else if (btn < 0) {
@@ -946,7 +841,6 @@
                     sv.action = sv.repeat_count = 0; // TODO Update scrollbarState's action?
                     return true;
                 }
-
                 /*  Compute s, the offset in pixels from the 'origin' of
                  *  the scrollbar's on-screen region.
                  */
@@ -961,13 +855,10 @@
                         s = sv.h - s;
                     }
                 }
-
                 /*  Determine action */
                 if (sv.action === 0) {
                     /* First-time action */
-
                     sv.repeat_count = 0; // TODO Is repeat count necessary any more?
-
                     var scrollReal2PixOut = mx.scroll_real2pix(sv);
                     // UPDATE SCROLLBAR STATE as well
                     sv.s1 = scrollbarState.s1 = scrollReal2PixOut.s1;
@@ -1008,10 +899,8 @@
                 /* jshint -W086 */
             case mx.XW_COMMAND:
                 /* jshint +W086 */
-
                 smin = sv.smin;
                 srange = sv.srange;
-
                 switch (sv.action) {
                     case mx.SB_STEPINC:
                         smin += sv.step;
@@ -1048,8 +937,8 @@
                         }
                         break;
                         /* The mouse wheel needs to scroll 1 page at a time, if you want an
-		           application to scroll differently, change sv.page with
-		           mx_scroll_vals in the application code */
+                   application to scroll differently, change sv.page with
+                   mx_scroll_vals in the application code */
                     case mx.SB_WHEELUP:
                         smin -= sv.page;
                         break;
@@ -1057,7 +946,6 @@
                         smin += sv.page;
                         break;
                 }
-
                 if (sv.trange > 0) {
                     smin = Math.max(sv.tmin, Math.min(smin, sv.tmin + sv.trange - srange));
                     srange = Math.min(srange, sv.trange);
@@ -1065,7 +953,6 @@
                     smin = Math.min(sv.tmin, Math.max(smin, sv.tmin + sv.trange - srange));
                     srange = Math.max(srange, sv.trange);
                 }
-
                 if (sv.smin === smin && sv.srange === srange) {
                     if (sv.action !== mx.SB_DRAG) {
                         sv.action = sv.repeat_count = 0;
@@ -1076,21 +963,17 @@
                     sv.srange = scrollbarState.srange = srange;
                     sv.repeat_count++;
                 }
-
                 if (op === mx.XW_COMMAND) {
                     mx.scroll(Mx, sv, mx.XW_UPDATE, undefined);
                     sv.action = 0;
                 }
-
                 break;
             case mx.XW_DRAW:
             case mx.XW_UPDATE:
                 mx.redrawScrollbar(sv, Mx, op);
-
         } /* switch */
         return true;
     };
-
     /**
      * Specify location and orientation of a scrollbar
      * @param sv
@@ -1114,7 +997,6 @@
         sv.w = scrollbarState.w = w; // int
         sv.h = scrollbarState.h = h; // int
         sv.origin = scrollbarState.origin = Math.max(1, Math.min(4, origin)); // int
-
         if (sv.origin & 1) {
             sv.a2 = scrollbarState.a2 = sv.w;
             sv.arrow = scrollbarState.arrow = Math.min(m.trunc((sv.w - m.trunc(2 * mx.GBorder)) / 3), sv.h + mx.GBorder);
@@ -1130,7 +1012,6 @@
         sv.sw = scrollbarState.sw = 0;
         sv.action = scrollbarState.action = 0;
     };
-
     /**
      * Set coordinates in scrollbar structure
      * @param sv
@@ -1159,7 +1040,6 @@
         sv.page = scrollbarState.page = page;
         sv.scale = scrollbarState.scale = Math.max(scale, 1.0);
     };
-
     /**
      * Draw single symbol centered at pixel (x,y)
      * @param Mx
@@ -1174,7 +1054,6 @@
     //
     mx.draw_symbol = function(Mx, ic, x, y, symbol, rr, n) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         var r = 0; // int
         var d = 0; // int
         var d2 = 0; // int
@@ -1187,17 +1066,13 @@
                 y: 0
             };
         }
-
         var c = ''; // char
-
         fill = rr < 0;
         r = Math.abs(rr);
         d = r * 2;
-
         // Set the foreground color
         ctx.fillStyle = ic;
         ctx.strokeStyle = ic;
-
         if (typeof symbol === "function") {
             symbol(ctx, n, x, y);
         } else {
@@ -1233,7 +1108,6 @@
                     /* jshint +W086 */
                     d = m.trunc(r * 1.5);
                     d2 = m.trunc(r * 0.80);
-
                     // Coordinates of just the triangle itself
                     tri[1].x = -d2;
                     tri[1].y = d;
@@ -1241,7 +1115,6 @@
                     tri[2].y = 0;
                     tri[3].x = -d2;
                     tri[3].y = -d;
-
                     var tempTri = []; // XPoint array of size 4
                     for (var cnt = 0; cnt < 4; cnt++) { // initializing 4 points in the array
                         tempTri[cnt] = {
@@ -1249,11 +1122,9 @@
                             y: 0
                         };
                     }
-
                     if (fill) {
                         tempTri[0].x = x;
                         tempTri[0].y = y - r;
-
                         // Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
                         tempTri[1].x = tempTri[0].x + tri[1].x;
                         tempTri[1].y = tempTri[0].y + tri[1].y;
@@ -1261,12 +1132,10 @@
                         tempTri[2].y = tempTri[1].y + tri[2].y;
                         tempTri[3].x = tempTri[2].x + tri[3].x;
                         tempTri[3].y = tempTri[2].y + tri[3].y;
-
                         fill_poly(ctx, tempTri);
                     } else {
                         tempTri[0].x = x;
                         tempTri[0].y = y - r;
-
                         // Replacement for CoordModePrevious offset (updating coordinates to be relative to origin, instead of previous pt)
                         tempTri[1].x = tempTri[0].x + tri[1].x;
                         tempTri[1].y = tempTri[0].y + tri[1].y;
@@ -1274,7 +1143,6 @@
                         tempTri[2].y = tempTri[1].y + tri[2].y;
                         tempTri[3].x = tempTri[2].x + tri[3].x;
                         tempTri[3].y = tempTri[2].y + tri[3].y;
-
                         draw_poly(ctx, tempTri);
                     }
                     break;
@@ -1302,7 +1170,6 @@
             } // end switch (symbol)
         }
     };
-
     /**
      * Plot symbols at centers defined by an array of pixels
      * @param Mx
@@ -1322,7 +1189,6 @@
             mx.draw_symbol(Mx, ic, pixx[i], pixy[i], symbol, rr, i + istart);
         }
     };
-
     /* http://geomalgorithms.com/a01-_area.html
      *   > 0 left
      *   = 0 on
@@ -1342,7 +1208,6 @@
     function isLeft(p_x, p_y, e_x1, e_y1, e_x2, e_y2) {
         return ((e_x1 - p_x) * (e_y2 - p_y) - (e_x2 - p_x) * (e_y1 - p_y));
     }
-
     /**
      * @method update_winding_number
      * @param wn
@@ -1370,7 +1235,6 @@
         }
         return wn;
     }
-
     /**
      * Converts array of (x,y) coordinates to pixel coordinates, plots lines or dots
      * @param Mx
@@ -1391,37 +1255,29 @@
         if ((xpoint === undefined) || (ypoint === undefined)) {
             throw "mx.trace requires xpoint and ypoint";
         }
-
         if (skip === undefined) {
             skip = 1;
         }
-
         if (line === undefined) {
             line = 1;
         }
-
         if (symb === undefined) {
             symb = 0;
         }
-
         if (rad === undefined) {
             rad = 0;
         }
-
         if (options === undefined) {
             options = {};
         }
-
         if (npts <= 0) {
             m.log.warn("No points to draw");
             return;
         }
-
         if ((line === 0) && (symb === 0)) {
             m.log.warn("No line or symbol to draw");
             return;
         }
-
         var style;
         if (options.dashed) {
             style = {
@@ -1430,26 +1286,20 @@
                 off: 4
             };
         }
-
         var stk4 = mx.origin(Mx.origin, 4, Mx.stk[Mx.level]);
         if ((stk4.xscl === 0.0) || (stk4.yscl === 0.0)) {
             // the min and max are the same
             return;
         }
-
         var left = stk4.x1;
         var top = stk4.y1;
-
         var xxmin = stk4.xmin;
         var xscl = 1.0 / stk4.xscl;
-
         var yymin = stk4.ymin;
         var yscl = 1.0 / stk4.yscl;
-
         if (!options.noclip) {
             mx.clip(Mx, left, top, stk4.x2 - left + 1, stk4.y2 - top + 1);
         }
-
         var dx = Math.abs(stk4.xmax - stk4.xmin);
         var dy = Math.abs(stk4.ymax - stk4.ymin);
         var xmin = Math.min(stk4.xmin, stk4.xmax);
@@ -1458,9 +1308,9 @@
         var ymax = ymin + dy;
         //dx = dx * 0.5;
         //if ((line == -1) || (line == 1)) {
-        //	dy = dy * 10.0;
+        //  dy = dy * 10.0;
         //} else {
-        //	dy = dy * 0.5;
+        //  dy = dy * 0.5;
         //}
         //xmin = xmin - dx;
         //ymin = ymin - dy;
@@ -1472,7 +1322,6 @@
         var bufsize = 4 * Math.ceil(2 * xpoint.length);
         var pixx = new Int32Array(new ArrayBuffer(bufsize));
         var pixy = new Int32Array(new ArrayBuffer(bufsize));
-
         var ib = 0;
         if ((line === 0) && (symb !== 0)) {
             for (var n = (skip - 1); n < npts; n += skip) {
@@ -1526,14 +1375,11 @@
                     if (options.highlight[sn].xend <= xmin) {
                         continue;
                     }
-
                     var xs = Math.max(options.highlight[sn].xstart, xmin);
                     var xe = Math.min(options.highlight[sn].xend, xmax);
-
                     if (xs < xe) {
                         var rxs = Math.round((xs - xxmin) * xscl) + left;
                         var rxe = Math.round((xe - xxmin) * xscl) + left;
-
                         for (var cn = colors.length - 1; cn >= 0; cn--) {
                             // This highlight overlaps the entire range of a previous
                             // highlight...we can thus remove the color
@@ -1550,7 +1396,6 @@
                                     color: colors[cn].color
                                 });
                                 colors[cn].end = rxs;
-
                             }
                             // This highlight overlaps partially
                             else if ((rxs <= colors[cn].start) && (rxe >= colors[cn].start)) {
@@ -1558,13 +1403,11 @@
                             } else if ((rxs <= colors[cn].end) && (rxe >= colors[cn].end)) {
                                 colors[cn].end = rxs;
                             }
-
                             // See if this colors is still valid
                             if (colors[cn].end <= colors[cn].start) {
                                 colors.splice(cn, 1);
                             }
                         }
-
                         colors.push({
                             start: rxs,
                             end: rxe,
@@ -1572,31 +1415,24 @@
                         });
                     }
                 }
-
                 // The first color is the start of the plot
                 // in the base-line color
                 colors.push({
                     start: left,
                     color: color
                 });
-
                 colors.sort(function(a, b) {
                     return a.start - b.start;
                 });
-
             } else {
                 colors = color;
             }
-
             var wn = 0; // the winding number counter http://geomalgorithms.com/a03-_inclusion.html
             var mid_x = (Mx.stk[Mx.level].xmax + Mx.stk[Mx.level].xmin) / 2.0;
             var mid_y = (Mx.stk[Mx.level].ymax + Mx.stk[Mx.level].ymin) / 2.0;
-
             var x = xpoint[0];
             var y = ypoint[0];
-
             wn = update_winding_number(wn, mid_x, mid_y, Mx.stk[Mx.level].xmin, Mx.stk[Mx.level].ymin, x, y);
-
             var lvisible = ((x >= xmin) && (x <= xmax) && (y >= ymin) && (y <= ymax));
             // The first point is visible
             if (lvisible) {
@@ -1609,18 +1445,14 @@
             } else {
                 ib = 0;
             }
-
             var ie = 0;
             var visible = false;
             for (var n = skip; n <= (skip * (npts - 1)); n += skip) {
-
                 var lx = x;
                 var ly = y;
                 x = xpoint[n];
                 y = ypoint[n];
-
                 wn = update_winding_number(wn, mid_x, mid_y, lx, ly, x, y);
-
                 visible = ((x >= xmin) && (x <= xmax) && (y >= ymin) && (y <= ymax));
                 if ((lvisible) && (visible)) {
                     // both the left point and right point are visible, so we can draw the trace
@@ -1653,22 +1485,14 @@
                                             pixy[ib] = Math.round((y - yymin + o.tL * dy) * yscl) + top;
                                             ib += 1;
                                         }
-
                                         // If this point is ending the on-screen portion draw the line
                                         if (o.tE > 0) {
                                             pixx[ib] = Math.round((x - xxmin + o.tE * dx) * xscl) + left;
                                             pixy[ib] = Math.round((y - yymin + o.tE * dy) * yscl) + top;
                                             ib += 1;
                                             mx.draw_lines(Mx, colors, pixx.subarray(ie, ib), pixy.subarray(ie, ib), (ib - ie), line, style);
-
                                             if (symb !== 0 && (ib - ie) > 2) {
-                                                mx.draw_symbols(Mx,
-                                                    color,
-                                                    pixx.subarray(ie + 1, ib - 1),
-                                                    pixy.subarray(ie + 1, ib - 1), (ib - ie - 2),
-                                                    symb,
-                                                    rad,
-                                                    istart + n - (ib - ie - 2));
+                                                mx.draw_symbols(Mx, color, pixx.subarray(ie + 1, ib - 1), pixy.subarray(ie + 1, ib - 1), (ib - ie - 2), symb, rad, istart + n - (ib - ie - 2));
                                             }
                                             ie = ib;
                                         } else {
@@ -1697,17 +1521,9 @@
                     // for it's x/y coordinates...but this may
                     // be a bug because it may neglect drawing
                     // the last data point
-                    mx.draw_symbols(Mx,
-                        color,
-                        pixx.subarray(ie - 1, ib),
-                        pixy.subarray(ie - 1, ib),
-                        ib - ie - 1,
-                        symb,
-                        rad,
-                        n - ib + istart);
+                    mx.draw_symbols(Mx, color, pixx.subarray(ie - 1, ib), pixy.subarray(ie - 1, ib), ib - ie - 1, symb, rad, n - ib + istart);
                 }
             }
-
             if (options.fillStyle && !Mx.fillMin && !Mx.fillMax) {
                 if ((ib > 1) || (wn !== 0)) {
                     // if we have at least one point
@@ -1715,32 +1531,25 @@
                     mx.fill_trace(Mx, options.fillStyle, pixx, pixy, ib);
                 }
             }
-
             if (options.highlight) {
                 for (var i = 0; i < options.highlight.length; i++) {
                     var highlight = options.highlight[i];
                     if (!highlight.fill) {
                         continue;
                     }
-
                     var x_start = highlight.xstart;
                     var x_end = highlight.xend;
-
                     console.log("x start ", x_start);
                     console.log("x end ", x_end);
-
                     if (x_start >= Mx.stk[Mx.level].xmax) {
                         continue;
                     }
                     if (x_end <= Mx.stk[Mx.level].xmin) {
                         continue;
                     }
-
                     if ((ib > 1) || (wn !== 0)) {
-
                         var xstart_pixel_value = mx.real_to_pixel(Mx, x_start, 0);
                         var xend_pixel_value = mx.real_to_pixel(Mx, x_end, 0);
-
                         var pi_start = xstart_pixel_value.x;
                         var pi_end = xend_pixel_value.x;
                         //console.log('start: ', pi_start, 'end: ', pi_end);
@@ -1754,28 +1563,21 @@
                                 //console.log('in range: ', this_point);
                                 pixx_new.push(this_point);
                                 pixy_new.push(this_point_y);
-
                             }
                         }
-
                         if ((pixx_new.length > 0) || (wn !== 0)) {
                             pi_start = Math.max(pi_start, pixx_new[0]);
                             pi_end = Math.min(pi_end, pixx_new[pixx_new.length - 1]);
                             mx.fill_trace(Mx, highlight.fill, pixx_new, pixy_new, pixx_new.length, pi_start, pi_end);
                         }
                     }
-
                 }
             }
-
-
         }
-
         if (!options.noclip) {
             mx.clip(Mx, 0, 0, 0, 0);
         }
     };
-
     /**
      * Set dashed or solid lines mode.
      * @param Mx
@@ -1789,7 +1591,6 @@
         Mx.linewidth = (linewidth === undefined) ? 1 : linewidth;
         Mx.style = style;
     };
-
     /**
      * @param Mx
      * @param color
@@ -1830,7 +1631,6 @@
         }
         draw_line(ctx, x1, y1, x2, y2, style, color, linewidth);
     };
-
     /**
      * @param Mx
      * @param x1
@@ -1847,7 +1647,6 @@
             mode: "xor"
         }, "white", 1);
     };
-
     /**
      * @param Mx
      * @param fillStyle
@@ -1863,41 +1662,31 @@
         } else {
             ctx.fillStyle = fillStyle;
         }
-
         if (npts < 1) {
             ctx.fillRect(Mx.l, Mx.t, (Mx.r - Mx.l), (Mx.b - Mx.t));
             return;
         }
-
         if (l === undefined) {
             l = Mx.l;
         }
         if (r === undefined) {
             r = Mx.r;
         }
-
         if (fillStyle) {
             var x = pixx[0];
             var y = pixy[0];
-
             ctx.beginPath();
             if (y === Mx.t) {
                 ctx.lineTo(l, Mx.t);
             } else {
                 ctx.lineTo(l, Mx.b);
             }
-
-
             ctx.lineTo(x, y);
-
-
-
             for (var i = 1; i < npts; i++) {
                 x = pixx[i];
                 y = pixy[i];
                 ctx.lineTo(x, y);
             }
-
             if (y === Mx.t) {
                 ctx.lineTo(r, Mx.t);
             }
@@ -1905,12 +1694,10 @@
             if (pixy[0] === Mx.t) {
                 ctx.lineTo(l, Mx.b);
             }
-
             ctx.closePath();
             ctx.fill("evenodd");
         }
     };
-
     /**
      * @param Mx
      * @param colors
@@ -1925,31 +1712,25 @@
     //
     mx.draw_lines = function(Mx, colors, pixx, pixy, npts, linewidth, style) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         if (npts < 1) {
             return;
         }
-
         var x = pixx[0];
         var y = pixy[0];
-
         if (linewidth === undefined) {
             linewidth = Mx.linewidth;
         }
         if (style === undefined) {
             style = Mx.style;
         }
-
         if ((style) && (style.mode === "dashed")) {
             var dash_supported = common.dashOn(ctx, style.on, style.off);
             if (!dash_supported) {
                 m.log.warn("WARNING: Dashed lines aren't supported on your browser");
             }
         }
-
         ctx.lineWidth = linewidth;
         var current_color = 0;
-
         if (typeof colors === "string") {
             colors = [{
                 start: 0,
@@ -1961,7 +1742,6 @@
             }
             colors = [colors];
         }
-
         // Find the first valid color (expects colors to be sorted)
         for (var n = 0; n < colors.length; n++) {
             if ((colors[n].end != null) && (colors[n].end < x)) {
@@ -1970,18 +1750,15 @@
                 current_color = n;
             }
         }
-
         ctx.strokeStyle = colors[current_color].color;
         ctx.beginPath();
         ctx.moveTo(x, y);
-
         for (var i = 0; i < npts; i++) {
             if ((x === pixx[i]) && (y === pixy[i])) {
                 continue;
             }
             x = pixx[i];
             y = pixy[i];
-
             var newcolor = false;
             if ((current_color > 0) && (colors[current_color].end != null) && (colors[current_color].end < x)) {
                 newcolor = true;
@@ -1993,14 +1770,12 @@
                     }
                 }
             }
-
             if (((current_color + 1) < colors.length) && (colors[current_color + 1].start <= x)) {
                 newcolor = true;
                 while (((current_color + 1) < colors.length) && (colors[current_color + 1].start <= x)) {
                     current_color++;
                 }
             }
-
             ctx.lineTo(x, y);
             if (newcolor) {
                 ctx.stroke();
@@ -2013,7 +1788,6 @@
         common.dashOff(ctx);
         ctx.beginPath();
     };
-
     /**
      * @param Mx
      * @param left
@@ -2026,7 +1800,6 @@
     //
     mx.clip = function(Mx, left, top, width, height) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         if ((left === 0) && (top === 0) && (width === 0) && (height === 0)) {
             ctx.restore();
             return;
@@ -2036,7 +1809,6 @@
         ctx.rect(left, top, width, height);
         ctx.clip();
     };
-
     /**
      * @param Mx
      */
@@ -2045,21 +1817,17 @@
     //
     mx.clear_window = function(Mx) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         ctx.fillStyle = Mx.bg;
         ctx.fillRect(0, 0, Mx.width, Mx.height);
     };
-
     /**
      * @param Mx
      * @private
      */
     mx.erase_window = function(Mx) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         ctx.clearRect(0, 0, Mx.width, Mx.height);
     };
-
     /**
      * @param Mx
      * @param func
@@ -2076,7 +1844,6 @@
     mx.rubberbox = function(Mx, func, mode, def_style, alt_style) {
         mx.warpbox(Mx, Mx.xpos, Mx.ypos, Mx.xpos, Mx.ypos, 0, Mx.width, 0, Mx.height, func, mode, def_style, alt_style);
     };
-
     /**
      * @param Mx
      * @param xo
@@ -2100,7 +1867,6 @@
         if (!def_style) {
             def_style = {};
         }
-
         Mx.warpbox = new WARPBOX();
         Mx.warpbox.xo = xo;
         Mx.warpbox.yo = yo;
@@ -2112,12 +1878,10 @@
         Mx.warpbox.ymax = ymax;
         Mx.warpbox.func = func;
         Mx.warpbox.mode = mode;
-
         Mx.warpbox.style = def_style;
         Mx.warpbox.def_style = def_style;
         Mx.warpbox.alt_style = alt_style;
     };
-
     /**
      * @param inorigin
      * @param outorigin
@@ -2129,9 +1893,7 @@
     mx.origin = function(inorigin, outorigin, instk) {
         inorigin = Math.max(1, inorigin);
         outorigin = Math.max(1, outorigin);
-
         var outstk = new mx.STKSTRUCT();
-
         outstk.xmin = instk.xmin;
         outstk.xmax = instk.xmax;
         outstk.ymin = instk.ymin;
@@ -2142,7 +1904,6 @@
         outstk.y1 = instk.y1;
         outstk.x2 = instk.x2;
         outstk.y2 = instk.y2;
-
         if (inorigin !== outorigin) {
             var diff = Math.abs(outorigin - inorigin); // used to simplify boolean logic
             var sum = outorigin + inorigin;
@@ -2159,7 +1920,6 @@
         }
         return outstk;
     };
-
     /**
      * @param end1
      * @param end2
@@ -2183,7 +1943,6 @@
             return Math.pow(10, (3 * kengr));
         }
     };
-
     /**
      * @param Mx
      * @param event
@@ -2197,12 +1956,10 @@
                 Mx.prompt.input.onsubmit();
             }
         }
-
         if (Mx.widget) {
             Mx.widget.callback(event);
         }
     };
-
     /**
      * @param Mx
      * @param promptText
@@ -2219,28 +1976,24 @@
     mx.prompt = function(Mx, promptText, isValid, onSuccess, refresh, inputValue, xpos, ypos, errorTimeout) {
         if (inputValue !== undefined) {
             var inputValid = isValid(inputValue);
-
             if (!inputValid.valid) {
                 throw "Prompt default input value not valid due to '" + inputValid.reason + "'";
             }
         }
-
         // TODO Validation - make sure promptText is not too long and isn't multi-line...
         mx.onWidgetLayer(Mx, function() {
             var ctx = Mx.active_canvas.getContext("2d");
             var maxNumChars = 30;
-
             // Construct the input box
             var pxIndex = ctx.font.indexOf('px');
             var fontIndex = pxIndex + 3;
             var fontSize = ctx.font.substr(0, pxIndex);
             var fontFamily = ctx.font.substr(fontIndex, ctx.font.length).toString();
-
             /* TODO Note: There is a scrolling bug - you can scroll to the right, but not the left of the value
-			And... when truncating the width of an input field - it shows the value as though truncated
-			from the right (say if its cut off by 1 and that one happened to be a negative sign, the value
-			would look like a positive) .
-			 */
+            And... when truncating the width of an input field - it shows the value as though truncated
+            from the right (say if its cut off by 1 and that one happened to be a negative sign, the value
+            would look like a positive) .
+             */
             var canvasInput = new CanvasInput({
                 height: Mx.text_h,
                 fontFamily: fontFamily,
@@ -2260,16 +2013,12 @@
                 renderOnReturn: false,
                 tabToClear: true
             });
-
             var subHandlerCreator = function(messageX, messageY) {
                 return function() {
                     var newValue = this.value();
-
                     var inputValid = isValid(newValue);
-
                     if (!inputValid.valid) {
                         mx.message(Mx, "Value: '" + newValue + "' isn't valid due to '" + inputValid.reason + "' - RETRY", undefined, messageX, messageY);
-
                         // Clear error message
                         setTimeout(function() {
                             mx.onWidgetLayer(Mx, function() {
@@ -2280,30 +2029,24 @@
                         }, errorTimeout != null ? errorTimeout : 4000);
                     } else {
                         Mx.prompt = undefined; // clear state variable
-
                         // Kill CanvasInput
                         this.cleanup();
                         mx.onWidgetLayer(Mx, function() {
                             mx.erase_window(Mx);
                         });
-
                         onSuccess(newValue);
                     }
                 };
             };
-
             // Create redraw method
             var redrawPromptCreator = function(Mx, input, promptText) {
                 return function(xpos, ypos) {
                     mx.onWidgetLayer(Mx, function() {
                         var GBorder = 3;
-
                         // Calculate the position variables
-
                         var xssPrompt = (promptText.length + 2) * Mx.text_w;
                         var xss = xssPrompt + (maxNumChars + 1) * Mx.text_w;
                         var yss = 2 * Mx.text_h;
-
                         var xs = xss + 2 * GBorder;
                         var ys = yss + 2 * GBorder;
                         if (!xpos) {
@@ -2316,20 +2059,15 @@
                         var yc = Math.max(0, Math.min(ypos, Mx.height - ys));
                         var xcc = xc + GBorder;
                         var ycc = yc + GBorder;
-
                         var yPos = ycc + Mx.text_h * 1.5;
                         var inputXPos = xcc + Mx.text_w;
-
                         // Draw the box and label text
                         mx.widgetbox(Mx, xc, yc, xs, ys, xcc, ycc, 0, "");
                         mx.text(Mx, inputXPos, yPos, promptText);
-
                         var inputYPos = yPos - Mx.text_h * 1.15;
-
                         // Redraw the input at the new location
                         input.x(xcc + Mx.text_w + xssPrompt - Mx.text_w);
                         input.y(inputYPos);
-
                         input.onsubmit(subHandlerCreator(xc, inputYPos - 75)); // TODO Refactor positioning based on char length of reason code...
                         if (!input.canvas()) {
                             input.canvas(Mx.active_canvas);
@@ -2339,13 +2077,10 @@
                     });
                 };
             };
-
             var redrawPrompt = redrawPromptCreator(Mx, canvasInput, promptText);
-
             //refresh();
             redrawPrompt(xpos, ypos);
             canvasInput.focus();
-
             // Set state variable
             Mx.prompt = {
                 redraw: redrawPrompt,
@@ -2353,7 +2088,6 @@
             };
         });
     };
-
     /**
      * Floating-point number validator. Verifies that value is a valid floating point
      * number. Validation is loose by default - meaning empty strings are considered valid.
@@ -2362,20 +2096,17 @@
      * @private
      */
     mx.floatValidator = function(value, strict) {
-        if (!(((strict === undefined || strict === false) && value === "")) &&
-            isNaN(parseFloat(value)) || !isFinite(value)) {
+        if (!(((strict === undefined || strict === false) && value === "")) && isNaN(parseFloat(value)) || !isFinite(value)) {
             return {
                 valid: false,
                 reason: "Failed float validation: not a valid floating point number"
             };
         }
-
         return {
             valid: true,
             reason: ""
         };
     };
-
     /**
      * Integer number validator. Verifies that value is a valid integer.
      * Validation is loose by default - meaning empty strings are considered valid.
@@ -2384,8 +2115,7 @@
      * @private
      */
     mx.intValidator = function(value, strict) {
-        if (((strict === undefined || strict === false) && value === "") ||
-            ((parseFloat(value) === parseInt(value, 10)) && !isNaN(value))) {
+        if (((strict === undefined || strict === false) && value === "") || ((parseFloat(value) === parseInt(value, 10)) && !isNaN(value))) {
             return {
                 valid: true,
                 reason: ""
@@ -2397,11 +2127,9 @@
             };
         }
     };
-
     mx.hexValidator = function(value, strict) {
         var regColorcode = /^(#)?([0-9a-fA-F]{3})([0-9a-fA-F]{3})?$/;
-        if (((strict === undefined || strict === false) && value === "") ||
-            (regColorcode.test(value) !== false)) {
+        if (((strict === undefined || strict === false) && value === "") || (regColorcode.test(value) !== false)) {
             return {
                 valid: true,
                 reason: ""
@@ -2413,7 +2141,6 @@
             };
         }
     };
-
     /**
      * @param Mx
      * @param msg
@@ -2426,9 +2153,7 @@
     //
     mx.message = function(Mx, msg, time, xpos, ypos, type) {
         mx.onWidgetLayer(Mx, function() {
-
             mx.render_message_box(Mx, msg, xpos, ypos);
-
             Mx.widget = {
                 type: type || "ONESHOT",
                 callback: function(event) {
@@ -2442,10 +2167,8 @@
             };
         });
     };
-
     mx.render_message_box = function(Mx, msg, xpos, ypos, textColor) {
         var GBorder = 3;
-
         // Unlike MX$MESSAGE, this implementaion if the message
         // already contains newlines, the text will placed in the
         // box as-is.
@@ -2455,7 +2178,6 @@
         if (beg.length === 1) {
             beg = [];
             var MESSWIDTH = 40;
-
             linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), msg.length);
             if (linel <= 0) {
                 return;
@@ -2463,7 +2185,6 @@
             while ((linel > MESSWIDTH) && (2.5 * Mx.text_h * msg.length < Mx.height * linel)) {
                 linel -= 5;
             }
-
             var cur = 0;
             var bg = 0;
             var i = 0;
@@ -2471,7 +2192,6 @@
             var end = 0;
             var brk = 0;
             var beg = [];
-
             center = true;
             while (bg < msg.length) {
                 end = bg + linel - 1;
@@ -2518,7 +2238,6 @@
                 linel = Math.min((((Mx.width - 2 * GBorder) / Mx.text_w) - 2), Math.max(linel, beg[i].length));
             }
         }
-
         var lines = beg.length;
         if (lines > 6) {
             center = false;
@@ -2526,10 +2245,8 @@
         var cur = 0;
         var winlines = Math.max(1, Mx.height / Mx.text_h);
         var lastline = Math.min(lines, cur + winlines - 1);
-
         var xss = (linel + 2) * Mx.text_w;
         var yss = (lastline - cur + 1) * Mx.text_h;
-
         var xs = xss + 2 * GBorder;
         var ys = yss + 2 * GBorder;
         if (!xpos) {
@@ -2542,9 +2259,7 @@
         var yc = Math.max(Mx.t, Math.min(ypos, Mx.b - ys));
         var xcc = xc + GBorder;
         var ycc = yc + GBorder;
-
         mx.widgetbox(Mx, xc, yc, xs, ys, xcc, ycc, 0, "");
-
         var j = ycc + Mx.text_h / 3;
         var i = xcc + Mx.text_w;
         while (cur < lastline) {
@@ -2556,7 +2271,6 @@
             cur++;
         }
     };
-
     /**
      * Based on http://js-bits.blogspot.co.uk/2010/07/canvas-rounded-corner-rectangles.html
      *
@@ -2572,11 +2286,9 @@
      */
     mx.draw_round_box = function(Mx, color, x, y, w, h, fill_opacity, fill_color, radius) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         if (!radius) {
             radius = 5;
         }
-
         ctx.beginPath();
         ctx.moveTo(x + radius, y);
         ctx.lineTo(x + w - radius, y);
@@ -2588,11 +2300,9 @@
         ctx.lineTo(x, y + radius);
         ctx.quadraticCurveTo(x, y, x + radius, y);
         ctx.closePath();
-
         ctx.lineWidth = 1;
         ctx.strokeStyle = color;
         ctx.stroke();
-
         if ((fill_opacity !== undefined) && (fill_opacity > 0)) {
             var oldAlpha = ctx.globalAlpha;
             ctx.globalAlpha = fill_opacity;
@@ -2605,7 +2315,6 @@
             ctx.globalAlpha = oldAlpha;
         }
     };
-
     /**
      * @param Mx
      * @param color
@@ -2621,7 +2330,6 @@
     //
     mx.draw_box = function(Mx, color, x, y, w, h, fill_opacity, fill_color) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         if (color !== "xor") {
             ctx.lineWidth = 1;
             ctx.strokeStyle = color;
@@ -2639,11 +2347,9 @@
                 y = Math.floor(y);
                 w = Math.floor(w);
                 h = Math.floor(h);
-
                 // For now assume xor always uses the base canvas
                 // even if it draws on another canvas
                 var dctx = Mx.canvas.getContext("2d");
-
                 var imgd = dctx.getImageData(x, y, w, 1);
                 var pix = imgd.data;
                 for (var c = 0; c < imgd.data.length; c++) {
@@ -2653,7 +2359,6 @@
                     pix[c * 4 + 3] = 255; // opacity
                 }
                 ctx.putImageData(imgd, x, y);
-
                 imgd = dctx.getImageData(x, y + h, w, 1);
                 pix = imgd.data;
                 for (var c = 0; c < imgd.data.length; c++) {
@@ -2663,7 +2368,6 @@
                     pix[c * 4 + 3] = 255; // opacity
                 }
                 ctx.putImageData(imgd, x, y + h);
-
                 var imgd = dctx.getImageData(x, y, 1, h);
                 var pix = imgd.data;
                 for (var c = 0; c < h; c++) {
@@ -2673,7 +2377,6 @@
                     pix[c * 4 + 3] = 255; // opacity
                 }
                 ctx.putImageData(imgd, x, y);
-
                 imgd = dctx.getImageData(x + w, y, 1, h);
                 pix = imgd.data;
                 for (var c = 0; c < h; c++) {
@@ -2685,7 +2388,6 @@
                 ctx.putImageData(imgd, x + w, y);
             }
         }
-
         if ((fill_opacity !== undefined) && (fill_opacity > 0)) {
             var oldAlpha = ctx.globalAlpha;
             ctx.globalAlpha = fill_opacity;
@@ -2698,7 +2400,6 @@
             ctx.globalAlpha = oldAlpha;
         }
     };
-
     /**
      * @param Mx
      * @param width
@@ -2707,7 +2408,6 @@
     mx.set_font = function(Mx, width) {
         var ctx = Mx.canvas.getContext("2d");
         var ctx_wid = Mx.wid_canvas.getContext("2d");
-
         if ((Mx.font) && (Mx.font.width === width)) {
             // use the cached font
             ctx.font = Mx.font.font;
@@ -2729,8 +2429,6 @@
             };
         }
     };
-
-
     /**
      * @param Mx
      * @param xstart
@@ -2753,7 +2451,6 @@
         }
         draw_line(ctx, xstart, ystart, xend, yend, style, style.color, style.width);
     };
-
     /**
      * @param dmin
      * @param dmax
@@ -2763,7 +2460,6 @@
     mx.tics = function(dmin, dmax, ndiv, timecode) {
         var dtic = 1;
         var dtic1 = dmin;
-
         // handle degenerate case
         if (dmax === dmin) {
             return {
@@ -2771,7 +2467,6 @@
                 dtic1: dmin
             };
         }
-
         // split up range into about ndiv 'nice' chunks
         // zero is included only if   dmin < zero < dmax
         var dran = Math.abs(dmax - dmin);
@@ -2784,7 +2479,6 @@
         } else {
             nsig = Math.floor(sig);
         }
-
         var ddf = df * Math.pow(10.0, (-nsig));
         sig = Math.pow(10.0, nsig);
         var dft = ddf * sig;
@@ -2829,7 +2523,6 @@
                 dtic = 10.0 * sig;
             }
         }
-
         // redefine dmin and dmax to line up on 'nice' boundaries
         if (dtic === 0.0) {
             dtic = 1.0;
@@ -2856,13 +2549,11 @@
         if (dtic1 + dtic === dtic1) {
             dtic = dmax - dmin;
         }
-
         return {
             dtic: dtic,
             dtic1: dtic1
         };
     };
-
     /**
      * @param Mx
      * @param xdiv
@@ -2880,11 +2571,8 @@
         var iscb = 0;
         var width = 0;
         var height = 0;
-
         xlab = (xlab === undefined) ? 30 : xlab;
         ylab = (ylab === undefined) ? 30 : ylab;
-
-
         if (flags.exactbox) {
             iscl = Math.floor(stk1.x1);
             isct = Math.floor(stk1.y1);
@@ -2900,7 +2588,6 @@
             width = iscr - iscl - 4;
             height = iscb - isct - 4;
         }
-
         var ctx = Mx.active_canvas.getContext("2d");
         if (flags.fillStyle) {
             if (Array.isArray(flags.fillStyle)) {
@@ -2912,14 +2599,12 @@
             ctx.fillStyle = Mx.bg;
         }
         ctx.fillRect(iscl, isct, iscr - iscl, iscb - isct);
-
         if (!flags.noaxisbox) {
             mx.textline(Mx, iscl, isct, iscr, isct);
             mx.textline(Mx, iscr, isct, iscr, iscb);
             mx.textline(Mx, iscr, iscb, iscl, iscb);
             mx.textline(Mx, iscl, iscb, iscl, isct);
         }
-
         var xTIC = {
             dtic: 0,
             dtic1: 0
@@ -2928,15 +2613,12 @@
             dtic: 0,
             dtic1: 0
         };
-
         if (xdiv < 0) {
             xTIC.dtic1 = stk1.xmin;
             xTIC.dtic = (stk1.xmin - stk1.xmax) / xdiv;
         } else {
             xTIC = mx.tics(stk1.xmin, stk1.xmax, xdiv, flags.xtimecode);
         }
-
-
         var _xmult = 1.0;
         if (flags.xmult) { // if xmult was provided
             _xmult = flags.xmult;
@@ -2955,10 +2637,8 @@
         } else if (!flags.ytimecode) {
             _ymult = mx.mult(stk1.ymin, stk1.ymax);
         }
-
         var xticlabels = !flags.noxtlab;
         var yticlabels = !flags.noytlab;
-
         // add labels
         var ix = Math.max(0, iscl - 4 * Mx.text_w);
         var iy = 0;
@@ -2967,10 +2647,8 @@
         } else {
             iy = Math.max(Mx.text_h, Math.floor(isct - 0.5 * Mx.text_h));
         }
-
         var xlabel;
         var ylabel;
-
         if (iy > 0) {
             var ly = 0;
             if (!flags.noyplab) {
@@ -2992,7 +2670,6 @@
                 }
             }
         }
-
         if (xlabel && ylabel) {
             mx.text(Mx, ix, iy, ylabel + " vs " + xlabel);
         } else if (xlabel) {
@@ -3000,7 +2677,6 @@
         } else if (ylabel) {
             mx.text(Mx, ix, iy, ylabel);
         }
-
         var itext = 5.5 * Mx.text_w;
         var jtext = 0;
         if (flags.ontop) {
@@ -3022,17 +2698,14 @@
         } else {
             fact = width / 1.0;
         }
-
         var fmul;
         if (_xmult !== 0) {
             fmul = 1.0 / _xmult;
         } else {
             fmul = 1.0;
         }
-
         // Figure out how many characters can fit between tics
         var xlbl_maxlen = Math.min(12, Math.round(fact * xTIC.dtic) / Mx.text_w);
-
         // The sp flag decides if all tics should be labeled, or just the first tic.
         // in LEGACY rendering when sp=0 you should get one tic at the start
         // that then displays like XPOS += tic-delta
@@ -3067,7 +2740,6 @@
         if (xTIC.dtic === 0) {
             xTIC.dtic = stk1.xmax - xTIC.dtic1 + 1.0;
         }
-
         var i;
         ix = 0;
         xlbl = "";
@@ -3138,7 +2810,6 @@
                 }
             }
         }
-
         // Add y-tick marks
         if (flags.yonright) { // TODO - yonright probably doesn't work
             if (flags.inside) {
@@ -3198,8 +2869,7 @@
             }
             if (yticlabels) {
                 // TODO
-                if (flags.inside &&
-                    ((i < isct + Mx.text_h) || (i > iscb - Mx.text_h * 2))) {
+                if (flags.inside && ((i < isct + Mx.text_h) || (i > iscb - Mx.text_h * 2))) {
                     // out of range for inside labels
                 } else if (flags.ytimecode) {
                     ylbl = m.sec2tod(y); // don't trim zeros because we use them later
@@ -3239,7 +2909,6 @@
             }
         }
     };
-
     /**
      * @param x
      * @param y
@@ -3250,8 +2919,7 @@
      * @private
      */
     mx.inrect = function(x, y, rect_x, rect_y, rect_width, rect_height) {
-        return (x >= rect_x && x <= rect_x + rect_width &&
-            y >= rect_y && y <= rect_y + rect_height);
+        return (x >= rect_x && x <= rect_x + rect_width && y >= rect_y && y <= rect_y + rect_height);
     };
     /**
      * @private
@@ -3262,7 +2930,6 @@
         toplab: 1,
         n_show: 0
     };
-
     /**
      * @method _menu_redraw
      * @param Mx
@@ -3278,7 +2945,6 @@
         var plot_height = Mx.canvas.height;
         var buffer_sz = 35; // estimate of how much of the canvas is spacing around plot
         var avail_space = plot_height - 2 * buffer_sz;
-
         // Calculate how many menu items can fit inside that space
         var menu_item_height = Mx.text_h * 1.5;
         var n_items = Math.floor(avail_space / menu_item_height);
@@ -3287,44 +2953,33 @@
         } else {
             MENU_CONSTANTS.n_show = n_items;
         }
-
-
         menu.animationFrameHandle = requestAnimFrame(mx.withWidgetLayer(Mx, function() {
             mx.erase_window(Mx);
-
             menu.animationFrameHandle = undefined;
             var yb = Mx.text_h * 1.5;
             menu.x = Math.max(menu.x, 0);
             menu.y = Math.max(menu.y, 0);
             menu.x = Math.min(menu.x, Mx.width - menu.w);
             menu.y = Math.min(menu.y, Mx.height - menu.h);
-
             var xcc = menu.x + MENU_CONSTANTS.GBorder + Math.max(0, MENU_CONSTANTS.sidelab);
             var ycc = menu.y + MENU_CONSTANTS.GBorder + MENU_CONSTANTS.toplab * (yb + MENU_CONSTANTS.GBorder);
-
             var xss = menu.w - 2 * MENU_CONSTANTS.GBorder - Math.abs(MENU_CONSTANTS.sidelab);
             var yss = menu.h - 2 * MENU_CONSTANTS.GBorder - MENU_CONSTANTS.toplab * (yb + MENU_CONSTANTS.GBorder);
-
             mx.widgetbox(Mx, menu.x, menu.y, menu.w, menu.h, xcc, ycc, xss, yss, menu.title);
-
             //ctx.fillStyle = xwlo;
             //ctx.fillRect(xcc, ycc, xss, yss);
-
             var ctx = Mx.wid_canvas.getContext("2d");
             ctx.lineWidth = 1;
-
             ctx.strokeStyle = Mx.xwbs; // xwbs
             ctx.beginPath();
             ctx.moveTo(xcc, ycc - 4 + 0.5);
             ctx.lineTo(xcc + xss - 1, ycc - 4 + 0.5);
             ctx.stroke();
-
             ctx.strokeStyle = Mx.xwts; // xwts
             ctx.beginPath();
             ctx.moveTo(xcc, ycc - 3 + 0.5);
             ctx.lineTo(xcc + xss - 1, ycc - 3 + 0.5);
             ctx.stroke();
-
             var i_begin = menu.queue[0];
             var i_end = menu.queue[MENU_CONSTANTS.n_show - 1];
             if (i_end === 0) {
@@ -3340,16 +2995,13 @@
                 var item = menu.items[i];
                 var y = ycc + yb * menu_counter;
                 menu_counter = menu_counter + 1;
-
                 if (item.style === "separator") {
                     ctx.fillStyle = Mx.xwbs;
                     ctx.fillRect(xcc, y, xss, yb);
-
                     ctx.beginPath();
                     ctx.moveTo(xcc, y + 0.5);
                     ctx.lineTo(xcc + xss, y + 0.5);
                     ctx.stroke();
-
                     ctx.textBaseline = "middle";
                     ctx.textAlign = "left";
                     ctx.fillStyle = Mx.xwfg;
@@ -3381,7 +3033,6 @@
                         ctx.lineTo(xcc + xss, y + 0.5);
                         ctx.stroke();
                     }
-
                     ctx.textBaseline = "middle";
                     ctx.textAlign = "left";
                     ctx.fillStyle = Mx.xwfg;
@@ -3401,7 +3052,6 @@
                         }
                     } else {
                         ctx.fillText(" " + item.text + " ", xcc, y + yb / 2);
-
                         // draw the triangle
                         if (item.checked) {
                             ctx.beginPath();
@@ -3414,11 +3064,8 @@
                     }
                 }
             }
-
-
         }));
     }
-
     /**
      * @method _menu_takeaction
      * @param Mx
@@ -3431,7 +3078,6 @@
         });
         Mx.menu = undefined;
         Mx.widget = null;
-
         for (var i = 0; i < menu.items.length; i++) {
             var item = menu.items[i];
             if (item.selected) {
@@ -3452,7 +3098,6 @@
             menu.finalize();
         }
     }
-
     /**
      * @method _menu_dismiss
      * @param Mx
@@ -3463,14 +3108,15 @@
         mx.onWidgetLayer(Mx, function() {
             mx.erase_window(Mx);
         });
+        if (Mx.useDomMenu) {
+            Mx.menu.remove();
+        }
         Mx.menu = undefined;
         Mx.widget = null;
-
         if ((!Mx.menu) && (menu.finalize)) {
             menu.finalize();
         }
     }
-
     /**
      * @method _menu_callback
      * @param Mx
@@ -3493,13 +3139,11 @@
                 menu.drag_x = Mx.xpos;
                 menu.drag_y = Mx.ypos;
             }
-
             // All of these variables suck and are common in other places...refactoring is necessary
             var xcc = menu.x + MENU_CONSTANTS.GBorder + Math.max(0, MENU_CONSTANTS.sidelab);
             var xss = menu.w - 2 * MENU_CONSTANTS.GBorder - Math.abs(MENU_CONSTANTS.sidelab);
             var yb = Mx.text_h * 1.5;
             var ycc = menu.y + MENU_CONSTANTS.GBorder + MENU_CONSTANTS.toplab * (yb + MENU_CONSTANTS.GBorder);
-
             for (var i = i_begin; i <= i_end; i++) {
                 var y = ycc + yb * i;
                 var item = menu.items[i];
@@ -3555,7 +3199,6 @@
                             menu.queue.unshift(i_begin - 1);
                             _menu_redraw(Mx, menu);
                             menu.items[i_end - 1].selected = true;
-
                         } else if (i_begin === 0 && menu.items[i_begin].selected === true) {
                             _menu_redraw(Mx, menu);
                             menu.items[0].selected = true;
@@ -3574,11 +3217,9 @@
                         } else if (i === (i_end - 1)) {
                             // nothing was selected so select the top
                             var next_item = i_end + 1;
-
                             if (i_end + 1 === menu.items.length) {
                                 next_item = 0;
                             }
-
                             menu.queue.shift();
                             menu.queue.push(next_item);
                             menu.items[i_end].selected = false;
@@ -3589,13 +3230,11 @@
                     _menu_redraw(Mx, menu);
                 } else if ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 65 && keyCode <= 90)) {
                     var inp = String.fromCharCode(keyCode).toUpperCase();
-
                     if (menu.keypresses === undefined) {
                         menu.keypresses = inp;
                     } else {
                         menu.keypresses = menu.keypresses + inp;
                     }
-
                     var matches = 0;
                     for (var i = 0; i < menu.items.length; i++) {
                         var item = menu.items[i];
@@ -3603,7 +3242,6 @@
                         if (!item.text) {
                             continue;
                         }
-
                         if (item.text.toUpperCase().indexOf(menu.keypresses) === 0) {
                             if (matches === 0) {
                                 item.selected = true;
@@ -3611,7 +3249,6 @@
                             matches++;
                         }
                     }
-
                     if (matches === 0) {
                         menu.keypresses = undefined;
                         _menu_redraw(Mx, menu);
@@ -3624,16 +3261,18 @@
             }
         }
     }
-
     /**
      * @param Mx
      * @param menu
      * @private
      */
     mx.menu = function(Mx, menu) {
+        if (Mx.useDomMenu) {
+            new mx.DomMenu(Mx, menu);
+            return;
+        }
         var yb = Mx.text_h * 1.5;
         //MENU_CONSTANTS.n_show = menu.items.length;
-
         var plot_height = Mx.canvas.height;
         var buffer_sz = 35; // estimate of how much of the canvas is spacing around plot
         var avail_space = plot_height - 2 * buffer_sz;
@@ -3645,16 +3284,13 @@
         } else {
             MENU_CONSTANTS.n_show = n_items;
         }
-
         if (menu) {
             if (!Mx.widget) {
                 menu.x = Mx.xpos;
                 menu.y = Mx.ypos;
                 menu.val = 0;
-
                 menu.h = MENU_CONSTANTS.GBorder * 2 + yb * MENU_CONSTANTS.n_show + MENU_CONSTANTS.toplab * (yb + MENU_CONSTANTS.GBorder) - 1;
                 menu.y = menu.y - ((MENU_CONSTANTS.toplab + (Math.max(1, menu.val)) - 0.5) * yb + (1 + MENU_CONSTANTS.toplab) * MENU_CONSTANTS.GBorder) + 1;
-
                 var xb = menu.title.length;
                 var yadj = 0;
                 for (var i = 0; i < menu.items.length; i++) {
@@ -3670,23 +3306,16 @@
                         yadj = yb * i;
                     }
                 }
-
                 menu.queue = [];
-
                 for (var q = 0; q < MENU_CONSTANTS.n_show; q++) {
                     menu.queue.push(q);
-
                 }
-
                 menu.y = menu.y - yadj;
                 xb += 2;
                 xb = xb * Mx.text_w;
-
                 menu.w = MENU_CONSTANTS.GBorder * 2 + Math.abs(MENU_CONSTANTS.sidelab) + xb - 1;
                 menu.x = menu.x - menu.w / 2;
-
                 Mx.menu = menu;
-
                 Mx.widget = {
                     type: "MENU",
                     callback: function(event) {
@@ -3697,7 +3326,6 @@
             _menu_redraw(Mx, menu);
         }
     };
-
     /**
      * @param Mx
      * @param x
@@ -3721,7 +3349,6 @@
             var xt = x + (w - length * Mx.text_w) / 2;
             y += GBorder;
             var yt = y + (iny - y + 0.7 * Mx.text_h) / 2;
-
             mx.text(Mx, xt, yt, name, Mx.xwfg);
         }
         if (inw > 0 && inh > 0) {
@@ -3738,7 +3365,6 @@
             }
         }
     };
-
     /**
      * @param Mx
      * @param x
@@ -3752,7 +3378,6 @@
     //
     mx.text = function(Mx, x, y, lbl, color) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         x = Math.max(0, x);
         y = Math.max(0, y);
         if ((x < 0) || (y < 0)) {
@@ -3766,10 +3391,8 @@
         } else {
             ctx.fillStyle = color;
         }
-
         ctx.fillText(lbl, x, y);
     };
-
     /**
      * @method clipt
      * @param denom
@@ -3781,7 +3404,6 @@
     function clipt(denom, num, o) {
         var accept = true;
         var t;
-
         t = num / denom;
         if (denom > 0) {
             if (t > o.tL) {
@@ -3800,10 +3422,8 @@
                 accept = false;
             }
         }
-
         return accept;
     }
-
     /**
      * Method which draws a line in a graphics context.
      * In the graphics context provided, draws a line.
@@ -3823,7 +3443,6 @@
         // For odd width lines (i.e. 1,3,5...) if you draw right
         // on the pixel boundry the canvas will actually draw a slightly
         // grey line 2 px wide.  You have to add .5 to get what you want.
-
         // Handle boundary cases - instead of throwing an exception, just bound
         // the value to 0
         if (x1 < 0) {
@@ -3838,14 +3457,12 @@
         if (y2 < 0) {
             y2 = 0;
         }
-
         if (width) {
             ctx.lineWidth = width;
         }
         if (color) {
             ctx.strokeStyle = color;
         }
-
         if (ctx.lineWidth % 2 === 1) {
             if (x1 === x2) {
                 x1 = Math.floor(x1) + 0.5;
@@ -3856,7 +3473,6 @@
                 y2 = y1;
             }
         }
-
         if (!style || !style.mode) {
             ctx.beginPath();
             ctx.moveTo(x1, y1);
@@ -3923,11 +3539,9 @@
                 } else {
                     throw "Only horizontal and vertical lines can be drawn with XOR";
                 }
-
                 if ((w === 0) || (h === 0)) {
                     return;
                 }
-
                 x1 = Math.floor(x1);
                 y1 = Math.floor(y1);
                 var imgd = ctx.getImageData(x1, y1, w, h);
@@ -3944,7 +3558,6 @@
             }
         }
     }
-
     /**
      * Method which draws a polygon in a graphics context.
      * In the graphics context provided, draws a polygon.
@@ -3953,22 +3566,19 @@
      * @param ctx - The graphics context to draw in
      * @param pix - Defined as [\{"x": xval, y: "y": yval\}, \{"x": xval, "y":yval\}...].
      *              xval and yval represent their respective coordinate values in the tuples
-     *				number of points in the structure can be retrieved via pix.length.
+     *              number of points in the structure can be retrieved via pix.length.
      * @param color - The color of the rectangle
      * @param width - The line width to set.
      * @private
      */
     function draw_poly(ctx, pix, color, width) { // TODO Should this be a public method?
         start_poly(ctx, pix, width);
-
         if (color) {
             ctx.strokeStyle = color;
         }
-
         ctx.stroke(); // draw the shape outlined in the path
         ctx.closePath();
     }
-
     /**
      * Method which draws a filled polygon in a graphics context.
      * In the graphics context provided draws a polygon, then fills it.
@@ -3981,7 +3591,7 @@
      * @param ctx - The graphics context to draw in
      * @param pix - Defined as [\{"x": xval, y: "y": yval\}, \{"x": xval, "y":yval\}...].
      *              xval and yval represent their respective coordinate values in the tuples
-     *				number of points in the structure can be retrieved via pix.length.
+     *              number of points in the structure can be retrieved via pix.length.
      * @param lineColor - The line color of the polygon
      * @param fillColor - The fill color of the polygon
      * @param lineWidth - The line width to set
@@ -3989,18 +3599,15 @@
      */
     function fill_poly(ctx, pix, lineColor, fillColor, width) { // TODO Should this be a public method?
         start_poly(ctx, pix, width);
-
         if (lineColor) {
             ctx.strokeStyle = lineColor;
         }
         if (fillColor) {
             ctx.fillStyle = fillColor;
         }
-
         ctx.fill(); // fill in the shape only, no outline drawn
         ctx.closePath();
     }
-
     /**
      * Helper method which starts drawing a polygon in a graphics context.
      * In the graphics context provided, begins a path at the first point in pix,
@@ -4010,7 +3617,7 @@
      * @param ctx - The graphics context to draw in
      * @param pix - Defined as [\{"x": xval, y: "y": yval\}, \{"x": xval, "y":yval\}...].
      *              xval and yval represent their respective coordinate values in the tuples
-     *				number of points in the structure can be retrieved via pix.length.
+     *              number of points in the structure can be retrieved via pix.length.
      * @param width - The line width to set.
      * @private
      */
@@ -4018,26 +3625,21 @@
         if (pix.length < 1) {
             return;
         }
-
         var x = pix[0].x;
         var y = pix[0].y;
-
         if (width) {
             ctx.lineWidth = width;
         } else {
             ctx.lineWidth = 1; // Default
         }
-
         ctx.beginPath();
         ctx.moveTo(x, y);
-
         for (var i = 0; i < pix.length; i++) {
             x = pix[i].x;
             y = pix[i].y;
             ctx.lineTo(x, y);
         }
     }
-
     /**
      * Method which draws a rectangle (hollowed) in a graphics context.
      * In the graphics context provided, draws a hollow rectangle.
@@ -4059,10 +3661,8 @@
         if (color) {
             ctx.strokeStyle = color;
         }
-
         ctx.strokeRect(x, y, width, height);
     }
-
     /**
      * Method which draws a rectangle (filled) in a graphics context.
      * In the graphics context provided, draws a filled rectangle.
@@ -4088,10 +3688,8 @@
         if (fillColor) {
             ctx.fillStyle = fillColor;
         }
-
         ctx.fillRect(x, y, width, height);
     }
-
     /**
      * @method pc2px
      * @param perc
@@ -4100,7 +3698,6 @@
     function pc2px(perc) {
         return Math.floor(Math.round(255 * (perc / 100)));
     }
-
     /**
      * @method to_rgb
      * @param red
@@ -4111,7 +3708,6 @@
     function to_rgb(red, green, blue) {
         return "rgb(" + Math.round(red) + ", " + Math.round(green) + ", " + Math.round(blue) + ")";
     }
-
     /**
      *
      * Instead of dealing with color tables and stuff, all we really need
@@ -4124,16 +3720,12 @@
     mx.getcolor = function(Mx, map, z) {
         var iz = 0;
         for (; iz < 6 && map[iz + 1].pos === 0; iz++) {}
-
         while (z > map[iz].pos && iz < 6) {
             iz++;
         }
         if ((iz === 0) || (z >= map[iz].pos)) {
             // above, below, or directly on boundry
-            return to_rgb(
-                pc2px(map[iz].red),
-                pc2px(map[iz].green),
-                pc2px(map[iz].blue));
+            return to_rgb(pc2px(map[iz].red), pc2px(map[iz].green), pc2px(map[iz].blue));
         } else {
             // interpolation my dear watson
             var pf = (z - map[iz - 1].pos) / (map[iz].pos - map[iz - 1].pos);
@@ -4143,7 +3735,6 @@
                 (zf * (map[iz].red / 100) + zf1 * (map[iz - 1].red / 100)), (zf * (map[iz].green / 100) + zf1 * (map[iz - 1].green / 100)), (zf * (map[iz].blue / 100) + zf1 * (map[iz - 1].blue / 100)));
         }
     };
-
     /**
      * @method trimlabel
      * @param lbl
@@ -4172,7 +3763,6 @@
         }
         return res;
     }
-
     /**
      * @param Mx
      * @private
@@ -4187,7 +3777,6 @@
             });
         }
     };
-
     /**
      * @method display_warpbox
      * @param Mx
@@ -4197,29 +3786,22 @@
         Mx._animationFrameHandle = undefined;
         var warpbox = Mx.warpbox;
         var ctx = Mx.active_canvas.getContext("2d");
-
         if (!warpbox) {
             return;
         }
-
-        if (((Mx.xpos >= warpbox.xmin) && (Mx.xpos <= warpbox.xmax)) &&
-            ((Mx.ypos >= warpbox.ymin) && (Mx.ypos <= warpbox.ymax))) {
-
+        if (((Mx.xpos >= warpbox.xmin) && (Mx.xpos <= warpbox.xmax)) && ((Mx.ypos >= warpbox.ymin) && (Mx.ypos <= warpbox.ymax))) {
             // Update the position
             warpbox.xl = Mx.xpos;
             warpbox.yl = Mx.ypos;
-
             // Draw the current box
             var x = Math.min(warpbox.xo, warpbox.xl);
             var y = Math.min(warpbox.yo, warpbox.yl);
             var w = Math.abs(warpbox.xl - warpbox.xo);
             var h = Math.abs(warpbox.yl - warpbox.yo);
-
             if ((w === 0) || (h === 0)) {
                 // Nothing to draw
                 return;
             }
-
             if (warpbox.mode === "vertical") {
                 x = Mx.l;
                 w = Mx.r - Mx.l;
@@ -4227,15 +3809,12 @@
                 y = Mx.t;
                 h = Mx.b - Mx.t;
             } // else box
-
             mx.onWidgetLayer(Mx, function() {
                 mx.erase_window(Mx);
                 mx.draw_box(Mx, "xor", x, y, w, h, warpbox.style.opacity, warpbox.style.fill_color);
             });
         }
-
     }
-
     /**
      * @method log10
      * @param val
@@ -4244,8 +3823,6 @@
     function log10(val) {
         return Math.log(val) / Math.log(10);
     }
-
-
     /**
      * Attempts to format a number in the same manner
      * as the FORTRAN format code 1p1g16.9
@@ -4279,14 +3856,12 @@
     mx.format_g = function(num, w, d, leading_nonzero) {
         var w = Math.min(w, d + 7);
         var f = Math.abs(num).toString();
-
         var decloc = f.indexOf(".");
         // If there is no decimal point, add one at the end.
         if (decloc === -1) {
             f = f + ".";
             decloc = f.length;
         }
-
         var exp = 0;
         var eloc = f.indexOf("e");
         // If there is already an 'e' in the string parse it out
@@ -4294,13 +3869,11 @@
             exp = parseInt(f.slice(eloc + 1, f.length), 10);
             f = f.slice(0, eloc);
         }
-
         // Add zero's to the end if necessary
         var dz = Math.min(d - (f.length - decloc) + 1, d);
         for (var i = 0; i < dz; i++) {
             f = f + "0";
         }
-
         if (num !== 0) {
             if (Math.abs(num) < 1.0) {
                 if (f.slice(0, 2) === "0.") {
@@ -4323,7 +3896,6 @@
                 f = f.slice(0, d + 2);
             }
         }
-
         if (exp === 0) {
             f = f + "    ";
         } else {
@@ -4334,7 +3906,6 @@
                 f = f + "E+" + e;
             }
         }
-
         if (num < 0) {
             f = "-" + f;
         } else {
@@ -4342,7 +3913,6 @@
         }
         return f;
     };
-
     /**
      *
      * Behave like fortran format code
@@ -4358,7 +3928,6 @@
         f = mx.pad(f, (s + d), " ");
         return f;
     };
-
     /**
      * @param s
      * @param size
@@ -4371,7 +3940,6 @@
         }
         return s;
     };
-
     /**
      * @param Mx
      * @param x
@@ -4386,11 +3954,9 @@
     // ~= MX$SHADOWBOX
     mx.legacy_shadowbox = function(Mx, x, y, w, h, shape, func, label) {
         var length = label.length; // Original method declaration includes a length - but it only represents the length of the label
-
         var xt = 0; // Originally an int
         var yt = 0; // Originally an int
         var bw = 0; // Originally an int
-
         var pix = []; // Originally declared as a size 11 XPoint array
         for (var cnt = 0; cnt < 11; cnt++) { // initializing 11 points in the array
             pix[cnt] = {
@@ -4398,25 +3964,19 @@
                 y: 0
             };
         }
-
         var fill = !(func === 1 || func === -1); // Originally a bool
-
         // Removed the G.BW section - since we don't need to support black & white displays
-
         var j = (shape === mx.L_ArrowLeft || shape === mx.L_ArrowUp) ? 1 : 2;
-
         if (func !== 0 && mx.GBorder > 0) {
             bw = m.trunc(Math.min(w, h) / 3);
             bw = Math.max(1, Math.min(bw, mx.GBorder));
         }
-
         if (bw > 0) {
             /* outer shape */
             pix[0].x = pix[1].x = x;
             pix[8].x = pix[9].x = x + w;
             pix[1].y = pix[8].y = y;
             pix[0].y = pix[9].y = y + h;
-
             switch (shape) {
                 case mx.L_ArrowLeft:
                     pix[0].y = pix[1].y = y + m.trunc(h / 2);
@@ -4441,13 +4001,11 @@
             }
             pix[2] = pix[8];
             pix[10] = pix[0];
-
             x += bw;
             y += bw;
             w -= 2 * bw;
             h -= 2 * bw;
         }
-
         /* inner shape */
         pix[4].x = pix[5].x = x;
         pix[3].x = pix[6].x = x + w;
@@ -4468,28 +4026,22 @@
                 break;
         }
         pix[7] = pix[3];
-
         var ctx = Mx.active_canvas.getContext("2d");
-
         if (bw > 0) {
             ctx.fillStyle = (func > 0) ? Mx.xwts : Mx.xwbs; // Set foreground color
             fill_poly(ctx, pix.slice(0, 7));
-            //	if (shape !== 1) { draw_poly(ctx, pix.slice(0,7)); } // TODO what shape is this neccessary with - causes an issue with arrows
-
+            //  if (shape !== 1) { draw_poly(ctx, pix.slice(0,7)); } // TODO what shape is this neccessary with - causes an issue with arrows
             ctx.fillStyle = (func < 0) ? Mx.xwts : Mx.xwbs; // Set foreground color
             fill_poly(ctx, pix.slice(5, 11));
             //if (shape !== 1) { draw_poly(ctx, pix.slice(5, 11)); } // TODO what shape is this neccessary with - causes an issue with arrows
         }
-
         if (fill) {
             ctx.fillStyle = Mx.xwbg; // Set foreground color
             fill_poly(ctx, pix.slice(3, 8));
             //if (shape !== 1) { draw_poly(ctx, pix.slice(3, 8)); } // TODO what shape is this neccessary with - causes an issue with arrows
         }
-
         ctx.fillStyle = Mx.xwfg; // Set foreground color
         ctx.textBaseline = "alphabetic"; // Reset vertical text alignment
-
         if (fill && length > 0) {
             length = Math.min(length, m.trunc(w / Mx.text_w));
             length = Math.max(length, 1);
@@ -4498,7 +4050,6 @@
             ctx.fillText(label, xt, yt); // Draw a string
         }
     };
-
     /**
      * @param Mx
      * @param x
@@ -4513,13 +4064,9 @@
     // ~= MX$SHADOWBOX
     mx.sigplot_shadowbox = function(Mx, x, y, w, h, shape, func, label, alpha) {
         var ctx = Mx.active_canvas.getContext("2d");
-
         var length = label.length; // Original method declaration includes a length - but it only represents the length of the label
-
         var color = (func < 0) ? Mx.xwts : Mx.xwbs;
-
         alpha = alpha || 1.0;
-
         var pix = []; // Originally declared as a size 11 XPoint array
         for (var cnt = 0; cnt < 11; cnt++) { // initializing 11 points in the array
             pix[cnt] = {
@@ -4527,8 +4074,6 @@
                 y: 0
             };
         }
-
-
         switch (shape) {
             case mx.L_ArrowLeft:
             case mx.L_ArrowRight:
@@ -4542,10 +4087,8 @@
                 mx.draw_round_box(Mx, color, x, y, w, h, alpha, Mx.xwbg, 5, Mx.xwbs);
                 break;
         }
-
         ctx.fillStyle = Mx.xwfg; // Set foreground color
         ctx.textBaseline = "alphabetic"; // Reset vertical text alignment
-
         var fill = !(func === 1 || func === -1); // Originally a bool
         if (fill && length > 0) {
             length = Math.min(length, m.trunc(w / Mx.text_w));
@@ -4555,24 +4098,18 @@
             ctx.fillText(label, xt, yt); // Draw a string
         }
     };
-
     if (mx.LEGACY_RENDER) { // TODO new-style conditional
         mx.shadowbox = mx.legacy_shadowbox;
     } else {
         mx.shadowbox = mx.sigplot_shadowbox;
     }
-
     mx.chevron = function(shape, x, y, w, h, e) {
         // Figure out the largest square dimension
         var q = Math.min(w, h);
-
         // if the edge width isn't provided use a decent one
         if (!e) {
             e = q * 0.25;
         }
-
-
-
         // Initialize the pixel array
         var pix = [];
         for (var cnt = 0; cnt < 6; cnt++) { // initializing 11 points in the array
@@ -4581,8 +4118,6 @@
                 y: 0
             };
         }
-
-
         var x_offset = m.trunc(((w - q) / 2) + (q / 4) - (e / (2 * 1.414)));
         var y_offset = m.trunc(((h - q) / 2) + (q / 4) - (e / (2 * 1.414)));
         switch (shape) {
@@ -4647,10 +4182,8 @@
                 pix[5].y = y + h - y_offset - m.trunc(q / 2);
                 break;
         }
-
         return pix;
     };
-
     /**
      * @param Mx
      * @param mouseEvent
@@ -4661,14 +4194,11 @@
         Mx.button_press = 0;
         Mx.button_release = 0;
         Mx.state_mask = 0;
-
         var rect = mouseEvent.target.getBoundingClientRect();
         var eventXPos = (mouseEvent.offsetX === undefined) ? (mouseEvent.pageX - rect.left - window.scrollX) : mouseEvent.offsetX;
         var eventYPos = (mouseEvent.offsetX === undefined) ? (mouseEvent.pageY - rect.top - window.scrollY) : mouseEvent.offsetY;
-
-        //		var eventXPos = (mouseEvent.offsetX === undefined) ? mouseEvent.layerX : mouseEvent.offsetX;
-        //		var eventYPos = (mouseEvent.offsetY === undefined) ? mouseEvent.layerY : mouseEvent.offsetY;
-
+        //      var eventXPos = (mouseEvent.offsetX === undefined) ? mouseEvent.layerX : mouseEvent.offsetX;
+        //      var eventYPos = (mouseEvent.offsetY === undefined) ? mouseEvent.layerY : mouseEvent.offsetY;
         switch (mouseEvent.type) {
             case "mousedown":
                 Mx.xpos = m.bound(eventXPos, 0, Mx.width);
@@ -4714,7 +4244,6 @@
                 break;
         }
     };
-
     /**
      * @param sv
      * @private
@@ -4726,45 +4255,38 @@
     mx.scroll_real2pix = function(sv) {
         // Param types:
         // sv - mx.SCROLLBAR
-
         if (sv.range === 0.0) {
             return {
                 s1: sv.a1,
                 sw: sv.a2 - sv.a1
             };
-            //			out.s1 = sv.a1;
-            //			out.sw = sv.a2 - sv.a1;
+            //          out.s1 = sv.a1;
+            //          out.sw = sv.a2 - sv.a1;
         } else {
             var dv; // real_8
             var ts1; // int_2
             var ts2; // int_2
-
             dv = (sv.a2 - sv.a1) / sv.trange;
-
             ts1 = sv.a1 + Math.floor(0.5 + (sv.smin - sv.tmin) * dv);
             ts2 = ts1 + Math.floor(0.5 + sv.srange * dv);
-
             if (ts1 > sv.a2 - sv.swmin) {
                 ts1 = sv.a2 - sv.swmin;
             } else {
                 ts1 = Math.max(ts1, sv.a1);
             }
-
             if (ts2 < sv.a1 + sv.swmin) {
                 ts2 = sv.a1 + sv.swmin;
             } else {
                 ts2 = Math.min(ts2, sv.a2);
             }
-
             return {
                 s1: ts1,
                 sw: Math.max(ts2 - ts1, sv.swmin)
             };
-            //			out.s1 = ts1;
-            //			out.sw = Math.max(ts2 - ts1, sv.swmin);
+            //          out.s1 = ts1;
+            //          out.sw = Math.max(ts2 - ts1, sv.swmin);
         }
     };
-
     /**
      * Method to re-draw a scrollbar after update. Logic taken from mx.scroll's UPDATE section.
      * @param sv The scrollbar to work with.
@@ -4783,21 +4305,16 @@
         var op1; // int
         var s1;
         var sw; // int_2
-
         var ctx = Mx.active_canvas.getContext("2d");
-
         var scrollReal2PixOut = mx.scroll_real2pix(sv);
         s1 = scrollReal2PixOut.s1;
         sw = scrollReal2PixOut.sw;
-
         p1 = s1;
         op1 = sv.s1;
-
         xcc = sv.x;
         ycc = sv.y;
         xss = sv.w;
         yss = sv.h;
-
         // horizontal scroll bar
         if (sv.origin & 1) {
             y = ycc + yss / 2;
@@ -4807,12 +4324,9 @@
             }
             if (op === mx.XW_DRAW) {
                 var arrow = sv.arrow; // int
-
                 mx.shadowbox(Mx, xcc, ycc, arrow, yss - 1, mx.L_ArrowLeft, 2, "", 0);
                 mx.shadowbox(Mx, xcc + xss - arrow, ycc, arrow - 1, yss, mx.L_ArrowRight, 2, "", 0);
             }
-
-
             if (mx.LEGACY_RENDER) {
                 mx.draw_line(Mx, Mx.fg, xcc + sv.a1, y, xcc + sv.a2, y);
                 mx.shadowbox(Mx, xcc + p1, ycc, sw + 1, yss, 1, 2, "", 0);
@@ -4823,13 +4337,11 @@
                 lingrad.addColorStop(0.5, Mx.xwts);
                 lingrad.addColorStop(1, Mx.xwbs);
                 mx.draw_line(Mx, lingrad, xcc + sv.a1, y, xcc + sv.a2, y, 1);
-
                 var lingrad = ctx.createLinearGradient(0, ycc, 0, ycc + yss);
                 lingrad.addColorStop(0.1, Mx.xwts);
                 lingrad.addColorStop(0.75, Mx.xwbs);
                 mx.draw_round_box(Mx, Mx.xwbg, xcc + p1, ycc, sw + 1, yss, 1, lingrad, 8, Mx.xwbs);
             }
-
             // else vertical scroll bar
         } else {
             x = xcc + m.trunc(xss / 2);
@@ -4842,7 +4354,6 @@
                 mx.shadowbox(Mx, xcc, ycc, xss - 1, arrow, mx.L_ArrowUp, 2, "", 0);
                 mx.shadowbox(Mx, xcc, ycc + yss - arrow, xss - 1, arrow, mx.L_ArrowDown, 2, "", 0);
             }
-
             if (mx.LEGACY_RENDER) {
                 mx.draw_line(Mx, Mx.fg, x, ycc + sv.a1, x, ycc + sv.a2);
                 mx.shadowbox(Mx, xcc, ycc + p1, xss, sw + 1, 1, 2, "", 0);
@@ -4853,19 +4364,15 @@
                 lingrad.addColorStop(0.5, Mx.xwts);
                 lingrad.addColorStop(1, Mx.xwbs);
                 mx.draw_line(Mx, lingrad, x, ycc + sv.a1, x, ycc + sv.a2, 1);
-
                 var lingrad = ctx.createLinearGradient(xcc, 0, xcc + xss, 0);
                 lingrad.addColorStop(0.1, Mx.xwts);
                 lingrad.addColorStop(0.75, Mx.xwbs);
                 mx.draw_round_box(Mx, Mx.xwbg, xcc - 1, ycc + p1, xss, sw + 1, 1, lingrad, 8, Mx.xwbs);
             }
-
         }
-
         sv.s1 = s1;
         sv.sw = sw;
     };
-
     /**
      * @param {Object} Mx - the Mx object
      * @param {number} x - the real-world x coordinate
@@ -4883,19 +4390,14 @@
                 y: 0
             };
         }
-
         var left = stk4.x1;
         var top = stk4.y1;
-
         var xxmin = stk4.xmin;
         var xscl = 1.0 / stk4.xscl;
-
         var yymin = stk4.ymin;
         var yscl = 1.0 / stk4.yscl;
-
         var clipped_x = false;
         var clipped_y = false;
-
         if (x !== null) {
             clipped_x = ((x > stk4.xmax) || (x < stk4.xmin));
             if (clip) {
@@ -4912,10 +4414,8 @@
             }
             y = Math.round((y - yymin) * yscl) + top;
         }
-
         x = Math.round(x);
         y = Math.round(y);
-
         return {
             x: x,
             y: y,
@@ -4924,7 +4424,6 @@
             clipped: (clipped_x || clipped_y)
         };
     };
-
     /**
      * @param Mx
      * @param xpos
@@ -4936,7 +4435,6 @@
         var irety = Math.min(Mx.b, Math.max(Mx.t, ypos));
         var retx;
         var rety;
-
         var k = Mx.level;
         if ((Mx.origin !== 2) && (Mx.origin !== 3)) {
             retx = Mx.stk[k].xmin + (iretx - Mx.stk[k].x1) * Mx.stk[k].xscl;
@@ -4948,13 +4446,11 @@
         } else {
             rety = Mx.stk[k].ymin + (Mx.stk[k].y2 - irety) * Mx.stk[k].yscl;
         }
-
         return {
             x: retx,
             y: rety
         };
     };
-
     /**
      * @param Mx
      * @param map
@@ -4967,7 +4463,6 @@
         });
         return;
     };
-
     /**
      * @param Mx
      * @param x
@@ -4984,7 +4479,6 @@
         }
         mx.draw_box(Mx, Mx.fg, x + 0.5, y, w, h);
     };
-
     /**
      * @param Mx
      * @param x
@@ -5000,7 +4494,6 @@
         }
         mx.draw_box(Mx, Mx.fg, x + 0.5, y, w, h);
     };
-
     /**
      * Render image buffer to canvas.
      *
@@ -5047,11 +4540,9 @@
         if (sh === undefined) {
             sh = buf.height - sy;
         }
-
         // If the source buffer is small enough to be directly rendered, do that
         Mx._renderCanvas.width = buf.width;
         Mx._renderCanvas.height = buf.height;
-
         var imgctx = Mx._renderCanvas.getContext("2d");
         var imgd = imgctx.createImageData(Mx._renderCanvas.width, Mx._renderCanvas.height);
         var buf8 = new Uint8Array(buf);
@@ -5065,7 +4556,6 @@
             }
         }
         imgctx.putImageData(imgd, 0, 0);
-
         // Render the image to the destination
         ctx.save();
         ctx.globalAlpha = opacity;
@@ -5077,7 +4567,6 @@
         ctx.drawImage(Mx._renderCanvas, sx, sy, sw, sh, x, y, w, h);
         ctx.restore();
     }
-
     /**
      * @private
      *
@@ -5119,15 +4608,12 @@
         if (sh === undefined) {
             sh = buf.height - sy;
         }
-
         if ((buf.width < 32768) && (buf.height < 32768)) {
             // If the source buffer is small enough to be directly rendered, do that
             Mx._renderCanvas.width = buf.width;
             Mx._renderCanvas.height = buf.height;
-
             var imgctx = Mx._renderCanvas.getContext("2d");
             var imgd = imgctx.createImageData(Mx._renderCanvas.width, Mx._renderCanvas.height);
-
             // TODO - This may not be portable to all browsers, if not
             // we need to choose between this approach and the traditional
             // for-loop based approach
@@ -5151,7 +4637,6 @@
             sx = 0;
             sy = 0;
         }
-
         // Render the image to the destination
         ctx.save();
         ctx.globalAlpha = opacity;
@@ -5163,7 +4648,6 @@
         ctx.drawImage(Mx._renderCanvas, sx, sy, sw, sh, x, y, w, h);
         ctx.restore();
     }
-
     /**
      * Scale the image data (represented by buf) into the destination canvas
      * using nearest neighbor.  In genearl, you should just use the scaling
@@ -5180,7 +4664,6 @@
     function scaleImage(img, buf, sx, sy, sw, sh) {
         // Source buffer, expected to have .width and .height elements
         var src = new Uint32Array(buf);
-
         if (!sw) {
             sw = buf.width;
         }
@@ -5193,22 +4676,18 @@
         if (!sy) {
             sy = 0;
         }
-
         // Cache to avoid get width calls in tight loop
         var w = img.width;
         var h = img.height;
-
         // Destination element
         var imgctx = img.getContext("2d");
         var imgd = imgctx.createImageData(w, h);
         var ibuf = new ArrayBuffer(imgd.data.length);
         var buf8 = new Uint8ClampedArray(ibuf);
         var dest = new Uint32Array(ibuf);
-
         // Scaling factor
         var width_scaling = sw / w;
         var height_scaling = sh / h;
-
         // Perform the scaling
         var xx = 0;
         var yy = 0;
@@ -5219,14 +4698,11 @@
             jj = Math.floor((yy * buf.width) + xx);
             dest[i] = src[jj];
         }
-
         // Set the data
         imgd.data.set(buf8);
         imgctx.putImageData(imgd, 0, 0);
     }
-
     var renderImage = (typeof Uint8ClampedArray === 'undefined') ? renderImageNoTypedArrays : renderImageTypedArrays;
-
     /**
      * @param Mx
      * @param img
@@ -5242,10 +4718,8 @@
             shift = Math.abs(shift) * buf.width;
             imgd.set(imgd.subarray(shift));
         }
-
         return buf;
     };
-
     /**
      * @param Mx
      * @param img
@@ -5292,10 +4766,8 @@
 
             }
         }
-
         return imgd;
     };
-
     /**
      * @param Mx
      * @param data
@@ -5321,9 +4793,7 @@
         var buf = new ArrayBuffer(w * h * 4);
         buf.width = w;
         buf.height = h;
-
         var nxc = Math.max(1, subsize / w);
-
         var imgd = new Uint32Array(buf);
         if (data) {
             for (var i = 0; i < imgd.length; i++) {
@@ -5374,11 +4844,9 @@
                 }
             }
         }
-
         // Return the image in case the caller wishes to cache it
         return buf;
     };
-
     /**
      * @param Mx
      * @param data
@@ -5400,10 +4868,8 @@
             m.log.warn("COLORMAP not initialized, defaulting to foreground");
             Mx.pixel = new ColorMap(m.Mc.colormap[1].colors);
         }
-
         var w;
         var h;
-
         if (nex > 0) {
             w = nx * nex;
         } else {
@@ -5411,11 +4877,9 @@
         }
         w = Math.floor(w);
         h = Math.floor(ny * ney);
-
         var buf = new ArrayBuffer(w * h * 4);
         buf.width = w;
         buf.height = h;
-
         var imgd = new Uint32Array(buf);
         for (var i = 0; i < imgd.length; i++) {
             var color = Mx.pixel.getColor(data[i]);
@@ -5423,14 +4887,11 @@
                 imgd[i] = color.color;
             }
         }
-
         //render the buffered canvas onto the original canvas element
         renderImage(Mx, ctx, buf, opacity, smoothing, xd, yd, w, h);
-
         // Return the image in case the caller wishes to cache it
         return buf;
     };
-
     /**
      * @param Mx
      * @param buf
@@ -5447,8 +4908,6 @@
         var view_xmax = Math.min(xmax, Mx.stk[Mx.level].xmax);
         var view_ymin = Math.max(ymin, Mx.stk[Mx.level].ymin);
         var view_ymax = Math.min(ymax, Mx.stk[Mx.level].ymax);
-
-
         if ((buf.width <= 1) || Math.abs(xmax - xmin) === 0) {
             return;
         }
@@ -5457,14 +4916,12 @@
         }
         var rx = buf.width / (xmax - xmin);
         var ry = buf.height / (ymax - ymin);
-
         // Ensure we are on buffer pixel boundaries, later we use clipping
         // to constrain to the proper area
         view_xmin = Math.floor(view_xmin * rx) / rx;
         view_xmax = Math.ceil(view_xmax * rx) / rx;
         view_ymin = Math.floor(view_ymin * ry) / ry;
         view_ymax = Math.ceil(view_ymax * ry) / ry;
-
         var ul, lr;
         var sy, sx, sw, sh;
         if (Mx.origin === 1) {
@@ -5473,7 +4930,6 @@
             sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
             sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
             sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
-
             ul = mx.real_to_pixel(Mx, view_xmin, view_ymax);
             lr = mx.real_to_pixel(Mx, view_xmax, view_ymin);
         } else if (Mx.origin === 2) {
@@ -5482,7 +4938,6 @@
             sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
             sx = Math.max(0, Math.ceil((view_xmin - xmin) * rx));
             sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
-
             ul = mx.real_to_pixel(Mx, view_xmax, view_ymax);
             lr = mx.real_to_pixel(Mx, view_xmin, view_ymin);
         } else if (Mx.origin === 3) {
@@ -5491,7 +4946,6 @@
             sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
             sx = Math.max(0, Math.ceil((view_xmin - xmin) * rx));
             sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
-
             ul = mx.real_to_pixel(Mx, view_xmax, view_ymin);
             lr = mx.real_to_pixel(Mx, view_xmin, view_ymax);
         } else if (Mx.origin === 4) {
@@ -5500,18 +4954,14 @@
             sh = Math.min(buf.height - sy, Math.floor((view_ymax - view_ymin) * ry));
             sx = Math.max(0, Math.floor((view_xmin - xmin) * rx));
             sw = Math.min(buf.width - sx, Math.floor((view_xmax - view_xmin) * rx));
-
             ul = mx.real_to_pixel(Mx, view_xmin, view_ymin);
             lr = mx.real_to_pixel(Mx, view_xmax, view_ymax);
         }
-
         var iw = lr.x - ul.x;
         var ih = lr.y - ul.y;
-
         // Always include at least one pixel from the source
         sw = Math.max(1, sw);
         sh = Math.max(1, sh);
-
         // See if smart smoothing is requested
         if (typeof smoothing === "number") {
             // calculate the ratio of displayed pixels over
@@ -5521,7 +4971,6 @@
             // turn on smoothing
             smoothing = (ratio <= smoothing);
         }
-
         //render the buffered canvas onto the original canvas element
         var ctx = Mx.active_canvas.getContext("2d");
         ctx.save();
@@ -5531,10 +4980,90 @@
         renderImage(Mx, ctx, buf, opacity, smoothing, ul.x, ul.y, iw, ih, sx, sy, sw, sh);
         ctx.restore();
     };
-
+    mx.DomMenu = function(Mx, menu, options) {
+        this.options = {
+            itemClass: "sigplot-menu-item"
+        };
+        common.update(this.options, options);
+        this._Mx = Mx;
+        this._container = Mx.root;
+        this._menu = document.createElement("div");
+        var style = "z-index:2;float:left;position:relative;left:" + Mx.xpos + "px;top:" + Mx.ypos + "px;color:white;";
+        this._menu.className += " sigplot-menu";
+        this._menu.style = style;
+        this.createMenu(menu);
+    };
+    mx.DomMenu.prototype = {
+        createMenu: function(menu) {
+            var self = this;
+            var Mx = this._Mx;
+            var originalFinalize = menu.finalize;
+            menu.finalize = function() {
+                self.remove();
+                originalFinalize();
+            };
+            this.finalize = menu.finalize;
+            var title = document.createElement("div");
+            title.className += " sigplot-menu-title";
+            title.innerText = menu.title;
+            this._menu.append(title);
+            var list = document.createElement("ul");
+            list.className += " sigplot-menu-list";
+            menu.items.forEach(function(item) {
+                var li = document.createElement("li");
+                li.className += " " + self.options.itemClass;
+                li.innerText = item.text;
+                if (item.style) {
+                    li.className += " " + item.style;
+                }
+                if (item.checked) {
+                    li.className = item.style + " checked";
+                }
+                li.addEventListener("click", function() {
+                    if (item.handler) {
+                        item.handler();
+                    } else if (item.menu) {
+                        console.log("new Menu");
+                        var newmenu = item.menu;
+                        if (typeof item.menu === 'function') {
+                            newmenu = item.menu();
+                        }
+                        newmenu.finalize = menu.finalize;
+                        new mx.DomMenu(Mx, newmenu);
+                    }
+                    menu.finalize();
+                });
+                list.append(li);
+            });
+            this._menu.append(list);
+            this._container.append(this._menu);
+            Mx.menu = this;
+            Mx.widget = {
+                type: "MENU",
+                callback: function(event) {
+                    if (event.type === "mousedown") {
+                        console.log(event);
+                        window.mx = Mx;
+                        if (event.which === 1) {
+                            if (
+                                (self._Mx.menu == self) && (!event.target.classList.contains(self.options.itemClass))) {
+                                self.finalize();
+                            }
+                            if(!self._Mx.menu){
+                                console.log("destruct");
+                                self.finalize();
+                            }
+                        }
+                    }
+                }
+            };
+        },
+        remove: function() {
+            this._Mx.menu = undefined;
+            this._menu.remove();
+        }
+    };
     // Node: Export function
     module.exports = mx;
-
 }());
-
 ///////////////////////////////////////////////////////////////////////////////
