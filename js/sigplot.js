@@ -5667,8 +5667,8 @@
         };
 
         var REFRESH_ITEM = {
-            text: "Refresh"
-            // no handler, just let the finalizer deal with it
+            text: "Refresh" // no handler, just let the finalizer deal with
+            // it
         };
 
         var KEYPRESSINFO_ITEM = {
@@ -6284,7 +6284,9 @@
         if (!o.ylab) {
             o.ylab = 0;
         }
-
+        if (o.useDomMenu) {
+            Mx.useDomMenu = true;
+        }
         //Convert xunits and yunits to numbers if they are strings
         o.xlab = m.unit_lookup(o.xlab);
         o.ylab = m.unit_lookup(o.ylab);
