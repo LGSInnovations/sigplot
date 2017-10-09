@@ -5676,8 +5676,8 @@
         };
 
         var REFRESH_ITEM = {
-            text: "Refresh"
-            // no handler, just let the finalizer deal with it
+            text: "Refresh" // no handler, just let the finalizer deal with
+            // it
         };
 
         var KEYPRESSINFO_ITEM = {
