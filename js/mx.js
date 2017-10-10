@@ -5130,8 +5130,8 @@
             border-bottom: 2px solid " + Mx.xwts + ";\
         }\
         .sigplot-menu-item{\
-            border-top: 2px solid black;\
-            background-color: " + Mx.xwbs + ";\
+            border-top: 2px solid " + Mx.bg + ";\
+            background-color: " + Mx.xwlo + ";\
             padding: 1px;\
             padding-right: 5px;\
             padding-left: 5px;\
@@ -5144,10 +5144,10 @@
             border-radius: 5px;\
             padding: 3px;\
             font: " + Mx.font.font + ";\
-            color:" + Mx.fg + "\
+            color:" + Mx.xwfg + "\
         }\
         .sigplot-menu-item.separator {\
-            background-color: transparent;\
+            background-color: " + Mx.xwbs + ";\
         }\
         .sigplot-menu-checkbox:before{\
             margin-right: 3px; \
