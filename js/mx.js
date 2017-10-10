@@ -4988,9 +4988,10 @@
         this._Mx = Mx;
         this._container = Mx.root;
         this._menu = document.createElement("div");
-        var style = "z-index:2;float:left;position:relative;left:" + Mx.xpos + "px;top:" + Mx.ypos + "px;color:white;";
+        var style = "z-index:2;float:left;position:relative;left:" + Mx.xpos + "px;top:" + Mx.ypos + "px;";
         this._menu.className += " sigplot-menu";
         this._menu.style = style;
+        this.setCSS();
         this.createMenu(menu);
     };
     mx.DomMenu.prototype = {
@@ -5016,14 +5017,19 @@
                 if (item.style) {
                     li.className += " " + item.style;
                 }
-                if (item.checked) {
-                    li.className = item.style + " checked";
+                if (item.hasOwnProperty("checked")) {
+                    li.className += " sigplot-menu-checkbox";
+                    if (item.checked) {
+                        li.className += " checked";
+                    }
                 }
                 li.addEventListener("click", function() {
+                    self.remove();
+                    Mx.menu = undefined;
+                    Mx.widget = null;
                     if (item.handler) {
                         item.handler();
                     } else if (item.menu) {
-                        console.log("new Menu");
                         var newmenu = item.menu;
                         if (typeof item.menu === 'function') {
                             newmenu = item.menu();
@@ -5031,7 +5037,10 @@
                         newmenu.finalize = menu.finalize;
                         new mx.DomMenu(Mx, newmenu);
                     }
-                    menu.finalize();
+
+                    if ((!Mx.menu) && (menu.finalize)) {
+                        menu.finalize();
+                    }
                 });
                 list.append(li);
             });
@@ -5042,15 +5051,11 @@
                 type: "MENU",
                 callback: function(event) {
                     if (event.type === "mousedown") {
-                        console.log(event);
-                        window.mx = Mx;
-                        if (event.which === 1) {
-                            if (
-                                (self._Mx.menu == self) && (!event.target.classList.contains(self.options.itemClass))) {
+                        if (event.which === 1 || event.which === 2 || event.which === 3) {
+                            if ((self._Mx.menu === self) && (!event.target.classList.contains(self.options.itemClass))) {
                                 self.finalize();
                             }
-                            if(!self._Mx.menu){
-                                console.log("destruct");
+                            if (!self._Mx.menu) {
                                 self.finalize();
                             }
                         }
@@ -5059,8 +5064,75 @@
             };
         },
         remove: function() {
-            this._Mx.menu = undefined;
+
+            var Mx = this._Mx;
+            Mx.menu = undefined;
+            Mx.widget = null;
             this._menu.remove();
+        },
+        setCSS: function() {
+            var Mx = this._Mx;
+            var cssId = "mx-menu-css"; // id so we can always replace the css if we want to update this with mx.setTheme..
+            if (!document.getElementById(cssId)) {
+                var head = document.getElementsByTagName('head')[0];
+                var style = document.createElement('style');
+                style.id = cssId;
+
+                //This is ugly because Qunit doesn't support Template Template literals.
+                /* jshint ignore:start */
+                style.textContent = "\
+        .sigplot-menu-list {\
+            margin: 0px;\
+            list-style: none;\
+            padding: 0px;\
+        }\
+        .sigplot-menu-title {\
+            text-align: center;\
+            border-bottom: 2px solid " + Mx.xwts + ";\
+        }\
+        .sigplot-menu-item{\
+            border-top: 2px solid black;\
+            background-color: " + Mx.xwbs + ";\
+            padding: 1px;\
+            padding-right: 5px;\
+            padding-left: 5px;\
+        }\
+        .sigplot-menu {\
+            position: relative;\
+            color: white;\
+            float: left;\
+            background-color: " + Mx.xwbg + ";\
+            border-radius: 5px;\
+            padding: 3px;\
+            font: " + Mx.font.font + ";\
+            color:" + Mx.fg + "\
+        }\
+        .sigplot-menu-item.separator {\
+            background-color: transparent;\
+        }\
+        .sigplot-menu-checkbox:before{\
+            margin-right: 3px; \
+        }\
+        .sigplot-menu-checkbox.checked:before {\
+            content: '\\25b8';\
+            width: 2px;\
+            height: 3px;\
+        }\
+        .sigplot-menu-checkbox.checkbox:before {\
+            content: '\\25A1';\
+            width: 2px;\
+            height: 3px;\
+        }\
+        .sigplot-menu-checkbox.checkbox.checked:before {\
+            content: '\\25A3';\
+            width: 2px;\
+            height: 3px;\
+        }\
+        ";
+
+                /* jshint ignore:end */
+                head.appendChild(style);
+            }
         }
     };
     // Node: Export function
