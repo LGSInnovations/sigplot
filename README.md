@@ -1,6 +1,6 @@
 SigPlot
 =======
-
+TEST
 SigPlot provides fast, interactive plotting for software defined radio
 applications using HTML5.
 
@@ -69,6 +69,10 @@ environment where Grunt cannot be used.  You will need the following:
 
 If you wish to build the SigPlot API documention, you will need
 [jsdoc](https://github.com/jsdoc3/jsdoc) installed.
+
+Help
+=============
+Join the discussion on [Slack](https://join.slack.com/t/sigplot/shared_invite/enQtMjQ0NzkwMjc2NzcxLWEzZTQwMzdiYTBkMGM3N2QwZDc0OGU5MTY5MDMyN2U5NjNmNjc3MDhmZDMxMTY1MmQzNmIzZWQ2OGEzMDYzZDE).
 
 Testing
 =============
