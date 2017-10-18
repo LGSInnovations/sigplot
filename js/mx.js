@@ -5062,16 +5062,8 @@ window.mx = window.mx || {};
      */
     mx.update_image_row = function(Mx, buf, data, row, zmin, zmax) {
         var imgd = new Uint32Array(buf, row * buf.width * 4, buf.width);
-
-        var fscale = 1;
-        if (zmax !== zmin) {
-            fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
-        }
         Mx.pixel.setRange(zmin, zmax);
         for (var i = 0; i < data.length; i++) {
-
-            var cidx = Math.floor((data[i] - zmin) * fscale);
-            cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
 
             var color = Mx.pixel.getColor(data[i]);
             if (color) {
