@@ -40,6 +40,7 @@ window.mx = window.mx || {};
     /* global dashOn */
     /* global dashOff */
     /* global CanvasInput */
+    /* global ColorMap */
 
     mx.XW_INIT = -3;
     mx.XW_DRAW = 1;
@@ -1420,7 +1421,7 @@ window.mx = window.mx || {};
         var ymin = Math.min(stk4.ymin, stk4.ymax);
         var xmax = xmin + dx;
         var ymax = ymin + dy;
-        Mx.pixel.setRange(xmin,xmax);
+        Mx.pixel.setRange(xmin, xmax);
         //dx = dx * 0.5;
         //if ((line == -1) || (line == 1)) {
         //	dy = dy * 10.0;
@@ -1726,16 +1727,16 @@ window.mx = window.mx || {};
         }
 
         if (typeof color === "number") {
-                if(isNaN(color)){
-                     color = 0;
-                }
-                var cidx = Math.max(0, Math.min(Mx.pixel.map.length, color));
-                color = Mx.pixel.getColor(color);
-                color = to_rgb(
-                    color.red,
-                    color.green,
-                    color.blue);
-            
+            if (isNaN(color)) {
+                color = 0;
+            }
+            var cidx = Math.max(0, Math.min(Mx.pixel.map.length, color));
+            color = Mx.pixel.getColor(color);
+            color = to_rgb(
+                color.red,
+                color.green,
+                color.blue);
+
         }
         draw_line(ctx, x1, y1, x2, y2, style, color, linewidth);
     };
@@ -4782,7 +4783,9 @@ window.mx = window.mx || {};
      * @private
      */
     mx.colormap = function(Mx, map, ncolors) {
-        Mx.pixel = new ColorMap(map, {ncolors:ncolors});
+        Mx.pixel = new ColorMap(map, {
+            ncolors: ncolors
+        });
         return;
     };
 
@@ -4795,7 +4798,7 @@ window.mx = window.mx || {};
      * @private
      */
     mx.colorbar = function(Mx, x, y, w, h) {
-        Mx.pixel.setRange(0,Mx.pixel.map.length)
+        Mx.pixel.setRange(0, Mx.pixel.map.length);
         for (var j = 1; j < h; j++) {
             var cidx = Math.floor(Mx.pixel.map.length * (j - 1) / h);
             mx.draw_line(Mx, cidx, x, y + h - j, x + w, y + h - j);
@@ -5064,7 +5067,7 @@ window.mx = window.mx || {};
         if (zmax !== zmin) {
             fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
         }
-        Mx.pixel.setRange(zmin,zmax);
+        Mx.pixel.setRange(zmin, zmax);
         for (var i = 0; i < data.length; i++) {
 
             var cidx = Math.floor((data[i] - zmin) * fscale);
@@ -5171,7 +5174,7 @@ window.mx = window.mx || {};
         for (var i = 0; i < imgd.length; i++) {
             var color = Mx.pixel.getColor(data[i]);
             if (color) {
-                imgd[i] = color.color; 
+                imgd[i] = color.color;
             }
         }
 

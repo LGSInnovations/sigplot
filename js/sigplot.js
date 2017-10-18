@@ -2417,13 +2417,13 @@ window.sigplot = window.sigplot || {};
             }
         },
 
-        addColorMaps: function(colormaps){
-            colormaps.forEach(function(cmap){
-                if(cmap.hasOwnProperty("name")){
+        addColorMaps: function(colormaps) {
+            colormaps.forEach(function(cmap) {
+                if (cmap.hasOwnProperty("name")) {
                     m.Mc.colormap.push(cmap);
                 }
 
-            })
+            });
 
         },
 
