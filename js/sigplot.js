@@ -234,6 +234,9 @@ window.sigplot = window.sigplot || {};
      * @param {Boolean}
      *            options.yinv invert the y-axis
      *
+     * @param {Number}
+     *            options.autol auto-scaling time constant
+     *
      * @param {String}
      *            options.colors.fg the foreground color as a CSS color
      *
@@ -2414,6 +2417,16 @@ window.sigplot = window.sigplot || {};
             }
         },
 
+        addColorMaps: function(colormaps) {
+            colormaps.forEach(function(cmap) {
+                if (cmap.hasOwnProperty("name")) {
+                    m.Mc.colormap.push(cmap);
+                }
+
+            });
+
+        },
+
         _refresh: function() {
             var Mx = this._Mx;
             var Gx = this._Gx;
@@ -4435,7 +4448,7 @@ window.sigplot = window.sigplot || {};
 
         var REFRESH_ITEM = {
             text: "Refresh" // no handler, just let the finalizer deal with
-                // it
+            // it
         };
 
         var KEYPRESSINFO_ITEM = {
@@ -4794,7 +4807,7 @@ window.sigplot = window.sigplot || {};
 
         mx.set_font(Mx, Math.min(7, Mx.width / 64));
 
-        Gx.ncolors = o.ncolors === undefined ? 16 : o.ncolors;
+        Gx.ncolors = o.ncolors === undefined ? 500 : o.ncolors;
         Gx.cmap = null;
         if (o.cmap) {
             Gx.cmap = o.cmap;

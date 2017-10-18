@@ -23,6 +23,7 @@ module.exports = function (grunt) {
                     'js/common.js',
                     'js/bluefile.js',
                     'js/tinycolor.js',
+                    'js/ColorMap.js',
                     'js/CanvasInput.js',
                     'js/spin.js',
                     'js/loglevel.js',
