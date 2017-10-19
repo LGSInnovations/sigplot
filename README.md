@@ -23,7 +23,7 @@ First include the SigPlot library in your webpage:
   </head>
   <body>
     <div id="plot"></div>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sigplot@2.0.0-rc1/dist/sigplot-debug.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sigplot@2.0.0-rc2/dist/sigplot-debug.js"></script>
     <script type="text/javascript">
       var options = {};
       var plot = new sigplot.Plot(document.getElementById('plot'), options);
