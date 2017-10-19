@@ -1,12 +1,19 @@
 {
   "name": "sigplot",
   "description": "Advanced plotting for signal processing applications",
-  "version": "2.0.0rc1",
+  "version": "2.0.0-rc2",
   "homepage": "http://sigplot.lgsinnovations.com",
   "main": "js/sigplot.js",
   "files": [
     "js",
-    "dist"
+    "dist/bluefile-debug.js",
+    "dist/bluefile-minimized.js",
+    "dist/matfile-debug.js",
+    "dist/matfile-minimized.js",
+    "dist/sigplot-debug.js",
+    "dist/sigplot-minimized.js",
+    "dist/sigplot.plugins-debug.js",
+    "dist/sigplot.plugins-minimized.js"
   ],
   "author": {
     "name": "LGS Innovations, Inc.",
@@ -27,7 +34,8 @@
     }
   ],
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "publish": "grunt dist && npm publish"
   },
   "dependencies": {
     "loglevel": "^1.4.1",
