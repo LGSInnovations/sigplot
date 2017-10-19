@@ -1,6 +1,7 @@
 /* global module */
 /* global require */
  (function() {
+     var tinycolor = require("tinycolor2");
      if (typeof Object.assign !== 'function') {
          // Must be writable: true, enumerable: false, configurable: true
          Object.defineProperty(Object, "assign", {
@@ -89,8 +90,14 @@
                  var color = colors[i];
                  if (typeof color === "string") {
                      colors[i] = this._hexToRgb(color);
+                     color = tinycolor(color);
+                     color = color.toRgb();
+                     colors[i] = {red:color.r,green:color.g,blue:color.b,alpha:this.options.alpha};
+
                  } else if (color.hasOwnProperty("color")) {
-                     var newColor = this._hexToRgb(color.color);
+                     var newColor = tinycolor(color.color);
+                     newColor = newColor.toRgb();
+                     newColor = {red:newColor.r,green:newColor.g,blue:newColor.b,alpha:this.options.alpha};
                      if (color.hasOwnProperty("pos")) {
                          newColor.pos = color.pos;
                      }
