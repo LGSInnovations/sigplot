@@ -7,37 +7,32 @@ applications using HTML5.
 ![SigPlot plotting the FFT of a signal](doc/fft-white.png)
 
 Getting Started
-=============
+=================
 First include the SigPlot library in your webpage:
 
 ```html
-<script src="sigplot-minimized.js" type="text/javascript"></script>
-```
-
-Then create a 'div' element to hold your plot:
-
-```html    
-<div id="plot"></div>
-```
-
-The size and position of the plot are controlled by regular CSS positioning
-of the 'div' element.  For example:
-
-```css
-#plot {
-        height: 400px;
+<html>
+  <head>
+    <title>SigPlot Standalone</title>
+    <style>
+      #plot {
         width: 600px;
-}
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="plot"></div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sigplot@2.0.0-rc1/dist/sigplot-debug.js"></script>
+    <script type="text/javascript">
+      var options = {};
+      var plot = new sigplot.Plot(document.getElementById('plot'), options);
+    </script>
+  </body>
+</html>
 ```
 
-Finally, invoke SigPlot:
-
-```javascript
-plot = new sigplot.Plot(document.getElementById('plot'), {autohide_panbars: true});
-```
-
-Additional [examples and demos](http://sigplot.lgsinnovations.com/) are
-available along with [API](http://TODO) documentation. 
+Additional [examples and demos](http://sigplot.lgsinnovations.com/).
 
 
 WebPack Quick Start
@@ -73,7 +68,7 @@ Then, create a file called `index.html` with the following contents:
 ```
 <html>
   <head>
-    <title>SigPlot 101</title>
+    <title>SigPlot Webpack</title>
     <style>
       #plot {
         width: 600px;
