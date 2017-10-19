@@ -42,8 +42,7 @@
             display: true,
             size: 25,
             lineWidth: 2,
-            fillStyle: false //,
-                /*strokeStyle: "#FFFFFF"*/
+            fillStyle: false
         };
         common.update(this.options, options);
         this.state = "paused";
