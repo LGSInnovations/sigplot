@@ -94,6 +94,126 @@ test('m sec2tod test', function() {
     equal(sigplot.m.sec2tod(-31536000.5, true), "1948:12:31::23:59:59.5");
     equal(sigplot.m.sec2tod(-31536001.5, true), "1948:12:31::23:59:58.5");
 });
+
+QUnit.module('ColorMap', {
+    setup: function() {},
+    teardown: function() {}
+});
+test('colormap', function() {
+    var map = new ColorMap([{
+                pos: 0,
+                red: 0,
+                green: 0,
+                blue: 15
+            }, {
+                pos: 10,
+                red: 0,
+                green: 0,
+                blue: 50
+            }, {
+                pos: 31,
+                red: 0,
+                green: 65,
+                blue: 75
+            }, {
+                pos: 50,
+                red: 0,
+                green: 85,
+                blue: 0
+            }, {
+                pos: 70,
+                red: 75,
+                green: 80,
+                blue: 0
+            }, {
+                pos: 83,
+                red: 100,
+                green: 60,
+                blue: 0
+            }, {
+                pos: 100,
+                red: 100,
+                green: 0,
+                blue: 0
+            }]);
+    var color = map.getColor(0);
+    equal(color.red, 0);
+    equal(color.green, 0);
+    equal(color.blue, 38);
+    equal(color.alpha, 255);
+    equal(color.hex,"#000026");
+    equal(color.color,-14286848);
+    color = map.getColor(1);
+    equal(color.red, 255);
+    equal(color.green, 0);
+    equal(color.blue, 0);
+    equal(color.alpha, 255);
+    equal(color.hex,"#ff0000");
+    equal(color.color,-16776961);
+    color = map.getColor(.5);
+    equal(color.red, 0);
+    equal(color.green, 217);
+    equal(color.blue, 0);
+    equal(color.alpha, 255);
+    equal(color.hex,"#00d900");
+    equal(color.color,-16721664);
+    map.setRange(0,100);
+    var color = map.getColor(0);
+    equal(color.red, 0);
+    equal(color.green, 0);
+    equal(color.blue, 38);
+    equal(color.alpha, 255);
+    equal(color.hex,"#000026");
+    equal(color.color,-14286848);
+    color = map.getColor(100);
+    equal(color.red, 255);
+    equal(color.green, 0);
+    equal(color.blue, 0);
+    equal(color.alpha, 255);
+    equal(color.hex,"#ff0000");
+    equal(color.color,-16776961);
+    color = map.getColor(50);
+    equal(color.red, 0);
+    equal(color.green, 217);
+    equal(color.blue, 0);
+    equal(color.alpha, 255);
+    equal(color.hex,"#00d900");
+    equal(color.color,-16721664);
+
+    var map = new ColorMap(["#000026","#ff0000"]);
+    var color = map.getColor(0);
+    equal(color.red, 0);
+    equal(color.green, 0);
+    equal(color.blue, 38);
+    equal(color.alpha, 255);
+    equal(color.hex,"#000026");
+    equal(color.color,-14286848);
+    color = map.getColor(1);
+    equal(color.red, 255);
+    equal(color.green, 0);
+    equal(color.blue, 0);
+    equal(color.alpha, 255);
+    equal(color.hex,"#ff0000");
+    equal(color.color,-16776961);
+    map.setRange(0,100);
+    var color = map.getColor(0);
+    equal(color.red, 0);
+    equal(color.green, 0);
+    equal(color.blue, 38);
+    equal(color.alpha, 255);
+    equal(color.hex,"#000026");
+    equal(color.color,-14286848);
+    color = map.getColor(100);
+    equal(color.red, 255);
+    equal(color.green, 0);
+    equal(color.blue, 0);
+    equal(color.alpha, 255);
+    equal(color.hex,"#ff0000");
+    equal(color.color,-16776961);
+   
+
+});
+
 QUnit.module('mx', {
     setup: function() {},
     teardown: function() {}
