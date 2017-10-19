@@ -5028,8 +5028,12 @@
         this._container = Mx.root;
         this._menu = document.createElement("div");
         var style = "z-index:2;float:left;position:relative;left:" + Mx.xpos + "px;top:" + Mx.ypos + "px;";
-        this._menu.className += " sigplot-menu";
+        this._menu.classList.add("sigplot-menu");
+        var d = new Date();
+        this._menuId = "menu-" + d.getSeconds() + d.getMilliseconds();
+        this._menu.classList.add(this._menuId);
         this._menu.style = style;
+        this._items = [];
         this.setCSS();
         this.createMenu(menu);
     };
@@ -5044,13 +5048,94 @@
             };
             this.finalize = menu.finalize;
             var title = document.createElement("div");
-            title.className += " sigplot-menu-title";
+            title.classList.add("sigplot-menu-title");
             title.innerText = menu.title;
             this._menu.append(title);
             var list = document.createElement("ul");
-            list.className += " sigplot-menu-list";
+            list.classList.add("sigplot-menu-list");
             menu.items.forEach(function(item) {
-                var li = document.createElement("li");
+                var li = self._createMenuItem(item,menu);
+                list.append(li);
+            });
+            this._menu.append(list);
+            this._container.append(this._menu);
+            Mx.menu = this;
+            Mx.widget = {
+                type: "MENU",
+                callback: function(event) {
+                    if (event.type === "mousedown") {
+                        if (event.which === 1 || event.which === 2 || event.which === 3) {
+                            if ((self._Mx.menu === self) && (!event.target.classList.contains(self.options.itemClass))) {
+                                self.finalize();
+                            }
+                            if (!self._Mx.menu) {
+                                self.finalize();
+                            }
+                        }
+                    }
+                    if(event.type === "keydown"){
+                        self._handleKeyEvents(event);
+                    }
+                }
+            };
+        },
+        _handleKeyEvents: function(event){
+            var self = this;
+            if(event.key === "ArrowDown"){
+                event.preventDefault();
+                if(!self._active){
+                    self._setActive(self._items[0]);
+                }else{
+                    var target = self._items.indexOf(self._active) + 1;
+
+                    if(target > self._items.length - 1){
+                        return; //Last item in the list keep it active
+                    }
+                    self._setActive(self._items[target]);
+                }
+            }
+            if(event.key === "ArrowUp"){
+                event.preventDefault();
+                if(!self._active){
+                   self._setActive(self._items[0]);
+                }else{
+                    var target = self._items.indexOf(self._active) - 1;
+                    if(target < 0){
+                        return; // First item in the list keep it active
+                    }
+                    self._setActive(self._items[target]);
+                }
+            }
+
+            if(event.key === "Enter"){
+                event.preventDefault();
+                if(!self._active){
+                   self._setActive(self._items[0]);
+                }
+
+                var el = self._active;
+                if (el.onclick) {
+                   el.onclick();
+                } else if (el.click) {
+                   el.click();
+                }
+            }
+        },
+        _setActive:function(li){
+            if(this._active){
+                this._clearActive();
+            }
+            this._active = li;
+            li.classList.add('active');
+        },
+        _clearActive: function(){
+            this._active.classList.remove('active');
+            this._active = null;
+        },
+        _createMenuItem:function(item,menu){
+            var self = this;
+            var Mx = this._Mx;
+            var li = document.createElement("li");
                 li.className += " " + self.options.itemClass;
                 li.innerText = item.text;
                 if (item.style) {
@@ -5081,26 +5166,14 @@
                         menu.finalize();
                     }
                 });
-                list.append(li);
-            });
-            this._menu.append(list);
-            this._container.append(this._menu);
-            Mx.menu = this;
-            Mx.widget = {
-                type: "MENU",
-                callback: function(event) {
-                    if (event.type === "mousedown") {
-                        if (event.which === 1 || event.which === 2 || event.which === 3) {
-                            if ((self._Mx.menu === self) && (!event.target.classList.contains(self.options.itemClass))) {
-                                self.finalize();
-                            }
-                            if (!self._Mx.menu) {
-                                self.finalize();
-                            }
-                        }
-                    }
-                }
-            };
+                li.addEventListener("mouseenter", function(e) {
+                    self._setActive(e.target);
+                });
+                li.addEventListener("mouseleave", function(e) {
+                    self._clearActive();
+                });
+                self._items.push(li);
+                return li;
         },
         remove: function() {
 
@@ -5112,65 +5185,76 @@
         setCSS: function() {
             var Mx = this._Mx;
             var cssId = "mx-menu-css"; // id so we can always replace the css if we want to update this with mx.setTheme..
-            if (!document.getElementById(cssId)) {
-                var head = document.getElementsByTagName('head')[0];
-                var style = document.createElement('style');
-                style.id = cssId;
-
-                //This is ugly because Qunit doesn't support Template Template literals.
+            var style = document.createElement('style');
+            var textContent;
+            style.id = cssId;
+                //This really sucks...... and I hate it. -Sean
                 /* jshint ignore:start */
-                style.textContent = "\
-        .sigplot-menu-list {\
-            margin: 0px;\
-            list-style: none;\
-            padding: 0px;\
-        }\
-        .sigplot-menu-title {\
-            text-align: center;\
-            border-bottom: 2px solid " + Mx.xwts + ";\
-        }\
-        .sigplot-menu-item{\
-            border-top: 2px solid " + Mx.bg + ";\
-            background-color: " + Mx.xwlo + ";\
-            padding: 1px;\
-            padding-right: 5px;\
-            padding-left: 5px;\
-        }\
-        .sigplot-menu {\
-            position: relative;\
-            color: white;\
-            float: left;\
-            background-color: " + Mx.xwbg + ";\
-            border-radius: 5px;\
-            padding: 3px;\
-            font: " + Mx.font.font + ";\
-            color:" + Mx.xwfg + "\
-        }\
-        .sigplot-menu-item.separator {\
-            background-color: " + Mx.xwbs + ";\
-        }\
-        .sigplot-menu-checkbox:before{\
-            margin-right: 3px; \
-        }\
-        .sigplot-menu-checkbox.checked:before {\
-            content: '\\25b8';\
-            width: 2px;\
-            height: 3px;\
-        }\
-        .sigplot-menu-checkbox.checkbox:before {\
-            content: '\\25A1';\
-            width: 2px;\
-            height: 3px;\
-        }\
-        .sigplot-menu-checkbox.checkbox.checked:before {\
-            content: '\\25A3';\
-            width: 2px;\
-            height: 3px;\
-        }\
-        ";
+            textContent = ""+
+            "."+this._menuId+"{\n"+
+            "background-color: " + Mx.xwbg + ";\n"+ 
+            "font: " + Mx.font.font + ";\n"+
+            "color:" + Mx.xwfg + "\n"+
+            "}   \n"+
+            ".sigplot-menu-list {\n"+
+            "    margin: 0px;\n"+
+            "    list-style: none;\n"+
+            "    padding: 0px;\n"+
+            "}\n"+
+            "."+this._menuId+">div {\n"+
+            "    text-align: center;\n"+
+            "    border-bottom: 2px solid " + Mx.xwts + ";\n"+
+            "}\n"+
+            "."+this._menuId+">ul>li{\n"+
+            "    border-top: 2px solid " + Mx.bg + ";\n"+
+            "    background-color: " + Mx.xwlo + ";\n"+
+            "    padding: 1px;\n"+
+            "    padding-right: 5px;\n"+
+            "    padding-left: 5px;\n"+
+            "    cursor:default;\n"+
+            "}\n"+
+            "."+this._menuId+">ul>li.active{\n"+
+            "    background-color: " + Mx.hi + ";\n"+
+            "}\n"+
+            "."+this._menuId+" {\n"+
+            "    position: relative;\n"+
+            "    color: white;\n"+
+            "    float: left;\n"+
+            "    border-radius: 5px;\n"+
+            "    padding: 3px;\n"+
+            "    font: " + Mx.font.font + ";\n"+
+            "    color:" + Mx.xwfg + "\n"+
+            "}\n"+
+            "."+this._menuId+">ul>li.separator {\n"+
+            "    background-color: " + Mx.xwbs + ";\n"+
+            "}\n"+
+            ".sigplot-menu-checkbox:before{\n"+
+            "    margin-right: 3px; \n"+
+            "}\n"+
+            ".sigplot-menu-checkbox.checked:before {\n"+
+            "    content: '\\25b8';\n"+
+            "    width: 2px;\n"+
+            "    height: 3px;\n"+
+            "}\n"+
+            ".sigplot-menu-checkbox.checkbox:before {\n"+
+            "    content: '\\25A1';\n"+
+            "    width: 2px;\n"+
+            "    height: 3px;\n"+
+            "}\n"+
+            ".sigplot-menu-checkbox.checkbox.checked:before {\n"+
+            "    content: '\\25A3';\n"+
+            "    width: 2px;\n"+
+            "    height: 3px;\n"+
+            "}\n";  
 
                 /* jshint ignore:end */
-                head.appendChild(style);
+            if (!this._container.getElementsByTagName("style").length) {
+                var style = document.createElement('style');
+                style.textContent = textContent;
+                this._container.appendChild(style);
+            }else{
+                var style = this._container.getElementsByTagName("style")[0];
+                style.textContent = textContent;
             }
         }
     };
