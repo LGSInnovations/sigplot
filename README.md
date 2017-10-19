@@ -39,6 +39,63 @@ plot = new sigplot.Plot(document.getElementById('plot'), {autohide_panbars: true
 Additional [examples and demos](http://sigplot.lgsinnovations.com/) are
 available along with [API](http://TODO) documentation. 
 
+
+WebPack Quick Start
+================================
+
+These instructions assume you have Node.js/NPM correctly installed on your
+system.
+
+First install webpack:
+
+```
+npm install webpack -g
+```
+
+Then create a project for the SigPlot demo and install sigplot.
+
+```
+mkdir sigplot-webpack
+cd sigplot-webpack
+npm install sigplot
+```
+
+Next, create a file called `demo.js` with the following contents:
+
+```
+let sigplot = require("sigplot");
+let options = {};
+let plot = new sigplot.Plot(document.getElementById('plot'), options);
+```
+
+Then, create a file called `index.html` with the following contents:
+
+```
+<html>
+  <head>
+    <title>SigPlot 101</title>
+    <style>
+      #plot {
+        width: 600px;
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="plot"></div>
+    <script type="text/javascript" src="bundle.js" charset="utf-8"></script>
+  </body>
+</html>
+```
+
+Use webpack to compile the bundle:
+
+```
+webpack ./demo.js bundle.js
+```
+
+Then open index.html in your webbrowser.
+
 Building
 =============
 
