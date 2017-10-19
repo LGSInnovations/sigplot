@@ -1826,7 +1826,7 @@
                     color.red,
                     color.green,
                     color.blue);
-                }
+            }
         }
         draw_line(ctx, x1, y1, x2, y2, style, color, linewidth);
     };
@@ -5258,10 +5258,7 @@
     mx.update_image_row = function(Mx, buf, data, row, zmin, zmax, xcompression) {
         var imgd = new Uint32Array(buf, row * buf.width * 4, buf.width);
 
-        var fscale = 1;
-        if (zmax !== zmin) {
-            fscale = Mx.pixel.length / Math.abs(zmax - zmin); // number of colors spread across the zrange
-        }
+        Mx.pixel.setRange(zmin, zmax);
 
         var xc = Math.max(1, data.length / buf.width);
         for (var i = 0; i < buf.width; i++) {
@@ -5289,17 +5286,10 @@
                     }
                 }
             }
-            var cidx = Math.floor((value - zmin) * fscale);
-            cidx = Math.max(0, Math.min(Mx.pixel.length - 1, cidx));
-
-            var color = Mx.pixel[cidx];
+            var color = Mx.pixel.getColor(value);
             if (color) {
-                /*jshint bitwise: false */
-                imgd[i] = (255 << 24) | // alpha
-                    (color.blue << 16) | // blue
-                    (color.green << 8) | // green
-                    (color.red); // red
-                /*jshint bitwise: true */
+                imgd[i] = color.color;
+
             }
         }
 
@@ -5377,7 +5367,7 @@
                     }
                 }
 
-     
+
                 var color = Mx.pixel.getColor(value);
                 if (color) {
                     imgd[i] = color.color;
@@ -5406,7 +5396,7 @@
     mx.put_image = function(Mx, data, nx, ny, nex, ney, xd, yd, level, opacity, smoothing) {
         var ctx = Mx.active_canvas.getContext("2d");
 
-       if (!Mx.pixel) {
+        if (!Mx.pixel) {
             m.log.warn("COLORMAP not initialized, defaulting to foreground");
             Mx.pixel = new ColorMap(m.Mc.colormap[1].colors);
         }
