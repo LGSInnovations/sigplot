@@ -3273,7 +3273,15 @@
                 this.refresh();
             }
         },
+        addColorMaps: function(colormaps) {
+            colormaps.forEach(function(cmap) {
+                if (cmap.hasOwnProperty("name")) {
+                    m.Mc.colormap.push(cmap);
+                }
 
+            });
+
+        },
         _refresh: function() {
             var Mx = this._Mx;
             var Gx = this._Gx;
@@ -4902,7 +4910,9 @@
         };
 
         var colormap_handler = function(item) {
-
+            plot.change_settings({
+                cmap: this.cmap
+            });
         };
 
         for (var xc = 0; xc < m.Mc.colormap.length; xc++) {
@@ -6614,7 +6624,7 @@
         }
         mx.set_font(Mx, Math.min(7, Mx.width / 64));
 
-        Gx.ncolors = o.ncolors === undefined ? 16 : o.ncolors;
+        Gx.ncolors = o.ncolors === undefined ? 500 : o.ncolors;
         Gx.cmap = null;
         if (o.cmap) {
             Gx.cmap = o.cmap;
