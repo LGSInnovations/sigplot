@@ -27,7 +27,6 @@
 (function() {
     var m = require("./m");
     var mx = require("./mx");
-    var common = require("./common");
     var SigplotPlugin = require("./sigplot.plugin");
     /**
      * @constructor
@@ -62,7 +61,7 @@
             draw_edge_lines: true
         },
         init: function(options) {
-            common.update(this.options, options);
+            this.setOptions(options);
             this.center = undefined; // In real units
             this.width = undefined; // In real units
             this.center_location = undefined; // In pixels

@@ -1445,6 +1445,7 @@
 
 
             plugin.onAdd(this);
+            plugin._plot = this;
             var canvas = document.createElement('canvas');
             canvas.width = this._Mx.canvas.width;
             canvas.height = this._Mx.canvas.height;
