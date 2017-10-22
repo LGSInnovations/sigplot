@@ -27,7 +27,6 @@
 (function() {
     var m = require("./m");
     var mx = require("./mx");
-    var common = require("./common");
     var SigplotPlugin = require("./sigplot.plugin");
     /**
      * @constructor
@@ -50,7 +49,7 @@
             slider_ID: 0 // each slider has a numerical int ID
         },
         init: function(options) {
-            common.update(this.options, options);
+            this.setOptions(options);
             this.position = undefined;
             this.location = undefined;
             this.paired_slider = undefined;

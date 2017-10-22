@@ -30,6 +30,7 @@
 
 // Bundle all the standard-plugins into this module
 module.exports = {
+	SigplotPlugin		   : require("./sigplot.plugin"),
     AccordionPlugin        : require("./sigplot.accordion"),
     AnnotationPlugin       : require("./sigplot.annotations"),
     BoxesPlugin            : require("./sigplot.boxes"),
