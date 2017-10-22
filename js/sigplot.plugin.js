@@ -206,7 +206,6 @@
             console.log("Abstract menu Method need to return either an mx.menu compatible object or a function that returns one");
         },
         addTo: function(plot) {
-            this._plot = plot;
             plot.add_plugin(this);
         },
         setOptions: function(options) {
