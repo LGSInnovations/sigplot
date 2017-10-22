@@ -1551,8 +1551,7 @@
             }
 
 
-            plugin.init(this);
-
+            plugin.onAdd(this);
             var canvas = document.createElement('canvas');
             canvas.width = this._Mx.canvas.width;
             canvas.height = this._Mx.canvas.height;
@@ -1562,7 +1561,6 @@
                 zorder: zorder,
                 canvas: canvas
             });
-
             this._Gx.plugins.sort(function(a, b) {
                 return (a.zorder - b.zorder);
             });
