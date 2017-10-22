@@ -22,37 +22,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 /* global module */
 /* global require */
-
 (function() {
-
     var m = require("./m");
     var mx = require("./mx");
     var common = require("./common");
-
-    /**
-     * @constructor
-     * @param options
-     * @returns {PlaybackControlsPlugin}
-     */
-    var PlaybackControlsPlugin = function(options) {
-        this.options = {
+    var SigplotPlugin = require("./sigplot.plugin");
+    var PlaybackControlsPlugin = SigplotPlugin.extend({
+        options: {
             display: true,
             size: 25,
             lineWidth: 2,
-            fillStyle: false
-        };
-        common.update(this.options, options);
-        this.state = "paused";
-        this.highlight = false;
-    };
-
-    PlaybackControlsPlugin.prototype = {
-        init: function(plot) {
+            fillStyle: false,
+            strokeStyle: undefined
+        },
+        /**
+         * @constructor
+         * @param options
+         * @returns {BoxesPlugin}
+         */
+        init: function(options) {
+            common.update(this.options, options);
+            this.state = "paused";
+            this.highlight = false;
+        },
+        onAdd: function(plot) {
             this.plot = plot;
-
             // Register for mouse events
             var self = this;
             var Mx = this.plot._Mx;
@@ -60,7 +56,6 @@
                 if (Mx.warpbox) {
                     return;
                 } // Don't highlight if a warpbox is being drawn
-
                 // Ignore if the mouse is outside of the control area
                 if (self.ismouseover(evt.xpos, evt.ypos)) {
                     self.set_highlight(true);
@@ -69,12 +64,10 @@
                 }
             };
             this.plot.addListener("mmove", this.onmousemove);
-
             this.onmousedown = function(evt) {
                 if (Mx.warpbox) {
                     return;
                 } // Don't handle if a warpbox is being drawn
-
                 // Ignore if the mouse is outside of the control area
                 if (self.ismouseover(evt.xpos, evt.ypos)) {
                     evt.preventDefault();
@@ -82,12 +75,10 @@
             };
             // Prevents zooms and stuff from occuring
             this.plot.addListener("mdown", this.onmousedown);
-
             this.onmouseclick = function(evt) {
                 if (Mx.warpbox) {
                     return;
                 } // Don't handle if a warpbox is being drawn
-
                 // Ignore if the mouse is outside of the control area
                 if (self.ismouseover(evt.xpos, evt.ypos)) {
                     self.toggle();
@@ -95,15 +86,12 @@
                 }
             };
             this.plot.addListener("mclick", this.onmouseclick);
-        },
-
-        set_highlight: function(ishighlight) {
+        },set_highlight: function(ishighlight) {
             if (ishighlight !== this.highlight) {
                 this.highlight = ishighlight;
                 this.plot.redraw();
             }
         },
-
         toggle: function(new_state) {
             if (!new_state) {
                 if (this.state === "paused") {
@@ -112,7 +100,6 @@
                     new_state = "paused";
                 }
             }
-
             if (new_state !== this.state) {
                 if (this.plot) {
                     var Mx = this.plot._Mx;
@@ -127,25 +114,20 @@
                 }
             }
         },
-
         addListener: function(what, callback) {
             var Mx = this.plot._Mx;
             mx.addEventListener(Mx, what, callback, false);
         },
-
         removeListener: function(what, callback) {
             var Mx = this.plot._Mx;
             mx.removeEventListener(Mx, what, callback, false);
         },
-
         ismouseover: function(xpos, ypos) {
             var position = this.position();
             var distance_from_ctr = Math.pow(xpos - position.x, 2) + Math.pow(ypos - position.y, 2);
             var R = this.options.size / 2;
-
             return (distance_from_ctr < Math.pow(R, 2));
         },
-
         position: function() {
             if (this.options.position) {
                 return this.options.position;
@@ -163,39 +145,29 @@
                 };
             }
         },
-
         refresh: function(canvas) {
             if (!this.options.display) {
                 return;
             }
             var Gx = this.plot._Gx;
             var Mx = this.plot._Mx;
-
             var ctx = canvas.getContext("2d");
-
             ctx.lineWidth = this.options.lineWidth;
             var R = this.options.size / 2;
-
             if (this.highlight) {
                 ctx.lineWidth += 2;
                 R += 1;
             }
-
             var position = this.position();
-
-
             ctx.beginPath();
             ctx.arc(position.x, position.y, R - ctx.lineWidth, 0, Math.PI * 2, true);
             ctx.closePath();
-
             ctx.strokeStyle = this.options.strokeStyle || Mx.fg;
             ctx.stroke();
-
             if (this.options.fillStyle) {
                 ctx.fillStyle = this.options.fillStyle;
                 ctx.fill();
             }
-
             if (this.state === "paused") {
                 var p1 = {
                     x: R * 0.8,
@@ -209,26 +181,22 @@
                     x: R * 0.8,
                     y: R * 1.45
                 };
-
                 p1.x += (position.x - R);
                 p2.x += (position.x - R);
                 p3.x += (position.x - R);
                 p1.y += (position.y - R);
                 p2.y += (position.y - R);
                 p3.y += (position.y - R);
-
                 ctx.beginPath();
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p2.x, p2.y);
                 ctx.lineTo(p3.x, p3.y);
                 ctx.closePath();
-
                 ctx.fillStyle = this.options.strokeStyle || Mx.fg;
                 ctx.fill();
             } else {
                 ctx.lineCap = 'round';
                 ctx.lineWidth = Math.floor(Math.min(1, this.options.size / 8));
-
                 var p1 = {
                     x: R * 0.8,
                     y: R / 2
@@ -241,13 +209,11 @@
                 p2.x += (position.x - R);
                 p1.y += (position.y - R);
                 p2.y += (position.y - R);
-
                 ctx.beginPath();
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p2.x, p2.y);
                 ctx.closePath();
                 ctx.stroke();
-
                 var p1 = {
                     x: R + (R / 5),
                     y: R / 2
@@ -260,23 +226,19 @@
                 p2.x += (position.x - R);
                 p1.y += (position.y - R);
                 p2.y += (position.y - R);
-
                 ctx.beginPath();
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p2.x, p2.y);
                 ctx.closePath();
                 ctx.stroke();
             }
-
             ctx.restore();
         },
-
         dispose: function() {
             this.plot = undefined;
             this.boxes = undefined;
         }
-    };
-
+    });
+    
     module.exports = PlaybackControlsPlugin;
-
 }());

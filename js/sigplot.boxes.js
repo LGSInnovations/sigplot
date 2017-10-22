@@ -22,35 +22,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 /* global module */
 /* global require */
-
 (function() {
-
     var m = require("./m");
     var mx = require("./mx");
-
-    /**
-     * @constructor
-     * @param options
-     * @returns {BoxesPlugin}
-     */
-    var BoxesPlugin = function(options) {
-        this.options = (options === undefined) ? {} : options;
-
-        if (this.options.display === undefined) {
-            this.options.display = true;
-        }
-
-        this.boxes = [];
-    };
-
-    BoxesPlugin.prototype = {
-        init: function(plot) {
+    var common = require("./common");
+    var SigplotPlugin = require("./sigplot.plugin");
+    var BoxesPlugin = SigplotPlugin.extend({
+        options: {
+            display: true
+        },
+        /**
+         * @constructor
+         * @param options
+         * @returns {BoxesPlugin}
+         */
+        init: function(options) {
+            common.update(this.options, options);
+            this.boxes = [];
+        },
+        onAdd: function(plot) {
             this.plot = plot;
         },
-
         menu: function() {
             var _display_handler = (function(self) {
                 return function() {
@@ -58,14 +52,12 @@
                     self.plot.redraw();
                 };
             }(this));
-
             var _clearall_handler = (function(self) {
                 return function() {
                     self.boxes = [];
                     self.plot.redraw();
                 };
             }(this));
-
             return {
                 text: "Boxes...",
                 menu: {
@@ -82,37 +74,29 @@
                 }
             };
         },
-
         add_box: function(box) {
             this.boxes.push(box);
-
             this.plot.redraw();
             return this.boxes.length;
         },
-
         clear_boxes: function() {
             this.boxes = [];
             this.plot.redraw();
         },
-
         refresh: function(canvas) {
             if (!this.options.display) {
                 return;
             }
             var Gx = this.plot._Gx;
             var Mx = this.plot._Mx;
-
             var ctx = canvas.getContext("2d");
             var box, pxl;
             var x, y, w, h;
             var ul, lr;
-
-
             ctx.save();
             ctx.beginPath();
             ctx.rect(Mx.l, Mx.t, Mx.r - Mx.l, Mx.b - Mx.t);
             ctx.clip();
-
             for (var i = 0; i < this.boxes.length; i++) {
                 box = this.boxes[i];
                 if (box.absolute_placement === true) {
@@ -128,26 +112,19 @@
                     w = lr.x - ul.x;
                     h = ul.y - lr.y;
                 }
-
                 ctx.strokeStyle = box.strokeStyle || Mx.fg;
                 ctx.lineWidth = box.lineWidth || 1;
-
                 if (ctx.lineWidth % 2 === 1) {
                     x += 0.5;
                     y += 0.5;
                 }
-
                 if (box.fillStyle || box.fill) {
                     ctx.globalAlpha = box.alpha || 0.5;
                     ctx.fillStyle = box.fillStyle || ctx.strokeStyle;
                     ctx.fillRect(x, y, w, h);
                     ctx.globalAlpha = 1;
                 }
-                ctx.strokeRect(x,
-                    y,
-                    w,
-                    h);
-
+                ctx.strokeRect(x, y, w, h);
                 if (box.text) {
                     ctx.save();
                     ctx.font = box.font || Mx.text_H + "px Courier New, monospace";
@@ -157,30 +134,22 @@
                     if (box.font) {
                         ctx.font = box.font;
                     }
-
                     x = x - Mx.text_w;
                     y = y - (Mx.text_h / 3);
-
                     var text_w = ctx.measureText(box.text).width;
-
                     if ((x - text_w) < Mx.l) {
                         x = (x + w);
                     }
-
                     ctx.fillText(box.text, x, y);
                     ctx.restore();
                 }
             }
-
             ctx.restore();
         },
-
         dispose: function() {
             this.plot = undefined;
             this.boxes = [];
         }
-    };
-
+    });
     module.exports = BoxesPlugin;
-
 }());
