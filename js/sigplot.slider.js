@@ -22,28 +22,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 /* global module */
 /* global require */
-
 (function() {
-
     var m = require("./m");
     var mx = require("./mx");
     var common = require("./common");
-
+    var SigplotPlugin = require("./sigplot.plugin");
     /**
      * @memberOf sigplot
      * @constructor
      * @param options
      * @returns {SliderPlugin}
      */
-    var SliderPlugin = function(options) {
-        this.options = {
+    var SliderPlugin = SigplotPlugin.extend({
+        options: {
             display: true,
             style: {
                 lineWidth: 1,
-                lineCap: "square" //, strokeStyle: "#FFFFFF", textStyle: "#FFFFFF"
+                lineCap: "square", //, strokeStyle: "#FFFFFF", textStyle: "#FFFFFF"
+                textStyle: undefined
             },
             direction: "vertical", // "vertical","horizontal","both" 
             name: "Slider",
@@ -51,25 +49,17 @@
             add_box: false, // add boxes around values
             persistent_style: false, // highlights and/or boxes persist
             slider_ID: 0 // each slider has a numerical int ID
-        };
-
-        common.update(this.options, options);
-        this.position = undefined;
-        this.location = undefined;
-        this.paired_slider = undefined;
-        this.name = this.options.name;
-
-    };
-
-    SliderPlugin.prototype = {
-        /** @lends SliderPlugin */
-        /**
-         * Initialize the plugin
-         */
-        init: function(plot) {
+        },
+        init: function(options) {
+            common.update(this.options, options);
+            this.position = undefined;
+            this.location = undefined;
+            this.paired_slider = undefined;
+            this.name = this.options.name;
+        },
+        onAdd: function(plot) {
             this.plot = plot;
             var Mx = plot._Mx;
-
             // Register for mouse events
             var self = this;
             this.onmousemove = function(evt) {
@@ -77,12 +67,10 @@
                 if (self.location === undefined) {
                     return;
                 }
-
                 // Or if the user wants to prevent a drag operation
                 if (self.options.prevent_drag) {
                     return;
                 }
-
                 // Ignore if the mouse is outside of the plot area
                 if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) {
                     self.set_highlight(false);
@@ -92,11 +80,8 @@
                     self.set_highlight(false);
                     return;
                 }
-
                 // If the mouse is close, "highlight" the line
-
                 var lineWidth = self.options.style.lineWidth;
-
                 // If we aren't dragging, then there is nothing else to do
                 if (!self.dragging) {
                     if (Mx.warpbox) {
@@ -115,8 +100,7 @@
                             self.set_highlight(false);
                         }
                     } else if (self.options.direction === "both") {
-                        if (Math.abs(self.location.x - evt.xpos) < (lineWidth + 5) &&
-                            Math.abs(self.location.y - evt.ypos) < (lineWidth + 5)) {
+                        if (Math.abs(self.location.x - evt.xpos) < (lineWidth + 5) && Math.abs(self.location.y - evt.ypos) < (lineWidth + 5)) {
                             self.set_highlight(true);
                         } else {
                             self.set_highlight(false);
@@ -124,7 +108,6 @@
                     }
                     return;
                 }
-
                 // If we are dragging, update the slider location
                 var pos = mx.pixel_to_real(Mx, evt.xpos, evt.ypos);
                 if (self.options.direction === "vertical") {
@@ -139,37 +122,30 @@
                     self.location.y = evt.ypos;
                     self.position.y = pos.y;
                 }
-
                 // Refresh the plugin
                 self.plot.redraw();
                 // Prevent any other plot default action at this point
                 evt.preventDefault();
             };
             this.plot.addListener("mmove", this.onmousemove);
-
             this.onmousedown = function(evt) {
                 if (self.location === undefined) {
                     return;
                 }
-
                 // Or if the user wants to prevent a drag operation
                 if (self.options.prevent_drag) {
                     return;
                 }
-
                 if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) {
                     return;
                 }
                 if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) {
                     return;
                 }
-
                 if (evt.slider_drag) {
                     return;
                 }
-
                 var lineWidth = self.options.style.lineWidth;
-
                 // TODO if multiple sliders are on the same position
                 // they will become stuck together and cannot be separated
                 if (self.options.direction === "vertical") {
@@ -185,8 +161,7 @@
                         evt.preventDefault();
                     }
                 } else if (self.options.direction === "both") {
-                    if (Math.abs(self.location.x - evt.xpos) < (lineWidth + 5) &&
-                        Math.abs(self.location.y - evt.ypos) < (lineWidth + 5)) {
+                    if (Math.abs(self.location.x - evt.xpos) < (lineWidth + 5) && Math.abs(self.location.y - evt.ypos) < (lineWidth + 5)) {
                         self.dragging = true;
                         evt.slider_drag = true;
                         evt.preventDefault();
@@ -194,23 +169,18 @@
                 }
             };
             this.plot.addListener("mdown", this.onmousedown);
-
             this.onmouseup = function(evt) {
                 if (!self.dragging) {
                     return;
                 }
-
                 // the slider is handling this, so prevent default actions
                 evt.preventDefault();
-
                 // We are no longer dragging
                 self.dragging = false;
-
                 // Issue a slider tag event
                 var evt = document.createEvent('Event');
                 evt.source = self;
                 evt.initEvent('slidertag', true, true);
-
                 if (self.options.direction === "both") {
                     evt.location = self.location ? JSON.parse(JSON.stringify(self.location)) : undefined;
                     evt.position = self.position ? JSON.parse(JSON.stringify(self.position)) : undefined;
@@ -218,9 +188,7 @@
                     evt.location = self.location;
                     evt.position = self.position;
                 }
-
                 mx.dispatchEvent(Mx, evt);
-
                 // Issue a slider tag event
                 var evt = document.createEvent('Event');
                 evt.initEvent('sliderdrag', true, true);
@@ -231,12 +199,10 @@
                     evt.location = self.location;
                     evt.position = self.position;
                 }
-
                 mx.dispatchEvent(Mx, evt);
             };
             this.plot.addListener("mup", this.onmouseup);
         },
-
         menu: function() {
             var _display_handler = (function(self) {
                 return function() {
@@ -244,15 +210,12 @@
                     self.plot.redraw();
                 };
             }(this));
-
             var _center_handler = (function(self) {
                 return function() {
                     var Mx = self.plot._Mx;
                     var stk = Mx.stk[Mx.level];
-
                     var xctr = ((stk.xmax - stk.xmin) / 2.0) + stk.xmin;
                     var yctr = ((stk.ymax - stk.ymin) / 2.0) + stk.ymin;
-
                     if (self.options.direction === "vertical") {
                         self.set_position(xctr);
                     } else if (self.options.direction === "horizontal") {
@@ -265,7 +228,6 @@
                     }
                 };
             }(this));
-
             return {
                 text: this.name + "...",
                 menu: {
@@ -282,7 +244,6 @@
                 }
             };
         },
-
         addListener: function(what, callback) {
             var Mx = this.plot._Mx;
             var self = this;
@@ -293,31 +254,26 @@
             };
             mx.addEventListener(Mx, what, wrapped_cb, false);
         },
-
         removeListener: function(what, callback) {
             var Mx = this.plot._Mx;
             mx.removeEventListener(Mx, what, callback, false);
         },
-
         pair: function(other_slider) {
             if (!other_slider) {
                 this.paired_slider = null;
                 return;
             }
-
             if (other_slider.direction !== this.direction) {
                 throw "paired sliders must use the same direction setting";
             }
             this.paired_slider = other_slider;
         },
-
         set_highlight: function(ishighlight) {
             if (ishighlight !== this.highlight) {
                 this.highlight = ishighlight;
                 this.plot.redraw();
             }
         },
-
         set_position: function(position) {
             if (this.dragging) {
                 return;
@@ -331,23 +287,19 @@
                     return;
                 }
             }
-
             this.set_highlight(false); // cheat any set position clears the highlight
-
             var Mx = this.plot._Mx;
             if (this.options.direction === "both") {
                 this.position = position ? JSON.parse(JSON.stringify(position)) : undefined;
             } else {
                 this.position = position;
             }
-
             var pxl;
             if (this.options.direction === "both") {
                 pxl = mx.real_to_pixel(Mx, this.position.x, this.position.y);
             } else {
                 pxl = mx.real_to_pixel(Mx, this.position, this.position);
             }
-
             if (this.options.direction === "vertical") {
                 this.location = pxl.x;
             } else if (this.options.direction === "horizontal") {
@@ -358,7 +310,6 @@
                     y: pxl.y
                 };
             }
-
             // Issue a slider tag event
             var evt = document.createEvent('Event');
             evt.initEvent('slidertag', true, true);
@@ -369,17 +320,13 @@
                 evt.location = this.location;
                 evt.position = this.position;
             }
-
             mx.dispatchEvent(Mx, evt);
-
             this.plot.redraw();
         },
-
         set_location: function(location) {
             if (this.dragging) {
                 return;
             }
-
             if (this.options.direction === "both") {
                 if (this.location !== undefined && this.location.x === location.x && this.location.y === location.y) {
                     return;
@@ -390,22 +337,18 @@
                 }
             }
             this.set_highlight(false); // cheat any set location clears the highlight
-
             var Mx = this.plot._Mx;
-
             if (this.options.direction === "both") {
                 this.location = location ? JSON.parse(JSON.stringify(location)) : undefined;
             } else {
                 this.location = location;
             }
-
             var pos;
             if (this.options.direction === "both") {
                 pos = mx.pixel_to_real(Mx, location.x, location.y);
             } else {
                 pos = mx.pixel_to_real(Mx, location, location);
             }
-
             if (this.options.direction === "vertical") {
                 this.position = pos.x;
             } else if (this.options.direction === "horizontal") {
@@ -416,11 +359,9 @@
                     y: pos.y
                 };
             }
-
             // Issue a slider tag event
             var evt = document.createEvent('Event');
             evt.initEvent('slidertag', true, true);
-
             if (this.options.direction === "both") {
                 evt.location = this.location ? JSON.parse(JSON.stringify(this.location)) : undefined;
                 evt.position = this.position ? JSON.parse(JSON.stringify(this.position)) : undefined;
@@ -431,15 +372,12 @@
             mx.dispatchEvent(Mx, evt);
             this.plot.redraw();
         },
-
         get_position: function() { // In real units
             return this.position;
         },
-
         get_location: function() { // Pixels
             return this.location;
         },
-
         refresh: function(canvas) {
             if (!this.options.display) {
                 return;
@@ -447,18 +385,14 @@
             if (this.position === undefined) {
                 return;
             }
-
             var Mx = this.plot._Mx;
             var ctx = canvas.getContext("2d");
-
             ctx.lineWidth = this.options.style.lineWidth;
             ctx.lineCap = this.options.style.lineCap;
             ctx.strokeStyle = (this.options.style.strokeStyle !== undefined) ? this.options.style.strokeStyle : Mx.fg;
-
             if (this.dragging || this.highlight) {
                 ctx.lineWidth = Math.ceil(ctx.lineWidth * 1.2);
             }
-
             var pxl;
             if (this.options.direction === "both") {
                 pxl = mx.real_to_pixel(Mx, this.position.x, this.position.y);
@@ -476,14 +410,12 @@
                 }
                 this.location = pxl.y;
             } else if (this.options.direction === "both") {
-                if ((pxl.x < Mx.l) || (pxl.x > Mx.r) ||
-                    ((pxl.y < Mx.t) || (pxl.y > Mx.b))) {
+                if ((pxl.x < Mx.l) || (pxl.x > Mx.r) || ((pxl.y < Mx.t) || (pxl.y > Mx.b))) {
                     return;
                 }
                 this.location.x = pxl.x;
                 this.location.y = pxl.y;
             }
-
             if (this.options.direction === "vertical") {
                 ctx.beginPath();
                 ctx.moveTo(this.location + 0.5, Mx.t);
@@ -500,13 +432,11 @@
                 ctx.moveTo(Mx.l, this.location.y + 0.5);
                 ctx.lineTo(Mx.r, this.location.y + 0.5);
                 ctx.closePath();
-
                 // Vertical portion
                 ctx.moveTo(this.location.x + 0.5, Mx.t);
                 ctx.lineTo(this.location.x + 0.5, Mx.b);
                 ctx.stroke();
             }
-
             // Show extra information while dragging or highlighted or if the user wants persistent highlights
             if (this.dragging || this.highlight || this.options.persistent_style) {
                 var overlap_adjustment = 2 * Mx.text_h * (this.options.slider_ID);
@@ -523,11 +453,8 @@
                     } else {
                         ctx.fillText(text, this.location + 15, Mx.t + 40 + overlap_adjustment);
                     }
-
-
                     if (this.options.add_box) {
                         // Draw a box around the value
-
                         if ((this.location + 2 * text_w) > Mx.r) {
                             ctx.rect(this.location - 2 * text_w, Mx.t + 20 + overlap_adjustment, 2 * text_w, 2 * Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
@@ -537,7 +464,6 @@
                             ctx.strokeStyle = this.options.style.strokeStyle;
                             ctx.stroke();
                         }
-
                     }
                 } else if (this.options.direction === "horizontal") {
                     ctx.textBaseline = "alphabetic";
@@ -551,12 +477,9 @@
                         ctx.fillText(text, Mx.l + 20 + overlap_adjustment, this.location - 5);
                     } else {
                         ctx.fillText(text, Mx.l + 20 + overlap_adjustment, this.location + 5 + Mx.text_h);
-
                     }
-
                     if (this.options.add_box) {
                         // Draw a box around the value
-
                         if ((this.location - 2 * Mx.text_h) > Mx.t) {
                             ctx.rect(Mx.l + 15 + overlap_adjustment, this.location - 2 * Mx.text_h, 2 * text_w, 2 * Mx.text_h);
                             ctx.strokeStyle = this.options.style.strokeStyle;
@@ -567,41 +490,34 @@
                             ctx.stroke();
                         }
                     }
-
                 } else if (this.options.direction === "both") {
                     // TODO
                 }
-
                 if (this.paired_slider) {
                     if (this.options.direction === "vertical") {
                         var delta = this.position - this.paired_slider.position;
                         var locdelta = this.location - this.paired_slider.location;
-
                         var ypos = Mx.t + Math.round((Mx.b - Mx.t) / 2);
                         mx.textline(Mx, this.location, ypos, this.paired_slider.location, ypos, {
                             mode: "dashed",
                             on: 3,
                             off: 3
                         });
-
                         ctx.textBaseline = "alphabetic";
                         ctx.textAlign = "center";
                         ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
                         ctx.font = Mx.font.font;
                         var text = mx.format_g(delta, 6, 3, true);
                         ctx.fillText(text, this.location - Math.round(locdelta / 2), ypos - 5);
-
                     } else if (this.options.direction === "horizontal") {
                         var delta = this.position - this.paired_slider.position;
                         var locdelta = this.location - this.paired_slider.location;
-
                         var xpos = Mx.l + Math.round((Mx.r - Mx.l) / 2);
                         mx.textline(Mx, xpos, this.location, xpos, this.paired_slider.location, {
                             mode: "dashed",
                             on: 3,
                             off: 3
                         });
-
                         ctx.textBaseline = "alphabetic";
                         ctx.textAlign = "left";
                         ctx.fillStyle = (this.options.style.textStyle !== undefined) ? this.options.style.textStyle : Mx.fg;
@@ -614,15 +530,12 @@
                 }
             }
         },
-
         dispose: function() {
             this.plot.removeListener("mmove", this.onmousemove);
             document.removeEventListener("mouseup", this.onmouseup, false);
             this.plot = undefined;
             this.position = undefined;
         }
-    };
-
+    });
     module.exports = SliderPlugin;
-
 }());

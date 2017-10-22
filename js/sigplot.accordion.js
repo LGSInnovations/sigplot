@@ -27,46 +27,50 @@
 (function() {
     var m = require("./m");
     var mx = require("./mx");
+    var common = require("./common");
+    var SigplotPlugin = require("./sigplot.plugin");
     /**
      * @constructor
      * @param options
      * @returns {AccordionPlugin}
      */
-    var AccordionPlugin = function(options) {
-        this.options = (options !== undefined) ? options : {};
-        if (this.options.display === undefined) {
-            this.options.display = true;
-        }
-        if (this.options.center_line_style === undefined) {
-            this.options.center_line_style = {};
-        }
-        if (this.options.edge_line_style === undefined) {
-            this.options.edge_line_style = {};
-        }
-        if (this.options.fill_style === undefined) {
-            this.options.fill_style = {};
-        }
-        if (this.options.direction === undefined) {
-            this.options.direction = "vertical";
-        }
-        /**
-         * In absolute mode, center and width are expressed in
-         * real wold coordinates. In relative mode, center and width
-         * are expressed as percentages (0 to 1.0) of the width or
-         * height of the plot at the current zoom level
-         */
-        if (this.options.mode === undefined) {
-            this.options.mode = "absolute";
-        }
-        this.center = undefined; // In real units
-        this.width = undefined; // In real units
-        this.center_location = undefined; // In pixels
-        this.loc_1 = undefined; // In pixels
-        this.loc_2 = undefined;
-        this.visible = true;
-    };
-    AccordionPlugin.prototype = {
-        init: function(plot) {
+    var AccordionPlugin = SigplotPlugin.extend({
+        options: {
+            display: true,
+            direction: "vertical",
+            mode: "absolute",
+            min_width: false,
+            max_width: false,
+            fill_style: {
+                opacity: 0.4,
+                fillStyle: "rgb(60%,60%,55%)"
+            },
+            center_line_style: {
+                lineWidth: 1,
+                lineCap: "square",
+                strokeStyle: "white"
+            },
+            edge_line_style: {
+                lineWidth: 1,
+                lineCap: "square",
+                strokeStyle: "white"
+            },
+            discrete_widths: false,
+            prevent_drag: false,
+            shade_area: true,
+            draw_center_line: true,
+            draw_edge_lines: true
+        },
+        init: function(options) {
+            common.update(this.options, options);
+            this.center = undefined; // In real units
+            this.width = undefined; // In real units
+            this.center_location = undefined; // In pixels
+            this.loc_1 = undefined; // In pixels
+            this.loc_2 = undefined;
+            this.visible = true;
+        },
+        onAdd: function(plot) {
             this.plot = plot;
             var Mx = this.plot._Mx;
             var self = this;
@@ -89,8 +93,8 @@
                     return;
                 }
                 // If the mouse is close, "highlight" the line
-                var lineWidth = (self.options.center_line_style.lineWidth !== undefined) ? self.options.center_line_style.lineWidth : 1;
-                var elineWidth = (self.options.edge_line_style.lineWidth !== undefined) ? self.options.edge_line_style.lineWidth : 1;
+                var lineWidth = self.options.center_line_style.lineWidth;
+                var elineWidth = self.options.edge_line_style.lineWidth;
                 if (!self.dragging && !self.edge_dragging) {
                     if (Mx.warpbox) {
                         return;
@@ -146,6 +150,10 @@
                             self.center = (evt.ypos - Mx.t) / (Mx.b - Mx.t);
                         }
                     }
+                    self.emit('change', {
+                        center: self.center,
+                        width: self.width
+                    });
                 }
                 if (self.edge_dragging) {
                     // If we are dragging, update the slider location
@@ -187,6 +195,10 @@
                             self.width = Math.min(self.width, self.options.max_width);
                         }
                     }
+                    self.emit('change', {
+                        center: self.center,
+                        width: self.width
+                    });
                 }
                 // Refresh the plot
                 if (self.plot) {
@@ -209,8 +221,8 @@
                 if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) {
                     return;
                 }
-                var lineWidth = (self.options.center_line_style.lineWidth !== undefined) ? self.options.center_line_style.lineWidth : 1;
-                var elineWidth = (self.options.edge_line_style.lineWidth !== undefined) ? self.options.edge_line_style.lineWidth : 1;
+                var lineWidth = self.options.center_line_style.lineWidth;
+                var elineWidth = self.options.edge_line_style.lineWidth;
                 if (self.options.direction === "vertical") {
                     // prefer edge drag over center drag
                     if ((Math.abs(self.loc_1 - evt.xpos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.xpos) < (elineWidth + 5))) {
@@ -255,71 +267,6 @@
         removeListener: function(what, callback) {
             var Mx = this.plot._Mx;
             mx.removeEventListener(Mx, what, callback, false);
-        },
-        on: function(type, fn, context) {
-            if (!this._events) {
-                this._events = {};
-            }
-            if (!this._events[type]) {
-                this._events[type] = [];
-            }
-            if (context === this) {
-                // Less memory footprint.
-                context = undefined;
-            }
-            this._events[type].push({
-                cb: fn,
-                ctx: context
-            });
-        },
-        emit: function(type, data) {
-            var event = Object.assign({}, data, {
-                type: type,
-                target: this
-            });
-            if (this._events) {
-                var listeners = this._events[type];
-                if (listeners) {
-                    for (var i = 0, len = listeners.length; i < len; i++) {
-                        var l = listeners[i];
-                        l.cb.call(l.ctx || this, event);
-                    }
-                }
-            }
-            return this;
-        },
-        off: function(type, fn, context) {
-            var listeners,
-                i,
-                len;
-            if (!type) {
-                // clear all listeners if called without arguments
-                delete this._events;
-            }
-            if (!this._events) {
-                return;
-            }
-            listeners = this._events[type];
-            if (!listeners) {
-                return;
-            }
-            if (context === this) {
-                context = undefined;
-            }
-            if (listeners) {
-                // find fn and remove it
-                for (i = 0, len = listeners.length; i < len; i++) {
-                    var l = listeners[i];
-                    if (l.ctx !== context) {
-                        continue;
-                    }
-                    if (l.fn === fn) {
-                        listeners.splice(i, 1);
-                        return;
-                    }
-                }
-            }
-            return this;
         },
         set_highlight: function(ishighlight) {
             if (ishighlight !== this.highlight) {
@@ -506,6 +453,6 @@
             this.center_location = undefined;
             this.width = undefined;
         }
-    };
+    });
     module.exports = AccordionPlugin;
 }());
