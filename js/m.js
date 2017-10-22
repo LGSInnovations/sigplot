@@ -206,303 +206,304 @@
         //
         // The actual values are a result of tribal knowledge and years of experience
         colormap: [{
-            name: "Greyscale",
-            colors: [{
-                pos: 0,
-                red: 0,
-                green: 0,
-                blue: 0
+                name: "Greyscale",
+                colors: [{
+                    pos: 0,
+                    red: 0,
+                    green: 0,
+                    blue: 0
+                }, {
+                    pos: 60,
+                    red: 50,
+                    green: 50,
+                    blue: 50
+                }, {
+                    pos: 100,
+                    red: 100,
+                    green: 100,
+                    blue: 100
+                }, {
+                    pos: 100,
+                    red: 0,
+                    green: 0,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 0,
+                    green: 0,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 0,
+                    green: 0,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 0,
+                    green: 0,
+                    blue: 0
+                }]
             }, {
-                pos: 60,
-                red: 50,
-                green: 50,
-                blue: 50
+                name: "Ramp Colormap",
+                colors: [{
+                    pos: 0,
+                    red: 0,
+                    green: 0,
+                    blue: 15
+                }, {
+                    pos: 10,
+                    red: 0,
+                    green: 0,
+                    blue: 50
+                }, {
+                    pos: 31,
+                    red: 0,
+                    green: 65,
+                    blue: 75
+                }, {
+                    pos: 50,
+                    red: 0,
+                    green: 85,
+                    blue: 0
+                }, {
+                    pos: 70,
+                    red: 75,
+                    green: 80,
+                    blue: 0
+                }, {
+                    pos: 83,
+                    red: 100,
+                    green: 60,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 100,
+                    green: 0,
+                    blue: 0
+                }]
             }, {
-                pos: 100,
-                red: 100,
-                green: 100,
-                blue: 100
+                name: "Color Wheel",
+                colors: [{
+                    pos: 0,
+                    red: 100,
+                    green: 100,
+                    blue: 0
+                }, {
+                    pos: 20,
+                    red: 0,
+                    green: 80,
+                    blue: 40
+                }, {
+                    pos: 30,
+                    red: 0,
+                    green: 100,
+                    blue: 100
+                }, {
+                    pos: 50,
+                    red: 10,
+                    green: 10,
+                    blue: 0
+                }, {
+                    pos: 65,
+                    red: 100,
+                    green: 0,
+                    blue: 0
+                }, {
+                    pos: 88,
+                    red: 100,
+                    green: 40,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 100,
+                    green: 100,
+                    blue: 0
+                }]
             }, {
-                pos: 100,
-                red: 0,
-                green: 0,
-                blue: 0
+                name: "Spectrum",
+                colors: [{
+                    pos: 0,
+                    red: 0,
+                    green: 75,
+                    blue: 0
+                }, {
+                    pos: 22,
+                    red: 0,
+                    green: 90,
+                    blue: 90
+                }, {
+                    pos: 37,
+                    red: 0,
+                    green: 0,
+                    blue: 85
+                }, {
+                    pos: 49,
+                    red: 90,
+                    green: 0,
+                    blue: 85
+                }, {
+                    pos: 68,
+                    red: 90,
+                    green: 0,
+                    blue: 0
+                }, {
+                    pos: 80,
+                    red: 90,
+                    green: 90,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 95,
+                    green: 95,
+                    blue: 95
+                }]
             }, {
-                pos: 100,
-                red: 0,
-                green: 0,
-                blue: 0
+                name: "calewhite",
+                colors: [{
+                    pos: 0,
+                    red: 100,
+                    green: 100,
+                    blue: 100
+                }, {
+                    pos: 16.666,
+                    red: 0,
+                    green: 0,
+                    blue: 100
+                }, {
+                    pos: 33.333,
+                    red: 0,
+                    green: 100,
+                    blue: 100
+                }, {
+                    pos: 50,
+                    red: 0,
+                    green: 100,
+                    blue: 0
+                }, {
+                    pos: 66.666,
+                    red: 100,
+                    green: 100,
+                    blue: 0
+                }, {
+                    pos: 83.333,
+                    red: 100,
+                    green: 0,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 100,
+                    green: 0,
+                    blue: 100
+                }]
             }, {
-                pos: 100,
-                red: 0,
-                green: 0,
-                blue: 0
+                name: "HotDesat",
+                colors: [{
+                    pos: 0,
+                    red: 27.84,
+                    green: 27.84,
+                    blue: 85.88
+                }, {
+                    pos: 14.2857,
+                    red: 0,
+                    green: 0,
+                    blue: 35.69
+                }, {
+                    pos: 28.571,
+                    red: 0,
+                    green: 100,
+                    blue: 100
+                }, {
+                    pos: 42.857,
+                    red: 0,
+                    green: 49.8,
+                    blue: 0
+                }, {
+                    pos: 57.14286,
+                    red: 100,
+                    green: 100,
+                    blue: 0
+                }, {
+                    pos: 71.42857,
+                    red: 100,
+                    green: 37.65,
+                    blue: 0
+                }, {
+                    pos: 85.7143,
+                    red: 41.96,
+                    green: 0,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 87.84,
+                    green: 29.8,
+                    blue: 29.8
+                }]
             }, {
-                pos: 100,
-                red: 0,
-                green: 0,
-                blue: 0
-            }]
-        }, {
-            name: "Ramp Colormap",
-            colors: [{
-                pos: 0,
-                red: 0,
-                green: 0,
-                blue: 15
+                name: "Sunset",
+                colors: [{
+                    pos: 0,
+                    red: 10,
+                    green: 0,
+                    blue: 23
+                }, {
+                    pos: 18,
+                    red: 34,
+                    green: 0,
+                    blue: 60
+                }, {
+                    pos: 36,
+                    red: 58,
+                    green: 20,
+                    blue: 47
+                }, {
+                    pos: 55,
+                    red: 74,
+                    green: 20,
+                    blue: 28
+                }, {
+                    pos: 72,
+                    red: 90,
+                    green: 43,
+                    blue: 0
+                }, {
+                    pos: 87,
+                    red: 100,
+                    green: 72,
+                    blue: 0
+                }, {
+                    pos: 100,
+                    red: 100,
+                    green: 100,
+                    blue: 76
+                }]
+            },
+            {
+                name: "Hot",
+                colors: ["#000000", "#7f0000", "#b30000", "#d7301f", "#ef6548", "#fc8d59", "#fdbb84", "#fdd49e", "#fee8c8", "#fff7ec", "#ffffff"]
             }, {
-                pos: 10,
-                red: 0,
-                green: 0,
-                blue: 50
+                name: "Cold",
+                colors: ["#000000", "#023858", "#045a8d", "#0570b0", "#3690c0", "#74a9cf", "#a6bddb", "#d0d1e6", "#ece7f2", "#fff7fb", "#ffffff"]
+            },
+            {
+                name: "Purple",
+                colors: ["#230022", "#4d004b", "#810f7c", "#88419d", "#8c6bb1", "#8c96c6", "#9ebcda", "#bfd3e6", "#e0ecf4", "#f7fcfd"]
             }, {
-                pos: 31,
-                red: 0,
-                green: 65,
-                blue: 75
+                name: "BuGn",
+                colors: ['#f7fcfd', '#e5f5f9', '#ccece6', '#99d8c9', '#66c2a4', '#41ae76', '#238b45', '#006d2c', '#00441b']
             }, {
-                pos: 50,
-                red: 0,
-                green: 85,
-                blue: 0
+                name: "YlOrBr",
+                colors: ['#ffffe5', '#fff7bc', '#fee391', '#fec44f', '#fe9929', '#ec7014', '#cc4c02', '#993404', '#662506']
             }, {
-                pos: 70,
-                red: 75,
-                green: 80,
-                blue: 0
+                name: "YlGnBu",
+                colors: ['#ffffd9', '#edf8b1', '#c7e9b4', '#7fcdbb', '#41b6c4', '#1d91c0', '#225ea8', '#253494', '#081d58']
             }, {
-                pos: 83,
-                red: 100,
-                green: 60,
-                blue: 0
+                name: "YlOrRd",
+                colors: ["#000000", "#662506", "#993404", "#cc4c02", "#ec7014", "#fe9929", "#fec44f", "#fee391", "#fff7bc", "#ffffe5", "#ffffff"]
             }, {
-                pos: 100,
-                red: 100,
-                green: 0,
-                blue: 0
-            }]
-        }, {
-            name: "Color Wheel",
-            colors: [{
-                pos: 0,
-                red: 100,
-                green: 100,
-                blue: 0
-            }, {
-                pos: 20,
-                red: 0,
-                green: 80,
-                blue: 40
-            }, {
-                pos: 30,
-                red: 0,
-                green: 100,
-                blue: 100
-            }, {
-                pos: 50,
-                red: 10,
-                green: 10,
-                blue: 0
-            }, {
-                pos: 65,
-                red: 100,
-                green: 0,
-                blue: 0
-            }, {
-                pos: 88,
-                red: 100,
-                green: 40,
-                blue: 0
-            }, {
-                pos: 100,
-                red: 100,
-                green: 100,
-                blue: 0
-            }]
-        }, {
-            name: "Spectrum",
-            colors: [{
-                pos: 0,
-                red: 0,
-                green: 75,
-                blue: 0
-            }, {
-                pos: 22,
-                red: 0,
-                green: 90,
-                blue: 90
-            }, {
-                pos: 37,
-                red: 0,
-                green: 0,
-                blue: 85
-            }, {
-                pos: 49,
-                red: 90,
-                green: 0,
-                blue: 85
-            }, {
-                pos: 68,
-                red: 90,
-                green: 0,
-                blue: 0
-            }, {
-                pos: 80,
-                red: 90,
-                green: 90,
-                blue: 0
-            }, {
-                pos: 100,
-                red: 95,
-                green: 95,
-                blue: 95
-            }]
-        }, {
-            name: "calewhite",
-            colors: [{
-                pos: 0,
-                red: 100,
-                green: 100,
-                blue: 100
-            }, {
-                pos: 16.666,
-                red: 0,
-                green: 0,
-                blue: 100
-            }, {
-                pos: 33.333,
-                red: 0,
-                green: 100,
-                blue: 100
-            }, {
-                pos: 50,
-                red: 0,
-                green: 100,
-                blue: 0
-            }, {
-                pos: 66.666,
-                red: 100,
-                green: 100,
-                blue: 0
-            }, {
-                pos: 83.333,
-                red: 100,
-                green: 0,
-                blue: 0
-            }, {
-                pos: 100,
-                red: 100,
-                green: 0,
-                blue: 100
-            }]
-        }, {
-            name: "HotDesat",
-            colors: [{
-                pos: 0,
-                red: 27.84,
-                green: 27.84,
-                blue: 85.88
-            }, {
-                pos: 14.2857,
-                red: 0,
-                green: 0,
-                blue: 35.69
-            }, {
-                pos: 28.571,
-                red: 0,
-                green: 100,
-                blue: 100
-            }, {
-                pos: 42.857,
-                red: 0,
-                green: 49.8,
-                blue: 0
-            }, {
-                pos: 57.14286,
-                red: 100,
-                green: 100,
-                blue: 0
-            }, {
-                pos: 71.42857,
-                red: 100,
-                green: 37.65,
-                blue: 0
-            }, {
-                pos: 85.7143,
-                red: 41.96,
-                green: 0,
-                blue: 0
-            }, {
-                pos: 100,
-                red: 87.84,
-                green: 29.8,
-                blue: 29.8
-            }]
-        }, {
-            name: "Sunset",
-            colors: [{
-                pos: 0,
-                red: 10,
-                green: 0,
-                blue: 23
-            }, {
-                pos: 18,
-                red: 34,
-                green: 0,
-                blue: 60
-            }, {
-                pos: 36,
-                red: 58,
-                green: 20,
-                blue: 47
-            }, {
-                pos: 55,
-                red: 74,
-                green: 20,
-                blue: 28
-            }, {
-                pos: 72,
-                red: 90,
-                green: 43,
-                blue: 0
-            }, {
-                pos: 87,
-                red: 100,
-                green: 72,
-                blue: 0
-            }, {
-                pos: 100,
-                red: 100,
-                green: 100,
-                blue: 76
-            }]
-        },
-        {
-     name: "Hot",
-     colors: ["#000000","#7f0000","#b30000","#d7301f","#ef6548","#fc8d59","#fdbb84","#fdd49e","#fee8c8","#fff7ec","#ffffff"]
- }, {
-     name: "Cold",
-     colors: ["#000000","#023858","#045a8d","#0570b0","#3690c0","#74a9cf","#a6bddb","#d0d1e6","#ece7f2","#fff7fb","#ffffff"]
- },
- {
-     name: "Purple",
-     colors: ["#230022","#4d004b","#810f7c","#88419d","#8c6bb1","#8c96c6","#9ebcda","#bfd3e6","#e0ecf4","#f7fcfd"]
- }, {
-     name: "BuGn",
-     colors: ['#f7fcfd', '#e5f5f9', '#ccece6', '#99d8c9', '#66c2a4', '#41ae76', '#238b45', '#006d2c', '#00441b']
- }, {
-     name: "YlOrBr",
-     colors: ['#ffffe5', '#fff7bc', '#fee391', '#fec44f', '#fe9929', '#ec7014', '#cc4c02', '#993404', '#662506']
- }, {
-     name: "YlGnBu",
-     colors: ['#ffffd9', '#edf8b1', '#c7e9b4', '#7fcdbb', '#41b6c4', '#1d91c0', '#225ea8', '#253494', '#081d58']
- }, {
-     name: "YlOrRd",
-     colors: ["#000000","#662506","#993404","#cc4c02","#ec7014","#fe9929","#fec44f","#fee391","#fff7bc","#ffffe5","#ffffff"]
- }, {
-     name: "GreyNRed",
-     colors: ['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#ffffff', '#e0e0e0', '#bababa', '#878787', '#4d4d4d', '#1a1a1a'].reverse()
- }]
+                name: "GreyNRed",
+                colors: ['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#ffffff', '#e0e0e0', '#bababa', '#878787', '#4d4d4d', '#1a1a1a'].reverse()
+            }
+        ]
     };
 
     /** Pipe Size

@@ -86,7 +86,8 @@
                 }
             };
             this.plot.addListener("mclick", this.onmouseclick);
-        },set_highlight: function(ishighlight) {
+        },
+        set_highlight: function(ishighlight) {
             if (ishighlight !== this.highlight) {
                 this.highlight = ishighlight;
                 this.plot.redraw();
@@ -239,6 +240,6 @@
             this.boxes = undefined;
         }
     });
-    
+
     module.exports = PlaybackControlsPlugin;
 }());
