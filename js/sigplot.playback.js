@@ -27,8 +27,7 @@
 (function() {
     var m = require("./m");
     var mx = require("./mx");
-    var common = require("./common");
-    var common = require("./common");
+
     var SigplotPlugin = require("./sigplot.plugin");
     var PlaybackControlsPlugin = SigplotPlugin.extend({
         options: {
@@ -44,7 +43,7 @@
          * @returns {BoxesPlugin}
          */
         init: function(options) {
-            common.update(this.options, options);
+            this.setOptions(options);
             this.state = "paused";
             this.highlight = false;
         },
