@@ -33,7 +33,7 @@
             textBaseline: "alphabetic",
             textAlign: "left",
             prevent_hover: false,
-            display:true
+            display: true
         },
         /**
          * @constructor
