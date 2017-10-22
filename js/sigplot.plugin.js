@@ -26,31 +26,9 @@
 /* global require */
 /* global console */
 (function() {
+    var common = require("./common");
     var Class = function() {};
     window.Class = Class;
-    Class.prototype.setOptions = function(options) {
-        //Updates destenation object with source values
-        if (!this.options){
-             this.options = {};
-        }
-        var update = function(dst, src) {
-            for (var prop in src) {
-                var val = src[prop];
-                if (typeof val === "object") { // recursive
-                    if (typeof dst[prop] !== "object"){
-                         dst[prop] = {};
-                    }
-                    update(dst[prop], val);
-                } else {
-                    dst[prop] = val;
-                }
-            }
-            return dst; // return dst to allow method chaining
-        };
-        this.options = update(this.options, options);
-        this.emit("setOptions", this.options);
-        return this.options;
-    };
     Class.extend = function(props) {
         props = props || {};
         var _extend = function(dest) { // (Object[, Object, ...]) ->
@@ -70,8 +48,8 @@
             for (var prop in src) {
                 var val = src[prop];
                 if (typeof val === "object") { // recursive
-                    if (typeof dst[prop] !== "object"){
-                         dst[prop] = {};
+                    if (typeof dst[prop] !== "object") {
+                        dst[prop] = {};
                     }
                     update(dst[prop], val);
                 } else {
@@ -209,6 +187,9 @@
         this.prototype._initHooks.push(init);
     };
     var SigplotPlugin = Class.extend({
+         options: {
+            refreshOnOptionChange: true
+        },
         init: function(plot) {
             console.log("Abstract constructor Method");
         },
@@ -221,9 +202,18 @@
         despose: function() {
             console.log("Abstract destructor Method");
         },
-        addTo:function(plot){
+        menu:function(){
+            console.log("Abstract menu Method need to return either an mx.menu compatible object or a function that returns one");
+        },
+        addTo: function(plot) {
             this._plot = plot;
             plot.add_plugin(this);
+        },
+        setOptions: function(options) {
+            common.update(this.options, options);
+            if(this.options.refreshOnOptionChange && this._plot){
+                this._plot.refresh();
+            }
         }
     });
     module.exports = SigplotPlugin;
