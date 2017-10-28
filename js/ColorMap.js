@@ -39,6 +39,7 @@
          this._low = 0;
          this._high = 1;
          var ncolors = this.options.ncolors;
+         this._fscale = ncolors / (this._high - this._low);
          var colorindex = 1;
          var colorBlockIndex = 1;
          colors = JSON.parse(JSON.stringify(colors)); //make a copy so we dont change the original colors
@@ -165,7 +166,7 @@
              } : null;
          },
          getColor: function(number) {
-             var n = ((number - this._low) / this._high) * this.map.length;
+             var n = (number - this._low) * this._fscale;
              var colorindex = ~~n; //make int fastest method
              if (colorindex > this.map.length - 1) {
                  colorindex = this.map.length - 1;
@@ -175,8 +176,12 @@
              return this.map[colorindex];
          },
          setRange: function(low, high) {
-             this._low = low;
-             this._high = high;
+             // only recalculate if a value has changed
+             if ((this._low !== low) || (this._high !== high)) {
+                 this._low = low;
+                 this._high = high;
+                 this._fscale = this.map.length / Math.abs(this._high - this._low);
+             }
          },
          interpolate: function(col1, col2, factor) {
              return {
