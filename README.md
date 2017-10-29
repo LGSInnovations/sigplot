@@ -1,5 +1,7 @@
-SigPlot
+[SigPlot](http://sigplot.lgsinnovations.com)
 =======
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.org/LGSInnovations/sigplot.svg?branch=develop-2.0)](https://travis-ci.org/LGSInnovations/sigplot) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md#pull-requests)
 
 SigPlot provides fast, interactive plotting for software defined radio
 applications using HTML5.
