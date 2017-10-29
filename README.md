@@ -51,7 +51,7 @@ npm install webpack -g
 
 Then create a project for the SigPlot demo and install sigplot.
 
-```
+```bash
 mkdir sigplot-webpack
 cd sigplot-webpack
 npm install sigplot
@@ -59,7 +59,7 @@ npm install sigplot
 
 Next, create a file called `demo.js` with the following contents:
 
-```
+```javascript
 let sigplot = require("sigplot");
 let options = {};
 let plot = new sigplot.Plot(document.getElementById('plot'), options);
@@ -67,7 +67,7 @@ let plot = new sigplot.Plot(document.getElementById('plot'), options);
 
 Then, create a file called `index.html` with the following contents:
 
-```
+```html
 <html>
   <head>
     <title>SigPlot Webpack</title>
@@ -87,7 +87,7 @@ Then, create a file called `index.html` with the following contents:
 
 Use webpack to compile the bundle:
 
-```
+```bash
 webpack ./demo.js bundle.js
 ```
 
