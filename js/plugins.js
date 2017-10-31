@@ -35,7 +35,8 @@ module.exports = {
     AnnotationPlugin       : require("./sigplot.annotations"),
     BoxesPlugin            : require("./sigplot.boxes"),
     PlaybackControlsPlugin : require("./sigplot.playback"),
-    SliderPlugin           : require("./sigplot.slider")
+    SliderPlugin           : require("./sigplot.slider"),
+    PeakSelector		   : require("./sigplot.peakselector")
 };
 
 }());
