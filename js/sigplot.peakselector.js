@@ -13,6 +13,7 @@
                     lineCap: "square",
                     color: "#FF0000"
                 },
+                leftDragSelect:false,
                 toggleKey: "p"
             },
             init: function(options) {
@@ -24,6 +25,9 @@
             },
             onAdd: function(plot) {
                 this.plot = plot;
+                if(this.options.leftDragSelect){
+                    plot.change_settings({rubberbox_action:null});
+                }
                 var self = this;
                 self.handleMouseMove = function(e) {
                     if (!self.enabled) {
@@ -44,7 +48,18 @@
                     self.selectStop = e;
                     self.finalize();
                 };
-                plot.addListener("mtag", self.handleMouseup);
+                self.handleMousedown = function(e) {
+                    e.preventDefault();
+                    if (!self.options.leftDragSelect) {
+                        return;
+                    }
+                    if (!self.enabled) {
+                       self.toggle();
+                    }
+                    self.selectStart = e;
+                };
+                plot.addListener("mup", self.handleMouseup);
+                 plot.addListener("mdown", self.handleMousedown);
                 plot.addListener("zoom",function(){
                     self.reset(); //If we zoom disable and clear
                 });
@@ -80,13 +95,14 @@
                 ctx.lineTo(this.selectStop.xpos, this.selectStop.ypos);
                 ctx.stroke();
             },
-            drawSelection: function(e) {
+            drawSelection: function() {
                 this.plot.redraw();
             },
             finalize: function() {
                 var Mx = this.plot._Mx;
                 var self = this;
                 if (!self.selectStart || !self.selectStop) {
+                    self.reset();
                     return; //Nothing was ever selected
                 }
                 //Select was right to left not left to right swap these
@@ -96,6 +112,7 @@
                     self.selectStop = temp;
                 }
                 if (self.selectStart.x === self.selectStop.x) {
+                    self.reset();
                     return; //nothing was selected
                 }
                 if (this.plot._Gx.lyr.length === 0) {
@@ -158,6 +175,7 @@
                 this.enabled = false;
                 this.selectStart = undefined;
                 this.drawPoint = undefined;
+                this.drawSelection();
             }
         });
         module.exports = PeakSelector;
