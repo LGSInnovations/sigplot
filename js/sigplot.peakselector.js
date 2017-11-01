@@ -7,7 +7,6 @@
         var PeakSelector = SigplotPlugin.extend({
             options: {
                 display: true,
-                allowTrough: true,
                 linewidth: 1,
                 style: {
                     lineWidth: 1,
