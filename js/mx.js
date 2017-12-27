@@ -49,8 +49,7 @@
     var m = require("./m");
 
     function mx() {}
-
-
+    mx.DomMenu = require("./mx.dommenu");
     mx.XW_INIT = -3;
     mx.XW_DRAW = 1;
     mx.XW_EVENT = 2;
@@ -3429,6 +3428,9 @@
         mx.onWidgetLayer(Mx, function() {
             mx.erase_window(Mx);
         });
+        if (Mx.useDomMenu) {
+            Mx.menu.remove();
+        }
         Mx.menu = undefined;
         Mx.widget = null;
 
@@ -3624,16 +3626,18 @@
             }
         }
     }
-
     /**
      * @param Mx
      * @param menu
      * @private
      */
     mx.menu = function(Mx, menu) {
+        if (Mx.useDomMenu) {
+            new mx.DomMenu(Mx, menu);
+            return;
+        }
         var yb = Mx.text_h * 1.5;
         //MENU_CONSTANTS.n_show = menu.items.length;
-
         var plot_height = Mx.canvas.height;
         var buffer_sz = 35; // estimate of how much of the canvas is spacing around plot
         var avail_space = plot_height - 2 * buffer_sz;

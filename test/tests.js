@@ -1596,6 +1596,11 @@ interactiveTest('sigplot menu no mtag', 'Open the menu and move it, ensure mtag 
         alert("Mtag occurred!");
     });
 });
+interactiveTest('sigplot dommenu', 'Open the menu and move it outside the plot to demonstrate its a dommenu', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {useDomMenu: true});
+    notEqual(plot, null);
+});
 interactiveTest('sigplot continuous mtag', 'Ensure continuous mtag updates', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
