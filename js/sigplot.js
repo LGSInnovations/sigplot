@@ -353,7 +353,7 @@
                     } else {
                         if (plot.mouseOnCanvas) {
                             draw_crosshairs(plot);
-                            if (Gx.p_cuts && (Gx.lyr[0].hcb["class"] === 2)) {
+                            if (Gx.p_cuts && Gx.lyr[0] && (Gx.lyr[0].hcb["class"] === 2)) {
                                 if (!Gx.y_cut_press_on && !Gx.x_cut_press_on) {
                                     draw_p_cuts(plot);
                                 }
@@ -3623,7 +3623,7 @@
             Gx.cross_ypos = undefined;
             if ((!Mx.warpbox) && (this.mouseOnCanvas)) {
                 draw_crosshairs(this);
-                if (!Gx.y_cut_press_on && !Gx.x_cut_press_on && (Gx.lyr[0].hcb["class"] === 2)) {
+                if (!Gx.y_cut_press_on && !Gx.x_cut_press_on && Gx.lyr[0] && (Gx.lyr[0].hcb["class"] === 2)) {
                     draw_p_cuts(this);
                 }
             }
