@@ -40,9 +40,7 @@
   "dependencies": {
     "loglevel": "^1.4.1",
     "spin": "0.0.1",
-    "taffydb": "^2.7.3",
-    "tinycolor2": "^1.4.1",
-    "underscore": "^1.8.3"
+    "tinycolor2": "^1.4.1"
   },
   "devDependencies": {
     "catharsis": "^0.7.0",
@@ -73,6 +71,7 @@
     "karma-qunit": "^1.1.0",
     "marked": "^0.3.6",
     "qunitjs": "^1.13.0",
-    "taffydb": "^2.7.3"
+    "taffydb": "^2.7.3",
+    "underscore": "^1.8.3"
   }
 }
