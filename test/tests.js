@@ -4806,3 +4806,16 @@ interactiveTest('headermod', 'does the plot show a range 200-2200', function() {
     strictEqual(plot._Gx.lyr[0].xmin, 200);
     strictEqual(plot._Gx.lyr[0].xmax, 2200);
 });
+interactiveTest('github-issue-3', 'TBD?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    
+    plot.remove_layer(0);
+    plot.overlay_array([1,2,3,4,5,6]);
+    plot.change_settings({xmin:1, xmax:6});
+
+    plot.remove_layer(0);
+    plot.overlay_array([3,4,5,6,7]);
+    plot.change_settings({xmin:3, xmax:7});
+});

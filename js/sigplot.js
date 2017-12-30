@@ -2735,7 +2735,7 @@
                         xmin = Gx.xmin;
                     }
                     if ((Gx.autox & 2) === 0) {
-                        xmax = Gx.xmin;
+                        xmax = Gx.xmax;
                     }
                     scale_base(this, {
                         get_data: true
