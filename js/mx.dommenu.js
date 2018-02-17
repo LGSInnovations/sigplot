@@ -27,13 +27,13 @@
 /* global require */
 
 (function() {
-    var common = require("./common");
+   var _ = require("lodash"); 
 
    var DomMenu = function(Mx, menu, options) {
         this.options = {
             itemClass: "sigplot-menu-item"
         };
-        common.update(this.options, options);
+        _.merge(this.options, options);
         this._Mx = Mx;
         this._container = Mx.root;
         this._menu = document.createElement("div");
@@ -44,6 +44,7 @@
         this._menu.classList.add(this._menuId);
         this._menu.style = style;
         this._items = [];
+        this.search = '';
         this.setCSS();
         this.createMenu(menu);
     };
@@ -52,6 +53,7 @@
             var self = this;
             var Mx = this._Mx;
             var originalFinalize = menu.finalize;
+            this._MxMenu = menu;
             menu.finalize = function() {
                 self.remove();
                 originalFinalize();
@@ -112,20 +114,24 @@
         },
         _handleKeyEvents: function(event) {
             var self = this;
-            if (event.key === "ArrowDown") {
-                event.preventDefault();
-                if (!self._active) {
-                    self._setActive(self._items[0]);
-                } else {
-                    var target = self._items.indexOf(self._active) + 1;
+            var menu = this._MxMenu;
+            var Mx = this._Mx;
+            switch (event.key) {
+                case "ArrowDown":
+                    event.preventDefault();
+                    if (!self._active) {
+                        self._setActive(self._items[0]);
+                    } else {
+                        var target = self._items.indexOf(self._active) + 1;
 
-                    if (target > self._items.length - 1) {
-                        return; //Last item in the list keep it active
+                        if (target > self._items.length - 1) {
+                            return; //Last item in the list keep it active
+                        }
+                        self._setActive(self._items[target]);
                     }
-                    self._setActive(self._items[target]);
-                }
-            }
-            if (event.key === "ArrowUp") {
+                    break;
+
+            case "ArrowUp":
                 event.preventDefault();
                 if (!self._active) {
                     self._setActive(self._items[0]);
@@ -136,9 +142,8 @@
                     }
                     self._setActive(self._items[target]);
                 }
-            }
-
-            if (event.key === "Enter") {
+                break;
+            case "Enter":
                 event.preventDefault();
                 if (!self._active) {
                     self._setActive(self._items[0]);
@@ -149,6 +154,36 @@
                     el.onclick();
                 } else if (el.click) {
                     el.click();
+                }
+                break;
+
+            case "Escape":
+                this.remove();
+                if ((!Mx.menu) && (menu.finalize)) {
+                    menu.finalize();
+                }
+                break;
+            default:
+                if(event.key === "Backspace"){
+                    this.search = this.search.substr(0,this.search.length -1);
+                }else{
+                    this.search += event.key;
+                }
+                var re = new RegExp(this.search,"ig");
+                this._items.forEach(function(item){
+                    if(item.innerText.search(re) < 0){
+                        item.style.display = "none";
+                        console.log(item.innerText, "none")
+                    }else{
+                        item.style.display = "list-item";
+                    }
+                });
+                for(var i in this._items){
+                    var item = this._items[i];
+                    if(item.style.display !== "none"){
+                        self._setActive(item);
+                        break;
+                    }
                 }
             }
         },
