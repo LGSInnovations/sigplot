@@ -4835,12 +4835,18 @@ interactiveTest('github-issue-3', 'TBD?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     notEqual(plot, null);
-    
-    plot.remove_layer(0);
-    plot.overlay_array([1,2,3,4,5,6]);
-    plot.change_settings({xmin:1, xmax:6});
 
     plot.remove_layer(0);
-    plot.overlay_array([3,4,5,6,7]);
-    plot.change_settings({xmin:3, xmax:7});
+    plot.overlay_array([1, 2, 3, 4, 5, 6]);
+    plot.change_settings({
+        xmin: 1,
+        xmax: 6
+    });
+
+    plot.remove_layer(0);
+    plot.overlay_array([3, 4, 5, 6, 7]);
+    plot.change_settings({
+        xmin: 3,
+        xmax: 7
+    });
 });
