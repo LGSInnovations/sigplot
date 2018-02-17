@@ -427,12 +427,13 @@
          * @param   littleEndian
          */
         unpack_keywords: function(buf, lbuf, offset, littleEndian) {
-            var lkey, lextra, ltag, format, tag, data, ldata, itag, idata, dvk;
+            var lkey, lextra, ltag, format, tag, data, ldata, itag, idata;
             var keywords = [];
             var dic_index = {};
             var dict_keywords = {};
             var ii = 0;
-            buf = buf.slice(offset, buf.length);
+            window.buf = buf;
+            buf = buf.slice(offset, buf.byteLength);
             var dvhdr = new DataView(buf);
             buf = ab2str(buf);
             while (ii < lbuf) {
