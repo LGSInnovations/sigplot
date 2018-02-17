@@ -275,6 +275,15 @@
      *            the font family to use for text rendered on the plot.  Monospace
      *            font will generally work best.
      *
+     * @param {Boolean}
+     *            options.font_scaled mimic the MIDAS plotting behaviour where the
+     *            plot font-size is scaled relative to the width of the
+     *
+     * @param {Boolean}
+     *            options.font_width sets the font width (default=8); if scaled_font
+     *            is set to true, then the font width will be the minimum of font_width
+     *            or plot width/64.
+     *
      * @returns {sigplot.Plot}
      */
     sigplot.Plot = function(element, options) {
@@ -3291,7 +3300,11 @@
             if (Gx.hold) {
                 return;
             }
-            mx.set_font(Mx, Math.min(8, Mx.width / 64));
+            var font_width = Mx.font_width;
+            if (Mx.font_scaled) {
+                font_width = Math.min(Mx.font_width, Mx.width / 64);
+            }
+            mx.set_font(Mx, font_width);
             Gx.pthk = Mx.text_w * 1.5;
 
             if (Gx.specs) {
@@ -6620,7 +6633,18 @@
         if (o.font_family) {
             Mx.font_family = o.font_family;
         }
-        mx.set_font(Mx, Math.min(7, Mx.width / 64));
+        if (o.font_width) {
+            Mx.font_width = o.font_width;
+        }
+        if (o.font_scaled) {
+            Mx.font_scaled = true;
+        }
+
+        var font_width = Mx.font_width;
+        if (Mx.font_scaled) {
+            font_width = Math.min(Mx.font_width, Mx.width / 64);
+        }
+        mx.set_font(Mx, font_width);
 
         Gx.ncolors = o.ncolors === undefined ? 500 : o.ncolors;
         Gx.cmap = null;

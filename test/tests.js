@@ -1556,6 +1556,31 @@ interactiveTest('sigplot custom font', 'Is the font changed from the default?', 
         font_family: "Comic Sans MS, cursive, sans-serif"
     });
 });
+interactiveTest('sigplot fixed font size', 'Is the font size normal?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    container.style.width = "300px";
+    var plot = new sigplot.Plot(container);
+});
+interactiveTest('sigplot fixed font size', 'Is the font size large?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    container.style.width = "300px";
+    var plot = new sigplot.Plot(container, {
+        font_width: 12
+    });
+});
+interactiveTest('sigplot fixed font size', 'Is the font size scaled smaller?', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(ifixture.childNodes.length, 1);
+    container.style.width = "300px";
+    var plot = new sigplot.Plot(container, {
+        font_scaled: true
+    });
+});
 interactiveTest('sigplot bottom scrollbar', 'Is the x scrollbar on the bottom?', function() {
     var container = document.getElementById('plot');
     equal(container.childNodes.length, 0);

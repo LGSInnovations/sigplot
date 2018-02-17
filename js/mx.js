@@ -216,6 +216,8 @@
 
         this.font = undefined; // the full calculated font string
         this.font_family = "Courier New, monospace"; // default font family
+        this.font_width = 8;
+        this.font_scaled = false;
         this.text_w = 0; // text width
         this.text_h = 0; // text height
         this.level = 0; // current zoom level
