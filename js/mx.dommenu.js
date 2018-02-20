@@ -173,7 +173,6 @@
                 this._items.forEach(function(item){
                     if(item.innerText.search(re) < 0){
                         item.style.display = "none";
-                        console.log(item.innerText, "none")
                     }else{
                         item.style.display = "list-item";
                     }
