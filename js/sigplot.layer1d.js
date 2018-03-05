@@ -221,15 +221,15 @@
                 imin = Math.floor(xmin);
                 imax = Math.floor(xmax + 0.5);
             } else if (HCB.xdelta >= 0.0) {
-                imin = Math.floor((xmin - HCB.xstart) / HCB.xdelta) - 1;
-                imax = Math.floor((xmax - HCB.xstart) / HCB.xdelta + 0.5);
+                imin = Math.floor((xmin - HCB.xstart) / HCB.xdelta);
+                imax = Math.floor((xmax - HCB.xstart) / HCB.xdelta + 0.5) - 1;
             } else {
 
-                imin = Math.floor((xmax - HCB.xstart) / HCB.xdelta) - 1;
-                imax = Math.floor((xmin - HCB.xstart) / HCB.xdelta + 0.5);
+                imin = Math.floor((xmax - HCB.xstart) / HCB.xdelta);
+                imax = Math.floor((xmin - HCB.xstart) / HCB.xdelta + 0.5) - 1;
             }
             imin = Math.max(0.0, imin);
-            imax = Math.min(size, imax);
+            imax = Math.min(size, imax) - 1;
 
             var npts = Math.max(0.0, Math.min(imax - imin + 1, Gx.bufmax));
             if (HCB.xdelta < 0) {
