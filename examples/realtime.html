@@ -448,7 +448,7 @@ $(window).ready(function() {
                     var spectrum1;
                     if (complex_mode) {
                         spectrum1 = DSP.interleave(fft1.real, fft1.imag);
-                        spectrum1 = spectrum.subarray(0, fftsize);
+                        spectrum1 = spectrum1.subarray(0, fftsize);
                     } else {
                         spectrum1 = fft1.spectrum;
                     }
@@ -464,7 +464,7 @@ $(window).ready(function() {
                     var spectrum2;
                     if (complex_mode) {
                         spectrum2 = DSP.interleave(fft2.real, fft2.imag);
-                        spectrum2 = spectrum.subarray(0, fftsize);
+                        spectrum2 = spectrum2.subarray(0, fftsize);
                     } else {
                         spectrum2 = fft2.spectrum;
                     }
