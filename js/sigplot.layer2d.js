@@ -173,189 +173,188 @@
             var Gx = this.plot._Gx;
             var Mx = this.plot._Mx;
 
-            if (m.pavail(this.hcb) < (this.hcb.subsize * this.hcb.spa)) {
-                return;
-            }
+            while (m.pavail(this.hcb) >= (this.hcb.subsize * this.hcb.spa)) {
 
-            // if we aren't scrolling, than update the values
-            // so that the axis scrolls with the data.  The below
-            // code might seem counter intuitive, but given the
-            // the behavior of other rendering code it is configured
-            // to have ymin always be the history (i.e prior to ystart)
-            // and ystart is always the relative "now" which is equivalent
-            // to ymax
-            if (this.drawmode !== "scrolling") {
-                this.hcb.ystart += this.hcb.ydelta;
-                this.ystart = this.hcb.ystart;
-                this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps));
-                this.ymax = this.hcb.ystart;
-            }
+                // if we aren't scrolling, than update the values
+                // so that the axis scrolls with the data.  The below
+                // code might seem counter intuitive, but given the
+                // the behavior of other rendering code it is configured
+                // to have ymin always be the history (i.e prior to ystart)
+                // and ystart is always the relative "now" which is equivalent
+                // to ymax
+                if (this.drawmode !== "scrolling") {
+                    this.hcb.ystart += this.hcb.ydelta;
+                    this.ystart = this.hcb.ystart;
+                    this.ymin = this.hcb.ystart - (this.hcb.ydelta * (this.lps));
+                    this.ymax = this.hcb.ystart;
+                }
 
-            if (this.drawmode === "falling") {
-                this.position = 0;
-                if (this.img) {
-                    mx.shift_image_rows(Mx, this.img, 1);
-                }
-            } else if (this.drawmode === "rising") {
-                this.position = this.lps - 1;
-                if (this.img) {
-                    mx.shift_image_rows(Mx, this.img, -1);
-                }
-            } else if (this.drawmode === "scrolling") {
-                var ylength = Math.abs(this.ymax - this.ymin);
-                this.ystart = 0;
-                this.ymin = 0;
-                this.ymax = ylength;
-                if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
-                    this.position = 0;
-                }
-            } else {
-                throw "Invalid draw mode";
-            }
-
-            if (!this.buf) {
-                // the layer isn't setup correctly yet
-                return;
-            }
-
-            // grab one row worth of data
-            var ngot = m.grabx(this.hcb, this.buf, this.hcb.subsize * this.hcb.spa);
-            if (ngot === 0) { // shouldn't happen because of the pavail check
-                m.log.error("Internal error");
-                return;
-            }
-
-            var zpoint = new m.PointArray(this.hcb.subsize);
-            if (this.cx) {
-                if (Gx.cmode === 1) {
-                    m.cvmag(this.buf, zpoint, zpoint.length);
-                } else if (Gx.cmode === 2) {
-                    if (Gx.plab === 25) {
-                        m.cvpha(this.buf, zpoint, zpoint.length);
-                        m.vsmul(zpoint, 1.0 / (2 * Math.PI), zpoint, zpoint.length);
-                    } else if (Gx.plab !== 24) {
-                        m.cvpha(this.buf, zpoint, zpoint.length);
-                    } else {
-                        m.cvphad(this.buf, zpoint, zpoint.length);
-                    }
-                } else if (Gx.cmode === 3) {
-                    m.vmov(this.buf, this.skip, zpoint, 1, zpoint.length);
-                } else if (Gx.cmode === 4) {
-                    m.vmov(this.buf.subarray(1), this.skip, zpoint, 1, zpoint.length);
-                } else if (Gx.cmode === 5) { // IR
-                    m.vfill(zpoint, 0, zpoint.length);
-                } else if (Gx.cmode === 6) { // 10log
-                    m.cvmag2logscale(this.buf, Gx.dbmin, 10.0, zpoint);
-                } else if (Gx.cmode === 7) { // 20log
-                    m.cvmag2logscale(this.buf, Gx.dbmin, 20.0, zpoint);
-                }
-            } else {
-                if (Gx.cmode === 1) { // mag
-                    m.vabs(this.buf, zpoint);
-                } else if (Gx.cmode === 2) { // phase
-                    m.vfill(zpoint, 0, zpoint.length);
-                } else if (Gx.cmode === 3) { // real
-                    m.vmov(this.buf, this.skip, zpoint, 1, zpoint.length);
-                } else if (Gx.cmode === 4) { // imag
-                    m.vfill(zpoint, 0, zpoint.length);
-                } else if (Gx.cmode === 5) { // IR
-                    m.vfill(zpoint, 0, zpoint.length);
-                } else if (Gx.cmode === 6) { // 10log
-                    m.vlogscale(this.buf, Gx.dbmin, 10.0, zpoint);
-                } else if (Gx.cmode === 7) { // 20log
-                    m.vlogscale(this.buf, Gx.dbmin, 20.0, zpoint);
-                }
-            }
-
-            var min = zpoint[0];
-            var max = zpoint[0];
-            for (var i = 0; i < zpoint.length; i++) {
-                if (zpoint[i] < min) {
-                    min = zpoint[i];
-                }
-                if (zpoint[i] > max) {
-                    max = zpoint[i];
-                }
-            }
-
-            var zmin, zmax;
-            if (Gx.autol === 1) {
-                zmin = min;
-                zmax = max;
-            } else if (Gx.autol > 1) {
-                var fac = 1.0 / (Math.max(Gx.autol, 1));
-                zmin = Gx.zmin * fac + min * (1.0 - fac);
-                zmax = Gx.zmax * fac + max * (1.0 - fac);
-            } else if (Gx.autol < 0) {
-                // -1 means autol wasn't set so default to
-                // 5 like the original XRTRASTER; however,
-                // don't actually override Gx.autol since
-                // other layers may behave differently
-                var fac = 1.0 / (Math.max(5, 1));
-                zmin = Gx.zmin * fac + min * (1.0 - fac);
-                zmax = Gx.zmax * fac + max * (1.0 - fac);
-            }
-
-            if (((Gx.autoz & 1) !== 0)) {
-                Gx.zmin = zmin;
-            }
-            if (((Gx.autoz & 2) !== 0)) {
-                Gx.zmax = zmax;
-            }
-            if (Gx.enabled_streaming_pcut) {
-                //if zbuf not right size, clear and fix
-                if (this.zbuf.length !== (this.lps * this.hcb.subsize)) {
-                    this.zbuf = [];
-                    this.zbuf = new m.PointArray(this.hcb.subsize * this.lps);
-                }
-                if (this.drawmode === "scrolling") {
-                    //fill in the next row of data.
-                    var start_write = this.position * this.hcb.subsize;
-                    var stop_write = start_write + this.hcb.subsize;
-                    var b = 0;
-                    for (var i = start_write; i < stop_write; i++) {
-                        this.zbuf[i] = zpoint[b];
-                        b++;
-                    }
-
-                }
                 if (this.drawmode === "falling") {
-                    //shift and fill in the next row of data.
-                    var cut_off = (this.lps - 1) * this.hcb.subsize;
-                    var tmp = this.zbuf.slice(0, cut_off);
-                    this.zbuf = [];
-                    for (var i = 0; i < this.hcb.subsize; i++) {
-                        this.zbuf.push(zpoint[i]);
+                    this.position = 0;
+                    if (this.img) {
+                        mx.shift_image_rows(Mx, this.img, 1);
                     }
-                    this.zbuf.push.apply(this.zbuf, tmp);
-                    tmp = [];
-                }
-                if (this.drawmode === "rising") {
-                    //shift and fill in the next row of data.
-                    var cut_off = this.lps * this.hcb.subsize;
-                    var tmp = this.zbuf.slice(this.hcb.subsize, cut_off);
-                    this.zbuf = [];
-                    this.zbuf.push.apply(this.zbuf, tmp);
-                    for (var i = 0; i < this.hcb.subsize; i++) {
-                        this.zbuf.push(zpoint[i]);
+                } else if (this.drawmode === "rising") {
+                    this.position = this.lps - 1;
+                    if (this.img) {
+                        mx.shift_image_rows(Mx, this.img, -1);
                     }
-                    tmp = [];
+                } else if (this.drawmode === "scrolling") {
+                    var ylength = Math.abs(this.ymax - this.ymin);
+                    this.ystart = 0;
+                    this.ymin = 0;
+                    this.ymax = ylength;
+                    if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
+                        this.position = 0;
+                    }
+                } else {
+                    throw "Invalid draw mode";
                 }
-            }
 
-            if (this.img) {
-                mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax, Gx.xcompression);
-            }
-            this.frame += 1;
-            if (this.drawmode === "scrolling") {
-                this.position = (this.position + 1) % this.lps;
-            }
+                if (!this.buf) {
+                    // the layer isn't setup correctly yet
+                    return;
+                }
 
-            if (Mx.level === 0) {
-                Gx.panymin = this.ymin;
-                Gx.panymax = this.ymax;
-                Mx.stk[0].ymin = this.ymin;
-                Mx.stk[0].ymax = this.ymax;
+                // grab one row worth of data
+                var ngot = m.grabx(this.hcb, this.buf, this.hcb.subsize * this.hcb.spa);
+                if (ngot === 0) { // shouldn't happen because of the pavail check
+                    m.log.error("Internal error");
+                    return;
+                }
+
+                var zpoint = new m.PointArray(this.hcb.subsize);
+                if (this.cx) {
+                    if (Gx.cmode === 1) {
+                        m.cvmag(this.buf, zpoint, zpoint.length);
+                    } else if (Gx.cmode === 2) {
+                        if (Gx.plab === 25) {
+                            m.cvpha(this.buf, zpoint, zpoint.length);
+                            m.vsmul(zpoint, 1.0 / (2 * Math.PI), zpoint, zpoint.length);
+                        } else if (Gx.plab !== 24) {
+                            m.cvpha(this.buf, zpoint, zpoint.length);
+                        } else {
+                            m.cvphad(this.buf, zpoint, zpoint.length);
+                        }
+                    } else if (Gx.cmode === 3) {
+                        m.vmov(this.buf, this.skip, zpoint, 1, zpoint.length);
+                    } else if (Gx.cmode === 4) {
+                        m.vmov(this.buf.subarray(1), this.skip, zpoint, 1, zpoint.length);
+                    } else if (Gx.cmode === 5) { // IR
+                        m.vfill(zpoint, 0, zpoint.length);
+                    } else if (Gx.cmode === 6) { // 10log
+                        m.cvmag2logscale(this.buf, Gx.dbmin, 10.0, zpoint);
+                    } else if (Gx.cmode === 7) { // 20log
+                        m.cvmag2logscale(this.buf, Gx.dbmin, 20.0, zpoint);
+                    }
+                } else {
+                    if (Gx.cmode === 1) { // mag
+                        m.vabs(this.buf, zpoint);
+                    } else if (Gx.cmode === 2) { // phase
+                        m.vfill(zpoint, 0, zpoint.length);
+                    } else if (Gx.cmode === 3) { // real
+                        m.vmov(this.buf, this.skip, zpoint, 1, zpoint.length);
+                    } else if (Gx.cmode === 4) { // imag
+                        m.vfill(zpoint, 0, zpoint.length);
+                    } else if (Gx.cmode === 5) { // IR
+                        m.vfill(zpoint, 0, zpoint.length);
+                    } else if (Gx.cmode === 6) { // 10log
+                        m.vlogscale(this.buf, Gx.dbmin, 10.0, zpoint);
+                    } else if (Gx.cmode === 7) { // 20log
+                        m.vlogscale(this.buf, Gx.dbmin, 20.0, zpoint);
+                    }
+                }
+
+                var min = zpoint[0];
+                var max = zpoint[0];
+                for (var i = 0; i < zpoint.length; i++) {
+                    if (zpoint[i] < min) {
+                        min = zpoint[i];
+                    }
+                    if (zpoint[i] > max) {
+                        max = zpoint[i];
+                    }
+                }
+
+                var zmin, zmax;
+                if (Gx.autol === 1) {
+                    zmin = min;
+                    zmax = max;
+                } else if (Gx.autol > 1) {
+                    var fac = 1.0 / (Math.max(Gx.autol, 1));
+                    zmin = Gx.zmin * fac + min * (1.0 - fac);
+                    zmax = Gx.zmax * fac + max * (1.0 - fac);
+                } else if (Gx.autol < 0) {
+                    // -1 means autol wasn't set so default to
+                    // 5 like the original XRTRASTER; however,
+                    // don't actually override Gx.autol since
+                    // other layers may behave differently
+                    var fac = 1.0 / (Math.max(5, 1));
+                    zmin = Gx.zmin * fac + min * (1.0 - fac);
+                    zmax = Gx.zmax * fac + max * (1.0 - fac);
+                }
+
+                if (((Gx.autoz & 1) !== 0)) {
+                    Gx.zmin = zmin;
+                }
+                if (((Gx.autoz & 2) !== 0)) {
+                    Gx.zmax = zmax;
+                }
+                if (Gx.enabled_streaming_pcut) {
+                    //if zbuf not right size, clear and fix
+                    if (this.zbuf.length !== (this.lps * this.hcb.subsize)) {
+                        this.zbuf = [];
+                        this.zbuf = new m.PointArray(this.hcb.subsize * this.lps);
+                    }
+                    if (this.drawmode === "scrolling") {
+                        //fill in the next row of data.
+                        var start_write = this.position * this.hcb.subsize;
+                        var stop_write = start_write + this.hcb.subsize;
+                        var b = 0;
+                        for (var i = start_write; i < stop_write; i++) {
+                            this.zbuf[i] = zpoint[b];
+                            b++;
+                        }
+
+                    }
+                    if (this.drawmode === "falling") {
+                        //shift and fill in the next row of data.
+                        var cut_off = (this.lps - 1) * this.hcb.subsize;
+                        var tmp = this.zbuf.slice(0, cut_off);
+                        this.zbuf = [];
+                        for (var i = 0; i < this.hcb.subsize; i++) {
+                            this.zbuf.push(zpoint[i]);
+                        }
+                        this.zbuf.push.apply(this.zbuf, tmp);
+                        tmp = [];
+                    }
+                    if (this.drawmode === "rising") {
+                        //shift and fill in the next row of data.
+                        var cut_off = this.lps * this.hcb.subsize;
+                        var tmp = this.zbuf.slice(this.hcb.subsize, cut_off);
+                        this.zbuf = [];
+                        this.zbuf.push.apply(this.zbuf, tmp);
+                        for (var i = 0; i < this.hcb.subsize; i++) {
+                            this.zbuf.push(zpoint[i]);
+                        }
+                        tmp = [];
+                    }
+                }
+
+                if (this.img) {
+                    mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax, Gx.xcompression);
+                }
+                this.frame += 1;
+                if (this.drawmode === "scrolling") {
+                    this.position = (this.position + 1) % this.lps;
+                }
+
+                if (Mx.level === 0) {
+                    Gx.panymin = this.ymin;
+                    Gx.panymax = this.ymax;
+                    Mx.stk[0].ymin = this.ymin;
+                    Mx.stk[0].ymax = this.ymax;
+                }
             }
         },
 

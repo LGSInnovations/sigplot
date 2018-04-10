@@ -1479,6 +1479,88 @@ test('unit strings test: x -> Hz and y -> Time_sec', function() {
     equal(plot._Gx.ylab, 1);
 });
 
+test('sigplot line push smaller than framesize', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(fixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container);
+    notEqual(plot, null);
+    equal(plot._Mx.canvas.height, 400);
+    var zeros = [];
+    for (var i = 0; i < 128; i += 1) {
+        zeros.push(0.0);
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 64
+    }, {
+        layerType: sigplot.Layer1D
+    });
+    notEqual(plot.get_layer(0), null);
+
+    // the pipe should start empty
+    var hcb = plot.get_layer(0).hcb;
+    equal(hcb.dview.length - hcb.data_free, 0);
+
+    // pushing twice the subsize should allow
+    // two frames to be written, leaving nothing
+    // in the pipe
+    plot.push(0, zeros, null, true);
+    equal(hcb.dview.length - hcb.data_free, 0);
+
+    // if we push 63 elements they should remain in the pipe
+    plot.push(0, zeros.slice(0, 63), null, true);
+    equal(hcb.dview.length - hcb.data_free, 0);
+
+    // pushing two should leave one item in the pipe
+    plot.push(0, zeros.slice(0, 2), null, true);
+    equal(hcb.dview.length - hcb.data_free, 0);
+
+    // as does pushing another 128
+    plot.push(0, zeros, null, true);
+    equal(hcb.dview.length - hcb.data_free, 0);
+});
+
+test('sigplot raster push smaller than framesize', function() {
+    var container = document.getElementById('plot');
+    equal(container.childNodes.length, 0);
+    equal(fixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container);
+    notEqual(plot, null);
+    equal(plot._Mx.canvas.height, 400);
+    var zeros = [];
+    for (var i = 0; i < 128; i += 1) {
+        zeros.push(0.0);
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 64
+    });
+    notEqual(plot.get_layer(0), null);
+
+    // the pipe should start empty
+    var hcb = plot.get_layer(0).hcb;
+    equal(hcb.dview.length - hcb.data_free, 0);
+
+    // pushing twice the subsize should allow
+    // two frames to be written, leaving nothing
+    // in the pipe
+    plot.push(0, zeros, null, true);
+    equal(hcb.dview.length - hcb.data_free, 0);
+
+    // if we push 63 elements they should remain in the pipe
+    plot.push(0, zeros.slice(0, 63), null, true);
+    equal(hcb.dview.length - hcb.data_free, 63);
+
+    // pushing two should leave one item in the pipe
+    plot.push(0, zeros.slice(0, 2), null, true);
+    equal(hcb.dview.length - hcb.data_free, 1);
+
+    // as does pushing another 128
+    plot.push(0, zeros, null, true);
+    equal(hcb.dview.length - hcb.data_free, 1);
+});
+
 QUnit.module('sigplot-interactive', {
     setup: function() {
         ifixture.innerHTML = '';
