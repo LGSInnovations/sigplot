@@ -230,7 +230,7 @@
                 evt.center = self.center;
                 evt.width = self.width;
                 mx.dispatchEvent(Mx, evt);
-                this.emit('change', {
+                self.emit('change', {
                     center: self.center,
                     width: self.width
                 });
