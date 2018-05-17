@@ -55,6 +55,9 @@ function interactiveTest(testName, msg, callback) {
     };
     QUnit.test(testName, null, wrapped_callback, true);
 }
+//////////////////////////////////////////////////////////////////////////////
+// QUnit 'm' module
+//////////////////////////////////////////////////////////////////////////////
 QUnit.module('m', {
     setup: function() {},
     teardown: function() {}
@@ -94,7 +97,9 @@ test('m sec2tod test', function() {
     equal(sigplot.m.sec2tod(-31536000.5, true), "1948:12:31::23:59:59.5");
     equal(sigplot.m.sec2tod(-31536001.5, true), "1948:12:31::23:59:58.5");
 });
-
+//////////////////////////////////////////////////////////////////////////////
+// QUnit 'ColorMap' module
+//////////////////////////////////////////////////////////////////////////////
 QUnit.module('ColorMap', {
     setup: function() {},
     teardown: function() {}
@@ -213,7 +218,9 @@ test('colormap', function() {
 
 
 });
-
+//////////////////////////////////////////////////////////////////////////////
+// QUnit 'mx' module
+//////////////////////////////////////////////////////////////////////////////
 QUnit.module('mx', {
     setup: function() {},
     teardown: function() {}
@@ -273,6 +280,9 @@ test('mx real_to_pixel test', function() {
     equal(result.y, 200);
     equal(result.clipped, true);
 });
+//////////////////////////////////////////////////////////////////////////////
+// QUnit 'bluefile' module
+//////////////////////////////////////////////////////////////////////////////
 QUnit.module('bluefile', {
     setup: function() {},
     teardown: function() {}
@@ -949,6 +959,9 @@ test('bluefile pipe CF type 2000 misaligned', function() {
 // write X elements at a time
 // read Y elements at a time
 //});
+//////////////////////////////////////////////////////////////////////////////
+// QUnit 'sigplot' module
+//////////////////////////////////////////////////////////////////////////////
 QUnit.module('sigplot', {
     setup: function() {
         var plotdiv = document.createElement("div");
@@ -1560,7 +1573,9 @@ test('sigplot raster push smaller than framesize', function() {
     plot.push(0, zeros, null, true);
     equal(hcb.dview.length - hcb.data_free, 1);
 });
-
+//////////////////////////////////////////////////////////////////////////////
+// QUnit 'sigplot-interactive' module
+//////////////////////////////////////////////////////////////////////////////
 QUnit.module('sigplot-interactive', {
     setup: function() {
         ifixture.innerHTML = '';
