@@ -68,6 +68,7 @@
         this.xdata = false; // true if X data is data from file
         this.modified = false;
         this.opacity = 1.0;
+        this.fillStyle = null;
         this.preferred_origin = 1;
 
         this.pointbufsize = 0;
@@ -598,7 +599,11 @@
             var line = 0;
             var traceoptions = {};
 
-            traceoptions.fillStyle = Gx.fillStyle;
+            if (this.fillStyle) {
+                traceoptions.fillStyle = this.fillStyle;
+            } else if (Gx.fillStyle) {
+                traceoptions.fillStyle = Gx.fillStyle;
+            }
             if (this.options) {
                 traceoptions.highlight = this.options.highlight;
                 traceoptions.noclip = this.options.noclip;
