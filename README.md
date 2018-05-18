@@ -10,8 +10,6 @@ applications using HTML5.
 
 Getting Started
 =================
-First include the SigPlot library in your webpage:
-
 ```html
 <html>
   <head>
@@ -25,7 +23,7 @@ First include the SigPlot library in your webpage:
   </head>
   <body>
     <div id="plot"></div>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sigplot@2.0.0-rc2/dist/sigplot-debug.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sigplot/dist/sigplot-debug.js"></script>
     <script type="text/javascript">
       var options = {};
       var plot = new sigplot.Plot(document.getElementById('plot'), options);
@@ -34,7 +32,8 @@ First include the SigPlot library in your webpage:
 </html>
 ```
 
-Additional [examples and demos](http://sigplot.lgsinnovations.com/).
+See (this jsFiddle)[https://jsfiddle.net/ha09baqu/] as an example.  Additional
+[examples and demos](http://sigplot.lgsinnovations.com/).
 
 
 WebPack Quick Start
