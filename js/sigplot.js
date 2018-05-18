@@ -2702,7 +2702,6 @@
                 basefile(this, true);
             }
 
-            var newlayer = Gx.lyr.length;
             var layer = null;
 
             if (layerOptions.layerType === undefined) {
@@ -2738,10 +2737,11 @@
             // And then loading a file.
             changemode(this, Gx.cmode);
 
+            // if this is not the first set of layers added and
+            // we haven't asked for the plot to expand to accomodate
+            // this layers new range, then simply draw the new layer.
             if (!basefiles && !layerOptions.expand) {
-                for (var n = newlayer; n < Gx.lyr.length; n++) {
-                    draw_layer(this, n);
-                }
+                draw_layer(this, layer);
             } else {
                 if (Gx.HCB.length === 0) { // TODO dead code that cannot be reached
                     basefile(this, false);
@@ -3627,12 +3627,7 @@
                     drawaxis_flags);
             }
 
-            for (var n = 0; n < Gx.lyr.length; n++) {
-                //if (Gx.sections !== 0) {
-                // TODO
-                //}
-                draw_layer(this, n);
-            }
+            draw_layers(this);
 
             draw_accessories(this, 4);
 
@@ -6984,6 +6979,16 @@
         }
     }
 
+    function draw_layers(plot) {
+        var layers = plot._Gx.lyr;
+        for (var n = 0; n < layers.length; n++) {
+            //if (Gx.sections !== 0) {
+            // TODO
+            //}
+            draw_layer(plot, layers[n]);
+        }
+    }
+
     /**
      * Draws the specified layer.
      *
@@ -6996,21 +7001,23 @@
      * @private
      * @memberOf sigplot
      */
-    function draw_layer(plot, n) {
+    function draw_layer(plot, layer) {
         var Mx = plot._Mx;
         var Gx = plot._Gx;
 
-        if ((n >= Gx.lyr.length) || (!Gx.lyr[n].display) || (Gx.hold !== 0)) {
+        if ((!layer.display) || (Gx.hold !== 0)) {
             return;
         }
 
-        Gx.lyr[n].draw();
+        layer.draw();
 
+        // TODO consider if this is a source of performance
+        // issues on streaming plots
         var evt = document.createEvent('Event');
         evt.initEvent('lyrdraw', true, true);
-        evt.index = n;
-        evt.name = Gx.lyr[n].name; // the name of the layer
-        evt.layer = Gx.lyr[n];
+        evt.index = layer.index;
+        evt.name = layer.name; // the name of the layer
+        evt.layer = layer;
         mx.dispatchEvent(Mx, evt);
     }
 
