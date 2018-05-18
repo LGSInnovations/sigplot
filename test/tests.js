@@ -2153,6 +2153,121 @@ interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY
         ylab: ["CustomY", "a"]
     });
 });
+interactiveTest('check-xaxis-creep-reload', 'Do you see a pulse staying stationary on the x-axis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    var pulse = [];
+    var pulse_width = 2;
+    var pulse_position = 50;
+    for (var i = 0; i < 100; i++) {
+        if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+            pulse.push(10.0);
+        } else {
+            pulse.push(-10.0);
+        }
+    }
+    plot.overlay_array(pulse, {
+        type: 1000
+    });
+    ifixture.interval = window.setInterval(function() {
+        plot.reload(0, pulse);
+    }, 100);
+});
+interactiveTest('check-xaxis-creep-reload-oddsize', 'Do you see a pulse staying stationary on the x-axis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    var pulse = [];
+    var pulse_width = 2;
+    var pulse_position = 50;
+    for (var i = 0; i < 99; i++) {
+        if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+            pulse.push(10.0);
+        } else {
+            pulse.push(-10.0);
+        }
+    }
+    plot.overlay_array(pulse, {
+        type: 1000
+    });
+    ifixture.interval = window.setInterval(function() {
+        plot.reload(0, pulse);
+    }, 100);
+});
+interactiveTest('check-xaxis-creep-push', 'Do you see a pulse staying stationary on the x-axis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    var pulse = [];
+    var pulse_width = 2;
+    var pulse_position = 50;
+    for (var i = 0; i < 100; i++) {
+        if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+            pulse.push(10.0);
+        } else {
+            pulse.push(-10.0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 100
+    }, {
+        layerType: "1D"
+    });
+    ifixture.interval = window.setInterval(function() {
+        plot.push(0, pulse);
+    }, 100);
+});
+interactiveTest('check-xaxis-creep-push-oddsize', 'Do you see a pulse staying stationary on the x-axis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    var pulse = [];
+    var pulse_width = 2;
+    var pulse_position = 50;
+    for (var i = 0; i < 99; i++) {
+        if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+            pulse.push(10.0);
+        } else {
+            pulse.push(-10.0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 99
+    }, {
+        layerType: "1D"
+    });
+    ifixture.interval = window.setInterval(function() {
+        plot.push(0, pulse);
+    }, 100);
+});
+interactiveTest('check-xaxis-creep-push-partial', 'Do you see a pulse staying stationary on the x-axis?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+    var pulse = [];
+    var pulse_width = 2;
+    var pulse_position = 50;
+    for (var i = 0; i < 100; i++) {
+        if ((i >= pulse_position) && (i < (pulse_position + pulse_width))) {
+            pulse.push(10.0);
+        } else {
+            pulse.push(-10.0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 100
+    }, {
+        layerType: "1D"
+    });
+    ifixture.interval = window.setInterval(function() {
+        plot.push(0, pulse.slice(0, 50));
+        plot.push(0, pulse.slice(50, 100));
+    }, 100);
+});
 interactiveTest('reload', 'Do you see a pulse scrolling right?', function() {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
