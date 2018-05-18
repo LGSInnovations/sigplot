@@ -56,6 +56,14 @@ Array.prototype.remove = function(from, to) {
     return this.push.apply(this, rest);
 };
 
+//Array sortBy
+//From https://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value-in-javascript
+Array.prototype.sortBy = function(p) {
+    return this.slice(0).sort(function(a,b) {
+        return (a[p] > b[p]) ? 1 : (a[p] < b[p]) ? -1 : 0;
+    });
+};
+
 // Shim for requestAnimationFrame compatibility
 window.requestAnimFrame = (function(callback) {
     return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||

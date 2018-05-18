@@ -69,6 +69,7 @@
         this.modified = false;
         this.opacity = 1.0;
         this.fillStyle = null;
+        this.zOrder = null;
         this.preferred_origin = 1;
 
         this.pointbufsize = 0;

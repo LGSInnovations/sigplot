@@ -65,6 +65,7 @@
 
         this.preferred_origin = 4;
         this.opacity = 1;
+        this.zOrder = null;
 
         // LPB is kinda odd right now, since we read the entire file into memory anyways...
         // given that often we are loading from an HREF so there is no downside to this...

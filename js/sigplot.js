@@ -2647,6 +2647,9 @@
             if (executeDefault) {
                 Gx.lyr.push(layer);
                 layer.index = Gx.lyr.length - 1; // the new index of the layer
+                if (layer.zOrder === null) {
+                    layer.zOrder = layer.index;
+                }
                 return true;
             } else {
                 return false;
@@ -6980,7 +6983,7 @@
     }
 
     function draw_layers(plot) {
-        var layers = plot._Gx.lyr;
+        var layers = plot._Gx.lyr.sortBy('zOrder');
         for (var n = 0; n < layers.length; n++) {
             //if (Gx.sections !== 0) {
             // TODO

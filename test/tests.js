@@ -4947,3 +4947,43 @@ interactiveTest('github-issue-3', 'TBD?', function() {
         xmax: 7
     });
 });
+interactiveTest('zOrder layer option', 'Is the red triangle over-top the green triangle with no blue showing?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var layer_1 = plot.overlay_array([1, 2, 3, 4, 5], {}, {
+        color: "red",
+        fillStyle: "red",
+        zOrder: 4
+    });
+    var layer_2 = plot.overlay_array([3, 3, 3, 3, 3], {}, {
+        color: "blue",
+        fillStyle: "blue"
+    });
+    var layer_3 = plot.overlay_array([5, 4, 3, 2, 1], {}, {
+        color: "green",
+        fillStyle: "green"
+    });
+});
+interactiveTest('interactive zOrder', 'Is the red triangle over-top the green triangle with no blue showing?', function() {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    notEqual(plot, null);
+
+    var layer_1 = plot.overlay_array([1, 2, 3, 4, 5], {}, {
+        color: "red",
+        fillStyle: "red"
+    });
+    var layer_2 = plot.overlay_array([3, 3, 3, 3, 3], {}, {
+        color: "blue",
+        fillStyle: "blue"
+    });
+    var layer_3 = plot.overlay_array([5, 4, 3, 2, 1], {}, {
+        color: "green",
+        fillStyle: "green"
+    });
+
+    plot.get_layer(layer_1).zOrder = 4;
+    plot.refresh();
+});
