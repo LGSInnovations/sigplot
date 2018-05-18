@@ -891,7 +891,11 @@
                     layer[layerOption] = layerOptions[layerOption];
                 }
             }
-            plot.add_layer(layer);
+            if (plot.add_layer(layer)) {
+                return layer;
+            } else {
+                return null;
+            }
         }
     };
 

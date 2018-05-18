@@ -2641,12 +2641,15 @@
             // Notify listeners that a file was overlayed
             var evt = document.createEvent('Event');
             evt.initEvent('lyradd', true, true);
-            evt.index = Gx.lyr.length; // the new index of the layer
             evt.name = layer.name; // the name of the layer
             evt.layer = layer;
             var executeDefault = mx.dispatchEvent(Mx, evt);
             if (executeDefault) {
                 Gx.lyr.push(layer);
+                layer.index = Gx.lyr.length - 1; // the new index of the layer
+                return true;
+            } else {
+                return false;
             }
         },
 
@@ -2700,21 +2703,27 @@
             }
 
             var newlayer = Gx.lyr.length;
+            var layer = null;
 
             if (layerOptions.layerType === undefined) {
                 if (hcb["class"] === 1) {
-                    Layer1D.overlay(this, hcb, layerOptions);
+                    layer = Layer1D.overlay(this, hcb, layerOptions);
                 } else if (hcb["class"] === 2) {
-                    Layer2D.overlay(this, hcb, layerOptions);
+                    layer = Layer2D.overlay(this, hcb, layerOptions);
                 }
             } else {
                 if (layerOptions.layerType === "1D") {
-                    Layer1D.overlay(this, hcb, layerOptions);
+                    layer = Layer1D.overlay(this, hcb, layerOptions);
                 } else if (layerOptions.layerType === "2D") {
-                    Layer2D.overlay(this, hcb, layerOptions);
+                    layer = Layer2D.overlay(this, hcb, layerOptions);
                 } else {
-                    layerOptions.layerType.overlay(this, hcb, layerOptions);
+                    layer = layerOptions.layerType.overlay(this, hcb, layerOptions);
                 }
+            }
+
+            if (!layer) {
+                m.log.debug("failed to create layer");
+                return;
             }
 
             // TODO - do we want to alert like the XM plot did?

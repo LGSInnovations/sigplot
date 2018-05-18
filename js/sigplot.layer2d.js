@@ -901,7 +901,11 @@
 
         layer.change_settings(layerOptions);
 
-        plot.add_layer(layer);
+        if (plot.add_layer(layer)) {
+            return layer;
+        } else {
+            return null;
+        }
     };
 
     module.exports = Layer2D;
