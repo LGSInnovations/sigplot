@@ -3465,7 +3465,7 @@
 
             }
 
-            if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0].hcb["class"] === 2)) {
+            if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0] && Gx.lyr[0].hcb["class"] === 2)) {
                 //turn cross hairs on
                 Gx.cross = true;
 
@@ -7282,11 +7282,11 @@
 
         if (Gx.xmrk !== null && Gx.ymrk !== null) {
             var pix = mx.real_to_pixel(Mx, Gx.xmrk, Gx.ymrk);
-            if (Gx.lyr[0].hcb["class"] === 1) {
+            if ((Gx.lyr.length > 0) && (Gx.lyr[0].hcb["class"] === 1)) {
                 if (pix.clipped) {
                     return;
                 }
-            } else if (Gx.lyr[0].hcb["class"] === 2) {
+            } else if ((Gx.lyr.length > 0) && (Gx.lyr[0].hcb["class"] === 2)) {
                 if (pix.clipped_x || !pix.clipped_y) {
                     return;
                 }
@@ -8093,7 +8093,7 @@
         mx.colorbar(Mx, x, y, w, h);
 
         //draw boxes for the p_cuts
-        if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0].hcb["class"] === 2)) {
+        if ((Gx.p_cuts || Gx.enabled_streaming_pcut) && (Gx.lyr[0] && Gx.lyr[0].hcb["class"] === 2)) {
             var plot_height = Mx.b - Mx.t;
             var plot_width = Mx.r - Mx.l;
 
