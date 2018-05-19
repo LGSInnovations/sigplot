@@ -4,12 +4,22 @@
 	<meta charset="utf-8">
 	<title>WebSigPlot Unit Test</title>
 	<link rel="stylesheet" href="../node_modules/qunitjs/qunit/qunit.css">
+        <!-- show all tests, even if they haven't run yet --!>
+        <style>
+            #qunit-tests > li {
+              display: initial;
+            }
+        </style>
 </head>
 <body>
 	<div id="interactive-fixture"></div>
 	<div id="qunit"></div>
 	<div id="qunit-fixture"></div>
 	<script src="../node_modules/qunitjs/qunit/qunit.js"></script>
+        <script>
+        // always run tests in-order
+        QUnit.config.reorder = false;
+        </script>
 	<script src="../dist/sigplot.js"></script>
 	<script src="../dist/sigplot.plugins.js"></script>
 	<script src="tests.js"></script>
