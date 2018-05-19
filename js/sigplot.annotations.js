@@ -112,7 +112,7 @@
                     };
                     if ((annotation.value instanceof HTMLImageElement) ||
                         (annotation.value instanceof HTMLCanvasElement) ||
-                        (annotation.value instanceof HTMLVideoElement)) {
+                        ((typeof HTMLVideoElement !== 'undefined') && annotation.value instanceof HTMLVideoElement)) {
                         // For image, pxl.x and pxl.y are center
                         rect_upperleft.x -= annotation.width / 2;
                         rect_upperleft.y -= annotation.height / 2;
@@ -290,7 +290,7 @@
 
                     if ((annotation.value instanceof HTMLImageElement) ||
                         (annotation.value instanceof HTMLCanvasElement) ||
-                        (annotation.value instanceof HTMLVideoElement)) {
+                        ((typeof HTMLVideoElement !== 'undefined') && annotation.value instanceof HTMLVideoElement)) {
                         annotation.width = annotation.value.width;
                         annotation.height = annotation.value.height;
                         ctx.drawImage(annotation.value, pxl.x - (annotation.width / 2), pxl.y - (annotation.height / 2));
