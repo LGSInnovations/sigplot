@@ -300,12 +300,7 @@
                 if (((Gx.autoz & 2) !== 0)) {
                     Gx.zmax = zmax;
                 }
-                if (Gx.enabled_streaming_pcut) {
-                    //if zbuf not right size, clear and fix
-                    if (this.zbuf.length !== (this.lps * this.hcb.subsize)) {
-                        this.zbuf = [];
-                        this.zbuf = new m.PointArray(this.hcb.subsize * this.lps);
-                    }
+                if (Gx.p_cuts) {
                     if (this.drawmode === "scrolling") {
                         //fill in the next row of data.
                         var start_write = this.position * this.hcb.subsize;
@@ -443,9 +438,29 @@
             if (settings.opacity !== undefined) {
                 this.opacity = settings.opacity;
             }
+            if (settings.p_cuts !== undefined) {
+                var p_cuts = Gx.p_cuts;
+                if (settings.p_cuts === null) {
+                    p_cuts = !p_cuts;
+                } else {
+                    p_cuts = settings.p_cuts;
+                }
+
+                // If p_cuts are enabled from streams, we need to keep the entire zbuf in memory
+                if (this.hcb.pipe) {
+                    if (!p_cuts) {
+                        this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
+                        this.zbuf = new m.PointArray(this.lps * this.hcb.subsize);
+                    } else {
+                        this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
+                        this.zbuf = new m.PointArray(this.hcb.subsize);
+                    }
+                }
+            }
         },
 
         push: function(data, hdrmod, sync) {
+            var Gx = this.plot._Gx;
             var rescale = false;
             var timestamp = null;
             if (hdrmod) {
@@ -458,7 +473,7 @@
                 // If the subsize changes, we need to invalidate the buffer
                 if ((hdrmod.subsize) && (hdrmod.subsize !== this.hcb.subsize)) {
                     this.hcb.subsize = hdrmod.subsize;
-                    if (this.hcb.pipe) {
+                    if (this.hcb.pipe && !Gx.p_cuts) {
                         this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
                         this.zbuf = new m.PointArray(this.hcb.subsize);
 
