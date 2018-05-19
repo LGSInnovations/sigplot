@@ -2,7 +2,7 @@
   "curly": true,
   "eqeqeq": true,
   "immed": true,
-  "latedef": true,
+  "latedef": "nofunc",
   "newcap": true,
   "noarg": true,
   "sub": true,
@@ -15,6 +15,7 @@
   "-W099": true,
   "globals": {
     "UInt8Array": false,
-    "BlueHeader": false
+    "BlueHeader": false,
+    "JSON": true
   }
 }

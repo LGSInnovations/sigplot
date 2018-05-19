@@ -23,7 +23,7 @@
  * under the License.
  */
 
-/* globals QUnit, sigplot, ColorMap, sigplot_plugins, equal, test, strictEqual, asyncTest, notEqual, alert, BlueFileReader, start, ok */
+/* globals QUnit, sigplot, ColorMap, sigplot_plugins, equal, test, strictEqual, asyncTest, notEqual, alert, BlueFileReader, start, ok, throws */
 
 var fixture = document.getElementById("qunit-fixture");
 var ifixture = document.getElementById("interactive-fixture");
