@@ -80,6 +80,7 @@ module.exports = function (grunt) {
             bluefile_debug: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/bluefile.js',
+		maxBuffer: 500,
                 jsOutputFile: 'dist/bluefile-debug.js',
                 options: {
                     formatting: 'PRETTY_PRINT',
@@ -89,6 +90,7 @@ module.exports = function (grunt) {
             matfile_debug: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/matfile.js',
+		maxBuffer: 500,
                 jsOutputFile: 'dist/matfile-debug.js',
                 options: {
                     formatting: 'PRETTY_PRINT',
@@ -98,6 +100,7 @@ module.exports = function (grunt) {
             sigplot_debug: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/sigplot.js',
+		maxBuffer: 500,
                 jsOutputFile: 'dist/sigplot-debug.js',
                 options: {
                     formatting: 'PRETTY_PRINT',
@@ -107,6 +110,7 @@ module.exports = function (grunt) {
             sigplot_plugins_debug: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/sigplot.plugins.js',
+		maxBuffer: 500,
                 jsOutputFile: 'dist/sigplot.plugins-debug.js',
                 options: {
                     formatting: 'PRETTY_PRINT',
@@ -116,6 +120,7 @@ module.exports = function (grunt) {
             bluefile_minimized: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/bluefile.js',
+		maxBuffer: 500,
                 jsOutputFile: 'dist/bluefile-minimized.js',
                 options: {
                     compilation_level: 'SIMPLE_OPTIMIZATIONS'
@@ -124,6 +129,7 @@ module.exports = function (grunt) {
             matfile_minimized: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/matfile.js',
+		maxBuffer: 500,
                 jsOutputFile: 'dist/matfile-minimized.js',
                 options: {
                     compilation_level: 'SIMPLE_OPTIMIZATIONS'
@@ -132,6 +138,7 @@ module.exports = function (grunt) {
             sigplot_minimized: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/sigplot.js',
+		maxBuffer: 500,
                 jsOutputFile: 'dist/sigplot-minimized.js',
                 options: {
                     compilation_level: 'SIMPLE_OPTIMIZATIONS'
@@ -140,6 +147,7 @@ module.exports = function (grunt) {
             sigplot_plugins_minimized: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/sigplot.plugins.js',
+		maxBuffer: 500,
                 jsOutputFile: 'dist/sigplot.plugins-minimized.js',
                 options: {
                     compilation_level: 'SIMPLE_OPTIMIZATIONS'
