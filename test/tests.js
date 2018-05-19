@@ -23,37 +23,47 @@
  * under the License.
  */
 
-/* globals QUnit, sigplot, ColorMap, sigplot_plugins, equal, test, strictEqual, asyncTest, notEqual, alert, BlueFileReader, start, ok, throws */
+/* globals QUnit, sigplot, ColorMap, sigplot_plugins, assert, assert.strictEqual, QUnit.asyncTest, assert.notEqual, alert, BlueFileReader, start, ok, throws */
 
 var fixture = document.getElementById("qunit-fixture");
 var ifixture = document.getElementById("interactive-fixture");
+
+var enableInteractive = true;
+sigplot.m.log.setLevel("trace");
+if (/PhantomJS/.test(window.navigator.userAgent)) {
+    enableInteractive = false;
+    sigplot.m.log.setLevel("error");
+}
 
 function interactiveTest(testName, msg, callback) {
     if (!ifixture) {
         return;
     }
-    var wrapped_callback = function() {
-        QUnit.start();
-        callback();
-        QUnit.stop();
-        var toolbar = document.getElementById("qunit-testrunner-toolbar");
-        var question = document.createElement("div");
-        toolbar.appendChild(question);
-        question.innerHTML = "<input id='askOkYes' type='button' value='Yes'></input>" + "<input id='askOkNo' type='button' value='No'></input>" + "<span>" + msg + "?</span>";
-        var askOkYes = document.getElementById("askOkYes");
-        askOkYes.onclick = function() {
-            question.innerHTML = "";
-            QUnit.push(true, true, true, msg);
-            QUnit.start();
-        };
-        var askOkNo = document.getElementById("askOkNo");
-        askOkNo.onclick = function() {
-            question.innerHTML = "";
-            QUnit.push(false, false, true, msg);
-            QUnit.start();
-        };
+    var wrapped_callback = function(assert) {
+        callback(assert);
+
+        if (enableInteractive) {
+            var done = assert.async();
+
+            var toolbar = document.getElementById("qunit-testrunner-toolbar");
+            var question = document.createElement("div");
+            toolbar.appendChild(question);
+            question.innerHTML = "<input id='askOkYes' type='button' value='Yes'></input>" + "<input id='askOkNo' type='button' value='No'></input>" + "<span>" + msg + "?</span>";
+            var askOkYes = document.getElementById("askOkYes");
+            askOkYes.onclick = function() {
+                question.innerHTML = "";
+                assert.ok(true, msg);
+                done();
+            };
+            var askOkNo = document.getElementById("askOkNo");
+            askOkNo.onclick = function() {
+                question.innerHTML = "";
+                assert.ok(false, msg);
+                done();
+            };
+        }
     };
-    QUnit.test(testName, null, wrapped_callback, true);
+    QUnit.test(testName, wrapped_callback);
 }
 //////////////////////////////////////////////////////////////////////////////
 // QUnit 'm' module
@@ -62,40 +72,40 @@ QUnit.module('m', {
     setup: function() {},
     teardown: function() {}
 });
-test('m sec2tod test', function() {
+QUnit.test('m sec2tod test', function(assert) {
     var secs = 0;
-    equal(sigplot.m.sec2tod(0), "00:00:00.000000");
-    equal(sigplot.m.sec2tod(1), "00:00:01.000000");
-    equal(sigplot.m.sec2tod(60), "00:01:00.000000");
-    equal(sigplot.m.sec2tod(3600), "01:00:00.000000");
-    equal(sigplot.m.sec2tod(43200), "12:00:00.000000");
-    equal(sigplot.m.sec2tod(86399), "23:59:59.000000");
-    equal(sigplot.m.sec2tod(86400), "24:00:00.000000");
-    equal(sigplot.m.sec2tod(86401), "1::00:00:01.000000");
-    equal(sigplot.m.sec2tod(86400 + 43200), "1::12:00:00.000000");
-    equal(sigplot.m.sec2tod(31535999), "364::23:59:59.000000");
-    equal(sigplot.m.sec2tod(31536000), "1951:01:01::00:00:00.000000");
-    equal(sigplot.m.sec2tod(-31535999), "-364::23:59:59.000000");
-    equal(sigplot.m.sec2tod(-31536000), "1949:01:01::00:00:00.000000");
-    equal(sigplot.m.sec2tod(-31536001), "1948:12:31::23:59:59.000000");
-    equal(sigplot.m.sec2tod(0.5), "00:00:00.500000");
-    equal(sigplot.m.sec2tod(-0.5), "-0::00:00:00.500000");
-    equal(sigplot.m.sec2tod(86400.5), "1::00:00:00.500000");
-    equal(sigplot.m.sec2tod(86401.5), "1::00:00:01.500000");
-    equal(sigplot.m.sec2tod(86400.5), "1::00:00:00.500000");
-    equal(sigplot.m.sec2tod(31535999.5), "364::23:59:59.500000");
-    equal(sigplot.m.sec2tod(-31535999.5), "-364::23:59:59.500000");
-    equal(sigplot.m.sec2tod(-31536000.5), "1948:12:31::23:59:59.500000");
-    equal(sigplot.m.sec2tod(-31536001.5), "1948:12:31::23:59:58.500000");
-    equal(sigplot.m.sec2tod(0.5, true), "00:00:00.5");
-    equal(sigplot.m.sec2tod(-0.5, true), "-0::00:00:00.5");
-    equal(sigplot.m.sec2tod(86400.5, true), "1::00:00:00.5");
-    equal(sigplot.m.sec2tod(86401.5, true), "1::00:00:01.5");
-    equal(sigplot.m.sec2tod(86400.5, true), "1::00:00:00.5");
-    equal(sigplot.m.sec2tod(31535999.5, true), "364::23:59:59.5");
-    equal(sigplot.m.sec2tod(-31535999.5, true), "-364::23:59:59.5");
-    equal(sigplot.m.sec2tod(-31536000.5, true), "1948:12:31::23:59:59.5");
-    equal(sigplot.m.sec2tod(-31536001.5, true), "1948:12:31::23:59:58.5");
+    assert.equal(sigplot.m.sec2tod(0), "00:00:00.000000");
+    assert.equal(sigplot.m.sec2tod(1), "00:00:01.000000");
+    assert.equal(sigplot.m.sec2tod(60), "00:01:00.000000");
+    assert.equal(sigplot.m.sec2tod(3600), "01:00:00.000000");
+    assert.equal(sigplot.m.sec2tod(43200), "12:00:00.000000");
+    assert.equal(sigplot.m.sec2tod(86399), "23:59:59.000000");
+    assert.equal(sigplot.m.sec2tod(86400), "24:00:00.000000");
+    assert.equal(sigplot.m.sec2tod(86401), "1::00:00:01.000000");
+    assert.equal(sigplot.m.sec2tod(86400 + 43200), "1::12:00:00.000000");
+    assert.equal(sigplot.m.sec2tod(31535999), "364::23:59:59.000000");
+    assert.equal(sigplot.m.sec2tod(31536000), "1951:01:01::00:00:00.000000");
+    assert.equal(sigplot.m.sec2tod(-31535999), "-364::23:59:59.000000");
+    assert.equal(sigplot.m.sec2tod(-31536000), "1949:01:01::00:00:00.000000");
+    assert.equal(sigplot.m.sec2tod(-31536001), "1948:12:31::23:59:59.000000");
+    assert.equal(sigplot.m.sec2tod(0.5), "00:00:00.500000");
+    assert.equal(sigplot.m.sec2tod(-0.5), "-0::00:00:00.500000");
+    assert.equal(sigplot.m.sec2tod(86400.5), "1::00:00:00.500000");
+    assert.equal(sigplot.m.sec2tod(86401.5), "1::00:00:01.500000");
+    assert.equal(sigplot.m.sec2tod(86400.5), "1::00:00:00.500000");
+    assert.equal(sigplot.m.sec2tod(31535999.5), "364::23:59:59.500000");
+    assert.equal(sigplot.m.sec2tod(-31535999.5), "-364::23:59:59.500000");
+    assert.equal(sigplot.m.sec2tod(-31536000.5), "1948:12:31::23:59:59.500000");
+    assert.equal(sigplot.m.sec2tod(-31536001.5), "1948:12:31::23:59:58.500000");
+    assert.equal(sigplot.m.sec2tod(0.5, true), "00:00:00.5");
+    assert.equal(sigplot.m.sec2tod(-0.5, true), "-0::00:00:00.5");
+    assert.equal(sigplot.m.sec2tod(86400.5, true), "1::00:00:00.5");
+    assert.equal(sigplot.m.sec2tod(86401.5, true), "1::00:00:01.5");
+    assert.equal(sigplot.m.sec2tod(86400.5, true), "1::00:00:00.5");
+    assert.equal(sigplot.m.sec2tod(31535999.5, true), "364::23:59:59.5");
+    assert.equal(sigplot.m.sec2tod(-31535999.5, true), "-364::23:59:59.5");
+    assert.equal(sigplot.m.sec2tod(-31536000.5, true), "1948:12:31::23:59:59.5");
+    assert.equal(sigplot.m.sec2tod(-31536001.5, true), "1948:12:31::23:59:58.5");
 });
 //////////////////////////////////////////////////////////////////////////////
 // QUnit 'ColorMap' module
@@ -104,7 +114,7 @@ QUnit.module('ColorMap', {
     setup: function() {},
     teardown: function() {}
 });
-test('colormap', function() {
+QUnit.test('colormap', function(assert) {
     var map = new ColorMap([{
         pos: 0,
         red: 0,
@@ -142,79 +152,79 @@ test('colormap', function() {
         blue: 0
     }]);
     var color = map.getColor(0);
-    equal(color.red, 0);
-    equal(color.green, 0);
-    equal(color.blue, 38);
-    equal(color.alpha, 255);
-    equal(color.hex, "#000026");
-    equal(color.color, -14286848);
+    assert.equal(color.red, 0);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 38);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#000026");
+    assert.equal(color.color, -14286848);
     color = map.getColor(1);
-    equal(color.red, 255);
-    equal(color.green, 0);
-    equal(color.blue, 0);
-    equal(color.alpha, 255);
-    equal(color.hex, "#ff0000");
-    equal(color.color, -16776961);
+    assert.equal(color.red, 255);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 0);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#ff0000");
+    assert.equal(color.color, -16776961);
     color = map.getColor(0.5);
-    equal(color.red, 0);
-    equal(color.green, 217);
-    equal(color.blue, 0);
-    equal(color.alpha, 255);
-    equal(color.hex, "#00d900");
-    equal(color.color, -16721664);
+    assert.equal(color.red, 0);
+    assert.equal(color.green, 217);
+    assert.equal(color.blue, 0);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#00d900");
+    assert.equal(color.color, -16721664);
     map.setRange(0, 100);
     var color = map.getColor(0);
-    equal(color.red, 0);
-    equal(color.green, 0);
-    equal(color.blue, 38);
-    equal(color.alpha, 255);
-    equal(color.hex, "#000026");
-    equal(color.color, -14286848);
+    assert.equal(color.red, 0);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 38);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#000026");
+    assert.equal(color.color, -14286848);
     color = map.getColor(100);
-    equal(color.red, 255);
-    equal(color.green, 0);
-    equal(color.blue, 0);
-    equal(color.alpha, 255);
-    equal(color.hex, "#ff0000");
-    equal(color.color, -16776961);
+    assert.equal(color.red, 255);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 0);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#ff0000");
+    assert.equal(color.color, -16776961);
     color = map.getColor(50);
-    equal(color.red, 0);
-    equal(color.green, 217);
-    equal(color.blue, 0);
-    equal(color.alpha, 255);
-    equal(color.hex, "#00d900");
-    equal(color.color, -16721664);
+    assert.equal(color.red, 0);
+    assert.equal(color.green, 217);
+    assert.equal(color.blue, 0);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#00d900");
+    assert.equal(color.color, -16721664);
 
     var map = new ColorMap(["#000026", "#ff0000"]);
     var color = map.getColor(0);
-    equal(color.red, 0);
-    equal(color.green, 0);
-    equal(color.blue, 38);
-    equal(color.alpha, 255);
-    equal(color.hex, "#000026");
-    equal(color.color, -14286848);
+    assert.equal(color.red, 0);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 38);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#000026");
+    assert.equal(color.color, -14286848);
     color = map.getColor(1);
-    equal(color.red, 255);
-    equal(color.green, 0);
-    equal(color.blue, 0);
-    equal(color.alpha, 255);
-    equal(color.hex, "#ff0000");
-    equal(color.color, -16776961);
+    assert.equal(color.red, 255);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 0);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#ff0000");
+    assert.equal(color.color, -16776961);
     map.setRange(0, 100);
     var color = map.getColor(0);
-    equal(color.red, 0);
-    equal(color.green, 0);
-    equal(color.blue, 38);
-    equal(color.alpha, 255);
-    equal(color.hex, "#000026");
-    equal(color.color, -14286848);
+    assert.equal(color.red, 0);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 38);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#000026");
+    assert.equal(color.color, -14286848);
     color = map.getColor(100);
-    equal(color.red, 255);
-    equal(color.green, 0);
-    equal(color.blue, 0);
-    equal(color.alpha, 255);
-    equal(color.hex, "#ff0000");
-    equal(color.color, -16776961);
+    assert.equal(color.red, 255);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 0);
+    assert.equal(color.alpha, 255);
+    assert.equal(color.hex, "#ff0000");
+    assert.equal(color.color, -16776961);
 
 
 });
@@ -225,14 +235,14 @@ QUnit.module('mx', {
     setup: function() {},
     teardown: function() {}
 });
-test('mx format_f', function() {
+QUnit.test('mx format_f', function(assert) {
     // the toFixed() function is limited to 0-20
-    equal(sigplot.mx.format_f(1.0, 0, -1), "1");
-    equal(sigplot.mx.format_f(1.0, 0, 21), "1.00000000000000000000");
-    equal(sigplot.mx.format_f(1.0, 0, 1), "1.0");
-    equal(sigplot.mx.format_f(1.0, 0, 20), "1.00000000000000000000");
+    assert.equal(sigplot.mx.format_f(1.0, 0, -1), "1");
+    assert.equal(sigplot.mx.format_f(1.0, 0, 21), "1.00000000000000000000");
+    assert.equal(sigplot.mx.format_f(1.0, 0, 1), "1.0");
+    assert.equal(sigplot.mx.format_f(1.0, 0, 20), "1.00000000000000000000");
 });
-test('mx real_to_pixel test', function() {
+QUnit.test('mx real_to_pixel test', function(assert) {
     var Mx = {
         origin: 1,
         x: 0,
@@ -252,33 +262,33 @@ test('mx real_to_pixel test', function() {
         }]
     };
     var result = sigplot.mx.real_to_pixel(Mx, 0, 0);
-    equal(result.x, 100);
-    equal(result.y, 100);
-    equal(result.clipped, false);
+    assert.equal(result.x, 100);
+    assert.equal(result.y, 100);
+    assert.equal(result.clipped, false);
     var result = sigplot.mx.real_to_pixel(Mx, 1, 1);
-    equal(result.x, 200);
-    equal(result.y, 0);
-    equal(result.clipped, false);
+    assert.equal(result.x, 200);
+    assert.equal(result.y, 0);
+    assert.equal(result.clipped, false);
     var result = sigplot.mx.real_to_pixel(Mx, -1, -1);
-    equal(result.x, 0);
-    equal(result.y, 200);
-    equal(result.clipped, false);
+    assert.equal(result.x, 0);
+    assert.equal(result.y, 200);
+    assert.equal(result.clipped, false);
     var result = sigplot.mx.real_to_pixel(Mx, 1.5, 1);
-    equal(result.x, 250);
-    equal(result.y, 0);
-    equal(result.clipped, true);
+    assert.equal(result.x, 250);
+    assert.equal(result.y, 0);
+    assert.equal(result.clipped, true);
     var result = sigplot.mx.real_to_pixel(Mx, -1, -1.5);
-    equal(result.x, 0);
-    equal(result.y, 250);
-    equal(result.clipped, true);
+    assert.equal(result.x, 0);
+    assert.equal(result.y, 250);
+    assert.equal(result.clipped, true);
     var result = sigplot.mx.real_to_pixel(Mx, 1.5, 1, true);
-    equal(result.x, 200);
-    equal(result.y, 0);
-    equal(result.clipped, true);
+    assert.equal(result.x, 200);
+    assert.equal(result.y, 0);
+    assert.equal(result.clipped, true);
     var result = sigplot.mx.real_to_pixel(Mx, -1, -1.5, true);
-    equal(result.x, 0);
-    equal(result.y, 200);
-    equal(result.clipped, true);
+    assert.equal(result.x, 0);
+    assert.equal(result.y, 200);
+    assert.equal(result.clipped, true);
 });
 //////////////////////////////////////////////////////////////////////////////
 // QUnit 'bluefile' module
@@ -287,49 +297,53 @@ QUnit.module('bluefile', {
     setup: function() {},
     teardown: function() {}
 });
-asyncTest('int data', function() {
+QUnit.test('int data', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader();
     bfr.read_http("dat/ramp.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
-        equal(hdr.buf.byteLength, 2560, "buf correct size");
-        //equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
-        equal(hdr.dview.length, 1024, "dview correct size");
-        strictEqual(hdr.file_name, "ramp.tmp", "correct file name");
-        strictEqual(hdr.version, "BLUE", "correct version");
-        strictEqual(hdr.headrep, "EEEI", "correct header rep");
-        strictEqual(hdr.datarep, "EEEI", "correct data rep");
-        strictEqual(hdr.timecode, 0, "correct timecode");
-        strictEqual(hdr.type, 1000, "correct type");
-        strictEqual(hdr["class"], 1, "correct class");
-        strictEqual(hdr.format, "SI", "correct format");
-        strictEqual(hdr.spa, 1, "correct spa");
-        strictEqual(hdr.bps, 2, "correct bps");
-        strictEqual(hdr.bpa, 2, "correct bpa");
-        strictEqual(hdr.ape, 1, "correct ape");
-        strictEqual(hdr.bpe, 2, "correct bpe");
-        strictEqual(hdr.size, 1024, "correct size");
-        strictEqual(hdr.xstart, 0.0, "correct xstart");
-        strictEqual(hdr.xdelta, 1.0, "correct xdelta");
-        strictEqual(hdr.xunits, 1, "correct xunits");
-        strictEqual(hdr.subsize, 1, "correct subsize");
-        equal(hdr.ystart, undefined);
-        equal(hdr.yelta, undefined);
-        equal(hdr.yunits, 0);
-        strictEqual(hdr.data_start, 512.0, "correct data_start");
-        strictEqual(hdr.data_size, 2048, "correct data_size");
-        equal(hdr.dview[0], 0);
-        equal(hdr.dview[1], 1);
-        equal(hdr.dview[2], 2);
-        equal(hdr.dview[1021], 1021);
-        equal(hdr.dview[1022], 1022);
-        equal(hdr.dview[1023], 1023);
-        start();
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        assert.equal(hdr.buf.byteLength, 2560, "buf correct size");
+        //assert.equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
+        assert.equal(hdr.dview.length, 1024, "dview correct size");
+        assert.strictEqual(hdr.file_name, "ramp.tmp", "correct file name");
+        assert.strictEqual(hdr.version, "BLUE", "correct version");
+        assert.strictEqual(hdr.headrep, "EEEI", "correct header rep");
+        assert.strictEqual(hdr.datarep, "EEEI", "correct data rep");
+        assert.strictEqual(hdr.timecode, 0, "correct timecode");
+        assert.strictEqual(hdr.type, 1000, "correct type");
+        assert.strictEqual(hdr["class"], 1, "correct class");
+        assert.strictEqual(hdr.format, "SI", "correct format");
+        assert.strictEqual(hdr.spa, 1, "correct spa");
+        assert.strictEqual(hdr.bps, 2, "correct bps");
+        assert.strictEqual(hdr.bpa, 2, "correct bpa");
+        assert.strictEqual(hdr.ape, 1, "correct ape");
+        assert.strictEqual(hdr.bpe, 2, "correct bpe");
+        assert.strictEqual(hdr.size, 1024, "correct size");
+        assert.strictEqual(hdr.xstart, 0.0, "correct xstart");
+        assert.strictEqual(hdr.xdelta, 1.0, "correct xdelta");
+        assert.strictEqual(hdr.xunits, 1, "correct xunits");
+        assert.strictEqual(hdr.subsize, 1, "correct subsize");
+        assert.equal(hdr.ystart, undefined);
+        assert.equal(hdr.yelta, undefined);
+        assert.equal(hdr.yunits, 0);
+        assert.strictEqual(hdr.data_start, 512.0, "correct data_start");
+        assert.strictEqual(hdr.data_size, 2048, "correct data_size");
+        assert.equal(hdr.dview[0], 0);
+        assert.equal(hdr.dview[1], 1);
+        assert.equal(hdr.dview[2], 2);
+        assert.equal(hdr.dview[1021], 1021);
+        assert.equal(hdr.dview[1022], 1022);
+        assert.equal(hdr.dview[1023], 1023);
+        done();
     });
 });
-asyncTest('Ascii Keywords', function() {
+QUnit.test('Ascii Keywords', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader();
     bfr.read_http("dat/lots_of_keywords.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var i = 1;
         var strpad = "";
         while (i <= 100) {
@@ -350,20 +364,22 @@ asyncTest('Ascii Keywords', function() {
             if ((i > 50) && (i <= 100)) {
                 value += " ";
             }
-            equal(
+            assert.equal(
                 hdr.ext_header[key],
                 value,
                 key + " = " + hdr.ext_header[key]
             );
             i++;
         }
-        start();
+        done();
     });
 });
-asyncTest('All Keywords as JSON (default)', function() {
+QUnit.test('All Keywords as JSON (default)', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader(); //defaults are to use dict
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var keywords = {
             B_TEST: 123,
             I_TEST: 1337,
@@ -377,21 +393,23 @@ asyncTest('All Keywords as JSON (default)', function() {
             STRING_TEST2: "Goodbye World"
         };
         for (var prop in keywords) {
-            equal(
+            assert.equal(
                 hdr.ext_header[prop],
                 keywords[prop],
                 "Keyword " + prop + " correct = " + keywords[prop]
             );
         }
-        start();
+        done();
     });
 });
-asyncTest('All Keywords as JSON (json)', function() {
+QUnit.test('All Keywords as JSON (json)', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader({
         ext_header_type: "json"
     });
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var keywords = {
             B_TEST: 123,
             I_TEST: 1337,
@@ -405,21 +423,23 @@ asyncTest('All Keywords as JSON (json)', function() {
             STRING_TEST2: "Goodbye World"
         };
         for (var prop in keywords) {
-            equal(
+            assert.equal(
                 hdr.ext_header[prop],
                 keywords[prop],
                 "Keyword " + prop + " correct = " + keywords[prop]
             );
         }
-        start();
+        done();
     });
 });
-asyncTest('All Keywords as JSON (dict)', function() {
+QUnit.test('All Keywords as JSON (dict)', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader({
         ext_header_type: "dict"
     });
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var keywords = {
             B_TEST: 123,
             I_TEST: 1337,
@@ -433,21 +453,23 @@ asyncTest('All Keywords as JSON (dict)', function() {
             STRING_TEST2: "Goodbye World"
         };
         for (var prop in keywords) {
-            equal(
+            assert.equal(
                 hdr.ext_header[prop],
                 keywords[prop],
                 "Keyword " + prop + " correct = " + keywords[prop]
             );
         }
-        start();
+        done();
     });
 });
-asyncTest('All Keywords as JSON ({})', function() {
+QUnit.test('All Keywords as JSON ({})', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader({
         ext_header_type: {}
     });
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var keywords = {
             B_TEST: 123,
             I_TEST: 1337,
@@ -461,21 +483,23 @@ asyncTest('All Keywords as JSON ({})', function() {
             STRING_TEST2: "Goodbye World"
         };
         for (var prop in keywords) {
-            equal(
+            assert.equal(
                 hdr.ext_header[prop],
                 keywords[prop],
                 "Keyword " + prop + " correct = " + keywords[prop]
             );
         }
-        start();
+        done();
     });
 });
-asyncTest('All Keywords as Array (list)', function() {
+QUnit.test('All Keywords as Array (list)', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader({
         ext_header_type: "list"
     });
     bfr.read_http("dat/keyword_test_file.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
         var keywords = [{
             "tag": "B_TEST",
             "value": 123
@@ -508,234 +532,238 @@ asyncTest('All Keywords as Array (list)', function() {
             "value": "Goodbye World"
         }];
         for (var i = 0; i < keywords.length; i++) {
-            equal(hdr.ext_header[i].tag, keywords[i].tag, "Keyword " + i + " tag " + hdr.ext_header[i].tag + " = " + keywords[i].tag);
-            equal(hdr.ext_header[i].value, keywords[i].value, "Keyword " + i + " value " + hdr.ext_header[i].value + " = " + keywords[i].value);
+            assert.equal(hdr.ext_header[i].tag, keywords[i].tag, "Keyword " + i + " tag " + hdr.ext_header[i].tag + " = " + keywords[i].tag);
+            assert.equal(hdr.ext_header[i].value, keywords[i].value, "Keyword " + i + " value " + hdr.ext_header[i].value + " = " + keywords[i].value);
         }
-        start();
+        done();
     });
 });
-asyncTest('double data', function() {
+QUnit.test('double data', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader();
     bfr.read_http("dat/sin.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
-        equal(hdr.buf.byteLength, 33280, "buf correct size");
-        //equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
-        equal(hdr.dview.length, 4096, "dview correct size");
-        strictEqual(hdr.file_name, "sin.tmp", "correct file name");
-        strictEqual(hdr.version, "BLUE", "correct version");
-        strictEqual(hdr.headrep, "EEEI", "correct header rep");
-        strictEqual(hdr.datarep, "EEEI", "correct data rep");
-        strictEqual(hdr.timecode, 0, "correct timecode");
-        strictEqual(hdr.type, 1000, "correct type");
-        strictEqual(hdr["class"], 1, "correct class");
-        strictEqual(hdr.format, "SD", "correct format");
-        strictEqual(hdr.spa, 1, "correct spa");
-        strictEqual(hdr.bps, 8, "correct bps");
-        strictEqual(hdr.bpa, 8, "correct bpa");
-        strictEqual(hdr.ape, 1, "correct ape");
-        strictEqual(hdr.bpe, 8, "correct bpe");
-        strictEqual(hdr.size, 4096, "correct size");
-        strictEqual(hdr.xstart, 0.0, "correct xstart");
-        strictEqual(hdr.xdelta, 1.0, "correct xdelta");
-        strictEqual(hdr.xunits, 0, "correct xunits");
-        strictEqual(hdr.subsize, 1, "correct subsize");
-        equal(hdr.ystart, undefined);
-        equal(hdr.yelta, undefined);
-        equal(hdr.yunits, 0);
-        strictEqual(hdr.data_start, 512.0, "correct data_start");
-        strictEqual(hdr.data_size, 32768, "correct data_size");
-        equal(hdr.dview[0], 1);
-        equal(hdr.dview[1], 0.9980267284282716);
-        equal(hdr.dview[2], 0.9921147013144778);
-        equal(hdr.dview[4093], 0.9048270524660175);
-        equal(hdr.dview[4094], 0.9297764858882493);
-        equal(hdr.dview[4095], 0.9510565162951516);
-        start();
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        assert.equal(hdr.buf.byteLength, 33280, "buf correct size");
+        //assert.equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
+        assert.equal(hdr.dview.length, 4096, "dview correct size");
+        assert.strictEqual(hdr.file_name, "sin.tmp", "correct file name");
+        assert.strictEqual(hdr.version, "BLUE", "correct version");
+        assert.strictEqual(hdr.headrep, "EEEI", "correct header rep");
+        assert.strictEqual(hdr.datarep, "EEEI", "correct data rep");
+        assert.strictEqual(hdr.timecode, 0, "correct timecode");
+        assert.strictEqual(hdr.type, 1000, "correct type");
+        assert.strictEqual(hdr["class"], 1, "correct class");
+        assert.strictEqual(hdr.format, "SD", "correct format");
+        assert.strictEqual(hdr.spa, 1, "correct spa");
+        assert.strictEqual(hdr.bps, 8, "correct bps");
+        assert.strictEqual(hdr.bpa, 8, "correct bpa");
+        assert.strictEqual(hdr.ape, 1, "correct ape");
+        assert.strictEqual(hdr.bpe, 8, "correct bpe");
+        assert.strictEqual(hdr.size, 4096, "correct size");
+        assert.strictEqual(hdr.xstart, 0.0, "correct xstart");
+        assert.strictEqual(hdr.xdelta, 1.0, "correct xdelta");
+        assert.strictEqual(hdr.xunits, 0, "correct xunits");
+        assert.strictEqual(hdr.subsize, 1, "correct subsize");
+        assert.equal(hdr.ystart, undefined);
+        assert.equal(hdr.yelta, undefined);
+        assert.equal(hdr.yunits, 0);
+        assert.strictEqual(hdr.data_start, 512.0, "correct data_start");
+        assert.strictEqual(hdr.data_size, 32768, "correct data_size");
+        assert.equal(hdr.dview[0], 1);
+        assert.equal(hdr.dview[1], 0.9980267284282716);
+        assert.equal(hdr.dview[2], 0.9921147013144778);
+        assert.equal(hdr.dview[4093], 0.9048270524660175);
+        assert.equal(hdr.dview[4094], 0.9297764858882493);
+        assert.equal(hdr.dview[4095], 0.9510565162951516);
+        done();
     });
 });
-asyncTest('complex float data', function() {
+QUnit.test('complex float data', function(assert) {
+    var done = assert.async();
+
     var bfr = new sigplot.bluefile.BlueFileReader();
     bfr.read_http("dat/pulse_cx.tmp", function(hdr) {
-        //equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
-        equal(hdr.buf.byteLength, 131584, "buf correct size");
-        //equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
-        equal(hdr.dview.length, 400, "dview correct size");
-        strictEqual(hdr.file_name, "pulse_cx.tmp", "correct file name");
-        strictEqual(hdr.version, "BLUE", "correct version");
-        strictEqual(hdr.headrep, "EEEI", "correct header rep");
-        strictEqual(hdr.datarep, "EEEI", "correct data rep");
-        strictEqual(hdr.timecode, 0, "correct timecode");
-        strictEqual(hdr.type, 1000, "correct type");
-        strictEqual(hdr["class"], 1, "correct class");
-        strictEqual(hdr.format, "CF", "correct format");
-        strictEqual(hdr.spa, 2, "correct spa");
-        strictEqual(hdr.bps, 4, "correct bps");
-        strictEqual(hdr.bpa, 8, "correct bpa");
-        strictEqual(hdr.ape, 1, "correct ape");
-        strictEqual(hdr.bpe, 8, "correct bpe");
-        strictEqual(hdr.size, 200, "correct size");
-        strictEqual(hdr.xstart, 0.0, "correct xstart");
-        strictEqual(hdr.xdelta, 1.0, "correct xdelta");
-        strictEqual(hdr.xunits, 1, "correct xunits");
-        strictEqual(hdr.subsize, 1, "correct subsize");
-        equal(hdr.ystart, undefined);
-        equal(hdr.yelta, undefined);
-        equal(hdr.yunits, 0);
-        strictEqual(hdr.data_start, 512.0, "correct data_start");
-        strictEqual(hdr.data_size, 1600, "correct data_size");
-        start();
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        assert.equal(hdr.buf.byteLength, 131584, "buf correct size");
+        //assert.equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
+        assert.equal(hdr.dview.length, 400, "dview correct size");
+        assert.strictEqual(hdr.file_name, "pulse_cx.tmp", "correct file name");
+        assert.strictEqual(hdr.version, "BLUE", "correct version");
+        assert.strictEqual(hdr.headrep, "EEEI", "correct header rep");
+        assert.strictEqual(hdr.datarep, "EEEI", "correct data rep");
+        assert.strictEqual(hdr.timecode, 0, "correct timecode");
+        assert.strictEqual(hdr.type, 1000, "correct type");
+        assert.strictEqual(hdr["class"], 1, "correct class");
+        assert.strictEqual(hdr.format, "CF", "correct format");
+        assert.strictEqual(hdr.spa, 2, "correct spa");
+        assert.strictEqual(hdr.bps, 4, "correct bps");
+        assert.strictEqual(hdr.bpa, 8, "correct bpa");
+        assert.strictEqual(hdr.ape, 1, "correct ape");
+        assert.strictEqual(hdr.bpe, 8, "correct bpe");
+        assert.strictEqual(hdr.size, 200, "correct size");
+        assert.strictEqual(hdr.xstart, 0.0, "correct xstart");
+        assert.strictEqual(hdr.xdelta, 1.0, "correct xdelta");
+        assert.strictEqual(hdr.xunits, 1, "correct xunits");
+        assert.strictEqual(hdr.subsize, 1, "correct subsize");
+        assert.equal(hdr.ystart, undefined);
+        assert.equal(hdr.yelta, undefined);
+        assert.equal(hdr.yunits, 0);
+        assert.strictEqual(hdr.data_start, 512.0, "correct data_start");
+        assert.strictEqual(hdr.data_size, 1600, "correct data_size");
+        done();
     });
 });
-test('create type1000', function() {
+QUnit.test('create type1000', function(assert) {
     //var hcb = sigplot.m.initialize([1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0], {file_name :"newFile"});
     var rdbuf = new ArrayBuffer(64);
     var rdview = new Float32Array(rdbuf);
     var hcb = sigplot.m.initialize(rdview, {
         file_name: "newFile"
     });
-    notEqual(hcb.pipe, true); //#1
-    equal(hcb.file_name, "newFile"); //#2
-    equal(hcb.format, "SF"); //#3
-    equal(hcb.type, 1000); //#4
-    equal(hcb.dview.BYTES_PER_ELEMENT, 4); //#5
-    equal(hcb.dview.length, 16); //#6
+    assert.notEqual(hcb.pipe, true); //#1
+    assert.equal(hcb.file_name, "newFile"); //#2
+    assert.equal(hcb.format, "SF"); //#3
+    assert.equal(hcb.type, 1000); //#4
+    assert.equal(hcb.dview.BYTES_PER_ELEMENT, 4); //#5
+    assert.equal(hcb.dview.length, 16); //#6
     hcb.dview = [1, 2, 3];
     //sigplot.m.filad(hcb, rdview);
-    //equal(hcb.data_free, 0);              //#7
-    equal(hcb.dview[0], 1.0); //#8
-    equal(hcb.dview[1], 2.0); //#8
-    equal(hcb.dview[2], 3.0); //#8
+    //assert.equal(hcb.data_free, 0);              //#7
+    assert.equal(hcb.dview[0], 1.0); //#8
+    assert.equal(hcb.dview[1], 2.0); //#8
+    assert.equal(hcb.dview[2], 3.0); //#8
 });
-test('bluefile pipe basics', function() {
+QUnit.test('bluefile pipe basics', function(assert) {
     var hcb = sigplot.m.initialize([], {
         pipe: true,
         pipesize: 16
     });
-    equal(hcb.pipe, true);
-    equal(hcb.in_byte, 0);
-    equal(hcb.out_byte, 0);
-    equal(hcb.format, "SF");
-    equal(hcb.type, 1000);
-    equal(hcb.dview.BYTES_PER_ELEMENT, 4);
-    notEqual(hcb.buf, undefined);
-    notEqual(hcb.dview, undefined);
-    equal(hcb.buf.byteLength, 16);
+    assert.equal(hcb.pipe, true);
+    assert.equal(hcb.in_byte, 0);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.format, "SF");
+    assert.equal(hcb.type, 1000);
+    assert.equal(hcb.dview.BYTES_PER_ELEMENT, 4);
+    assert.notEqual(hcb.buf, undefined);
+    assert.notEqual(hcb.dview, undefined);
+    assert.equal(hcb.buf.byteLength, 16);
     var rdbuf = new ArrayBuffer(8);
     var rdview = new Float32Array(rdbuf);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 0);
-    equal(hcb.out_byte, 0);
-    equal(hcb.data_free, 4);
+    assert.equal(ngot, 0);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.data_free, 4);
     sigplot.m.filad(hcb, [1.0, 2.0]);
-    equal(hcb.in_byte, 8);
-    equal(hcb.out_byte, 0);
-    equal(hcb.dview[0], 1.0);
-    equal(hcb.dview[1], 2.0);
-    equal(hcb.data_free, 2);
+    assert.equal(hcb.in_byte, 8);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.dview[0], 1.0);
+    assert.equal(hcb.dview[1], 2.0);
+    assert.equal(hcb.data_free, 2);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 2);
-    equal(hcb.out_byte, 8);
-    equal(rdview[0], 1.0);
-    equal(rdview[1], 2.0);
-    equal(hcb.data_free, 4);
+    assert.equal(ngot, 2);
+    assert.equal(hcb.out_byte, 8);
+    assert.equal(rdview[0], 1.0);
+    assert.equal(rdview[1], 2.0);
+    assert.equal(hcb.data_free, 4);
     sigplot.m.filad(hcb, [3.0, 4.0]);
-    equal(hcb.in_byte, 0);
-    equal(hcb.dview[2], 3.0);
-    equal(hcb.dview[3], 4.0);
-    equal(hcb.data_free, 2);
+    assert.equal(hcb.in_byte, 0);
+    assert.equal(hcb.dview[2], 3.0);
+    assert.equal(hcb.dview[3], 4.0);
+    assert.equal(hcb.data_free, 2);
     sigplot.m.filad(hcb, [5.0, 6.0]);
-    equal(hcb.in_byte, 8);
-    equal(hcb.dview[0], 5.0);
-    equal(hcb.dview[1], 6.0);
-    equal(hcb.data_free, 0);
+    assert.equal(hcb.in_byte, 8);
+    assert.equal(hcb.dview[0], 5.0);
+    assert.equal(hcb.dview[1], 6.0);
+    assert.equal(hcb.data_free, 0);
     rdbuf = new ArrayBuffer(16);
     rdview = new Float32Array(rdbuf);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 4);
-    equal(hcb.out_byte, 8);
-    equal(rdview[0], 3.0);
-    equal(rdview[1], 4.0);
-    equal(rdview[2], 5.0);
-    equal(rdview[3], 6.0);
-    equal(hcb.data_free, 4);
+    assert.equal(ngot, 4);
+    assert.equal(hcb.out_byte, 8);
+    assert.equal(rdview[0], 3.0);
+    assert.equal(rdview[1], 4.0);
+    assert.equal(rdview[2], 5.0);
+    assert.equal(rdview[3], 6.0);
+    assert.equal(hcb.data_free, 4);
     sigplot.m.filad(hcb, [7.0, 8.0, 9.0, 10.0]);
-    equal(hcb.in_byte, 8);
-    equal(hcb.dview[0], 9.0);
-    equal(hcb.dview[1], 10.0);
-    equal(hcb.dview[2], 7.0);
-    equal(hcb.dview[3], 8.0);
-    throws(function() {
+    assert.equal(hcb.in_byte, 8);
+    assert.equal(hcb.dview[0], 9.0);
+    assert.equal(hcb.dview[1], 10.0);
+    assert.equal(hcb.dview[2], 7.0);
+    assert.equal(hcb.dview[3], 8.0);
+    assert.throws(function() {
         sigplot.m.filad(hcb, [11.0, 12.0]);
     }, "pipe full");
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 4);
-    equal(hcb.out_byte, 8);
-    equal(rdview[0], 7.0);
-    equal(rdview[1], 8.0);
-    equal(rdview[2], 9.0);
-    equal(rdview[3], 10.0);
-    equal(hcb.data_free, 4);
+    assert.equal(ngot, 4);
+    assert.equal(hcb.out_byte, 8);
+    assert.equal(rdview[0], 7.0);
+    assert.equal(rdview[1], 8.0);
+    assert.equal(rdview[2], 9.0);
+    assert.equal(rdview[3], 10.0);
+    assert.equal(hcb.data_free, 4);
 });
-test('bluefile pipe basics (typed array)', function() {
+QUnit.test('bluefile pipe basics (typed array)', function(assert) {
     var hcb = sigplot.m.initialize([], {
         pipe: true,
         pipesize: 16
     });
-    equal(hcb.pipe, true);
-    equal(hcb.in_byte, 0);
-    equal(hcb.out_byte, 0);
-    equal(hcb.format, "SF");
-    equal(hcb.type, 1000);
-    equal(hcb.dview.BYTES_PER_ELEMENT, 4);
-    notEqual(hcb.buf, undefined);
-    notEqual(hcb.dview, undefined);
-    equal(hcb.buf.byteLength, 16);
+    assert.equal(hcb.pipe, true);
+    assert.equal(hcb.in_byte, 0);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.format, "SF");
+    assert.equal(hcb.type, 1000);
+    assert.equal(hcb.dview.BYTES_PER_ELEMENT, 4);
+    assert.notEqual(hcb.buf, undefined);
+    assert.notEqual(hcb.dview, undefined);
+    assert.equal(hcb.buf.byteLength, 16);
     var rdbuf = new ArrayBuffer(8);
     var rdview = new Float32Array(rdbuf);
     var wrbuf = new ArrayBuffer(8);
     var wrview = new Float32Array(wrbuf);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 0);
-    equal(hcb.out_byte, 0);
-    equal(hcb.data_free, 4);
+    assert.equal(ngot, 0);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.data_free, 4);
     wrview[0] = 1.0;
     wrview[1] = 2.0;
     sigplot.m.filad(hcb, wrview);
-    equal(hcb.in_byte, 8);
-    equal(hcb.out_byte, 0);
-    equal(hcb.dview[0], 1.0);
-    equal(hcb.dview[1], 2.0);
-    equal(hcb.data_free, 2);
+    assert.equal(hcb.in_byte, 8);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.dview[0], 1.0);
+    assert.equal(hcb.dview[1], 2.0);
+    assert.equal(hcb.data_free, 2);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 2);
-    equal(hcb.out_byte, 8);
-    equal(rdview[0], 1.0);
-    equal(rdview[1], 2.0);
-    equal(hcb.data_free, 4);
+    assert.equal(ngot, 2);
+    assert.equal(hcb.out_byte, 8);
+    assert.equal(rdview[0], 1.0);
+    assert.equal(rdview[1], 2.0);
+    assert.equal(hcb.data_free, 4);
     wrview[0] = 3.0;
     wrview[1] = 4.0;
     sigplot.m.filad(hcb, wrview);
-    equal(hcb.in_byte, 0);
-    equal(hcb.dview[2], 3.0);
-    equal(hcb.dview[3], 4.0);
-    equal(hcb.data_free, 2);
+    assert.equal(hcb.in_byte, 0);
+    assert.equal(hcb.dview[2], 3.0);
+    assert.equal(hcb.dview[3], 4.0);
+    assert.equal(hcb.data_free, 2);
     wrview[0] = 5.0;
     wrview[1] = 6.0;
     sigplot.m.filad(hcb, wrview);
-    equal(hcb.in_byte, 8);
-    equal(hcb.dview[0], 5.0);
-    equal(hcb.dview[1], 6.0);
-    equal(hcb.data_free, 0);
+    assert.equal(hcb.in_byte, 8);
+    assert.equal(hcb.dview[0], 5.0);
+    assert.equal(hcb.dview[1], 6.0);
+    assert.equal(hcb.data_free, 0);
     rdbuf = new ArrayBuffer(16);
     rdview = new Float32Array(rdbuf);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 4);
-    equal(hcb.out_byte, 8);
-    equal(rdview[0], 3.0);
-    equal(rdview[1], 4.0);
-    equal(rdview[2], 5.0);
-    equal(rdview[3], 6.0);
-    equal(hcb.data_free, 4);
+    assert.equal(ngot, 4);
+    assert.equal(hcb.out_byte, 8);
+    assert.equal(rdview[0], 3.0);
+    assert.equal(rdview[1], 4.0);
+    assert.equal(rdview[2], 5.0);
+    assert.equal(rdview[3], 6.0);
+    assert.equal(hcb.data_free, 4);
     var wrbuf = new ArrayBuffer(16);
     var wrview = new Float32Array(wrbuf);
     wrview[0] = 7.0;
@@ -743,28 +771,28 @@ test('bluefile pipe basics (typed array)', function() {
     wrview[2] = 9.0;
     wrview[3] = 10.0;
     sigplot.m.filad(hcb, wrview);
-    equal(hcb.in_byte, 8);
-    equal(hcb.dview[0], 9.0);
-    equal(hcb.dview[1], 10.0);
-    equal(hcb.dview[2], 7.0);
-    equal(hcb.dview[3], 8.0);
+    assert.equal(hcb.in_byte, 8);
+    assert.equal(hcb.dview[0], 9.0);
+    assert.equal(hcb.dview[1], 10.0);
+    assert.equal(hcb.dview[2], 7.0);
+    assert.equal(hcb.dview[3], 8.0);
     var wrbuf = new ArrayBuffer(8);
     var wrview = new Float32Array(wrbuf);
     wrview[0] = 11.0;
     wrview[1] = 12.0;
-    throws(function() {
+    assert.throws(function() {
         sigplot.m.filad(hcb, wrview);
     }, "pipe full");
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 4);
-    equal(hcb.out_byte, 8);
-    equal(rdview[0], 7.0);
-    equal(rdview[1], 8.0);
-    equal(rdview[2], 9.0);
-    equal(rdview[3], 10.0);
-    equal(hcb.data_free, 4);
+    assert.equal(ngot, 4);
+    assert.equal(hcb.out_byte, 8);
+    assert.equal(rdview[0], 7.0);
+    assert.equal(rdview[1], 8.0);
+    assert.equal(rdview[2], 9.0);
+    assert.equal(rdview[3], 10.0);
+    assert.equal(hcb.data_free, 4);
 });
-test('bluefile pipe CF type 2000', function() {
+QUnit.test('bluefile pipe CF type 2000', function(assert) {
     var hcb = sigplot.m.initialize([], {
         pipe: true,
         format: "CF",
@@ -772,104 +800,104 @@ test('bluefile pipe CF type 2000', function() {
         subsize: 4,
         pipesize: 64
     });
-    equal(hcb.pipe, true);
-    equal(hcb.in_byte, 0);
-    equal(hcb.out_byte, 0);
-    equal(hcb.format, "CF");
-    equal(hcb.type, 2000);
-    equal(hcb.dview.BYTES_PER_ELEMENT, 4);
-    equal(hcb.spa, 2);
-    equal(hcb.bps, 4);
-    equal(hcb.bpa, 8);
-    equal(hcb.bpe, 32);
-    equal(hcb.out_byte, 0);
-    equal(hcb.data_free, 16); // number of scalars available
+    assert.equal(hcb.pipe, true);
+    assert.equal(hcb.in_byte, 0);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.format, "CF");
+    assert.equal(hcb.type, 2000);
+    assert.equal(hcb.dview.BYTES_PER_ELEMENT, 4);
+    assert.equal(hcb.spa, 2);
+    assert.equal(hcb.bps, 4);
+    assert.equal(hcb.bpa, 8);
+    assert.equal(hcb.bpe, 32);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.data_free, 16); // number of scalars available
     var rdbuf = new ArrayBuffer(32);
     var rdview = new Float32Array(rdbuf);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 0);
-    equal(hcb.out_byte, 0);
-    equal(hcb.data_free, 16);
+    assert.equal(ngot, 0);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.data_free, 16);
     sigplot.m.filad(hcb, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
-    equal(hcb.in_byte, 32);
-    equal(hcb.out_byte, 0);
-    equal(hcb.dview[0], 1.0);
-    equal(hcb.dview[1], 2.0);
-    equal(hcb.dview[2], 3.0);
-    equal(hcb.dview[3], 4.0);
-    equal(hcb.dview[6], 7.0);
-    equal(hcb.dview[7], 8.0);
-    equal(hcb.data_free, 8);
+    assert.equal(hcb.in_byte, 32);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.dview[0], 1.0);
+    assert.equal(hcb.dview[1], 2.0);
+    assert.equal(hcb.dview[2], 3.0);
+    assert.equal(hcb.dview[3], 4.0);
+    assert.equal(hcb.dview[6], 7.0);
+    assert.equal(hcb.dview[7], 8.0);
+    assert.equal(hcb.data_free, 8);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 8);
-    equal(hcb.in_byte, 32);
-    equal(hcb.out_byte, 32);
-    equal(rdview.length, 8);
-    equal(rdview[0], 1.0);
-    equal(rdview[1], 2.0);
-    equal(rdview[2], 3.0);
-    equal(rdview[3], 4.0);
-    equal(rdview[6], 7.0);
-    equal(rdview[7], 8.0);
-    equal(hcb.data_free, 16);
+    assert.equal(ngot, 8);
+    assert.equal(hcb.in_byte, 32);
+    assert.equal(hcb.out_byte, 32);
+    assert.equal(rdview.length, 8);
+    assert.equal(rdview[0], 1.0);
+    assert.equal(rdview[1], 2.0);
+    assert.equal(rdview[2], 3.0);
+    assert.equal(rdview[3], 4.0);
+    assert.equal(rdview[6], 7.0);
+    assert.equal(rdview[7], 8.0);
+    assert.equal(hcb.data_free, 16);
     sigplot.m.filad(hcb, [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]);
-    equal(hcb.in_byte, 0);
-    equal(hcb.out_byte, 32);
-    equal(hcb.dview[0], 1.0);
-    equal(hcb.dview[1], 2.0);
-    equal(hcb.dview[2], 3.0);
-    equal(hcb.dview[3], 4.0);
-    equal(hcb.dview[6], 7.0);
-    equal(hcb.dview[7], 8.0);
-    equal(hcb.dview[8], 8.0);
-    equal(hcb.dview[9], 7.0);
-    equal(hcb.dview[10], 6.0);
-    equal(hcb.dview[11], 5.0);
-    equal(hcb.dview[14], 2.0);
-    equal(hcb.dview[15], 1.0);
-    equal(hcb.data_free, 8);
+    assert.equal(hcb.in_byte, 0);
+    assert.equal(hcb.out_byte, 32);
+    assert.equal(hcb.dview[0], 1.0);
+    assert.equal(hcb.dview[1], 2.0);
+    assert.equal(hcb.dview[2], 3.0);
+    assert.equal(hcb.dview[3], 4.0);
+    assert.equal(hcb.dview[6], 7.0);
+    assert.equal(hcb.dview[7], 8.0);
+    assert.equal(hcb.dview[8], 8.0);
+    assert.equal(hcb.dview[9], 7.0);
+    assert.equal(hcb.dview[10], 6.0);
+    assert.equal(hcb.dview[11], 5.0);
+    assert.equal(hcb.dview[14], 2.0);
+    assert.equal(hcb.dview[15], 1.0);
+    assert.equal(hcb.data_free, 8);
     sigplot.m.filad(hcb, [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
-    equal(hcb.in_byte, 32);
-    equal(hcb.out_byte, 32);
-    equal(hcb.dview[0], 0.0);
-    equal(hcb.dview[1], 1.0);
-    equal(hcb.dview[2], 0.0);
-    equal(hcb.dview[3], 1.0);
-    equal(hcb.dview[6], 0.0);
-    equal(hcb.dview[7], 1.0);
-    equal(hcb.dview[8], 8.0);
-    equal(hcb.dview[9], 7.0);
-    equal(hcb.dview[10], 6.0);
-    equal(hcb.dview[11], 5.0);
-    equal(hcb.dview[14], 2.0);
-    equal(hcb.dview[15], 1.0);
-    equal(hcb.data_free, 0);
+    assert.equal(hcb.in_byte, 32);
+    assert.equal(hcb.out_byte, 32);
+    assert.equal(hcb.dview[0], 0.0);
+    assert.equal(hcb.dview[1], 1.0);
+    assert.equal(hcb.dview[2], 0.0);
+    assert.equal(hcb.dview[3], 1.0);
+    assert.equal(hcb.dview[6], 0.0);
+    assert.equal(hcb.dview[7], 1.0);
+    assert.equal(hcb.dview[8], 8.0);
+    assert.equal(hcb.dview[9], 7.0);
+    assert.equal(hcb.dview[10], 6.0);
+    assert.equal(hcb.dview[11], 5.0);
+    assert.equal(hcb.dview[14], 2.0);
+    assert.equal(hcb.dview[15], 1.0);
+    assert.equal(hcb.data_free, 0);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 8);
-    equal(hcb.in_byte, 32);
-    equal(hcb.out_byte, 0);
-    equal(rdview.length, 8);
-    equal(rdview[0], 8.0);
-    equal(rdview[1], 7.0);
-    equal(rdview[2], 6.0);
-    equal(rdview[3], 5.0);
-    equal(rdview[6], 2.0);
-    equal(rdview[7], 1.0);
-    equal(hcb.data_free, 8);
+    assert.equal(ngot, 8);
+    assert.equal(hcb.in_byte, 32);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(rdview.length, 8);
+    assert.equal(rdview[0], 8.0);
+    assert.equal(rdview[1], 7.0);
+    assert.equal(rdview[2], 6.0);
+    assert.equal(rdview[3], 5.0);
+    assert.equal(rdview[6], 2.0);
+    assert.equal(rdview[7], 1.0);
+    assert.equal(hcb.data_free, 8);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 8);
-    equal(hcb.in_byte, 32);
-    equal(hcb.out_byte, 32);
-    equal(rdview.length, 8);
-    equal(rdview[0], 0.0);
-    equal(rdview[1], 1.0);
-    equal(rdview[2], 0.0);
-    equal(rdview[3], 1.0);
-    equal(rdview[6], 0.0);
-    equal(rdview[7], 1.0);
-    equal(hcb.data_free, 16);
+    assert.equal(ngot, 8);
+    assert.equal(hcb.in_byte, 32);
+    assert.equal(hcb.out_byte, 32);
+    assert.equal(rdview.length, 8);
+    assert.equal(rdview[0], 0.0);
+    assert.equal(rdview[1], 1.0);
+    assert.equal(rdview[2], 0.0);
+    assert.equal(rdview[3], 1.0);
+    assert.equal(rdview[6], 0.0);
+    assert.equal(rdview[7], 1.0);
+    assert.equal(hcb.data_free, 16);
 });
-test('bluefile pipe CF type 2000 misaligned', function() {
+QUnit.test('bluefile pipe CF type 2000 misaligned', function(assert) {
     var hcb = sigplot.m.initialize([], {
         pipe: true,
         format: "CF",
@@ -877,82 +905,82 @@ test('bluefile pipe CF type 2000 misaligned', function() {
         subsize: 4,
         pipesize: 80
     });
-    equal(hcb.pipe, true);
-    equal(hcb.in_byte, 0);
-    equal(hcb.out_byte, 0);
-    equal(hcb.format, "CF");
-    equal(hcb.type, 2000);
-    equal(hcb.dview.BYTES_PER_ELEMENT, 4);
-    equal(hcb.spa, 2);
-    equal(hcb.bps, 4);
-    equal(hcb.bpa, 8);
-    equal(hcb.bpe, 32);
-    equal(hcb.out_byte, 0);
-    equal(hcb.data_free, 20); // number of scalars available
+    assert.equal(hcb.pipe, true);
+    assert.equal(hcb.in_byte, 0);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.format, "CF");
+    assert.equal(hcb.type, 2000);
+    assert.equal(hcb.dview.BYTES_PER_ELEMENT, 4);
+    assert.equal(hcb.spa, 2);
+    assert.equal(hcb.bps, 4);
+    assert.equal(hcb.bpa, 8);
+    assert.equal(hcb.bpe, 32);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.data_free, 20); // number of scalars available
     var rdbuf = new ArrayBuffer(32);
     var rdview = new Float32Array(rdbuf);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 0);
-    equal(hcb.out_byte, 0);
-    equal(hcb.data_free, 20);
+    assert.equal(ngot, 0);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.data_free, 20);
     sigplot.m.filad(hcb, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]);
-    equal(hcb.in_byte, 32);
-    equal(hcb.out_byte, 0);
-    equal(hcb.dview[0], 1.0);
-    equal(hcb.dview[1], 2.0);
-    equal(hcb.dview[2], 3.0);
-    equal(hcb.dview[3], 4.0);
-    equal(hcb.dview[6], 7.0);
-    equal(hcb.dview[7], 8.0);
-    equal(hcb.data_free, 12);
+    assert.equal(hcb.in_byte, 32);
+    assert.equal(hcb.out_byte, 0);
+    assert.equal(hcb.dview[0], 1.0);
+    assert.equal(hcb.dview[1], 2.0);
+    assert.equal(hcb.dview[2], 3.0);
+    assert.equal(hcb.dview[3], 4.0);
+    assert.equal(hcb.dview[6], 7.0);
+    assert.equal(hcb.dview[7], 8.0);
+    assert.equal(hcb.data_free, 12);
     var ngot = sigplot.m.grabx(hcb, rdview);
-    equal(ngot, 8);
-    equal(hcb.in_byte, 32);
-    equal(hcb.out_byte, 32);
-    equal(rdview.length, 8);
-    equal(rdview[0], 1.0);
-    equal(rdview[1], 2.0);
-    equal(rdview[2], 3.0);
-    equal(rdview[3], 4.0);
-    equal(rdview[6], 7.0);
-    equal(rdview[7], 8.0);
-    equal(hcb.data_free, 20);
+    assert.equal(ngot, 8);
+    assert.equal(hcb.in_byte, 32);
+    assert.equal(hcb.out_byte, 32);
+    assert.equal(rdview.length, 8);
+    assert.equal(rdview[0], 1.0);
+    assert.equal(rdview[1], 2.0);
+    assert.equal(rdview[2], 3.0);
+    assert.equal(rdview[3], 4.0);
+    assert.equal(rdview[6], 7.0);
+    assert.equal(rdview[7], 8.0);
+    assert.equal(hcb.data_free, 20);
     sigplot.m.filad(hcb, [8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]);
-    equal(hcb.in_byte, 64);
-    equal(hcb.out_byte, 32);
-    equal(hcb.dview[0], 1.0);
-    equal(hcb.dview[1], 2.0);
-    equal(hcb.dview[2], 3.0);
-    equal(hcb.dview[3], 4.0);
-    equal(hcb.dview[6], 7.0);
-    equal(hcb.dview[7], 8.0);
-    equal(hcb.dview[8], 8.0);
-    equal(hcb.dview[9], 7.0);
-    equal(hcb.dview[10], 6.0);
-    equal(hcb.dview[11], 5.0);
-    equal(hcb.dview[14], 2.0);
-    equal(hcb.dview[15], 1.0);
-    equal(hcb.data_free, 12);
+    assert.equal(hcb.in_byte, 64);
+    assert.equal(hcb.out_byte, 32);
+    assert.equal(hcb.dview[0], 1.0);
+    assert.equal(hcb.dview[1], 2.0);
+    assert.equal(hcb.dview[2], 3.0);
+    assert.equal(hcb.dview[3], 4.0);
+    assert.equal(hcb.dview[6], 7.0);
+    assert.equal(hcb.dview[7], 8.0);
+    assert.equal(hcb.dview[8], 8.0);
+    assert.equal(hcb.dview[9], 7.0);
+    assert.equal(hcb.dview[10], 6.0);
+    assert.equal(hcb.dview[11], 5.0);
+    assert.equal(hcb.dview[14], 2.0);
+    assert.equal(hcb.dview[15], 1.0);
+    assert.equal(hcb.data_free, 12);
     sigplot.m.filad(hcb, [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]);
-    equal(hcb.in_byte, 16);
-    equal(hcb.out_byte, 32);
-    equal(hcb.dview[0], 0.0);
-    equal(hcb.dview[1], 1.0);
-    equal(hcb.dview[2], 0.0);
-    equal(hcb.dview[3], 1.0);
-    equal(hcb.dview[6], 7.0);
-    equal(hcb.dview[7], 8.0);
-    equal(hcb.dview[8], 8.0);
-    equal(hcb.dview[9], 7.0);
-    equal(hcb.dview[10], 6.0);
-    equal(hcb.dview[11], 5.0);
-    equal(hcb.dview[14], 2.0);
-    equal(hcb.dview[15], 1.0);
-    equal(hcb.dview[16], 0.0);
-    equal(hcb.dview[17], 1.0);
-    equal(hcb.dview[18], 0.0);
-    equal(hcb.dview[19], 1.0);
-    equal(hcb.data_free, 4);
+    assert.equal(hcb.in_byte, 16);
+    assert.equal(hcb.out_byte, 32);
+    assert.equal(hcb.dview[0], 0.0);
+    assert.equal(hcb.dview[1], 1.0);
+    assert.equal(hcb.dview[2], 0.0);
+    assert.equal(hcb.dview[3], 1.0);
+    assert.equal(hcb.dview[6], 7.0);
+    assert.equal(hcb.dview[7], 8.0);
+    assert.equal(hcb.dview[8], 8.0);
+    assert.equal(hcb.dview[9], 7.0);
+    assert.equal(hcb.dview[10], 6.0);
+    assert.equal(hcb.dview[11], 5.0);
+    assert.equal(hcb.dview[14], 2.0);
+    assert.equal(hcb.dview[15], 1.0);
+    assert.equal(hcb.dview[16], 0.0);
+    assert.equal(hcb.dview[17], 1.0);
+    assert.equal(hcb.dview[18], 0.0);
+    assert.equal(hcb.dview[19], 1.0);
+    assert.equal(hcb.data_free, 4);
 });
 //test('bluefile pipe', function() {
 // make a largeish pipe (i.e. 1MB)
@@ -963,7 +991,7 @@ test('bluefile pipe CF type 2000 misaligned', function() {
 // QUnit 'sigplot' module
 //////////////////////////////////////////////////////////////////////////////
 QUnit.module('sigplot', {
-    setup: function() {
+    beforeEach: function() {
         var plotdiv = document.createElement("div");
         plotdiv.id = "plot";
         plotdiv.style.position = "absolute";
@@ -971,41 +999,43 @@ QUnit.module('sigplot', {
         plotdiv.style.height = "400px";
         fixture.appendChild(plotdiv);
     },
-    teardown: function() {}
+    afterEach: function() {
+        fixture.innerHTML = '';
+    }
 });
-test('sigplot construction', function() {
+QUnit.test('sigplot construction', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
-    equal(container.childNodes.length, 1);
-    equal(container.childNodes[0], plot._Mx.parent);
-    equal(plot._Mx.parent.childNodes.length, 2);
-    equal(plot._Mx.parent.childNodes[0], plot._Mx.canvas);
-    equal(plot._Mx.parent.childNodes[1], plot._Mx.wid_canvas);
-    equal(plot._Mx.canvas.width, 600);
-    equal(plot._Mx.canvas.height, 400);
-    equal(plot._Mx.canvas.style.position, "absolute");
-    equal(plot._Mx.wid_canvas.width, 600);
-    equal(plot._Mx.wid_canvas.height, 400);
-    equal(plot._Mx.wid_canvas.style.position, "absolute");
+    assert.notEqual(plot, null);
+    assert.equal(container.childNodes.length, 1);
+    assert.equal(container.childNodes[0], plot._Mx.parent);
+    assert.equal(plot._Mx.parent.childNodes.length, 2);
+    assert.equal(plot._Mx.parent.childNodes[0], plot._Mx.canvas);
+    assert.equal(plot._Mx.parent.childNodes[1], plot._Mx.wid_canvas);
+    assert.equal(plot._Mx.canvas.width, 600);
+    assert.equal(plot._Mx.canvas.height, 400);
+    assert.equal(plot._Mx.canvas.style.position, "absolute");
+    assert.equal(plot._Mx.wid_canvas.width, 600);
+    assert.equal(plot._Mx.wid_canvas.height, 400);
+    assert.equal(plot._Mx.wid_canvas.style.position, "absolute");
 });
 
 // Demonstrate that changing the ymin/ymax settings
 // will implicitly change the autoy settings
-test('sigplot layer1d change_settings ymin/ymax ', function() {
+QUnit.test('sigplot layer1d change_settings ymin/ymax ', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
 
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     // An empty plot starts at -1.0, 1.0
-    equal(plot._Gx.ymin, -1.0);
-    equal(plot._Gx.ymax, 1.0);
-    equal(plot._Gx.autoy, 3);
+    assert.equal(plot._Gx.ymin, -1.0);
+    assert.equal(plot._Gx.ymax, 1.0);
+    assert.equal(plot._Gx.autoy, 3);
 
 
     var pulse = [];
@@ -1016,80 +1046,80 @@ test('sigplot layer1d change_settings ymin/ymax ', function() {
 
     // The first overlay will scale the plot
     plot.overlay_array(pulse);
-    equal(plot._Gx.ymin, -0.2);
-    equal(plot._Gx.ymax, 10.2);
-    equal(plot._Gx.autoy, 3);
+    assert.equal(plot._Gx.ymin, -0.2);
+    assert.equal(plot._Gx.ymax, 10.2);
+    assert.equal(plot._Gx.autoy, 3);
 
     plot.change_settings({
         ymin: -50
     });
-    equal(plot._Gx.ymin, -50);
-    equal(plot._Gx.ymax, 10.2);
-    equal(plot._Gx.autoy, 2);
+    assert.equal(plot._Gx.ymin, -50);
+    assert.equal(plot._Gx.ymax, 10.2);
+    assert.equal(plot._Gx.autoy, 2);
 
     plot.change_settings({
         ymax: 100
     });
-    equal(plot._Gx.ymin, -50);
-    equal(plot._Gx.ymax, 100);
-    equal(plot._Gx.autoy, 0);
+    assert.equal(plot._Gx.ymin, -50);
+    assert.equal(plot._Gx.ymax, 100);
+    assert.equal(plot._Gx.autoy, 0);
 
     plot.change_settings({
         ymin: 10,
         ymax: 50
     });
-    equal(plot._Gx.ymin, 10);
-    equal(plot._Gx.ymax, 50);
-    equal(plot._Gx.autoy, 0);
+    assert.equal(plot._Gx.ymin, 10);
+    assert.equal(plot._Gx.ymax, 50);
+    assert.equal(plot._Gx.autoy, 0);
 
     plot.change_settings({
         ymin: null
     });
-    equal(plot._Gx.ymin, -0.2);
-    equal(plot._Gx.ymax, 50);
-    equal(plot._Gx.autoy, 1);
+    assert.equal(plot._Gx.ymin, -0.2);
+    assert.equal(plot._Gx.ymax, 50);
+    assert.equal(plot._Gx.autoy, 1);
 
     plot.change_settings({
         ymax: null
     });
-    equal(plot._Gx.ymin, -0.2);
-    equal(plot._Gx.ymax, 10.2);
-    equal(plot._Gx.autoy, 3);
+    assert.equal(plot._Gx.ymin, -0.2);
+    assert.equal(plot._Gx.ymax, 10.2);
+    assert.equal(plot._Gx.autoy, 3);
 
     plot.change_settings({
         ymin: -100,
         ymax: 200
     });
-    equal(plot._Gx.ymin, -100);
-    equal(plot._Gx.ymax, 200);
-    equal(plot._Gx.autoy, 0);
+    assert.equal(plot._Gx.ymin, -100);
+    assert.equal(plot._Gx.ymax, 200);
+    assert.equal(plot._Gx.autoy, 0);
 
     plot.change_settings({
         ymin: -10,
         ymax: 20
     });
-    equal(plot._Gx.ymin, -10);
-    equal(plot._Gx.ymax, 20);
-    equal(plot._Gx.autoy, 0);
+    assert.equal(plot._Gx.ymin, -10);
+    assert.equal(plot._Gx.ymax, 20);
+    assert.equal(plot._Gx.autoy, 0);
 
     plot.change_settings({
         ymin: null,
         ymax: null
     });
-    equal(plot._Gx.ymin, -0.2);
-    equal(plot._Gx.ymax, 10.2);
-    equal(plot._Gx.autoy, 3);
+    assert.equal(plot._Gx.ymin, -0.2);
+    assert.equal(plot._Gx.ymax, 10.2);
+    assert.equal(plot._Gx.autoy, 3);
 });
 
-test('Cmode input test', function() {
+QUnit.test('Cmode input test', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         cmode: "MA"
     });
 
-    equal(plot._Gx.cmode, 1);
+    assert.equal(plot._Gx.cmode, 1);
 
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 20; i++) {
         ramp.push(i);
@@ -1104,99 +1134,99 @@ test('Cmode input test', function() {
     plot.change_settings({
         cmode: "Magnitude"
     });
-    equal(plot._Gx.cmode, 1);
+    assert.equal(plot._Gx.cmode, 1);
     plot.change_settings({
         cmode: "Phase"
     });
-    equal(plot._Gx.cmode, 2);
+    assert.equal(plot._Gx.cmode, 2);
     plot.change_settings({
         cmode: "Real"
     });
-    equal(plot._Gx.cmode, 3);
+    assert.equal(plot._Gx.cmode, 3);
     plot.change_settings({
         cmode: "Imaginary"
     });
-    equal(plot._Gx.cmode, 4);
+    assert.equal(plot._Gx.cmode, 4);
     plot.change_settings({
         cmode: "Imag/Real"
     });
-    equal(plot._Gx.cmode, 5);
+    assert.equal(plot._Gx.cmode, 5);
     plot.change_settings({
         cmode: "Real/Imag"
     });
-    equal(plot._Gx.cmode, 5);
+    assert.equal(plot._Gx.cmode, 5);
     plot.change_settings({
         cmode: "10*log10"
     });
-    equal(plot._Gx.cmode, 6);
+    assert.equal(plot._Gx.cmode, 6);
     plot.change_settings({
         cmode: "20*log10"
     });
-    equal(plot._Gx.cmode, 7);
+    assert.equal(plot._Gx.cmode, 7);
 });
 
-test('sigplot layer1d noautoscale', function() {
+QUnit.test('sigplot layer1d noautoscale', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     for (var i = 0; i <= 1000; i += 1) {
         pulse.push(0.0);
     }
     plot.overlay_array(pulse);
-    equal(plot._Gx.panymin, -1.0);
-    equal(plot._Gx.panymax, 1.0);
+    assert.equal(plot._Gx.panymin, -1.0);
+    assert.equal(plot._Gx.panymax, 1.0);
     pulse[0] = 1.0;
     plot.reload(0, pulse);
-    equal(plot._Gx.panymin, -0.02);
-    equal(plot._Gx.panymax, 1.02);
+    assert.equal(plot._Gx.panymin, -0.02);
+    assert.equal(plot._Gx.panymax, 1.02);
     for (var i = 1; i <= 1000; i += 1) {
         pulse[i - 1] = 0;
         pulse[i] = 1;
-        equal(plot._Gx.panymin, -0.02);
-        equal(plot._Gx.panymax, 1.02);
+        assert.equal(plot._Gx.panymin, -0.02);
+        assert.equal(plot._Gx.panymax, 1.02);
     }
 });
-test('sigplot layer1d autoscale', function() {
+QUnit.test('sigplot layer1d autoscale', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         autol: 2
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     for (var i = 0; i <= 1000; i += 1) {
         pulse.push(0.0);
     }
     plot.overlay_array(pulse);
-    equal(plot._Gx.panymin, -1.0);
-    equal(plot._Gx.panymax, 1.0);
+    assert.equal(plot._Gx.panymin, -1.0);
+    assert.equal(plot._Gx.panymax, 1.0);
     pulse[0] = 1.0;
     plot.reload(0, pulse);
     var expected_ymin = (-0.02 * 0.5) + (-1 * 0.5);
     var expected_ymax = (1.02 * 0.5) + (1 * 0.5);
-    equal(plot._Gx.panymin, expected_ymin);
-    equal(plot._Gx.panymax, expected_ymax);
+    assert.equal(plot._Gx.panymin, expected_ymin);
+    assert.equal(plot._Gx.panymax, expected_ymax);
     for (var i = 1; i <= 1000; i += 1) {
         pulse[i - 1] = 0;
         pulse[i] = 1;
         expected_ymin = (expected_ymin * 0.5) + (expected_ymin * 0.5);
         expected_ymax = (expected_ymax * 0.5) + (expected_ymax * 0.5);
-        equal(plot._Gx.panymin, expected_ymin);
-        equal(plot._Gx.panymax, expected_ymax);
+        assert.equal(plot._Gx.panymin, expected_ymin);
+        assert.equal(plot._Gx.panymax, expected_ymax);
     }
 });
-test('sigplot layer1d autoscale negative', function() {
+QUnit.test('sigplot layer1d autoscale negative', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         autol: 2
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     for (var i = 0; i <= 1000; i += 1) {
         pulse.push(-60.0);
@@ -1205,49 +1235,49 @@ test('sigplot layer1d autoscale negative', function() {
     plot.overlay_array(pulse);
     var expected_ymin = (-61.0 * 0.5) + (-1 * 0.5);
     var expected_ymax = (-9.0 * 0.5) + (1 * 0.5);
-    equal(plot._Gx.panymin, expected_ymin);
-    equal(plot._Gx.panymax, expected_ymax);
+    assert.equal(plot._Gx.panymin, expected_ymin);
+    assert.equal(plot._Gx.panymax, expected_ymax);
     for (var i = 1; i <= 1000; i += 1) {
         pulse[i - 1] = -60;
         pulse[i] = -10;
         expected_ymin = (expected_ymin * 0.5) + (expected_ymin * 0.5);
         expected_ymax = (expected_ymax * 0.5) + (expected_ymax * 0.5);
-        equal(plot._Gx.panymin, expected_ymin);
-        equal(plot._Gx.panymax, expected_ymax);
+        assert.equal(plot._Gx.panymin, expected_ymin);
+        assert.equal(plot._Gx.panymax, expected_ymax);
     }
 });
-test('sigplot 0px height', function() {
+QUnit.test('sigplot 0px height', function(assert) {
     var container = document.getElementById('plot');
     container.style.height = "0px";
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container);
-    notEqual(plot, null);
-    equal(plot._Mx.canvas.height, 0);
+    assert.notEqual(plot, null);
+    assert.equal(plot._Mx.canvas.height, 0);
     var zeros = [];
     for (var i = 0; i <= 1000; i += 1) {
         zeros.push(0.0);
     }
     plot.overlay_array(zeros);
-    notEqual(plot.get_layer(0), null);
+    assert.notEqual(plot.get_layer(0), null);
     plot.deoverlay();
-    equal(plot.get_layer(0), null);
+    assert.equal(plot.get_layer(0), null);
     plot.overlay_array(zeros, {
         type: 2000,
         subsize: zeros.length
     });
-    notEqual(plot.get_layer(0), null);
+    assert.notEqual(plot.get_layer(0), null);
     plot.deoverlay();
-    equal(plot.get_layer(0), null);
+    assert.equal(plot.get_layer(0), null);
     plot.overlay_pipe({
         type: 2000,
         subsize: 128
     });
-    notEqual(plot.get_layer(0), null);
-    equal(plot.get_layer(0).drawmode, "scrolling");
+    assert.notEqual(plot.get_layer(0), null);
+    assert.equal(plot.get_layer(0).drawmode, "scrolling");
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 0);
-    equal(plot.get_layer(0).lps, 1);
+    assert.equal(plot.get_layer(0).position, 0);
+    assert.equal(plot.get_layer(0).lps, 1);
     plot.deoverlay();
     plot.overlay_pipe({
         type: 2000,
@@ -1255,11 +1285,11 @@ test('sigplot 0px height', function() {
     }, {
         drawmode: "rising"
     });
-    notEqual(plot.get_layer(0), null);
-    equal(plot.get_layer(0).drawmode, "rising");
+    assert.notEqual(plot.get_layer(0), null);
+    assert.equal(plot.get_layer(0).drawmode, "rising");
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 0);
-    equal(plot.get_layer(0).lps, 1);
+    assert.equal(plot.get_layer(0).position, 0);
+    assert.equal(plot.get_layer(0).lps, 1);
     plot.deoverlay();
     plot.overlay_pipe({
         type: 2000,
@@ -1267,21 +1297,21 @@ test('sigplot 0px height', function() {
     }, {
         drawmode: "falling"
     });
-    notEqual(plot.get_layer(0), null);
-    equal(plot.get_layer(0).drawmode, "falling");
+    assert.notEqual(plot.get_layer(0), null);
+    assert.equal(plot.get_layer(0).drawmode, "falling");
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 0);
-    equal(plot.get_layer(0).position, 0);
-    equal(plot.get_layer(0).lps, 1);
+    assert.equal(plot.get_layer(0).position, 0);
+    assert.equal(plot.get_layer(0).position, 0);
+    assert.equal(plot.get_layer(0).lps, 1);
     plot.deoverlay();
 });
-test('sigplot resize raster 0px height', function() {
+QUnit.test('sigplot resize raster 0px height', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container);
-    notEqual(plot, null);
-    equal(plot._Mx.canvas.height, 400);
+    assert.notEqual(plot, null);
+    assert.equal(plot._Mx.canvas.height, 400);
     var zeros = [];
     for (var i = 0; i <= 128; i += 1) {
         zeros.push(0.0);
@@ -1290,30 +1320,30 @@ test('sigplot resize raster 0px height', function() {
         type: 2000,
         subsize: 128
     });
-    notEqual(plot.get_layer(0), null);
-    equal(plot.get_layer(0).drawmode, "scrolling");
+    assert.notEqual(plot.get_layer(0), null);
+    assert.equal(plot.get_layer(0).drawmode, "scrolling");
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 1);
-    ok(plot.get_layer(0).lps > 1);
+    assert.equal(plot.get_layer(0).position, 1);
+    assert.ok(plot.get_layer(0).lps > 1);
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 2);
-    ok(plot.get_layer(0).lps > 1);
+    assert.equal(plot.get_layer(0).position, 2);
+    assert.ok(plot.get_layer(0).lps > 1);
     container.style.height = "0px";
     plot.checkresize();
     plot._refresh();
     plot.checkresize();
-    equal(plot._Mx.canvas.height, 0);
-    equal(plot.get_layer(0).lps, 1);
+    assert.equal(plot._Mx.canvas.height, 0);
+    assert.equal(plot.get_layer(0).lps, 1);
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 0);
+    assert.equal(plot.get_layer(0).position, 0);
 });
-test('sigplot resize raster larger height', function() {
+QUnit.test('sigplot resize raster larger height', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container);
-    notEqual(plot, null);
-    equal(plot._Mx.canvas.height, 400);
+    assert.notEqual(plot, null);
+    assert.equal(plot._Mx.canvas.height, 400);
     var zeros = [];
     for (var i = 0; i <= 128; i += 1) {
         zeros.push(0.0);
@@ -1324,33 +1354,33 @@ test('sigplot resize raster larger height', function() {
     }, {
         drawmode: "scrolling"
     });
-    notEqual(plot.get_layer(0), null);
-    equal(plot.get_layer(0).drawmode, "scrolling");
+    assert.notEqual(plot.get_layer(0), null);
+    assert.equal(plot.get_layer(0).drawmode, "scrolling");
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 1);
-    ok(plot.get_layer(0).lps > 1);
+    assert.equal(plot.get_layer(0).position, 1);
+    assert.ok(plot.get_layer(0).lps > 1);
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 2);
-    ok(plot.get_layer(0).lps > 1);
+    assert.equal(plot.get_layer(0).position, 2);
+    assert.ok(plot.get_layer(0).lps > 1);
     var orig_lps = plot.get_layer(0).lps;
     container.style.height = "600px";
     plot.checkresize();
     plot._refresh();
     plot.checkresize();
-    equal(plot._Mx.canvas.height, 600);
-    ok(plot.get_layer(0).lps > orig_lps);
+    assert.equal(plot._Mx.canvas.height, 600);
+    assert.ok(plot.get_layer(0).lps > orig_lps);
     plot.push(0, zeros, null, true);
-    equal(plot.get_layer(0).position, 3);
+    assert.equal(plot.get_layer(0).position, 3);
     for (var i = 0; i <= plot.get_layer(0).lps; i += 1) {
         plot.push(0, zeros, null, true);
     }
 });
-test('sigplot change raster LPS', function() {
+QUnit.test('sigplot change raster LPS', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container);
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var zeros = [];
     for (var i = 0; i <= 128; i += 1) {
         zeros.push(0.0);
@@ -1361,18 +1391,18 @@ test('sigplot change raster LPS', function() {
         lps: 100,
         pipe: true
     });
-    notEqual(plot.get_layer(0), null);
-    strictEqual(plot.get_layer(0).lps, 100);
+    assert.notEqual(plot.get_layer(0), null);
+    assert.strictEqual(plot.get_layer(0).lps, 100);
     plot.push(0, zeros, {
         lps: 200
     }, true);
     plot._refresh();
-    strictEqual(plot.get_layer(0).lps, 200);
+    assert.strictEqual(plot.get_layer(0).lps, 200);
 });
-test('Add and remove plugins', function() {
+QUnit.test('Add and remove plugins', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var zeros = [];
     for (var i = 0; i <= 128; i += 1) {
         zeros.push(0.0);
@@ -1392,16 +1422,16 @@ test('Add and remove plugins', function() {
             strokeStyle: "#FF2400"
         }
     });
-    equal(plot._Gx.plugins.length, 0, "Expected zero plugins");
+    assert.equal(plot._Gx.plugins.length, 0, "Expected zero plugins");
     plot.add_plugin(accordion, 1);
-    equal(plot._Gx.plugins.length, 1, "Expected one plugin");
+    assert.equal(plot._Gx.plugins.length, 1, "Expected one plugin");
     plot.remove_plugin(accordion);
-    equal(plot._Gx.plugins.length, 0, "Expected zero plugins");
+    assert.equal(plot._Gx.plugins.length, 0, "Expected zero plugins");
 });
-test('Plugins still exist after plot and canvas height and width are 0', function() {
+QUnit.test('Plugins still exist after plot and canvas height and width are 0', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         xmin: -4,
         xmax: 10
@@ -1417,38 +1447,38 @@ test('Plugins still exist after plot and canvas height and width are 0', functio
         slider.set_position(positions[pos]);
     }
     plot.checkresize();
-    equal(plot._Gx.plugins.length, 4, "Expected 4 slider plugins");
-    equal(plot._Mx.canvas.height, container.clientHeight, "Expected plot canvas height to be container width");
-    equal(plot._Mx.canvas.width, container.clientWidth, "Expected plot canvas width to be container height");
+    assert.equal(plot._Gx.plugins.length, 4, "Expected 4 slider plugins");
+    assert.equal(plot._Mx.canvas.height, container.clientHeight, "Expected plot canvas height to be container width");
+    assert.equal(plot._Mx.canvas.width, container.clientWidth, "Expected plot canvas width to be container height");
     for (var pos = 0; pos < positions.length; ++pos) {
-        equal(plot._Gx.plugins[pos].canvas.height, plot._Mx.canvas.height, "Expected #" + pos + " slider plugin height to be plot height");
-        equal(plot._Gx.plugins[pos].canvas.width, plot._Mx.canvas.width, "Expected #" + pos + " slider plugin width to be plot width");
+        assert.equal(plot._Gx.plugins[pos].canvas.height, plot._Mx.canvas.height, "Expected #" + pos + " slider plugin height to be plot height");
+        assert.equal(plot._Gx.plugins[pos].canvas.width, plot._Mx.canvas.width, "Expected #" + pos + " slider plugin width to be plot width");
     }
     container.style.display = "none";
     plot.checkresize();
     plot._refresh(); // force syncronous refresh
-    equal(plot._Mx.canvas.height, 0, "Expected plot canvas height to be 0");
-    equal(plot._Mx.canvas.width, 0, "Expected plot canvas width to be 0");
+    assert.equal(plot._Mx.canvas.height, 0, "Expected plot canvas height to be 0");
+    assert.equal(plot._Mx.canvas.width, 0, "Expected plot canvas width to be 0");
     for (var pos = 0; pos < positions.length; ++pos) {
-        equal(plot._Gx.plugins[pos].canvas.height, 0, "Expected #" + pos + " slider plugin height to be 0");
-        equal(plot._Gx.plugins[pos].canvas.width, 0, "Expected #" + pos + " slider plugin width to be 0");
+        assert.equal(plot._Gx.plugins[pos].canvas.height, 0, "Expected #" + pos + " slider plugin height to be 0");
+        assert.equal(plot._Gx.plugins[pos].canvas.width, 0, "Expected #" + pos + " slider plugin width to be 0");
     }
     container.style.display = "block";
     plot.checkresize();
     plot._refresh(); // force syncronous refresh
-    equal(plot._Mx.canvas.height, container.clientHeight, "Expected plot canvas height to be container width");
-    equal(plot._Mx.canvas.width, container.clientWidth, "Expected plot canvas width to be container height");
+    assert.equal(plot._Mx.canvas.height, container.clientHeight, "Expected plot canvas height to be container width");
+    assert.equal(plot._Mx.canvas.width, container.clientWidth, "Expected plot canvas width to be container height");
     for (var pos = 0; pos < positions.length; ++pos) {
-        equal(plot._Gx.plugins[pos].canvas.height, plot._Mx.canvas.height, "Expected #" + pos + " slider plugin height to be plot height");
-        equal(plot._Gx.plugins[pos].canvas.width, plot._Mx.canvas.width, "Expected #" + pos + " slider plugin width to be plot width");
+        assert.equal(plot._Gx.plugins[pos].canvas.height, plot._Mx.canvas.height, "Expected #" + pos + " slider plugin height to be plot height");
+        assert.equal(plot._Gx.plugins[pos].canvas.width, plot._Mx.canvas.width, "Expected #" + pos + " slider plugin width to be plot width");
     }
 });
 
-test('unit strings test: x -> Power and y -> Angle rad', function() {
+QUnit.test('unit strings test: x -> Power and y -> Angle rad', function(assert) {
     var container = document.getElementById('plot');
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 20; i++) {
         ramp.push(i);
@@ -1462,17 +1492,17 @@ test('unit strings test: x -> Power and y -> Angle rad', function() {
         line: 0
     });
 
-    equal(plot._Gx.HCB[0].xunits, 12);
-    equal(plot._Gx.HCB[0].yunits, 33);
-    equal(plot._Gx.xlab, 12);
-    equal(plot._Gx.ylab, 33);
+    assert.equal(plot._Gx.HCB[0].xunits, 12);
+    assert.equal(plot._Gx.HCB[0].yunits, 33);
+    assert.equal(plot._Gx.xlab, 12);
+    assert.equal(plot._Gx.ylab, 33);
 });
 
-test('unit strings test: x -> Hz and y -> Time_sec', function() {
+QUnit.test('unit strings test: x -> Hz and y -> Time_sec', function(assert) {
     var container = document.getElementById('plot');
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 20; i++) {
         ramp.push(i);
@@ -1486,19 +1516,19 @@ test('unit strings test: x -> Hz and y -> Time_sec', function() {
         line: 0
     });
 
-    equal(plot._Gx.HCB[0].xunits, 3);
-    equal(plot._Gx.HCB[0].yunits, 1);
-    equal(plot._Gx.xlab, 3);
-    equal(plot._Gx.ylab, 1);
+    assert.equal(plot._Gx.HCB[0].xunits, 3);
+    assert.equal(plot._Gx.HCB[0].yunits, 1);
+    assert.equal(plot._Gx.xlab, 3);
+    assert.equal(plot._Gx.ylab, 1);
 });
 
-test('sigplot line push smaller than framesize', function() {
+QUnit.test('sigplot line push smaller than framesize', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container);
-    notEqual(plot, null);
-    equal(plot._Mx.canvas.height, 400);
+    assert.notEqual(plot, null);
+    assert.equal(plot._Mx.canvas.height, 400);
     var zeros = [];
     for (var i = 0; i < 128; i += 1) {
         zeros.push(0.0);
@@ -1509,38 +1539,38 @@ test('sigplot line push smaller than framesize', function() {
     }, {
         layerType: sigplot.Layer1D
     });
-    notEqual(plot.get_layer(0), null);
+    assert.notEqual(plot.get_layer(0), null);
 
     // the pipe should start empty
     var hcb = plot.get_layer(0).hcb;
-    equal(hcb.dview.length - hcb.data_free, 0);
+    assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // pushing twice the subsize should allow
     // two frames to be written, leaving nothing
     // in the pipe
     plot.push(0, zeros, null, true);
-    equal(hcb.dview.length - hcb.data_free, 0);
+    assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // if we push 63 elements they should remain in the pipe
     plot.push(0, zeros.slice(0, 63), null, true);
-    equal(hcb.dview.length - hcb.data_free, 0);
+    assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // pushing two should leave one item in the pipe
     plot.push(0, zeros.slice(0, 2), null, true);
-    equal(hcb.dview.length - hcb.data_free, 0);
+    assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // as does pushing another 128
     plot.push(0, zeros, null, true);
-    equal(hcb.dview.length - hcb.data_free, 0);
+    assert.equal(hcb.dview.length - hcb.data_free, 0);
 });
 
-test('sigplot raster push smaller than framesize', function() {
+QUnit.test('sigplot raster push smaller than framesize', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(fixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container);
-    notEqual(plot, null);
-    equal(plot._Mx.canvas.height, 400);
+    assert.notEqual(plot, null);
+    assert.equal(plot._Mx.canvas.height, 400);
     var zeros = [];
     for (var i = 0; i < 128; i += 1) {
         zeros.push(0.0);
@@ -1549,35 +1579,35 @@ test('sigplot raster push smaller than framesize', function() {
         type: 2000,
         subsize: 64
     });
-    notEqual(plot.get_layer(0), null);
+    assert.notEqual(plot.get_layer(0), null);
 
     // the pipe should start empty
     var hcb = plot.get_layer(0).hcb;
-    equal(hcb.dview.length - hcb.data_free, 0);
+    assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // pushing twice the subsize should allow
     // two frames to be written, leaving nothing
     // in the pipe
     plot.push(0, zeros, null, true);
-    equal(hcb.dview.length - hcb.data_free, 0);
+    assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // if we push 63 elements they should remain in the pipe
     plot.push(0, zeros.slice(0, 63), null, true);
-    equal(hcb.dview.length - hcb.data_free, 63);
+    assert.equal(hcb.dview.length - hcb.data_free, 63);
 
     // pushing two should leave one item in the pipe
     plot.push(0, zeros.slice(0, 2), null, true);
-    equal(hcb.dview.length - hcb.data_free, 1);
+    assert.equal(hcb.dview.length - hcb.data_free, 1);
 
     // as does pushing another 128
     plot.push(0, zeros, null, true);
-    equal(hcb.dview.length - hcb.data_free, 1);
+    assert.equal(hcb.dview.length - hcb.data_free, 1);
 });
 //////////////////////////////////////////////////////////////////////////////
 // QUnit 'sigplot-interactive' module
 //////////////////////////////////////////////////////////////////////////////
 QUnit.module('sigplot-interactive', {
-    setup: function() {
+    beforeEach: function() {
         ifixture.innerHTML = '';
         var plotdiv = document.createElement("div");
         plotdiv.id = "plot";
@@ -1586,7 +1616,7 @@ QUnit.module('sigplot-interactive', {
         plotdiv.style.height = "400px";
         ifixture.appendChild(plotdiv);
     },
-    teardown: function() {
+    afterEach: function() {
         ifixture.innerHTML = '';
         if (ifixture.interval) {
             window.clearInterval(ifixture.interval);
@@ -1594,94 +1624,94 @@ QUnit.module('sigplot-interactive', {
         }
     }
 });
-interactiveTest('sigplot empty', 'Do you see an empty plot scaled from -1 to 1 on both axis?', function() {
+interactiveTest('sigplot empty', 'Do you see an empty plot scaled from -1 to 1 on both axis?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
-    equal(container.childNodes.length, 1);
-    equal(container.childNodes[0], plot._Mx.parent);
-    equal(plot._Mx.parent.childNodes.length, 2);
-    equal(plot._Mx.parent.childNodes[0], plot._Mx.canvas);
-    equal(plot._Mx.parent.childNodes[1], plot._Mx.wid_canvas);
-    equal(plot._Mx.canvas.width, 600);
-    equal(plot._Mx.canvas.height, 400);
-    equal(plot._Mx.canvas.style.position, "absolute");
-    equal(plot._Mx.wid_canvas.width, 600);
-    equal(plot._Mx.wid_canvas.height, 400);
-    equal(plot._Mx.wid_canvas.style.position, "absolute");
+    assert.notEqual(plot, null);
+    assert.equal(container.childNodes.length, 1);
+    assert.equal(container.childNodes[0], plot._Mx.parent);
+    assert.equal(plot._Mx.parent.childNodes.length, 2);
+    assert.equal(plot._Mx.parent.childNodes[0], plot._Mx.canvas);
+    assert.equal(plot._Mx.parent.childNodes[1], plot._Mx.wid_canvas);
+    assert.equal(plot._Mx.canvas.width, 600);
+    assert.equal(plot._Mx.canvas.height, 400);
+    assert.equal(plot._Mx.canvas.style.position, "absolute");
+    assert.equal(plot._Mx.wid_canvas.width, 600);
+    assert.equal(plot._Mx.wid_canvas.height, 400);
+    assert.equal(plot._Mx.wid_canvas.style.position, "absolute");
 });
-interactiveTest('sigplot no legend', 'Is the legend button hidden?', function() {
+interactiveTest('sigplot no legend', 'Is the legend button hidden?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         no_legend_button: true
     });
 });
-interactiveTest('sigplot no ylabel', 'Does the label say Unknown (U)?', function() {
+interactiveTest('sigplot no ylabel', 'Does the label say Unknown (U)?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         ylabel: null
     });
 });
-interactiveTest('sigplot no xlabel', 'Is the label say None (U)?', function() {
+interactiveTest('sigplot no xlabel', 'Is the label say None (U)?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         xlabel: null
     });
 });
-interactiveTest('sigplot no label', 'Is the label completely hidden?', function() {
+interactiveTest('sigplot no label', 'Is the label completely hidden?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         xlabel: null,
         ylabel: null
     });
 });
-interactiveTest('sigplot custom font', 'Is the font changed from the default?', function() {
+interactiveTest('sigplot custom font', 'Is the font changed from the default?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         font_family: "Comic Sans MS, cursive, sans-serif"
     });
 });
-interactiveTest('sigplot fixed font size', 'Is the font size normal?', function() {
+interactiveTest('sigplot fixed font size', 'Is the font size normal?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     container.style.width = "300px";
     var plot = new sigplot.Plot(container);
 });
-interactiveTest('sigplot fixed font size', 'Is the font size large?', function() {
+interactiveTest('sigplot fixed font size', 'Is the font size large?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     container.style.width = "300px";
     var plot = new sigplot.Plot(container, {
         font_width: 12
     });
 });
-interactiveTest('sigplot fixed font size', 'Is the font size scaled smaller?', function() {
+interactiveTest('sigplot fixed font size', 'Is the font size scaled smaller?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     container.style.width = "300px";
     var plot = new sigplot.Plot(container, {
         font_scaled: true
     });
 });
-interactiveTest('sigplot bottom scrollbar', 'Is the x scrollbar on the bottom?', function() {
+interactiveTest('sigplot bottom scrollbar', 'Is the x scrollbar on the bottom?', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         noreadout: true,
         xlabel: null,
@@ -1689,10 +1719,10 @@ interactiveTest('sigplot bottom scrollbar', 'Is the x scrollbar on the bottom?',
         x_scrollbar_location: "bottom"
     });
 });
-interactiveTest('sigplot minimal chrome', 'Is the plot devoid of chrome', function() {
+interactiveTest('sigplot minimal chrome', 'Is the plot devoid of chrome', function(assert) {
     var container = document.getElementById('plot');
-    equal(container.childNodes.length, 0);
-    equal(ifixture.childNodes.length, 1);
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 1);
     var plot = new sigplot.Plot(container, {
         noreadout: true,
         xlabel: null,
@@ -1710,20 +1740,20 @@ interactiveTest('sigplot minimal chrome', 'Is the plot devoid of chrome', functi
         file_name: "ramp"
     });
 });
-interactiveTest('sigplot menu no mtag', 'Open the menu and move it, ensure mtag events are not alerted', function() {
+interactiveTest('sigplot menu no mtag', 'Open the menu and move it, ensure mtag events are not alerted', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.addListener("mtag", function(evt) {
         alert("Mtag occurred!");
     });
 });
-interactiveTest('sigplot continuous mtag', 'Ensure continuous mtag updates', function() {
+interactiveTest('sigplot continuous mtag', 'Ensure continuous mtag updates', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xcnt: "continuous"
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     var output = document.createElement("p");
     output.innerHTML = "";
@@ -1732,10 +1762,10 @@ interactiveTest('sigplot continuous mtag', 'Ensure continuous mtag updates', fun
         output.innerHTML = "X: " + evt.x.toFixed(8) + " Y: " + evt.y.toFixed(8);
     });
 });
-interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() {
+interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
@@ -1744,10 +1774,10 @@ interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function() 
         file_name: "ramp"
     });
 });
-interactiveTest('sigplot ramp', 'Do you see a sin wave?', function() {
+interactiveTest('sigplot ramp', 'Do you see a sin wave?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
@@ -1756,10 +1786,10 @@ interactiveTest('sigplot ramp', 'Do you see a sin wave?', function() {
         name: "x"
     });
 });
-interactiveTest('empty t1000 array', 'Do you see a plot with two pulses?', function() {
+interactiveTest('empty t1000 array', 'Do you see a plot with two pulses?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.overlay_array([], {
         file_name: "data1"
     });
@@ -1783,10 +1813,10 @@ interactiveTest('empty t1000 array', 'Do you see a plot with two pulses?', funct
     plot.reload(0, pulse1);
     plot.reload(1, pulse2);
 });
-interactiveTest('empty t2000 array', 'Do you see a plot with two pulses?', function() {
+interactiveTest('empty t2000 array', 'Do you see a plot with two pulses?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.overlay_array([], {
         type: 2000,
         subsize: 1000,
@@ -1818,10 +1848,10 @@ interactiveTest('empty t2000 array', 'Do you see a plot with two pulses?', funct
     plot.reload(0, pulse1);
     plot.reload(1, pulse2);
 });
-interactiveTest('sigplot triangle symbol', 'Do you see triangle symbols?', function() {
+interactiveTest('sigplot triangle symbol', 'Do you see triangle symbols?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 20; i++) {
         ramp.push(i);
@@ -1832,10 +1862,10 @@ interactiveTest('sigplot triangle symbol', 'Do you see triangle symbols?', funct
         line: 0
     });
 });
-interactiveTest('sigplot custom symbol', 'Do you see custom symbols, alternating RGB?', function() {
+interactiveTest('sigplot custom symbol', 'Do you see custom symbols, alternating RGB?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     function custom_symbol(ctx, i, x, y) {
         var n = (i % 3);
@@ -1864,12 +1894,12 @@ interactiveTest('sigplot custom symbol', 'Do you see custom symbols, alternating
         line: 0
     });
 });
-interactiveTest('sigplot custom symbol complex', 'Do you see custom symbols in RGB order (groups of 3)?', function() {
+interactiveTest('sigplot custom symbol complex', 'Do you see custom symbols in RGB order (groups of 3)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         cmode: "RI"
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     function custom_symbol(ctx, i, x, y) {
         var n = (i % 3);
@@ -1898,10 +1928,10 @@ interactiveTest('sigplot custom symbol complex', 'Do you see custom symbols in R
         line: 0
     });
 });
-interactiveTest('sigplot custom symbol-line', 'Do you see custom symbols?', function() {
+interactiveTest('sigplot custom symbol-line', 'Do you see custom symbols?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     function custom_symbol(ctx, i, x, y) {
         var n = (i % 3);
@@ -1929,12 +1959,12 @@ interactiveTest('sigplot custom symbol-line', 'Do you see custom symbols?', func
         symbol: custom_symbol
     });
 });
-interactiveTest('sigplot custom xmult', 'Do you see the x-axis in "hecto-" units (0-40)?', function() {
+interactiveTest('sigplot custom xmult', 'Do you see the x-axis in "hecto-" units (0-40)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xmult: 100
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
@@ -1943,10 +1973,10 @@ interactiveTest('sigplot custom xmult', 'Do you see the x-axis in "hecto-" units
         name: "x"
     });
 });
-interactiveTest('sigplot penny 1d legend default', 'Do you see a 1d penny with properly labeled legend (default)?', function() {
+interactiveTest('sigplot penny 1d legend default', 'Do you see a 1d penny with properly labeled legend (default)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
@@ -1955,10 +1985,10 @@ interactiveTest('sigplot penny 1d legend default', 'Do you see a 1d penny with p
         layerType: sigplot.Layer1D
     });
 });
-interactiveTest('sigplot penny 1d legend string override', 'Do you see a penny with properly labeled legend (abc)?', function() {
+interactiveTest('sigplot penny 1d legend string override', 'Do you see a penny with properly labeled legend (abc)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
@@ -1968,10 +1998,10 @@ interactiveTest('sigplot penny 1d legend string override', 'Do you see a penny w
         name: "abc"
     });
 });
-interactiveTest('sigplot penny 1d legend multiple', 'Do you see a penny with properly labeled legend (one, two, three)?', function() {
+interactiveTest('sigplot penny 1d legend multiple', 'Do you see a penny with properly labeled legend (one, two, three)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
@@ -1981,10 +2011,10 @@ interactiveTest('sigplot penny 1d legend multiple', 'Do you see a penny with pro
         name: ["one", "two", "three"]
     });
 });
-interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis for 999.9965-999.9985?', function() {
+interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis for 999.9965-999.9985?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 4096; i++) {
         ramp.push(i);
@@ -1996,10 +2026,10 @@ interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis fo
         format: "SF"
     });
 });
-interactiveTest('sigplot xtimecode', 'Do you see a timecode xaxis 0 to 1h?', function() {
+interactiveTest('sigplot xtimecode', 'Do you see a timecode xaxis 0 to 1h?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 4096; i++) {
         ramp.push(i);
@@ -2010,10 +2040,10 @@ interactiveTest('sigplot xtimecode', 'Do you see a timecode xaxis 0 to 1h?', fun
         xunits: 4
     });
 });
-interactiveTest('sigplot ytimecode', 'Do you see a timecode yaxis?', function() {
+interactiveTest('sigplot ytimecode', 'Do you see a timecode yaxis?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 31449600; i < 31449600 + 4096; i++) {
         ramp.push(i);
@@ -2024,10 +2054,10 @@ interactiveTest('sigplot ytimecode', 'Do you see a timecode yaxis?', function() 
         yunits: 4
     });
 });
-interactiveTest('sigplot ytimecode w/dates', 'Do you see a timecode yaxis?', function() {
+interactiveTest('sigplot ytimecode w/dates', 'Do you see a timecode yaxis?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     var now = Date.now() / 1000;
     for (var i = now; i < now + 2000; i++) {
@@ -2039,13 +2069,13 @@ interactiveTest('sigplot ytimecode w/dates', 'Do you see a timecode yaxis?', fun
         yunits: 4
     });
 });
-interactiveTest('sigplot custom xlabel/ylabel', 'Do you see custom xlabel/ylabel?', function() {
+interactiveTest('sigplot custom xlabel/ylabel', 'Do you see custom xlabel/ylabel?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xlabel: "CustomX",
         ylabel: "CustomY"
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     var now = Date.now() / 1000;
     for (var i = now; i < now + 2000; i++) {
@@ -2057,7 +2087,7 @@ interactiveTest('sigplot custom xlabel/ylabel', 'Do you see custom xlabel/ylabel
         yunits: 4
     });
 });
-interactiveTest('sigplot custom function xlabel/ylabel', 'Do you see custom xlabel/ylabel?', function() {
+interactiveTest('sigplot custom function xlabel/ylabel', 'Do you see custom xlabel/ylabel?', function(assert) {
     var xlabel = function(units, mult) {
         return "CustomX - " + units + " " + mult;
     };
@@ -2069,7 +2099,7 @@ interactiveTest('sigplot custom function xlabel/ylabel', 'Do you see custom xlab
         xlabel: xlabel,
         ylabel: ylabel
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     var now = Date.now() / 1000;
     for (var i = now; i < now + 2000; i++) {
@@ -2081,7 +2111,8 @@ interactiveTest('sigplot custom function xlabel/ylabel', 'Do you see custom xlab
         yunits: 4
     });
 });
-interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', function() {
+interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autox: 3,
@@ -2125,10 +2156,10 @@ interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', func
     plot1(plot);
     plot2(plot);
 });
-interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (a) vs. Time code format"?', function() {
+interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (a) vs. Time code format"?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
@@ -2138,10 +2169,10 @@ interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY
         ylab: ["CustomY", "a"]
     });
 });
-interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (Ka) vs. CustomX"?', function() {
+interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY (Ka) vs. CustomX"?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1024; i++) {
         ramp.push(i);
@@ -2153,10 +2184,10 @@ interactiveTest('sigplot custom axis label', 'Do you see the axis label "CustomY
         ylab: ["CustomY", "a"]
     });
 });
-interactiveTest('check-xaxis-creep-reload', 'Do you see a pulse staying stationary on the x-axis?', function() {
+interactiveTest('check-xaxis-creep-reload', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 2;
     var pulse_position = 50;
@@ -2174,10 +2205,10 @@ interactiveTest('check-xaxis-creep-reload', 'Do you see a pulse staying stationa
         plot.reload(0, pulse);
     }, 100);
 });
-interactiveTest('check-xaxis-creep-reload-oddsize', 'Do you see a pulse staying stationary on the x-axis?', function() {
+interactiveTest('check-xaxis-creep-reload-oddsize', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 2;
     var pulse_position = 50;
@@ -2195,10 +2226,10 @@ interactiveTest('check-xaxis-creep-reload-oddsize', 'Do you see a pulse staying 
         plot.reload(0, pulse);
     }, 100);
 });
-interactiveTest('check-xaxis-creep-push', 'Do you see a pulse staying stationary on the x-axis?', function() {
+interactiveTest('check-xaxis-creep-push', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 2;
     var pulse_position = 50;
@@ -2219,10 +2250,10 @@ interactiveTest('check-xaxis-creep-push', 'Do you see a pulse staying stationary
         plot.push(0, pulse);
     }, 100);
 });
-interactiveTest('check-xaxis-creep-push-oddsize', 'Do you see a pulse staying stationary on the x-axis?', function() {
+interactiveTest('check-xaxis-creep-push-oddsize', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 2;
     var pulse_position = 50;
@@ -2243,10 +2274,10 @@ interactiveTest('check-xaxis-creep-push-oddsize', 'Do you see a pulse staying st
         plot.push(0, pulse);
     }, 100);
 });
-interactiveTest('check-xaxis-creep-push-partial', 'Do you see a pulse staying stationary on the x-axis?', function() {
+interactiveTest('check-xaxis-creep-push-partial', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 2;
     var pulse_position = 50;
@@ -2268,10 +2299,10 @@ interactiveTest('check-xaxis-creep-push-partial', 'Do you see a pulse staying st
         plot.push(0, pulse.slice(50, 100));
     }, 100);
 });
-interactiveTest('reload', 'Do you see a pulse scrolling right?', function() {
+interactiveTest('reload', 'Do you see a pulse scrolling right?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 5;
     var pulse_position = 0;
@@ -2297,12 +2328,12 @@ interactiveTest('reload', 'Do you see a pulse scrolling right?', function() {
         plot.reload(0, pulse);
     }, 100);
 });
-interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimecode axis?', function() {
+interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimecode axis?', function(assert) {
     var epochDelta = (20.0 * 365.0 + 5.0) * (24 * 3600 * 1000);
     var currentTime = (new Date().getTime() + epochDelta) / 1000;
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 5;
     var pulse_position = 0;
@@ -2333,10 +2364,10 @@ interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimeco
         });
     }, 100);
 });
-interactiveTest('t2000 odd-size layer1D (reload)', 'Do you see a stationary pulse?', function() {
+interactiveTest('t2000 odd-size layer1D (reload)', 'Do you see a stationary pulse?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 5;
     var pulse_position = 8192;
@@ -2365,10 +2396,10 @@ interactiveTest('t2000 odd-size layer1D (reload)', 'Do you see a stationary puls
         plot.reload(0, pulse);
     }, 100);
 });
-interactiveTest('t2000 odd-size layer1D (push)', 'Do you see a stationary pulse?', function() {
+interactiveTest('t2000 odd-size layer1D (push)', 'Do you see a stationary pulse?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 5;
     var pulse_position = 8192;
@@ -2397,10 +2428,10 @@ interactiveTest('t2000 odd-size layer1D (push)', 'Do you see a stationary pulse?
         plot.push(0, pulse);
     }, 100);
 });
-interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)?', function() {
+interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 5;
     var pulse_position = 0;
@@ -2429,10 +2460,10 @@ interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)
         plot.reload(0, pulse);
     }, 100);
 });
-interactiveTest('zoom-xdelta', 'Is the plot fully scaled displaying a ramp?', function() {
+interactiveTest('zoom-xdelta', 'Is the plot fully scaled displaying a ramp?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1000; i++) {
         ramp.push(i);
@@ -2454,10 +2485,10 @@ interactiveTest('zoom-xdelta', 'Is the plot fully scaled displaying a ramp?', fu
     });
     plot.unzoom();
 });
-interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis shifts?', function() {
+interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis shifts?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 1;
     var pulse_position = 500;
@@ -2492,10 +2523,10 @@ interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis shi
         });
     }, 1000);
 });
-interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis grows?', function() {
+interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis grows?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var pulse = [];
     var pulse_width = 1;
     var pulse_position = 500;
@@ -2522,10 +2553,10 @@ interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis gro
         });
     }, 5000);
 });
-interactiveTest('scrolling line', 'Do you see a scrolling random data plot (0 to 1 ) that does not scale', function() {
+interactiveTest('scrolling line', 'Do you see a scrolling random data plot (0 to 1 ) that does not scale', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         ymin: -2,
         ymax: 2
@@ -2544,10 +2575,10 @@ interactiveTest('scrolling line', 'Do you see a scrolling random data plot (0 to
         plot.push(0, random);
     }, 100);
 });
-interactiveTest('complex scrolling line', 'Do you see a scrolling random data (0 to 1) plot that auto-scales', function() {
+interactiveTest('complex scrolling line', 'Do you see a scrolling random data (0 to 1) plot that auto-scales', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         cmode: 3,
         autol: 5
@@ -2567,12 +2598,12 @@ interactiveTest('complex scrolling line', 'Do you see a scrolling random data (0
         plot.push(0, random);
     }, 100);
 });
-interactiveTest('autoy with all zeros', 'Does the autoscaling properly work and keep both magenta and blue lines fully visible?', function() {
+interactiveTest('autoy with all zeros', 'Does the autoscaling properly work and keep both magenta and blue lines fully visible?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autoy: 3
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var random = [];
     var zeros = [];
     for (var i = 0; i <= 1000; i += 1) {
@@ -2596,13 +2627,13 @@ interactiveTest('autoy with all zeros', 'Does the autoscaling properly work and 
         iter += 1;
     }, 500);
 });
-interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly work?', function() {
+interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly work?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autol: 2,
         autoy: 3
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var random = [];
     var zeros = [];
     for (var i = 0; i <= 1000; i += 1) {
@@ -2635,10 +2666,10 @@ interactiveTest('autoy with all zeros (pipe)', 'Does the autoscaling properly wo
 
 // By default, rasters have their autolevel set by the
 // first 16 raster-lines.
-interactiveTest('t2000 file (default autol)', 'Is the plot red below the ~16th line?', function() {
+interactiveTest('t2000 file (default autol)', 'Is the plot red below the ~16th line?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     var framesize = 128;
     var height = 120;
@@ -2659,12 +2690,12 @@ interactiveTest('t2000 file (default autol)', 'Is the plot red below the ~16th l
 
 // When autol is used, the raster scaling will dynamically updated per-line
 // with autol=1 each line is scaled by itself, so this should render as vertical bars
-interactiveTest('t2000 file (default autol)', 'Does the plot render a vertical bars?', function() {
+interactiveTest('t2000 file (default autol)', 'Does the plot render a vertical bars?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autol: 1
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     var framesize = 128;
     var height = 120;
@@ -2687,12 +2718,12 @@ interactiveTest('t2000 file (default autol)', 'Does the plot render a vertical b
 // the right side should start as constant red and then around 110 switch to a gradient
 // that gradually go back to all red.  The 'height' of the rainbow grows as autol
 // is increased
-interactiveTest('t2000 file (default autol)', 'Does the plot render a gradient on the right?', function() {
+interactiveTest('t2000 file (default autol)', 'Does the plot render a gradient on the right?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autol: 5
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     var framesize = 128;
     var height = 120;
@@ -2721,10 +2752,10 @@ interactiveTest('t2000 file (default autol)', 'Does the plot render a gradient o
     });
 });
 
-interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autoscale after 100 rows?', function() {
+interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autoscale after 100 rows?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data = [];
     for (var i = 0; i < 16384; i++) {
         data.push(0);
@@ -2745,12 +2776,12 @@ interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autosc
         plot.push(0, data);
     }, 100);
 });
-interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', function() {
+interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         smoothing: true
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data = [];
     for (var i = 0; i < 16384; i++) {
         if ((i % 3 === 0) && (i > 400) && (i < 800)) {
@@ -2773,12 +2804,12 @@ interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', functi
         plot.push(0, data);
     }, 100);
 });
-interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function() {
+interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xcmp: 1
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data = [];
     for (var i = 0; i < 16384; i++) {
         if ((i > 400) && (i < 800)) {
@@ -2811,12 +2842,12 @@ interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines
         plot.push(0, data);
     }, 100);
 });
-interactiveTest('layer2D (min compression)', 'Do you see two lines of the same color?', function() {
+interactiveTest('layer2D (min compression)', 'Do you see two lines of the same color?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xcmp: 2
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data = [];
     for (var i = 0; i < 16384; i++) {
         if ((i > 400) && (i < 800)) {
@@ -2849,12 +2880,12 @@ interactiveTest('layer2D (min compression)', 'Do you see two lines of the same c
         plot.push(0, data);
     }, 100);
 });
-interactiveTest('layer2D (max compression)', 'Do you see two lines of the same color?', function() {
+interactiveTest('layer2D (max compression)', 'Do you see two lines of the same color?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xcmp: 3
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data = [];
     for (var i = 0; i < 16384; i++) {
         if ((i > 400) && (i < 800)) {
@@ -2887,12 +2918,12 @@ interactiveTest('layer2D (max compression)', 'Do you see two lines of the same c
         plot.push(0, data);
     }, 100);
 });
-interactiveTest('layer2D (abs-max compression)', 'Do you see two lines of the same color?', function() {
+interactiveTest('layer2D (abs-max compression)', 'Do you see two lines of the same color?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xcmp: 5
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data = [];
     for (var i = 0; i < 16384; i++) {
         if ((i > 400) && (i < 800)) {
@@ -2925,10 +2956,10 @@ interactiveTest('layer2D (abs-max compression)', 'Do you see two lines of the sa
         plot.push(0, data);
     }, 100);
 });
-interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 July 4th for one hour (use "t" to check)?', function() {
+interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 July 4th for one hour (use "t" to check)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var framesize = 128;
     var height = 120;
     var ramp = [];
@@ -2946,10 +2977,10 @@ interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 Ju
         timecode: sigplot.m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
     });
 });
-interactiveTest('raster (smoothing)', 'Is the following raster smoothed?', function() {
+interactiveTest('raster (smoothing)', 'Is the following raster smoothed?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         rasterSmoothing: true
     });
@@ -2967,10 +2998,10 @@ interactiveTest('raster (smoothing)', 'Is the following raster smoothed?', funct
         file_name: "ramp"
     });
 });
-interactiveTest('raster (smart-smoothing)', 'Is the following raster smoothed until zoomed?', function() {
+interactiveTest('raster (smart-smoothing)', 'Is the following raster smoothed until zoomed?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         rasterSmoothing: 3.0
     });
@@ -2990,38 +3021,38 @@ interactiveTest('raster (smart-smoothing)', 'Is the following raster smoothed un
         timecode: sigplot.m.j1970toj1950(new Date("2014-07-04T00:00:00Z"))
     });
 });
-interactiveTest('sigplot penny', 'Do you see a raster of a penny', function() {
+interactiveTest('sigplot penny', 'Do you see a raster of a penny', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.overlay_href("dat/penny.prm");
 });
-interactiveTest('sigplot b&w penny 1', 'Do you see a b&w penny', function() {
+interactiveTest('sigplot b&w penny 1', 'Do you see a b&w penny', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xc: 0
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.overlay_href("dat/penny.prm");
 });
-interactiveTest('sigplot b&w penny 2', 'Do you see a b&w penny', function() {
+interactiveTest('sigplot b&w penny 2', 'Do you see a b&w penny', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         cmap: "Greyscale"
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.overlay_href("dat/penny.prm");
 });
-interactiveTest('sigplot b&w penny 3', 'Do you see a b&w penny', function() {
+interactiveTest('sigplot b&w penny 3', 'Do you see a b&w penny', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         cmap: "Greyscale"
     });
 });
-interactiveTest('sigplot (custom cmap) penny', 'Do you see a red penny', function() {
+interactiveTest('sigplot (custom cmap) penny', 'Do you see a red penny', function(assert) {
     var container = document.getElementById('plot');
     var colors = [{
         pos: 0,
@@ -3062,36 +3093,36 @@ interactiveTest('sigplot (custom cmap) penny', 'Do you see a red penny', functio
     var plot = new sigplot.Plot(container, {
         cmap: colors
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.overlay_href("dat/penny.prm");
 });
-interactiveTest('sigplot penny (scaled)', 'Manually scale the Z-axis, does it work (i.e. all blue)?', function() {
+interactiveTest('sigplot penny (scaled)', 'Manually scale the Z-axis, does it work (i.e. all blue)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         zmin: 50,
         zmax: 100
     });
-    notEqual(plot, null);
-    equal(plot._Gx.zmin, 50);
-    equal(plot._Gx.zmax, 100);
-    equal(plot._Gx.autoz, 0);
+    assert.notEqual(plot, null);
+    assert.equal(plot._Gx.zmin, 50);
+    assert.equal(plot._Gx.zmax, 100);
+    assert.equal(plot._Gx.autoz, 0);
     plot.overlay_href("dat/penny.prm", function() {
-        equal(plot._Gx.zmin, 50);
-        equal(plot._Gx.zmax, 100);
+        assert.equal(plot._Gx.zmin, 50);
+        assert.equal(plot._Gx.zmax, 100);
         plot.change_settings({
             zmin: 25
         });
-        equal(plot._Gx.zmin, 25);
+        assert.equal(plot._Gx.zmin, 25);
         plot.change_settings({
             zmax: 1000
         });
-        equal(plot._Gx.zmax, 1000);
+        assert.equal(plot._Gx.zmax, 1000);
     });
 });
-interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function() {
+interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3110,10 +3141,10 @@ interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function()
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster with two pipes?', function() {
+interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster with two pipes?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     // typically when you have two raster layers you will want
     // to manually fix both zmin and zmax, otherwise they will
     // both be trying to adjust the zmin/zmax for autoscaling
@@ -3128,7 +3159,7 @@ interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster wit
         file_name: "layer0",
         ydelta: 0.25
     });
-    equal(layer_0, 0);
+    assert.equal(layer_0, 0);
     var layer_1 = plot.overlay_pipe({
         type: 2000,
         subsize: Math.floor(framesize / 3),
@@ -3137,7 +3168,7 @@ interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster wit
     }, {
         opacity: 0.5
     });
-    equal(layer_1, 1);
+    assert.equal(layer_1, 1);
 
     ifixture.interval = window.setInterval(function() {
         var ramp = [];
@@ -3155,14 +3186,14 @@ interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster wit
         plot.push(layer_1, ramp);
     }, 100);
 });
-interactiveTest('scrolling raster fixed scale', 'Do you see a scrolling raster?', function() {
+interactiveTest('scrolling raster fixed scale', 'Do you see a scrolling raster?', function(assert) {
     var container = document.getElementById('plot');
     // the colors will start around 50 and max out around 100
     var plot = new sigplot.Plot(container, {
         zmin: 50,
         zmax: 100
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var framesize = 128;
     plot.overlay_pipe({
         type: 2000,
@@ -3178,10 +3209,10 @@ interactiveTest('scrolling raster fixed scale', 'Do you see a scrolling raster?'
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('scrolling raster (scaled)', 'Do you see the scaling change correctly?', function() {
+interactiveTest('scrolling raster (scaled)', 'Do you see the scaling change correctly?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3210,10 +3241,10 @@ interactiveTest('scrolling raster (scaled)', 'Do you see the scaling change corr
         }
     }, 100);
 });
-interactiveTest('raster (small xdelta)', 'Do you see the expected raster?', function() {
+interactiveTest('raster (small xdelta)', 'Do you see the expected raster?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3233,10 +3264,10 @@ interactiveTest('raster (small xdelta)', 'Do you see the expected raster?', func
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('zoomed scrolling raster', 'Do you see a scrolling raster with no render errors?', function() {
+interactiveTest('zoomed scrolling raster', 'Do you see a scrolling raster with no render errors?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3262,10 +3293,10 @@ interactiveTest('zoomed scrolling raster', 'Do you see a scrolling raster with n
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('falling raster', 'Do you see a falling raster?', function() {
+interactiveTest('falling raster', 'Do you see a falling raster?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3286,12 +3317,12 @@ interactiveTest('falling raster', 'Do you see a falling raster?', function() {
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('xcmp raster align check', 'Do you see a line centered at 6000?', function() {
+interactiveTest('xcmp raster align check', 'Do you see a line centered at 6000?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         xcmp: 3
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var framesize = 9000;
     plot.overlay_pipe({
         type: 2000,
@@ -3310,10 +3341,10 @@ interactiveTest('xcmp raster align check', 'Do you see a line centered at 6000?'
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('falling raster (timecode)', 'Do you see a falling raster that starts at 2014 July 4th?', function() {
+interactiveTest('falling raster (timecode)', 'Do you see a falling raster that starts at 2014 July 4th?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3336,10 +3367,10 @@ interactiveTest('falling raster (timecode)', 'Do you see a falling raster that s
         plot.push(0, ramp);
     }, 500);
 });
-interactiveTest('falling raster (timestamp)', 'Do you see a falling raster that starts at 2014 July 4th?', function() {
+interactiveTest('falling raster (timestamp)', 'Do you see a falling raster that starts at 2014 July 4th?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3365,10 +3396,10 @@ interactiveTest('falling raster (timestamp)', 'Do you see a falling raster that 
         now.setSeconds(now.getSeconds() + 0.5);
     }, 500);
 });
-interactiveTest('rising raster', 'Do you see a rising raster?', function() {
+interactiveTest('rising raster', 'Do you see a rising raster?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3389,10 +3420,10 @@ interactiveTest('rising raster', 'Do you see a rising raster?', function() {
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('rising raster (timecode)', 'Do you see a rising raster that starts at 2014 July 4th?', function() {
+interactiveTest('rising raster (timecode)', 'Do you see a rising raster that starts at 2014 July 4th?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3415,10 +3446,10 @@ interactiveTest('rising raster (timecode)', 'Do you see a rising raster that sta
         plot.push(0, ramp);
     }, 500);
 });
-interactiveTest('rising raster (timestamp)', 'Do you see a rising raster that starts at 2014 July 4th?', function() {
+interactiveTest('rising raster (timestamp)', 'Do you see a rising raster that starts at 2014 July 4th?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3444,10 +3475,10 @@ interactiveTest('rising raster (timestamp)', 'Do you see a rising raster that st
         now.setSeconds(now.getSeconds() + 0.5);
     }, 500);
 });
-interactiveTest('raster changing xstart', 'Do you see a falling raster that stays the same while the axis shifts?', function() {
+interactiveTest('raster changing xstart', 'Do you see a falling raster that stays the same while the axis shifts?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3475,14 +3506,14 @@ interactiveTest('raster changing xstart', 'Do you see a falling raster that stay
         });
     }, 500);
 });
-interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with alternating cursor speed every 10 seconds?', function() {
+interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with alternating cursor speed every 10 seconds?', function(assert) {
     var container = document.getElementById('plot');
     var initialLps = 50;
     var alternateLps = 200;
     var lpsVals = [initialLps, alternateLps];
     var currentLps = lpsVals[0];
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3510,7 +3541,7 @@ interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with
             ydelta: 0.25
         });
     };
-    strictEqual(plot.get_layer(0).lps, initialLps);
+    assert.strictEqual(plot.get_layer(0).lps, initialLps);
     var count = 0;
     ifixture.interval = window.setInterval(function() {
         count++;
@@ -3526,10 +3557,10 @@ interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with
         });
     }, 500);
 });
-interactiveTest('raster changing xdelta', 'Do you see a falling raster that stays the same while the axis increases?', function() {
+interactiveTest('raster changing xdelta', 'Do you see a falling raster that stays the same while the axis increases?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3552,10 +3583,10 @@ interactiveTest('raster changing xdelta', 'Do you see a falling raster that stay
         });
     }, 500);
 });
-interactiveTest('large framesize falling raster', 'Do you see a falling raster?', function() {
+interactiveTest('large framesize falling raster', 'Do you see a falling raster?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5,
         all: true
@@ -3575,10 +3606,10 @@ interactiveTest('large framesize falling raster', 'Do you see a falling raster?'
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('complex data falling raster', 'Do you see a falling raster?', function() {
+interactiveTest('complex data falling raster', 'Do you see a falling raster?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -3599,10 +3630,10 @@ interactiveTest('complex data falling raster', 'Do you see a falling raster?', f
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?', function() {
+interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         cmode: 5
     });
@@ -3632,10 +3663,10 @@ interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?', functi
         plot.push(0, data);
     }, 100);
 });
-interactiveTest('rescale', 'Do you see a plot that scales -2 to 2?', function() {
+interactiveTest('rescale', 'Do you see a plot that scales -2 to 2?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data1 = [];
     for (var i = 0; i < 1024; i++) {
         data1.push(i % 2);
@@ -3661,10 +3692,10 @@ interactiveTest('rescale', 'Do you see a plot that scales -2 to 2?', function() 
 // will implicitly change the autoy settings
 interactiveTest('sigplot layer1d change_settings ymin/ymax ',
     'Do you see a plot scaled from -10 to 50',
-    function() {
+    function(assert) {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
-        notEqual(plot, null);
+        assert.notEqual(plot, null);
 
         var pulse = [];
         for (var i = 0; i <= 1000; i += 1) {
@@ -3684,10 +3715,10 @@ interactiveTest('sigplot layer1d change_settings ymin/ymax ',
 
 interactiveTest('sigplot layer1d change_settings ymin/ymax ',
     'Do you see a plot scaled from 0.2 to 50',
-    function() {
+    function(assert) {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
-        notEqual(plot, null);
+        assert.notEqual(plot, null);
 
         var pulse = [];
         for (var i = 0; i <= 1000; i += 1) {
@@ -3706,10 +3737,10 @@ interactiveTest('sigplot layer1d change_settings ymin/ymax ',
 
 interactiveTest('sigplot layer1d change_settings ymin/ymax ',
     'Do you see a plot scaled from -10 to 10.2',
-    function() {
+    function(assert) {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
-        notEqual(plot, null);
+        assert.notEqual(plot, null);
 
         var pulse = [];
         for (var i = 0; i <= 1000; i += 1) {
@@ -3730,10 +3761,10 @@ interactiveTest('sigplot layer1d change_settings ymin/ymax ',
 // back to null
 interactiveTest('sigplot layer1d change_settings ymin/ymax ',
     'Do you see a plot scaled from 0.2 to 10.2',
-    function() {
+    function(assert) {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
-        notEqual(plot, null);
+        assert.notEqual(plot, null);
 
         var pulse = [];
         for (var i = 0; i <= 1000; i += 1) {
@@ -3756,10 +3787,10 @@ interactiveTest('sigplot layer1d change_settings ymin/ymax ',
     });
 interactiveTest('sigplot layer1d framesize change',
     'Do you see a plots where the x-axis grows in size and the triangle stays centered?',
-    function() {
+    function(assert) {
         var container = document.getElementById('plot');
         var plot = new sigplot.Plot(container, {});
-        notEqual(plot, null);
+        assert.notEqual(plot, null);
 
         var current_framesize = 100;
         plot.overlay_pipe({
@@ -3788,14 +3819,14 @@ interactiveTest('sigplot layer1d framesize change',
         }, 2000);
     });
 
-interactiveTest('LO ymin/ymax', 'Do you see a plot that scales -100 to -20?', function() {
+interactiveTest('LO ymin/ymax', 'Do you see a plot that scales -100 to -20?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         ymin: 1e-10,
         ymax: 1e-2,
         cmode: "LO"
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data1 = [];
     for (var i = 0; i < 1024; i++) {
         data1.push(i % 2);
@@ -3815,14 +3846,14 @@ interactiveTest('LO ymin/ymax', 'Do you see a plot that scales -100 to -20?', fu
         file_name: "data2"
     });
 });
-interactiveTest('D1 ymin/ymax', 'Do you see a plot that scales -100 to -20?', function() {
+interactiveTest('D1 ymin/ymax', 'Do you see a plot that scales -100 to -20?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         ymin: -100,
         ymax: -20,
         cmode: "D1"
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var data1 = [];
     for (var i = 0; i < 1024; i++) {
         data1.push(i % 2);
@@ -3842,10 +3873,10 @@ interactiveTest('D1 ymin/ymax', 'Do you see a plot that scales -100 to -20?', fu
         file_name: "data2"
     });
 });
-interactiveTest('annotations', 'Do you see a text annotation at the correct locations, fonts and colors?', function() {
+interactiveTest('annotations', 'Do you see a text annotation at the correct locations, fonts and colors?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     annotations.add_annotation({
@@ -3890,10 +3921,10 @@ interactiveTest('annotations', 'Do you see a text annotation at the correct loca
         popupTextColor: "red"
     });
 });
-interactiveTest('annotations png', 'Do you see a image annotation centered at 0,0 that has a popup on hover?', function() {
+interactiveTest('annotations png', 'Do you see a image annotation centered at 0,0 that has a popup on hover?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     var img = new Image(); // Create new img element
@@ -3907,10 +3938,10 @@ interactiveTest('annotations png', 'Do you see a image annotation centered at 0,
     };
     img.src = 'dat/info.png';
 });
-interactiveTest('annotations popup', 'Do you see an popup when you hover over the annotation?', function() {
+interactiveTest('annotations popup', 'Do you see an popup when you hover over the annotation?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     annotations.add_annotation({
@@ -3920,10 +3951,10 @@ interactiveTest('annotations popup', 'Do you see an popup when you hover over th
         popup: "This is metadata"
     });
 });
-interactiveTest('annotations custom popup', 'Do you see an popup when you hover over the annotation?', function() {
+interactiveTest('annotations custom popup', 'Do you see an popup when you hover over the annotation?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var tt;
     plot.addListener("annotationhighlight", function(evt) {
         // you could use tipped.js, opentip, bootstrap, etc. here
@@ -3953,10 +3984,10 @@ interactiveTest('annotations custom popup', 'Do you see an popup when you hover 
         value: "Test Custom Popup"
     });
 });
-interactiveTest('annotations shift', 'Do you see a text annotation that remains at the correct locations while the axis shifts?', function() {
+interactiveTest('annotations shift', 'Do you see a text annotation that remains at the correct locations while the axis shifts?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var annotations = new sigplot_plugins.AnnotationPlugin();
     plot.add_plugin(annotations);
     annotations.add_annotation({
@@ -4001,10 +4032,10 @@ interactiveTest('annotations shift', 'Do you see a text annotation that remains 
         });
     }, 500);
 });
-interactiveTest('annotation falling raster', 'Do you see annotations that scroll with the data?', function() {
+interactiveTest('annotation falling raster', 'Do you see annotations that scroll with the data?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var img = new Image(); // Create new img element
     img.src = 'dat/info.png';
     var annotations = new sigplot_plugins.AnnotationPlugin();
@@ -4048,10 +4079,10 @@ interactiveTest('annotation falling raster', 'Do you see annotations that scroll
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('annotation rising raster', 'Do you see annotations that scroll with the data?', function() {
+interactiveTest('annotation rising raster', 'Do you see annotations that scroll with the data?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var img = new Image(); // Create new img element
     img.src = 'dat/info.png';
     var annotations = new sigplot_plugins.AnnotationPlugin();
@@ -4095,10 +4126,10 @@ interactiveTest('annotation rising raster', 'Do you see annotations that scroll 
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('x-fixed annotation rising raster', 'Do you see annotations that do not scroll with the data?', function() {
+interactiveTest('x-fixed annotation rising raster', 'Do you see annotations that do not scroll with the data?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var img = new Image(); // Create new img element
     img.src = 'dat/info.png';
     var annotations = new sigplot_plugins.AnnotationPlugin();
@@ -4136,10 +4167,10 @@ interactiveTest('x-fixed annotation rising raster', 'Do you see annotations that
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('lots of annotations', 'Does the plot still seem smooth?', function() {
+interactiveTest('lots of annotations', 'Does the plot still seem smooth?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var img = new Image(); // Create new img element
     img.src = 'dat/info.png';
     var annotations = new sigplot_plugins.AnnotationPlugin();
@@ -4175,10 +4206,10 @@ interactiveTest('lots of annotations', 'Does the plot still seem smooth?', funct
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('vertical accordion', 'Do you see a vertical accordion that stays centered at zero as the axis shifts', function() {
+interactiveTest('vertical accordion', 'Do you see a vertical accordion that stays centered at zero as the axis shifts', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var framesize = 500;
     var zeros = [];
     for (var i = 0; i < framesize; i += 1) {
@@ -4217,12 +4248,12 @@ interactiveTest('vertical accordion', 'Do you see a vertical accordion that stay
         });
     }, 500);
 });
-interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at zero and each multiple of 80, scrolling with the data?', function() {
+interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at zero and each multiple of 80, scrolling with the data?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         nogrid: true
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -4267,10 +4298,10 @@ interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at ze
         plot.push(0, zeros);
     }, 100);
 });
-interactiveTest('vertical accordion relative placement', "Do you see a vertical accordion that doesn't move as the axis shifts?", function() {
+interactiveTest('vertical accordion relative placement', "Do you see a vertical accordion that doesn't move as the axis shifts?", function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -4312,12 +4343,12 @@ interactiveTest('vertical accordion relative placement', "Do you see a vertical 
         });
     }, 500);
 });
-interactiveTest('horizontal accordion relative placement', "Do you see a horizontal accordion that doesn't move with the data?", function() {
+interactiveTest('horizontal accordion relative placement', "Do you see a horizontal accordion that doesn't move with the data?", function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         nogrid: true
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var framesize = 128;
     plot.change_settings({
         autol: 5
@@ -4351,10 +4382,10 @@ interactiveTest('horizontal accordion relative placement', "Do you see a horizon
         plot.push(0, zeros);
     }, 100);
 });
-interactiveTest('horizontal and vertical accordions absolute placement zoom', 'Do the accordions stay at the same Real World Coordinates when you zoom?', function() {
+interactiveTest('horizontal and vertical accordions absolute placement zoom', 'Do the accordions stay at the same Real World Coordinates when you zoom?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var zeros = [];
     for (var i = 0; i <= 1000; i++) {
         zeros.push(0);
@@ -4387,10 +4418,10 @@ interactiveTest('horizontal and vertical accordions absolute placement zoom', 'D
     horiz_accordion.set_center(0);
     horiz_accordion.set_width(0.5);
 });
-interactiveTest('horizontal and vertical accordions relative placement zoom', 'Do the accordions stay at the same pixel location when you zoom?', function() {
+interactiveTest('horizontal and vertical accordions relative placement zoom', 'Do the accordions stay at the same pixel location when you zoom?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var zeros = [];
     for (var i = 0; i <= 1000; i++) {
         zeros.push(0);
@@ -4423,10 +4454,10 @@ interactiveTest('horizontal and vertical accordions relative placement zoom', 'D
     horiz_accordion.set_center(0.5);
     horiz_accordion.set_width(0.1);
 });
-interactiveTest('boxes', 'Do you see a boxes?', function() {
+interactiveTest('boxes', 'Do you see a boxes?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var boxes = new sigplot_plugins.BoxesPlugin();
     plot.add_plugin(boxes);
     boxes.add_box({
@@ -4462,10 +4493,10 @@ interactiveTest('boxes', 'Do you see a boxes?', function() {
         alpha: 0.25
     });
 });
-interactiveTest('clear boxes', 'Do you see one box?', function() {
+interactiveTest('clear boxes', 'Do you see one box?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var boxes = new sigplot_plugins.BoxesPlugin();
     plot.add_plugin(boxes);
     boxes.add_box({
@@ -4486,10 +4517,10 @@ interactiveTest('clear boxes', 'Do you see one box?', function() {
         });
     }, 1000);
 });
-interactiveTest('slider', 'Do you see a sliders?', function() {
+interactiveTest('slider', 'Do you see a sliders?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var slider1 = new sigplot_plugins.SliderPlugin({
         name: "Slider 1"
     });
@@ -4509,16 +4540,16 @@ interactiveTest('slider', 'Do you see a sliders?', function() {
     // the user
     plot.addListener("sliderdrag", function(evt) {});
 });
-interactiveTest('right-click zoom', 'Can you zoom with right-click and mark with left-click?', function() {
+interactiveTest('right-click zoom', 'Can you zoom with right-click and mark with left-click?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         rightclick_rubberbox_action: "zoom",
         rubberbox_action: null,
         always_show_marker: true
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 });
-interactiveTest('right-click select', 'Can you select with right-click, zoom with left-click, and mark with left-click?', function() {
+interactiveTest('right-click select', 'Can you select with right-click, zoom with left-click, and mark with left-click?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         rightclick_rubberbox_action: "select",
@@ -4526,19 +4557,19 @@ interactiveTest('right-click select', 'Can you select with right-click, zoom wit
         rubberbox_action: "zoom",
         always_show_marker: true
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 });
-interactiveTest('zoom-keep-marker', 'Does zooming not change the marker, but shows box size in the specs area?', function() {
+interactiveTest('zoom-keep-marker', 'Does zooming not change the marker, but shows box size in the specs area?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         always_show_marker: true
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 });
-interactiveTest('custom color line', 'Do you see an orange line?', function() {
+interactiveTest('custom color line', 'Do you see an orange line?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1000; i++) {
         ramp.push(i);
@@ -4549,10 +4580,10 @@ interactiveTest('custom color line', 'Do you see an orange line?', function() {
         color: "orange"
     });
 });
-interactiveTest('custom color line (change settings)', 'Do you see an orange line?', function() {
+interactiveTest('custom color line (change settings)', 'Do you see an orange line?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1000; i++) {
         ramp.push(i);
@@ -4563,10 +4594,10 @@ interactiveTest('custom color line (change settings)', 'Do you see an orange lin
     plot.get_layer(layer).color = "orange";
     plot.refresh();
 });
-interactiveTest('overlapping_highlights', 'Do you see an unbroken yellow line with red on each end?', function() {
+interactiveTest('overlapping_highlights', 'Do you see an unbroken yellow line with red on each end?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1000; i++) {
         ramp.push(i);
@@ -4600,10 +4631,10 @@ interactiveTest('overlapping_highlights', 'Do you see an unbroken yellow line wi
         color: "yellow"
     });
 });
-interactiveTest('overlapping_highlights', 'Do you see an unbroken red line?', function() {
+interactiveTest('overlapping_highlights', 'Do you see an unbroken red line?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1000; i++) {
         ramp.push(i);
@@ -4637,10 +4668,10 @@ interactiveTest('overlapping_highlights', 'Do you see an unbroken red line?', fu
         color: "red"
     });
 });
-interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow highlights?', function() {
+interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow highlights?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     for (var i = 0; i < 1000; i++) {
         ramp.push(i);
@@ -4695,7 +4726,8 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
         color: "red"
     });
 });
-interactiveTest('p-cuts: side and bottom plots', 'Do you see updating data when the mouse is moved in the x and y plots', function() {
+interactiveTest('p-cuts: side and bottom plots', 'Do you see updating data when the mouse is moved in the x and y plots', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
@@ -4703,7 +4735,8 @@ interactiveTest('p-cuts: side and bottom plots', 'Do you see updating data when 
         p_cuts: true
     });
 });
-interactiveTest('p-cuts: side and bottom plots turn on and off', 'Do the plots toggle on "p" key regardless of mouse postion?', function() {
+interactiveTest('p-cuts: side and bottom plots turn on and off', 'Do the plots toggle on "p" key regardless of mouse postion?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
@@ -4711,7 +4744,8 @@ interactiveTest('p-cuts: side and bottom plots turn on and off', 'Do the plots t
         p_cuts: true
     });
 });
-interactiveTest('p-cuts: x-cut', 'Does the x-plot show on "x" key regardless of mouse position and update when clicked open in different spot?', function() {
+interactiveTest('p-cuts: x-cut', 'Does the x-plot show on "x" key regardless of mouse position and update when clicked open in different spot?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
@@ -4719,7 +4753,8 @@ interactiveTest('p-cuts: x-cut', 'Does the x-plot show on "x" key regardless of 
         p_cuts: true
     });
 });
-interactiveTest('p-cuts: y-cut', 'Does the y-plot show on "y" key regardless of mouse position and update when clicked open in different spot?', function() {
+interactiveTest('p-cuts: y-cut', 'Does the y-plot show on "y" key regardless of mouse position and update when clicked open in different spot?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
@@ -4727,21 +4762,23 @@ interactiveTest('p-cuts: y-cut', 'Does the y-plot show on "y" key regardless of 
         p_cuts: true
     });
 });
-interactiveTest('p-cuts: turn on and off', 'Does the feature toggle with "p" key? Does everything resize correctly?', function() {
+interactiveTest('p-cuts: turn on and off', 'Does the feature toggle with "p" key? Does everything resize correctly?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
 });
-interactiveTest('p-cuts: x-cut and y-cut without p-cuts display', 'Do the x and y plot display when clicked without the smaller plots?', function() {
+interactiveTest('p-cuts: x-cut and y-cut without p-cuts display', 'Do the x and y plot display when clicked without the smaller plots?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
     //console.log(plot._Gx);
 });
-interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with p-cut functionality?', function() {
+interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with p-cut functionality?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5,
         enabled_streaming_pcut: true
@@ -4763,10 +4800,10 @@ interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with 
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with p-cut functionality?', function() {
+interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with p-cut functionality?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5,
         enabled_streaming_pcut: true
@@ -4788,10 +4825,10 @@ interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with p-
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster with p-cut functionality?', function() {
+interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster with p-cut functionality?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5,
         enabled_streaming_pcut: true
@@ -4813,7 +4850,8 @@ interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster w
         plot.push(0, ramp);
     }, 100);
 });
-interactiveTest('radius menu', 'Do you see a working radius option in the traces menu?', function() {
+interactiveTest('radius menu', 'Do you see a working radius option in the traces menu?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     var ramp = [];
@@ -4827,7 +4865,8 @@ interactiveTest('radius menu', 'Do you see a working radius option in the traces
         line: 0
     });
 });
-interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vertical line on every point?', function() {
+interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vertical line on every point?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     var ramp = [];
@@ -4840,15 +4879,16 @@ interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vert
         line: 4
     });
 });
-interactiveTest('colorbar in legend', 'does the colorbar show in the legend?', function() {
+interactiveTest('colorbar in legend', 'does the colorbar show in the legend?', function(assert) {
+    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     plot.overlay_href("dat/penny.prm");
 });
-interactiveTest('Legend', 'Are the correct functions modified from the legend??', function() {
+interactiveTest('Legend', 'Are the correct functions modified from the legend??', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     var ramp = [];
     var ramp2 = [];
     for (var i = 0; i < 20; i++) {
@@ -4867,10 +4907,10 @@ interactiveTest('Legend', 'Are the correct functions modified from the legend??'
         line: 3
     });
 });
-interactiveTest('raster drawmode change (scrolling -> rising -> scrolling)', 'Do you see the scrolling line?', function() {
+interactiveTest('raster drawmode change (scrolling -> rising -> scrolling)', 'Do you see the scrolling line?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -4899,10 +4939,10 @@ interactiveTest('raster drawmode change (scrolling -> rising -> scrolling)', 'Do
         }, 5000);
     }, 5000);
 });
-interactiveTest('raster drawmode change (scrolling -> falling -> scrolling)', 'Do you see the scrolling line?', function() {
+interactiveTest('raster drawmode change (scrolling -> falling -> scrolling)', 'Do you see the scrolling line?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
     plot.change_settings({
         autol: 5
     });
@@ -4931,14 +4971,14 @@ interactiveTest('raster drawmode change (scrolling -> falling -> scrolling)', 'D
         }, 5000);
     }, 5000);
 });
-interactiveTest('change_settings', 'does the plot show a range 200-2200', function() {
+interactiveTest('change_settings', 'does the plot show a range 200-2200', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autohide_panbars: false,
         cmode: 'LO',
         xcnt: 'continuous'
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     var hcb = {
         xunits: 3,
@@ -4958,43 +4998,38 @@ interactiveTest('change_settings', 'does the plot show a range 200-2200', functi
     }
     // do a syncronous push so we can make some assertions
     plot.push(0, ramp, null, true);
-    strictEqual(plot._Mx.stk[0].xmin, 0);
-    strictEqual(plot._Mx.stk[0].xmax, 20460);
+    assert.strictEqual(plot._Mx.stk[0].xmin, 0);
+    assert.strictEqual(plot._Mx.stk[0].xmax, 20460);
 
-    strictEqual(plot._Gx.lyr[0].xmin, 0);
-    strictEqual(plot._Gx.lyr[0].xmax, 20460);
+    assert.strictEqual(plot._Gx.lyr[0].xmin, 0);
+    assert.strictEqual(plot._Gx.lyr[0].xmax, 20460);
 
     plot.change_settings({
         xmin: 200,
         xmax: 2200
     });
-    strictEqual(plot._Mx.stk[0].xmin, 200);
-    strictEqual(plot._Mx.stk[0].xmax, 2200);
-
-    strictEqual(plot._Gx.lyr[0].xmin, 200);
-    strictEqual(plot._Gx.lyr[0].xmax, 2200);
+    assert.strictEqual(plot._Mx.stk[0].xmin, 200);
+    assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
     // do a syncronous refresh
     plot._refresh();
-    strictEqual(plot._Mx.stk[0].xmin, 200);
-    strictEqual(plot._Mx.stk[0].xmax, 2200);
+    assert.strictEqual(plot._Mx.stk[0].xmin, 200);
+    assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
     // and another push
     plot.push(0, ramp, null, true);
-    strictEqual(plot._Mx.stk[0].xmin, 200);
-    strictEqual(plot._Mx.stk[0].xmax, 2200);
+    assert.strictEqual(plot._Mx.stk[0].xmin, 200);
+    assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
-    strictEqual(plot._Gx.lyr[0].xmin, 200);
-    strictEqual(plot._Gx.lyr[0].xmax, 2200);
 });
-interactiveTest('headermod', 'does the plot show a range 200-2200', function() {
+interactiveTest('headermod', 'does the plot show a range 200-2200', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autohide_panbars: false,
         cmode: 'LO',
         xcnt: 'continuous'
     });
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     var hcb = {
         xunits: 3,
@@ -5014,39 +5049,39 @@ interactiveTest('headermod', 'does the plot show a range 200-2200', function() {
     }
     // do a syncronous push so we can make some assertions
     plot.push(0, ramp, null, true);
-    strictEqual(plot._Mx.stk[0].xmin, 0);
-    strictEqual(plot._Mx.stk[0].xmax, 20460);
+    assert.strictEqual(plot._Mx.stk[0].xmin, 0);
+    assert.strictEqual(plot._Mx.stk[0].xmax, 20460);
 
-    strictEqual(plot._Gx.lyr[0].xmin, 0);
-    strictEqual(plot._Gx.lyr[0].xmax, 20460);
+    assert.strictEqual(plot._Gx.lyr[0].xmin, 0);
+    assert.strictEqual(plot._Gx.lyr[0].xmax, 20460);
 
-    plot.hdrmod({
+    plot.headermod(0, {
         xmin: 200,
         xmax: 2200
     });
-    strictEqual(plot._Mx.stk[0].xmin, 200);
-    strictEqual(plot._Mx.stk[0].xmax, 2200);
+    assert.strictEqual(plot._Mx.stk[0].xmin, 200);
+    assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
-    strictEqual(plot._Gx.lyr[0].xmin, 200);
-    strictEqual(plot._Gx.lyr[0].xmax, 2200);
+    assert.strictEqual(plot._Gx.lyr[0].xmin, 200);
+    assert.strictEqual(plot._Gx.lyr[0].xmax, 2200);
 
     // do a syncronous refresh
     plot._refresh();
-    strictEqual(plot._Mx.stk[0].xmin, 200);
-    strictEqual(plot._Mx.stk[0].xmax, 2200);
+    assert.strictEqual(plot._Mx.stk[0].xmin, 200);
+    assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
     // and another push
     plot.push(0, ramp, null, true);
-    strictEqual(plot._Mx.stk[0].xmin, 200);
-    strictEqual(plot._Mx.stk[0].xmax, 2200);
+    assert.strictEqual(plot._Mx.stk[0].xmin, 200);
+    assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
-    strictEqual(plot._Gx.lyr[0].xmin, 200);
-    strictEqual(plot._Gx.lyr[0].xmax, 2200);
+    assert.strictEqual(plot._Gx.lyr[0].xmin, 200);
+    assert.strictEqual(plot._Gx.lyr[0].xmax, 2200);
 });
-interactiveTest('github-issue-3', 'TBD?', function() {
+interactiveTest('github-issue-3', 'TBD?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
-    notEqual(plot, null);
+    assert.notEqual(plot, null);
 
     plot.remove_layer(0);
     plot.overlay_array([1, 2, 3, 4, 5, 6]);

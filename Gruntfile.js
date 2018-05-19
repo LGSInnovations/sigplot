@@ -74,7 +74,7 @@ module.exports = function (grunt) {
         },
         qunit: {
             options: { '--web-security': 'no', '--local-to-remote-url-access': 'yes' },
-            all: ['test/passfail.html']
+            all: ['test/test.html']
         },
         'closure-compiler': {
             bluefile_debug: {
