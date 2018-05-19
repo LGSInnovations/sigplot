@@ -182,13 +182,11 @@ module.exports = function (grunt) {
                 }],
             },
         },
-        web_server: {
-            options: {
-                cors: true,
-                nevercache: true,
-                logRequests: true
+        'http-server': {
+            'test': {
+                cache: 0,
+                port: 1337
             },
-            foo: 'bar' // necessary for some odd reason, see the docs
         },
         jsbeautifier: {
             check: {
@@ -298,7 +296,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.loadNpmTasks('grunt-web-server');
+    grunt.loadNpmTasks('grunt-http-server');
     grunt.loadNpmTasks('grunt-jsbeautifier');
     grunt.loadNpmTasks('grunt-karma');
     grunt.loadNpmTasks('grunt-express-server');
@@ -319,5 +317,8 @@ module.exports = function (grunt) {
     // Benchmark in browsers.
     grunt.registerTask('benchtest', ['express:test', 'karma:bench']);
     grunt.registerTask('build_and_test', ['build', 'benchtest']);
+
+    // for compatibility with the old grunt commands
+    grunt.registerTask('web_server', 'http-server');
     
 };
