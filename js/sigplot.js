@@ -3183,11 +3183,20 @@
             var other = this.mimicListeners.other;
             if (other) {
                 Object.keys(this.mimicListeners.listeners).forEach(function(evt) {
-                    if (this.mimicListeners[evt]) {
-                        other.removeListener(evt, this.mimicListeners[evt]);
+                    if (this.mimicListeners.listeners[evt]) {
+                        other.removeListener(evt, this.mimicListeners.listeners[evt]);
                     }
                 });
             }
+            this.mimicListeners = {
+                other: null,
+                listeners: {
+                    zoom: null,
+                    unzoom: null,
+                    xpan: null,
+                    ypan: null
+                }
+            };
         },
 
         /**
