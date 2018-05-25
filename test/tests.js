@@ -1675,6 +1675,13 @@ QUnit.module('sigplot-interactive', {
         plotdiv.style.width = "600px";
         plotdiv.style.height = "400px";
         ifixture.appendChild(plotdiv);
+        plotdiv = document.createElement("div");
+        plotdiv.id = "plot2";
+        plotdiv.style.margin = "0 auto";
+        plotdiv.style.width = "600px";
+        plotdiv.style.height = "400px";
+        plotdiv.style.display = "none";
+        ifixture.appendChild(plotdiv);
     },
     afterEach: function() {
         ifixture.innerHTML = '';
@@ -1687,7 +1694,7 @@ QUnit.module('sigplot-interactive', {
 interactiveTest('sigplot empty', 'Do you see an empty plot scaled from -1 to 1 on both axis?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
     assert.equal(container.childNodes.length, 1);
@@ -1705,7 +1712,7 @@ interactiveTest('sigplot empty', 'Do you see an empty plot scaled from -1 to 1 o
 interactiveTest('sigplot no legend', 'Is the legend button hidden?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     var plot = new sigplot.Plot(container, {
         no_legend_button: true
     });
@@ -1713,7 +1720,7 @@ interactiveTest('sigplot no legend', 'Is the legend button hidden?', function(as
 interactiveTest('sigplot no ylabel', 'Does the label say Unknown (U)?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     var plot = new sigplot.Plot(container, {
         ylabel: null
     });
@@ -1721,7 +1728,7 @@ interactiveTest('sigplot no ylabel', 'Does the label say Unknown (U)?', function
 interactiveTest('sigplot no xlabel', 'Is the label say None (U)?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     var plot = new sigplot.Plot(container, {
         xlabel: null
     });
@@ -1729,7 +1736,7 @@ interactiveTest('sigplot no xlabel', 'Is the label say None (U)?', function(asse
 interactiveTest('sigplot no label', 'Is the label completely hidden?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     var plot = new sigplot.Plot(container, {
         xlabel: null,
         ylabel: null
@@ -1738,7 +1745,7 @@ interactiveTest('sigplot no label', 'Is the label completely hidden?', function(
 interactiveTest('sigplot custom font', 'Is the font changed from the default?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     var plot = new sigplot.Plot(container, {
         font_family: "Comic Sans MS, cursive, sans-serif"
     });
@@ -1746,14 +1753,14 @@ interactiveTest('sigplot custom font', 'Is the font changed from the default?', 
 interactiveTest('sigplot fixed font size', 'Is the font size normal?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     container.style.width = "300px";
     var plot = new sigplot.Plot(container);
 });
 interactiveTest('sigplot fixed font size', 'Is the font size large?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     container.style.width = "300px";
     var plot = new sigplot.Plot(container, {
         font_width: 12
@@ -1762,7 +1769,7 @@ interactiveTest('sigplot fixed font size', 'Is the font size large?', function(a
 interactiveTest('sigplot fixed font size', 'Is the font size scaled smaller?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     container.style.width = "300px";
     var plot = new sigplot.Plot(container, {
         font_scaled: true
@@ -1771,7 +1778,7 @@ interactiveTest('sigplot fixed font size', 'Is the font size scaled smaller?', f
 interactiveTest('sigplot bottom scrollbar', 'Is the x scrollbar on the bottom?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     var plot = new sigplot.Plot(container, {
         noreadout: true,
         xlabel: null,
@@ -1782,7 +1789,7 @@ interactiveTest('sigplot bottom scrollbar', 'Is the x scrollbar on the bottom?',
 interactiveTest('sigplot minimal chrome', 'Is the plot devoid of chrome', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
-    assert.equal(ifixture.childNodes.length, 1);
+    assert.equal(ifixture.childNodes.length, 2);
     var plot = new sigplot.Plot(container, {
         noreadout: true,
         xlabel: null,
@@ -5168,4 +5175,68 @@ interactiveTest('github-issue-3', 'TBD?', function(assert) {
         xmin: 3,
         xmax: 7
     });
+});
+interactiveTest('Plot Mimic', 'When you zoom, unzoom, or pan on each plot, does the other plot mimic the action?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var data = [];
+    for (var i = 0; i < 1000; i++) {
+        data.push(Math.random() * 10);
+    }
+    plot.overlay_array(data);
+
+    container = document.getElementById('plot2');
+    container.style.display = "block";
+    var plot2 = new sigplot.Plot(container, {});
+    assert.notEqual(plot2, null);
+    data = [];
+    for (var i = 0; i < 1000; i++) {
+        data.push(Math.random() * 10);
+    }
+    plot2.overlay_array(data);
+
+    plot.mimic(plot2, {
+        zoom: true,
+        unzoom: true,
+        pan: true
+    });
+    plot2.mimic(plot, {
+        zoom: true,
+        unzoom: true,
+        pan: true
+    });
+});
+interactiveTest('Plot Un-mimic', 'When you zoom, unzoom, or pan on each plot, does the other plot NOT mimic the action?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var data = [];
+    for (var i = 0; i < 1000; i++) {
+        data.push(Math.random() * 10);
+    }
+    plot.overlay_array(data);
+
+    container = document.getElementById('plot2');
+    container.style.display = "block";
+    var plot2 = new sigplot.Plot(container, {});
+    assert.notEqual(plot2, null);
+    data = [];
+    for (var i = 0; i < 1000; i++) {
+        data.push(Math.random() * 10);
+    }
+    plot2.overlay_array(data);
+
+    plot.mimic(plot2, {
+        zoom: true,
+        unzoom: true,
+        pan: true
+    });
+    plot2.mimic(plot, {
+        zoom: true,
+        unzoom: true,
+        pan: true
+    });
+    plot.unmimic();
+    plot2.unmimic();
 });
