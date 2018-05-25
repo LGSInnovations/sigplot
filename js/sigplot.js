@@ -2690,6 +2690,11 @@
                 return;
             }
 
+            // Allow the user to store aribitary data with the layer
+            if (layerOptions.user_data) {
+                layer.user_data = layerOptions.user_data;
+            }
+
             // TODO - do we want to alert like the XM plot did?
             //if (!Gx.all && size > Gx.bufmax && Gx.HCB.length == 1) {
             // alert("Plot truncated to buffer size. Use panning or /ALL

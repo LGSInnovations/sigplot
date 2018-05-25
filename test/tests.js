@@ -1603,6 +1603,21 @@ QUnit.test('sigplot raster push smaller than framesize', function(assert) {
     plot.push(0, zeros, null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 1);
 });
+QUnit.test('sigplot layer user_data', function(assert) {
+    var container = document.getElementById('plot');
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container);
+
+    var lyr_1 = plot.overlay_array([]);
+    assert.equal(plot.get_layer(lyr_1).user_data, undefined);
+
+    var lyr_2 = plot.overlay_array([], null, {
+        user_data: "test"
+    });
+    assert.equal(plot.get_layer(lyr_1).user_data, undefined);
+    assert.equal(plot.get_layer(lyr_2).user_data, "test");
+});
 //////////////////////////////////////////////////////////////////////////////
 // QUnit 'sigplot-interactive' module
 //////////////////////////////////////////////////////////////////////////////
