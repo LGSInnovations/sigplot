@@ -330,6 +330,16 @@
 
         plot_init(this, options);
 
+        this.mimicListeners = {
+            other: null,
+            listeners: {
+                zoom: null,
+                unzoom: null,
+                xpan: null,
+                ypan: null
+            }
+        };
+
         this._refresh(); // Draw immediately
 
         this.onmousemove = (function(plot) {
@@ -3079,8 +3089,10 @@
                 throw "mimic must be called with at least one event mask";
             }
 
+            this.unmimic(other);
+
             if (mask.zoom) {
-                other.addListener("zoom", function(event) {
+                var f = function(event) {
                     if (self.inZoom) {
                         return;
                     }
@@ -3092,9 +3104,11 @@
                             y: event.ymax
                         },
                         event.inContinuousZoom);
-                });
+                };
+                other.addListener("zoom", f);
+                this.mimicListeners.listeners.zoom = f;
             } else if (mask.xzoom) {
-                other.addListener("zoom", function(event) {
+                var f = function(event) {
                     if (self.inZoom) {
                         return;
                     }
@@ -3106,9 +3120,11 @@
                             y: undefined
                         },
                         event.inContinuousZoom);
-                });
+                };
+                other.addListener("zoom", f);
+                this.mimicListeners.listeners.zoom = f;
             } else if (mask.yzoom) {
-                other.addListener("zoom", function(event) {
+                var f = function(event) {
                     if (self.inZoom) {
                         return;
                     }
@@ -3120,41 +3136,59 @@
                             y: event.ymax
                         },
                         event.inContinuousZoom);
-                });
+                };
+                other.addListener("zoom", f);
+                this.mimicListeners.listeners.zoom = f;
             }
 
             if (mask.unzoom) {
-                other.addListener("unzoom", function(event) {
+                var f = function(event) {
                     if (self.inZoom) {
                         return;
                     }
                     if (event.level < self._Mx.level) {
                         self.unzoom(self._Mx.level - event.level);
                     }
-                });
+                };
+                other.addListener("unzoom", f);
+                this.mimicListeners.listeners.unzoom = f;
             }
 
             if (mask.pan || mask.xpan) {
-                other.addListener("xpan", function(event) {
+                var f = function(event) {
                     if (self.inPan) {
                         return;
                     }
                     updateViewbox(self, event.xmin, event.xmax, "X");
-                });
+                };
+                other.addListener("xpan", f);
+                this.mimicListeners.listeners.xpan = f;
             }
 
             if (mask.pan || mask.ypan) {
-                other.addListener("ypan", function(event) {
+                var f = function(event) {
                     if (self.inPan) {
                         return;
                     }
                     updateViewbox(self, event.ymin, event.ymax, "Y");
-                });
+                };
+                other.addListener("ypan", f);
+                this.mimicListeners.listeners.ypan = f;
             }
 
+            this.mimicListeners.other = other;
         },
 
-        // TODO - do we want an unmimic?
+        unmimic: function(other) {
+            var other = this.mimicListeners.other;
+            if (other) {
+                Object.keys(this.mimicListeners.listeners).forEach(function(evt) {
+                    if (this.mimicListeners[evt]) {
+                        other.removeListener(evt, this.mimicListeners[evt]);
+                    }
+                });
+            }
+        },
 
         /**
          * Like refresh, but doesn't rerender data
