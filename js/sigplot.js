@@ -3182,7 +3182,7 @@
         unmimic: function(other) {
             var other = this.mimicListeners.other;
             if (other) {
-              var that = this;
+                var that = this;
                 Object.keys(this.mimicListeners.listeners).forEach(function(evt) {
                     if (that.mimicListeners.listeners[evt]) {
                         other.removeListener(evt, that.mimicListeners.listeners[evt]);
