@@ -583,10 +583,14 @@
         // Force type 2000 is subsize is specified
         if (hcb["subsize"] > 1) {
             hcb.type = 2000;
+        } else if (Array.isArray(data) && Array.isArray(data[0])) {
+            //If this is a 2-D array automatically set subsize
+            hcb.type = 2000;
+            hcb.subsize = data[0].length;
         }
         hcb["class"] = hcb.type / 1000;
         // If this is a type 2000 , subsize *must* be provided
-        if ((hcb["class"] === 2) && (overrides["subsize"] === undefined)) {
+        if ((hcb["class"] === 2) && (hcb["subsize"] === undefined)) {
             throw "subsize must be provided with type 2000 files";
         }
 

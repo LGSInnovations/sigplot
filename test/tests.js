@@ -634,6 +634,51 @@ QUnit.test('create type1000', function(assert) {
     assert.equal(hcb.dview[1], 2.0); //#8
     assert.equal(hcb.dview[2], 3.0); //#8
 });
+QUnit.test('create type1000 array', function(assert) {
+    var data = [
+        1, 2, 3, 4, 5,
+        6, 7, 8, 9, 0,
+        1, 2, 3, 4, 5,
+        6, 7, 8, 9, 0
+    ];
+    var hcb = sigplot.m.initialize(data);
+    assert.notEqual(hcb.pipe, true);
+    assert.equal(hcb.format, "SF");
+    assert.equal(hcb.type, 1000);
+    assert.equal(hcb.dview.BYTES_PER_ELEMENT, 4);
+    assert.equal(hcb.dview.length, 20);
+    assert.equal(hcb.dview[0], 1);
+    assert.equal(hcb.dview[4], 5);
+    assert.equal(hcb.dview[5], 6);
+    assert.equal(hcb.dview[9], 0);
+    assert.equal(hcb.dview[10], 1);
+    assert.equal(hcb.dview[14], 5);
+    assert.equal(hcb.dview[15], 6);
+    assert.equal(hcb.dview[19], 0);
+});
+QUnit.test('create type2000 array', function(assert) {
+    var data = [
+        [1, 2, 3, 4, 5],
+        [6, 7, 8, 9, 0],
+        [1, 2, 3, 4, 5],
+        [6, 7, 8, 9, 0]
+    ];
+    var hcb = sigplot.m.initialize(data);
+    assert.notEqual(hcb.pipe, true);
+    assert.equal(hcb.format, "SF");
+    assert.equal(hcb.type, 2000);
+    assert.equal(hcb.subsize, 5);
+    assert.equal(hcb.dview.BYTES_PER_ELEMENT, 4);
+    assert.equal(hcb.dview.length, 20);
+    assert.equal(hcb.dview[0], 1);
+    assert.equal(hcb.dview[4], 5);
+    assert.equal(hcb.dview[5], 6);
+    assert.equal(hcb.dview[9], 0);
+    assert.equal(hcb.dview[10], 1);
+    assert.equal(hcb.dview[14], 5);
+    assert.equal(hcb.dview[15], 6);
+    assert.equal(hcb.dview[19], 0);
+});
 QUnit.test('bluefile pipe basics', function(assert) {
     var hcb = sigplot.m.initialize([], {
         pipe: true,
@@ -1862,6 +1907,18 @@ interactiveTest('empty t2000 array', 'Do you see a plot with two pulses?', funct
     }
     plot.reload(0, pulse1);
     plot.reload(1, pulse2);
+});
+interactiveTest('sigplot 2d overlay', 'Do you see a raster?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var data = [
+        [1, 2, 3, 4, 5],
+        [6, 7, 8, 9, 0],
+        [1, 2, 3, 4, 5],
+        [6, 7, 8, 9, 0]
+    ];
+    plot.overlay_array(data);
 });
 interactiveTest('sigplot triangle symbol', 'Do you see triangle symbols?', function(assert) {
     var container = document.getElementById('plot');

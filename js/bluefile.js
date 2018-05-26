@@ -505,6 +505,10 @@
                 length = buf.length || (buf.byteLength / _BPS[this.format[1]]);
             }
             if (buf) {
+                // Flatten 2-D array into 1-D
+                if (Array.isArray(buf) && Array.isArray(buf[0])) {
+                    buf = [].concat.apply([], buf);
+                }
                 return new TypedArray(buf, offset, length);
             } else {
                 return new TypedArray(length);
