@@ -29,6 +29,5 @@
  *   tinycolor.js         - MIT License; Copyright (c) 2013, Brian Grinstead
  *   CanvasInput.js       - MIT License; Copyright (c) 2013, James Simpson of GoldFire Studios
  *   spin.js              - MIT License; Copyright (c) 2011-2013 Felix Gnass
- *   Array.remove         - MIT License; Copyright (c) 2007, John Resig
  *   Firefox subarray fix - Public Domain; Copyright (c) 2011, Ryan Berdeen
  */

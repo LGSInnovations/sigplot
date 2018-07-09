@@ -1024,9 +1024,9 @@
             clearInterval(this._cursorInterval);
 
             this._canvas.style.cursor = 'default';
-            for (var i = 0; i < inputs.length; i++) {
+            for (var i = (inputs.length- 1); i >= 0 ; i--) {
                 if (inputs[i] === this) {
-                    inputs.remove(i);
+                    inputs.splice(i, 1);
                 }
             }
         },

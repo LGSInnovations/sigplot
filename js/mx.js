@@ -1964,11 +1964,16 @@
             colors = [colors];
         }
 
-        // Find the first valid color (expects colors to be sorted)
-        for (var n = 0; n < colors.length; n++) {
+        var n;
+        for (n = (colors.length - 1); n >= 0; n--) {
             if ((colors[n].end != null) && (colors[n].end < x)) {
-                colors.remove(n);
-            } else if (colors[n].start < x) {
+                colors.splice(n, 1);
+            }
+        }
+
+        // Find the first valid color (expects colors to be sorted)
+        for (n = 0; n < colors.length; n++) {
+            if (colors[n].start < x) {
                 current_color = n;
             }
         }
@@ -1988,7 +1993,7 @@
             if ((current_color > 0) && (colors[current_color].end != null) && (colors[current_color].end < x)) {
                 newcolor = true;
                 while ((colors[current_color].end != null) && (colors[current_color].end < x)) {
-                    colors.remove(current_color);
+                    colors.splice(current_color, 1);
                     current_color -= 1;
                     if (current_color === 0) {
                         break;
