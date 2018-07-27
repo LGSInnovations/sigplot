@@ -5240,3 +5240,9 @@ interactiveTest('Plot Un-mimic', 'When you zoom, unzoom, or pan on each plot, do
     plot.unmimic();
     plot2.unmimic();
 });
+interactiveTest('Plot x-cut issue #24', 'Does x-cut render in abscissa mode?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/raster.tmp", null, {});
+});

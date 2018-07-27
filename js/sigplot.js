@@ -1394,7 +1394,10 @@
                                         Gx.xlabel = "Frequency";
                                     }
                                     Gx.xlabel += "    CURRENTLY IN X_CUT MODE";
-                                    Gx.xcut_layer = plot.overlay_array(xcut_display, null, {
+                                    Gx.xcut_layer = plot.overlay_array(xcut_display, {
+                                        xstart: Gx.lyr[0].xstart,
+                                        xdelta: Gx.lyr[0].xdelta
+                                    }, {
                                         name: "x_cut_data",
                                         line: 3
                                     });
@@ -1498,7 +1501,10 @@
                                         Gx.xlabel = "Time";
                                     }
                                     Gx.xlabel += "    CURRENTLY IN Y_CUT MODE";
-                                    Gx.ycut_layer = plot.overlay_array(ycut_display, null, {
+                                    Gx.ycut_layer = plot.overlay_array(ycut_display, {
+                                        xstart: Gx.lyr[0].ystart,
+                                        xdelta: Gx.lyr[0].ydelta
+                                    }, {
                                         name: "y_cut_data",
                                         line: 3
                                     });
@@ -8112,6 +8118,9 @@
             }
 
             for (var n = 0; n < Gx.lyr.length; n++) {
+                if (Gx.lyr[n].display === false) {
+                    continue;
+                }
                 if (noxmin) {
                     xmin = Gx.lyr[n].xmin;
                 }
