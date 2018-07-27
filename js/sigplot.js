@@ -6994,7 +6994,7 @@
             // constrain to bounds
             z = Math.min(Math.max(z, Gx.zmin), Gx.zmax);
             var zrt = plot._Gx.x_box_h / (Gx.zmax - Gx.zmin); // the z-value to pixel ratio
-            var zpx = Math.round(z * zrt);
+            var zpx = Math.round((z - Gx.zmin) * zrt);
 
             var xrt = plot._Gx.x_box_w / plot._Gx.x_cut_data.length;
             var xpx = Math.round(ii * xrt);
@@ -7050,7 +7050,7 @@
             // constrain to bounds
             z = Math.min(Math.max(z, Gx.zmin), Gx.zmax);
             var zrt = plot._Gx.y_box_w / (Gx.zmax - Gx.zmin); // the z-value to pixel ratio
-            var zpx = Math.round(z * zrt);
+            var zpx = Math.round((z - Gx.zmin) * zrt);
 
             var yrt = plot._Gx.y_box_h / plot._Gx.y_cut_data.length;
             var ypx = Math.round(ii * yrt);

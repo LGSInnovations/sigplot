@@ -5246,3 +5246,12 @@ interactiveTest('Plot x-cut issue #24', 'Does x-cut render in abscissa mode?', f
     assert.notEqual(plot, null);
     plot.overlay_href("dat/raster.tmp", null, {});
 });
+interactiveTest('Plot x-cut issue #25', 'Does p-cut render correctly?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot.change_settings({
+        p_cuts: true
+    });
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/raster.tmp", null, {});
+});
