@@ -1351,13 +1351,7 @@
                                         finish = start + width;
                                         Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
                                     }
-                                    var xcut_display = [];
-                                    //make all values negative because of weird display
-                                    for (var a = 0; a < Gx.x_cut_data.length; a++) {
-                                        var item = Gx.x_cut_data[a];
-                                        item = item * -1;
-                                        xcut_display.push(item);
-                                    }
+
                                     //adjust for the values of the xcut
                                     Gx.old_drawmode = Gx.lyr[0].drawmode;
                                     Gx.old_autol = Gx.autol;
@@ -1394,7 +1388,8 @@
                                         Gx.xlabel = "Frequency";
                                     }
                                     Gx.xlabel += "    CURRENTLY IN X_CUT MODE";
-                                    Gx.xcut_layer = plot.overlay_array(xcut_display, {
+                                    Mx.origin = 1;
+                                    Gx.xcut_layer = plot.overlay_array(Gx.x_cut_data, {
                                         xstart: Gx.lyr[0].xstart,
                                         xdelta: Gx.lyr[0].xdelta
                                     }, {
@@ -1457,13 +1452,6 @@
                                             Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
                                         }
                                     }
-                                    var ycut_display = [];
-                                    //make all values negative because of weird display
-                                    for (var a = 0; a < Gx.y_cut_data.length; a++) {
-                                        var item = Gx.y_cut_data[a];
-                                        item = item * -1;
-                                        ycut_display.push(item);
-                                    }
 
                                     //adjust for the values of the xcut
                                     Gx.old_drawmode = Gx.lyr[0].drawmode;
@@ -1501,7 +1489,8 @@
                                         Gx.xlabel = "Time";
                                     }
                                     Gx.xlabel += "    CURRENTLY IN Y_CUT MODE";
-                                    Gx.ycut_layer = plot.overlay_array(ycut_display, {
+                                    Mx.origin = 1;
+                                    Gx.ycut_layer = plot.overlay_array(Gx.y_cut_data, {
                                         xstart: Gx.lyr[0].ystart,
                                         xdelta: Gx.lyr[0].ydelta
                                     }, {
