@@ -180,15 +180,20 @@ module.exports = function (grunt) {
                 ]
             }
         },
+        githash: {
+            main: {
+                options: {}
+            }
+        },
         replace: {
             version: {
                 src: ["dist/*.js"],
                 overwrite: true,
                 replacements: [{
                     from: /version-PLACEHOLDER/g,
-                    to: "<%= pkg.version %>",
+                    to: "<%= pkg.version %>-<%= githash.main.short %>",
                 }],
-            },
+            }
         },
         'http-server': {
             'test': {
@@ -310,8 +315,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-express-server');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-text-replace');
+    grunt.loadNpmTasks('grunt-githash');
 
-    grunt.registerTask('build', ['jsbeautifier:check', 'jshint', 'browserify', 'replace']);
+    grunt.registerTask('build', ['jsbeautifier:check', 'jshint', 'browserify', 'githash', 'replace']);
 
     // Check everything is good
     grunt.registerTask('test', ['build', 'qunit']);

@@ -55,6 +55,7 @@
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-qunit": "^2.0.0",
     "grunt-express-server": "^0.5.3",
+    "grunt-githash": "^0.1.3",
     "grunt-http-server": "^2.1.0",
     "grunt-jsbeautifier": "^0.2.13",
     "grunt-jsdoc": "^2.2.1",
