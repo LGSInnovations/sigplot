@@ -1,7 +1,7 @@
 {
   "name": "sigplot",
   "description": "Advanced plotting for signal processing applications",
-  "version": "2.0.0-rc2",
+  "version": "2.0.0-rc6",
   "homepage": "http://sigplot.lgsinnovations.com",
   "main": "js/sigplot.js",
   "files": [
@@ -27,6 +27,7 @@
   "bugs": {
     "url": "https://github.com/LGSInnovations/sigplot/issues"
   },
+  "license": "apache-2.0",
   "licenses": [
     {
       "type": "apache-2.0",
@@ -35,7 +36,7 @@
   ],
   "scripts": {
     "test": "grunt test",
-    "publish": "grunt dist && npm publish"
+    "prepublish": "grunt dist"
   },
   "dependencies": {
     "loglevel": "^1.4.1",
