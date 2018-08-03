@@ -142,7 +142,8 @@
     /**
      * Construct and render a plot.
      *
-     * @constructor sigplot.Plot
+     * @memberOf sigplot
+     * @constructor
      *
      * @example plot = new sigplot.Plot(document.getElementById('plot'), {[options]});
      *
@@ -308,9 +309,9 @@
      *            is set to true, then the font width will be the minimum of font_width
      *            or plot width/64.
      *
-     * @returns {sigplot.Plot}
+     * @returns {Plot}
      */
-    sigplot.Plot = function(element, options) {
+    var Plot = function(element, options) {
         if (!sigplot.browserIsCompatible()) {
             throw "Browser is not compatible";
         }
@@ -1547,7 +1548,7 @@
 
     // Public methods
 
-    sigplot.Plot.prototype = {
+    Plot.prototype = { /** @lends Plot **/
 
         /**
          * Add a plugin to the plot
@@ -8516,6 +8517,7 @@
         }
     }
 
+    sigplot.Plot = Plot;
     module.exports = sigplot;
 
 }());
