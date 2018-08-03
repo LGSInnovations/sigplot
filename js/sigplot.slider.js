@@ -33,6 +33,7 @@
     var common = require("./common");
 
     /**
+     * @memberOf sigplot
      * @constructor
      * @param options
      * @returns {SliderPlugin}
@@ -60,7 +61,10 @@
 
     };
 
-    SliderPlugin.prototype = {
+    SliderPlugin.prototype = { /** @lends SliderPlugin */
+        /**
+         * Initialize the plugin
+         */
         init: function(plot) {
             this.plot = plot;
             var Mx = plot._Mx;
