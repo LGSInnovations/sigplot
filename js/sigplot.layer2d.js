@@ -142,12 +142,12 @@
             } else {
                 this.xstart = hcb.xstart;
                 this.xdelta = hcb.xdelta;
-                var d = hcb.xstart + hcb.xdelta * (hcb.subsize - 1.0);
+                var d = hcb.xstart + (hcb.xdelta * hcb.subsize);
                 this.xmin = this.hcb.xmin || Math.min(hcb.xstart, d);
                 this.xmax = this.hcb.xmax || Math.max(hcb.xstart, d);
                 this.ystart = hcb.ystart;
                 this.ydelta = hcb.ydelta;
-                var d = hcb.ystart + hcb.ydelta * (this.lps - 1.0);
+                var d = hcb.ystart + (hcb.ydelta * this.lps);
                 this.ymin = this.hcb.ymin || Math.min(hcb.ystart, d);
                 this.ymax = this.hcb.ymax || Math.max(hcb.ystart, d);
             }
@@ -499,7 +499,7 @@
                 }
 
                 if (rescale) {
-                    var d = this.hcb.xstart + this.hcb.xdelta * (this.hcb.subsize - 1.0);
+                    var d = this.hcb.xstart + (this.hcb.xdelta * this.hcb.subsize);
                     this.xmin = Math.min(this.hcb.xstart, d);
                     this.xmax = Math.max(this.hcb.xstart, d);
                     this.xdelta = this.hcb.xdelta;
@@ -507,7 +507,7 @@
 
                     this.ystart = this.hcb.ystart;
                     this.ydelta = this.hcb.ydelta;
-                    var d = this.hcb.ystart + this.hcb.ydelta * (this.lps - 1.0);
+                    var d = this.hcb.ystart + (this.hcb.ydelta * this.lps);
                     this.ymin = Math.min(this.hcb.ystart, d);
                     this.ymax = Math.max(this.hcb.ystart, d);
                 }
@@ -833,7 +833,7 @@
                     if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
                         this.position = 0;
                     }
-                    var d = HCB.ystart + HCB.ydelta * (this.lps - 1.0);
+                    var d = HCB.ystart + (HCB.ydelta * this.lps);
                     this.ymin = Math.min(HCB.ystart, d);
                     this.ymax = Math.max(HCB.ystart, d);
                     // reset the image since we now have more lines to render

@@ -1915,7 +1915,7 @@ interactiveTest('empty t2000 array', 'Do you see a plot with two pulses?', funct
     plot.reload(0, pulse1);
     plot.reload(1, pulse2);
 });
-interactiveTest('sigplot 2d overlay', 'Do you see a raster?', function(assert) {
+interactiveTest('sigplot 2d overlay', 'Do you see a raster? Is alignment of x/y axes correct?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
