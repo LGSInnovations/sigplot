@@ -843,6 +843,7 @@
         var layer_name_override = layerOptions["name"];
         delete layerOptions["name"];
 
+        var layers = [];
         for (var i = n1; i < n2; i++) {
             // This is logic from within sigplot.for LOAD_FILES
             var layer = new Layer1D(plot);
@@ -892,11 +893,11 @@
                 }
             }
             if (plot.add_layer(layer)) {
-                return layer;
-            } else {
-                return null;
+                layers.push(layer);
             }
         }
+
+        return layers;
     };
 
     module.exports = Layer1D;

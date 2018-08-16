@@ -2673,32 +2673,34 @@
                 basefile(this, true);
             }
 
-            var layer = null;
+            var layers = null;
 
             if (layerOptions.layerType === undefined) {
                 if (hcb["class"] === 1) {
-                    layer = Layer1D.overlay(this, hcb, layerOptions);
+                    layers = Layer1D.overlay(this, hcb, layerOptions);
                 } else if (hcb["class"] === 2) {
-                    layer = Layer2D.overlay(this, hcb, layerOptions);
+                    layers = Layer2D.overlay(this, hcb, layerOptions);
                 }
             } else {
                 if (layerOptions.layerType === "1D") {
-                    layer = Layer1D.overlay(this, hcb, layerOptions);
+                    layers = Layer1D.overlay(this, hcb, layerOptions);
                 } else if (layerOptions.layerType === "2D") {
-                    layer = Layer2D.overlay(this, hcb, layerOptions);
+                    layers = Layer2D.overlay(this, hcb, layerOptions);
                 } else {
-                    layer = layerOptions.layerType.overlay(this, hcb, layerOptions);
+                    layers = layerOptions.layerType.overlay(this, hcb, layerOptions);
                 }
             }
 
-            if (!layer) {
-                m.log.debug("failed to create layer");
+            if (layers === null || layers.length === 0) {
+                m.log.debug("failed to create layers");
                 return;
             }
 
             // Allow the user to store aribitary data with the layer
             if (layerOptions.user_data) {
-                layer.user_data = layerOptions.user_data;
+                layers.forEach(function(layer) {
+                    layer.user_data = layerOptions.user_data;
+                });
             }
 
             // TODO - do we want to alert like the XM plot did?
@@ -2717,7 +2719,10 @@
             // we haven't asked for the plot to expand to accomodate
             // this layers new range, then simply draw the new layer.
             if (!basefiles && !layerOptions.expand) {
-                draw_layer(this, layer);
+                var plot = this;
+                layers.forEach(function(layer) {
+                    draw_layer(plot, layer);
+                });
             } else {
                 if (Gx.HCB.length === 0) { // TODO dead code that cannot be reached
                     basefile(this, false);

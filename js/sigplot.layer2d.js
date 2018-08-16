@@ -916,11 +916,12 @@
 
         layer.change_settings(layerOptions);
 
+        var layers = [];
         if (plot.add_layer(layer)) {
-            return layer;
-        } else {
-            return null;
+            layers.push(layer);
         }
+
+        return layers;
     };
 
     module.exports = Layer2D;
