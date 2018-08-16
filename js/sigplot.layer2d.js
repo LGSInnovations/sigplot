@@ -65,6 +65,7 @@
 
         this.preferred_origin = 4;
         this.opacity = 1;
+        this.xcompression = plot._Gx.xcompression; // default is Gx.xcompression
 
         // LPB is kinda odd right now, since we read the entire file into memory anyways...
         // given that often we are loading from an HREF so there is no downside to this...
@@ -337,7 +338,7 @@
                 }
 
                 if (this.img) {
-                    mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax, Gx.xcompression);
+                    mx.update_image_row(Mx, this.img, zpoint, this.position, Gx.zmin, Gx.zmax, this.xcompression);
                 }
                 this.frame += 1;
                 if (this.drawmode === "scrolling") {
@@ -457,6 +458,24 @@
                     }
                 }
             }
+
+            if (settings.xcmp !== undefined) {
+                if (settings.xcmp === "smooth") {
+                    this.xcompression = 0;
+                } else if (settings.xcmp === "avg") {
+                    this.xcompression = 1;
+                } else if (settings.xcmp === "min") {
+                    this.xcompression = 2;
+                } else if (settings.xcmp === "max") {
+                    this.xcompression = 3;
+                } else if (settings.xcmp === "first") {
+                    this.xcompression = 4;
+                } else if (settings.xcmp === "maxabs") {
+                    this.xcompression = 5;
+                } else {
+                    this.xcompression = settings.xcmp;
+                }
+            }
         },
 
         push: function(data, hdrmod, sync) {
@@ -550,7 +569,7 @@
             var n1, n2;
 
             var xsize = this.hcb.subsize;
-            if (Gx.xcompression > 0) {
+            if (this.xcompression > 0) {
                 xsize = Math.ceil(Mx.r - Mx.l);
             }
 
@@ -717,7 +736,7 @@
                         this.lps,
                         Gx.zmin + Gx.zoff,
                         Gx.zmax + Gx.zoff,
-                        Gx.xcompression);
+                        this.xcompression);
                 } else {
                     // otherwise autol > 1
                     var nny = this.hcb.size;
@@ -796,7 +815,7 @@
                         this.lps,
                         Gx.zmin + Gx.zoff,
                         Gx.zmax + Gx.zoff,
-                        Gx.xcompression);
+                        this.xcompression);
                 }
             }
 

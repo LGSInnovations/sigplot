@@ -3035,6 +3035,90 @@ interactiveTest('layer2D (abs-max compression)', 'Do you see two lines of the sa
         plot.push(0, data);
     }, 100);
 });
+interactiveTest('layer2D (change compression layerAvg)', 'Do you see two lines of the same color?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcmp: 4
+    });
+    assert.notEqual(plot, null);
+    var data = [];
+    for (var i = 0; i < 16384; i++) {
+        if ((i > 400) && (i < 800)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(50);
+            }
+        } else if ((i > 1200) && (i < 1600)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(50);
+            }
+        } else {
+            data.push(0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 16384
+    }, {
+        xcmp: 2
+    });
+    var cnt = 0;
+    ifixture.interval = window.setInterval(function() {
+        cnt = cnt + 1;
+        plot.push(0, data);
+    }, 100);
+});
+interactiveTest('layer2D (change compression settings)', 'Do you see two lines of the same color after 100 lines?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcmp: 4
+    });
+    assert.notEqual(plot, null);
+    var data = [];
+    for (var i = 0; i < 16384; i++) {
+        if ((i > 400) && (i < 800)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(50);
+            }
+        } else if ((i > 1200) && (i < 1600)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(400);
+            } else {
+                data.push(50);
+            }
+        } else {
+            data.push(0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 16384
+    });
+    var cnt = 0;
+    ifixture.interval = window.setInterval(function() {
+        cnt = cnt + 1;
+        plot.push(0, data);
+
+        if (cnt === 100) {
+            plot.change_settings({
+                xcmp: 2
+            });
+        }
+    }, 100);
+});
 interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 July 4th for one hour (use "t" to check)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
