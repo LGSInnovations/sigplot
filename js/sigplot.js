@@ -5474,6 +5474,110 @@
                             }, opacity, undefined,
                             undefined, undefined);
                     }
+                }, {
+                    text: "XCompression...",
+                    menu: {
+                        title: "XCOMPRESSION",
+                        items: [{
+                            text: "Retain Current"
+                        }, {
+                            text: "Smoothing",
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].xcompression === 0 : undefined,
+                            handler: function() {
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].change_settings({
+                                        xcmp: 0
+                                    });
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[index].change_settings({
+                                            xcmp: 0
+                                        });
+                                    }
+                                }
+                            }
+                        }, {
+                            text: "Average",
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].xcompression === 1 : undefined,
+                            handler: function() {
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].change_settings({
+                                        xcmp: 1
+                                    });
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[index].change_settings({
+                                            xcmp: 1
+                                        });
+                                    }
+                                }
+                            }
+                        }, {
+                            text: "Minimum",
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].xcompression === 2 : undefined,
+                            handler: function() {
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].change_settings({
+                                        xcmp: 2
+                                    });
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[index].change_settings({
+                                            xcmp: 2
+                                        });
+                                    }
+                                }
+                            }
+                        }, {
+                            text: "Maximum",
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].xcompression === 3 : undefined,
+                            handler: function() {
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].change_settings({
+                                        xcmp: 3
+                                    });
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[index].change_settings({
+                                            xcmp: 3
+                                        });
+                                    }
+                                }
+                            }
+                        }, {
+                            text: "First",
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].xcompression === 4 : undefined,
+                            handler: function() {
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].change_settings({
+                                        xcmp: 4
+                                    });
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[index].change_settings({
+                                            xcmp: 4
+                                        });
+                                    }
+                                }
+                            }
+                        }, {
+                            text: "Max (Abs)",
+                            checked: (index !== undefined) ? plot._Gx.lyr[index].xcompression === 5 : undefined,
+                            handler: function() {
+                                if (index !== undefined) {
+                                    plot._Gx.lyr[index].change_settings({
+                                        xcmp: 5
+                                    });
+                                } else {
+                                    for (var i = 0; i < Gx.lyr.length; i++) {
+                                        plot._Gx.lyr[index].change_settings({
+                                            xcmp: 5
+                                        });
+                                    }
+                                }
+                            }
+                        }]
+                    }
                 }]
             };
         };
