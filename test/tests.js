@@ -1158,11 +1158,17 @@ QUnit.test('sigplot layer1d change_settings ymin/ymax ', function(assert) {
 
 QUnit.test('Cmode input test', function(assert) {
     var container = document.getElementById('plot');
+    // constructor accept integers
     var plot = new sigplot.Plot(container, {
-        cmode: "MA"
+        cmode: 3
     });
+    assert.equal(plot._Gx.cmode, 3);
 
-    assert.equal(plot._Gx.cmode, 1);
+    // or string
+    var plot = new sigplot.Plot(container, {
+        cmode: "PH"
+    });
+    assert.equal(plot._Gx.cmode, 2);
 
     assert.notEqual(plot, null);
     var ramp = [];
@@ -1206,6 +1212,35 @@ QUnit.test('Cmode input test', function(assert) {
     assert.equal(plot._Gx.cmode, 6);
     plot.change_settings({
         cmode: "20*log10"
+    });
+    assert.equal(plot._Gx.cmode, 7);
+
+    plot.change_settings({
+        cmode: 1
+    });
+    assert.equal(plot._Gx.cmode, 1);
+    plot.change_settings({
+        cmode: 2
+    });
+    assert.equal(plot._Gx.cmode, 2);
+    plot.change_settings({
+        cmode: 3
+    });
+    assert.equal(plot._Gx.cmode, 3);
+    plot.change_settings({
+        cmode: 4
+    });
+    assert.equal(plot._Gx.cmode, 4);
+    plot.change_settings({
+        cmode: 5
+    });
+    assert.equal(plot._Gx.cmode, 5);
+    plot.change_settings({
+        cmode: 6
+    });
+    assert.equal(plot._Gx.cmode, 6);
+    plot.change_settings({
+        cmode: 7
     });
     assert.equal(plot._Gx.cmode, 7);
 });

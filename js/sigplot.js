@@ -6405,7 +6405,36 @@
         Gx.xmax = o.xmax === undefined ? 0.0 : o.xmax;
         var havexmin = (o.xmin !== undefined);
         var havexmax = (o.xmax !== undefined);
-        var address = o.cmode === undefined ? "" : o.cmode.toUpperCase();
+        var address;
+        if (typeof o.cmode === "number") {
+            switch (o.cmode) {
+                case 1:
+                    address = "MA";
+                    break;
+                case 2:
+                    address = "PH";
+                    break;
+                case 3:
+                    address = "RE";
+                    break;
+                case 4:
+                    address = "IM";
+                    break;
+                case 5:
+                    address = "IR";
+                    break;
+                case 6:
+                    address = "LO";
+                    break;
+                case 7:
+                    address = "L2";
+                    break;
+                default:
+                    throw new RangeError("Invalid cmode value");
+            }
+        } else {
+            address = o.cmode === undefined ? "" : o.cmode.toUpperCase();
+        }
         var line = o.line === undefined ? 3 : o.line;
         Gx.ylab = o.ylab;
         Gx.ylabel = o.ylabel;
