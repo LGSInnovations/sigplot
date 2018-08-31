@@ -5359,11 +5359,28 @@ interactiveTest('Plot Un-mimic', 'When you zoom, unzoom, or pan on each plot, do
     plot.unmimic();
     plot2.unmimic();
 });
-interactiveTest('Plot x-cut issue #24', 'Does x-cut render in abscissa mode?', function(assert) {
+interactiveTest('Plot x-cut', 'Does x-cut render correctly with a valid y-axis?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
-    plot.overlay_href("dat/raster.tmp", null, {});
+    plot.overlay_href("dat/raster.tmp", function() {
+        plot.xCut(100);
+    }, {});
+});
+interactiveTest('Plot x-cut zoom', 'Does x-cut render correctly with a valid y-axis?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/raster.tmp", function() {
+        plot.zoom({
+            x: 100e6,
+            y: 100
+        }, {
+            x: 200e6,
+            y: 400
+        });
+        plot.xCut(300);
+    }, {});
 });
 interactiveTest('Plot x-cut issue #25', 'Does p-cut render correctly?', function(assert) {
     var container = document.getElementById('plot');
@@ -5373,4 +5390,27 @@ interactiveTest('Plot x-cut issue #25', 'Does p-cut render correctly?', function
     });
     assert.notEqual(plot, null);
     plot.overlay_href("dat/raster.tmp", null, {});
+});
+interactiveTest('Plot y-cut', 'Does y-cut render correctly?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/raster.tmp", function() {
+        plot.yCut(140);
+    }, {});
+});
+interactiveTest('Plot y-cut zoom', 'Does y-cut render correctly with a valid axis?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/raster.tmp", function() {
+        plot.zoom({
+            x: 100e6,
+            y: 100
+        }, {
+            x: 200e6,
+            y: 400
+        });
+        plot.yCut(200);
+    }, {});
 });
