@@ -592,9 +592,7 @@
 
                                 if (topButtonPressed) {
                                     var cur_cmap = Gx.cmap;
-                                    //console.log("I'm the top button and I don't do anything");
                                     plot.get_layer(0).img = undefined;
-                                    console.log(m.Mc.colormap[cur_cmap]);
                                     var current_map = m.Mc.colormap[cur_cmap];
 
                                     for (var i = 0; i < current_map.colors.length; i++) {
@@ -614,10 +612,8 @@
                                 var bot_y3 = bot_y1 + Gx.cbb_height;
 
                                 var botButtonPressed = coordsInTriangle(mouse_x, mouse_y, bot_x1, bot_y1, bot_x2, bot_y2, bot_x3, bot_y3);
-                                //console.log("Bot ", botButtonPressed);
 
                                 if (botButtonPressed) {
-                                    //console.log("I'm the bottom button and I don't do anything");
                                     //Gx.zoff -= (1/10)*(Gx.zmax - Gx.zmin);
                                     var cur_cmap = Gx.cmap;
                                     var current_map = m.Mc.colormap[cur_cmap];
