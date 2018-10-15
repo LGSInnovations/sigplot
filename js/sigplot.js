@@ -3096,6 +3096,9 @@
          * @example plot.refresh();
          */
         refresh: function() {
+            if (!this._Gx.initialized) {
+                return;
+            }
             var self = this;
             mx.render(this._Mx, function() {
                 self._refresh();
@@ -3849,6 +3852,7 @@
      * @private
      */
     function GX() {
+        this.initialized = false;
         this.xptr = undefined; // xpoints as anything "array-like"...
         this.yptr = undefined; // ypoints as anything "array-like"...
 
@@ -6964,6 +6968,8 @@
                 };
             }(plot)), false);
         }
+
+        Gx.initialized = true;
     }
 
     /**
