@@ -40,11 +40,11 @@ function interactiveTest(testName, msg, callback) {
         return;
     }
     var wrapped_callback = function(assert) {
+        var done = assert.async();
+
         callback(assert);
 
         if (enableInteractive) {
-            var done = assert.async();
-
             var toolbar = document.getElementById("qunit-testrunner-toolbar");
             var question = document.createElement("div");
             toolbar.appendChild(question);
@@ -61,6 +61,8 @@ function interactiveTest(testName, msg, callback) {
                 assert.ok(false, msg);
                 done();
             };
+        } else {
+            done();
         }
     };
     QUnit.test(testName, wrapped_callback);
