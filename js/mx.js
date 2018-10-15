@@ -261,7 +261,7 @@
         this.prompt = undefined;
 
         // Colormap
-        this.pixel = [];
+        this.pixel = undefined;
 
         // Render Canvas
         this._renderCanvas = document.createElement("canvas");
