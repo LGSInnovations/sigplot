@@ -4984,6 +4984,10 @@
      * @private
      */
     mx.colorbar = function(Mx, x, y, w, h) {
+        if (!Mx.pixel) {
+            m.log.warn("COLORMAP not initialized, cannot draw colorbar");
+            return;
+        }
         Mx.pixel.setRange(0, Mx.pixel.map.length);
         for (var j = 1; j < h; j++) {
             var cidx = Math.floor(Mx.pixel.map.length * (j - 1) / h);
