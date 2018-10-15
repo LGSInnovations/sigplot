@@ -114,6 +114,12 @@ if (!String.prototype.endsWith) {
     };
 }
 
+if (!Float64Array.prototype.slice) {
+    Object.defineProperty(Float64Array.prototype, 'slice', {
+        value: Array.prototype.slice
+    });
+}
+
 // Array.isArray
 // FF 4+
 // IE 9+
