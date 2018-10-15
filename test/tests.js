@@ -5384,6 +5384,42 @@ interactiveTest('Plot x-cut zoom', 'Does x-cut render correctly with a valid y-a
         plot.xCut(300);
     }, {});
 });
+interactiveTest('Plot x-cut zoom 2', 'Does x-cut render a line at 30?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot_options = {
+        autohide_panbars: true,
+        hide_note: true
+    };
+    var x_data = []; // test data for x-cut test
+    var data_header = {
+        type: 2000,
+        subsize: 100,
+        xstart: 0.0, // the start of the x-axis
+        xdelta: 0.5, // the x-axis step between each data point
+        ystart: 0.0,
+        ydelta: 0.5
+    };
+    var layer_options = {
+        name: "Sample Data"
+    };
+    // Test x-cut with vertical ramp
+    for (var y = 0; y < 100; y++) {
+        for (var x = 0; x < data_header.subsize; x++) {
+            x_data.push(y);
+        }
+    }
+    var x_plot = new sigplot.Plot(container, plot_options);
+    assert.notEqual(x_plot, null);
+    x_plot.overlay_array(x_data, data_header, layer_options);
+    x_plot.zoom({
+        x: 10,
+        y: 10
+    }, {
+        x: 20,
+        y: 20
+    });
+    x_plot.xCut(15);
+});
 interactiveTest('Plot x-cut issue #25', 'Does p-cut render correctly?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
@@ -5415,4 +5451,40 @@ interactiveTest('Plot y-cut zoom', 'Does y-cut render correctly with a valid axi
         });
         plot.yCut(200);
     }, {});
+});
+interactiveTest('Plot y-cut zoom 2', 'Does y-cut render a line at 30?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot_options = {
+        autohide_panbars: true,
+        hide_note: true
+    };
+    var y_data = []; // test data for x-cut test
+    var data_header = {
+        type: 2000,
+        subsize: 100,
+        xstart: 0.0, // the start of the x-axis
+        xdelta: 0.5, // the x-axis step between each data point
+        ystart: 0.0,
+        ydelta: 0.5
+    };
+    var layer_options = {
+        name: "Sample Data"
+    };
+    // Test x-cut with vertical ramp
+    for (var y = 0; y < 100; y++) {
+        for (var x = 0; x < data_header.subsize; x++) {
+            y_data.push(x);
+        }
+    }
+    var y_plot = new sigplot.Plot(container, plot_options);
+    assert.notEqual(y_plot, null);
+    y_plot.overlay_array(y_data, data_header, layer_options);
+    y_plot.zoom({
+        x: 10,
+        y: 10
+    }, {
+        x: 20,
+        y: 20
+    });
+    y_plot.yCut(15);
 });

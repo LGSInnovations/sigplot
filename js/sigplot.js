@@ -1326,7 +1326,7 @@
                                 // type 2000 and y-cut isn't currently enabled (we already checked
                                 // that x_cut above)
                                 if (!Gx.y_cut_press_on) {
-                                    plot.xCut(Mx.ypos);
+                                    plot.xCut(pixel_to_real(plot, 0, Mx.ypos).y);
                                 }
                             }
                         } else if (keyCode === 121) { // 'y'
@@ -1351,7 +1351,7 @@
                                 // type 2000 and y-cut isn't currently enabled (we already checked
                                 // that y_cut above)
                                 if (!Gx.x_cut_press_on) {
-                                    plot.yCut(Mx.xpos);
+                                    plot.yCut(pixel_to_real(plot, Mx.xpos, 0).x);
                                 }
                             }
                         } else if (keyCode === 122) { // 'z'
@@ -3185,14 +3185,13 @@
             if (ypos !== undefined) {
                 if (!Gx.p_cuts) {
                     Gx.x_cut_data = [];
-                    var plot_height = Mx.b - Mx.t;
-                    var plot_width = Mx.r - Mx.l;
-                    var height = Gx.lyr[0].lps;
                     var width = Gx.lyr[0].xframe;
-                    var row, start, finish = 0;
-                    row = Math.floor((height * (ypos - Mx.t)) / plot_height);
-                    start = row * width;
-                    finish = start + width;
+                    var row = Math.round((ypos - Gx.lyr[0].ystart) / Gx.lyr[0].ydelta);
+                    if ((row < 0) || (row > Gx.lyr[0].lps)) {
+                        return;
+                    }
+                    var start = row * width;
+                    var finish = start + width;
                     Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
                 }
 
@@ -3257,15 +3256,33 @@
                 Gx.cut_stash.panxmax = Gx.panxmax;
 
                 // The y-axis is now the z-values
-                Gx.panymin = Gx.zmin;
-                Gx.panymax = Gx.zmax;
+                var mxmn = m.vmxmn(Gx.x_cut_data, Gx.lyr[0].xframe);
+                var ymax = mxmn.smax;
+                var ymin = mxmn.smin;
+                var yran = ymax - ymin;
+                if (yran < 0.0) {
+                    ymax = ymin;
+                    ymin = ymax + yran;
+                    yran = -yran;
+                }
+                if (yran <= 1.0e-20) {
+                    ymin = ymin - 1.0;
+                    ymax = ymax + 1.0;
+                } else {
+                    ymin = ymin - 0.02 * yran;
+                    ymax = ymax + 0.02 * yran;
+                }
+
+                Gx.panymin = mxmn.smin;
+                Gx.panymax = mxmn.smax;
                 for (var h = 1; h < Mx.level + 1; h++) {
-                    Mx.stk[h].ymin = Gx.zmin;
-                    Mx.stk[h].ymax = Gx.zmax;
+                    Mx.stk[h].ymin = ymin;
+                    Mx.stk[h].ymax = ymax;
                     Mx.stk[h].yscl = (Mx.stk[h].ymax - Mx.stk[h].ymin) / (Mx.b - Mx.t);
                 }
 
                 this.rescale();
+
             } else if (Gx.x_cut_press_on) {
                 // ypos wasn't provided so turn x-cut off
                 Gx.x_cut_press_on = false;
@@ -3309,15 +3326,13 @@
             //display the x-cut of the raster
             if (xpos !== undefined) {
                 if (!Gx.p_cuts) {
-                    Gx.y_cut_data = [];
-                    var plot_height = Mx.b - Mx.t;
-                    var plot_width = Mx.r - Mx.l;
                     var height = Gx.lyr[0].lps;
                     var width = Gx.lyr[0].xframe;
-                    var line, i = 0;
+                    var i = 0;
+
                     Gx.y_cut_data = [];
-                    line = Math.floor((width * (xpos - Mx.l)) / plot_width);
-                    for (i = line; i < (width * height); i += width) {
+                    var col = Math.round((xpos - Gx.lyr[0].xstart) / Gx.lyr[0].xdelta);
+                    for (i = col; i < (width * height); i += width) {
                         Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
                     }
                 }
@@ -3384,22 +3399,36 @@
                 Gx.cut_stash.panxmax = Gx.panxmax;
 
                 // The y-axis is now the z-values
-                Gx.panymin = Gx.zmin;
-                Gx.panymax = Gx.zmax;
-                Gx.panxmin = Gx.panymin;
-                Gx.panxmax = Gx.panymax;
+                var mxmn = m.vmxmn(Gx.y_cut_data, Gx.lyr[0].lps);
+                var ymax = mxmn.smax;
+                var ymin = mxmn.smin;
+                var yran = ymax - ymin;
+                if (yran < 0.0) {
+                    ymax = ymin;
+                    ymin = ymax + yran;
+                    yran = -yran;
+                }
+                if (yran <= 1.0e-20) {
+                    ymin = ymin - 1.0;
+                    ymax = ymax + 1.0;
+                } else {
+                    ymin = ymin - 0.02 * yran;
+                    ymax = ymax + 0.02 * yran;
+                }
+
+                Gx.panymin = mxmn.smin;
+                Gx.panymax = mxmn.smax;
                 for (var h = 1; h < Mx.level + 1; h++) {
                     // the x-axis is now the yvalues
                     Mx.stk[h].xmin = Mx.stk[h].ymin;
                     Mx.stk[h].xmax = Mx.stk[h].ymax;
                     Mx.stk[h].xscl = (Mx.stk[h].xmax - Mx.stk[h].xmin) / (Mx.r - Mx.t);
 
-                    // the y-axis is not the zvalues
-                    Mx.stk[h].ymin = Gx.zmin;
-                    Mx.stk[h].ymax = Gx.zmax;
+                    // the y-axis is now the zvalues
+                    Mx.stk[h].ymin = ymin;
+                    Mx.stk[h].ymax = ymax;
                     Mx.stk[h].yscl = (Mx.stk[h].ymax - Mx.stk[h].ymin) / (Mx.b - Mx.t);
                 }
-
 
                 this.rescale();
             } else if (Gx.y_cut_press_on) {
