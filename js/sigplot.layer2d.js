@@ -639,7 +639,7 @@
                     }
                 }
 
-                if (Gx.panymin > Gx.panxmax) {
+                if (Gx.panymin > Gx.panymax) {
                     Gx.panymin = this.ymin;
                     Gx.panymax = this.ymax;
                 } else {

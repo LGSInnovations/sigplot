@@ -3156,6 +3156,26 @@ interactiveTest('layer2D (change compression settings)', 'Do you see two lines o
         }
     }, 100);
 });
+interactiveTest('raster (ystart)', 'Does the plot start at y-axis 100?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var framesize = 128;
+    var height = 120;
+    var ramp = [];
+    for (var j = 0; j < height; j += 1) {
+        for (var i = 0; i < framesize; i += 1) {
+            ramp.push(i + 1);
+        }
+    }
+    plot.overlay_array(ramp, {
+        type: 2000,
+        subsize: framesize,
+        file_name: "ramp",
+        ydelta: 0.5,
+        ystart: 100
+    });
+});
 interactiveTest('raster (timecode)', 'Do you see a raster that starts at 2014 July 4th for one hour (use "t" to check)?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
