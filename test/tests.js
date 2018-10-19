@@ -1700,6 +1700,45 @@ QUnit.test('sigplot layer user_data', function(assert) {
     assert.equal(plot.get_layer(lyr_1).user_data, undefined);
     assert.equal(plot.get_layer(lyr_2).user_data, "test");
 });
+QUnit.test('Plot y-cut preserves pan values', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
+    var done = assert.async();
+    plot.overlay_href("dat/raster.tmp", function() {
+        plot.zoom({
+            x: 600e6,
+            y: 80
+        }, {
+            x: 650e6,
+            y: 110
+        });
+        var orig_panxmin = plot._Gx.panxmin;
+        var orig_panxmax = plot._Gx.panxmax;
+        var orig_panymin = plot._Gx.panymin;
+        var orig_panymax = plot._Gx.panymax;
+
+        plot.yCut(625000000);
+        plot.yCut();
+
+        assert.equal(orig_panxmin, plot._Gx.panxmin);
+        assert.equal(orig_panxmax, plot._Gx.panxmax);
+        assert.equal(orig_panymin, plot._Gx.panymin);
+        assert.equal(orig_panymax, plot._Gx.panymax);
+
+        plot.xCut(100);
+        plot.xCut();
+
+        assert.equal(orig_panxmin, plot._Gx.panxmin);
+        assert.equal(orig_panxmax, plot._Gx.panxmax);
+        assert.equal(orig_panymin, plot._Gx.panymin);
+        assert.equal(orig_panymax, plot._Gx.panymax);
+
+        done();
+    }, {});
+});
+
 //////////////////////////////////////////////////////////////////////////////
 // QUnit 'sigplot-interactive' module
 //////////////////////////////////////////////////////////////////////////////
@@ -5454,7 +5493,7 @@ interactiveTest('Plot y-cut', 'Does y-cut render correctly?', function(assert) {
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
     plot.overlay_href("dat/raster.tmp", function() {
-        plot.yCut(140);
+        plot.yCut(70000000);
     }, {});
 });
 interactiveTest('Plot y-cut zoom', 'Does y-cut render correctly with a valid axis?', function(assert) {
@@ -5463,13 +5502,13 @@ interactiveTest('Plot y-cut zoom', 'Does y-cut render correctly with a valid axi
     assert.notEqual(plot, null);
     plot.overlay_href("dat/raster.tmp", function() {
         plot.zoom({
-            x: 100e6,
-            y: 100
+            x: 600e6,
+            y: 80
         }, {
-            x: 200e6,
-            y: 400
+            x: 650e6,
+            y: 110
         });
-        plot.yCut(200);
+        plot.yCut(625000000);
     }, {});
 });
 interactiveTest('Plot y-cut zoom 2', 'Does y-cut render a line at 30?', function(assert) {
