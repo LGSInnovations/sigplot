@@ -3183,6 +3183,18 @@
 
             //display the x-cut of the raster
             if (ypos !== undefined) {
+
+                // Stash important values
+                Gx.cut_stash = {};
+                Gx.cut_stash.ylabel = Gx.ylabel;
+                Gx.cut_stash.xlabel = Gx.xlabel;
+                Gx.cut_stash.level = Mx.level;
+                Gx.cut_stash.stk = JSON.parse(JSON.stringify(Mx.stk));
+                Gx.cut_stash.panymin = Gx.panymin;
+                Gx.cut_stash.panymax = Gx.panymax;
+                Gx.cut_stash.panxmin = Gx.panxmin;
+                Gx.cut_stash.panxmax = Gx.panxmax;
+
                 if (!Gx.p_cuts) {
                     Gx.x_cut_data = [];
                     var width = Gx.lyr[0].xframe;
@@ -3203,9 +3215,6 @@
                     autol: -1
                 });
 
-                Gx.cut_stash = {};
-                Gx.cut_stash.ylabel = Gx.ylabel;
-
                 var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
                 if (Gx.cmode === 1) {
                     Gx.ylabel = m.UNITS[28][0];
@@ -3225,7 +3234,6 @@
                     Gx.ylabel = "Intensity";
                 }
 
-                Gx.cut_stash.xlabel = Gx.xlabel;
                 if ((m.UNITS[Gx.xlab][0] !== "None") && (m.UNITS[Gx.xlab][0] !== "Unknown")) {
                     Gx.xlabel = m.UNITS[Gx.xlab][0];
                 } else {
@@ -3246,14 +3254,6 @@
                     Gx.lyr[i].display = !Gx.lyr[i].display;
                 }
                 Gx.x_cut_press_on = true;
-
-                // Stash important values
-                Gx.cut_stash.level = Mx.level;
-                Gx.cut_stash.stk = JSON.parse(JSON.stringify(Mx.stk));
-                Gx.cut_stash.panymin = Gx.panymin;
-                Gx.cut_stash.panymax = Gx.panymax;
-                Gx.cut_stash.panxmin = Gx.panxmin;
-                Gx.cut_stash.panxmax = Gx.panxmax;
 
                 // The y-axis is now the z-values
                 var mxmn = m.vmxmn(Gx.x_cut_data, Gx.lyr[0].xframe);
@@ -3325,6 +3325,18 @@
 
             //display the x-cut of the raster
             if (xpos !== undefined) {
+                // Stash important values
+                Gx.cut_stash = {};
+                Gx.cut_stash.xlabel = Gx.xlabel;
+                Gx.cut_stash.ylabel = Gx.ylabel;
+                Gx.cut_stash.level = Mx.level;
+                Gx.cut_stash.stk = JSON.parse(JSON.stringify(Mx.stk));
+                Gx.cut_stash.ymax = Mx.stk[Mx.level].ymax;
+                Gx.cut_stash.panymin = Gx.panymin;
+                Gx.cut_stash.panymax = Gx.panymax;
+                Gx.cut_stash.panxmin = Gx.panxmin;
+                Gx.cut_stash.panxmax = Gx.panxmax;
+
                 if (!Gx.p_cuts) {
                     var height = Gx.lyr[0].lps;
                     var width = Gx.lyr[0].xframe;
@@ -3345,8 +3357,6 @@
                     autol: -1
                 });
 
-                Gx.cut_stash = {};
-                Gx.cut_stash.ylabel = Gx.ylabel;
 
                 var cx = ((Gx.lyr.length > 0) && Gx.lyr[0].cx);
                 if (Gx.cmode === 1) {
@@ -3367,7 +3377,6 @@
                     Gx.ylabel = "Intensity";
                 }
 
-                Gx.cut_stash.xlabel = Gx.xlabel;
                 if ((m.UNITS[Gx.ylab][0] !== "None") && (m.UNITS[Gx.ylab][0] !== "Unknown")) {
                     Gx.xlabel = m.UNITS[Gx.ylab][0];
                 } else {
@@ -3388,15 +3397,6 @@
                     Gx.lyr[k].display = !Gx.lyr[k].display;
                 }
                 Gx.y_cut_press_on = true;
-
-                // Stash important values
-                Gx.cut_stash.level = Mx.level;
-                Gx.cut_stash.stk = JSON.parse(JSON.stringify(Mx.stk));
-                Gx.cut_stash.ymax = Mx.stk[Mx.level].ymax;
-                Gx.cut_stash.panymin = Gx.panymin;
-                Gx.cut_stash.panymax = Gx.panymax;
-                Gx.cut_stash.panxmin = Gx.panxmin;
-                Gx.cut_stash.panxmax = Gx.panxmax;
 
                 // The y-axis is now the z-values
                 var mxmn = m.vmxmn(Gx.y_cut_data, Gx.lyr[0].lps);
