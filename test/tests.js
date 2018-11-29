@@ -5547,3 +5547,57 @@ interactiveTest('Plot y-cut zoom 2', 'Does y-cut render a line at 30?', function
     });
     y_plot.yCut(15);
 });
+interactiveTest('correct scale after cmode change', 'is the plot correctly scaled with full scroll bars', function(assert) {
+    var done = assert.async();
+
+    var plot_options = {
+        autohide_panbars: false,
+        hide_note: true
+    };
+    var data = [1, 2, 3, 4, 5, 4, 3, 2, 1]; // the series of y-values
+    var data_header = {
+        xunits: "Time",
+        xstart: 100, // the start of the x-axis
+        xdelta: 50, // the x-axis step between each data point
+        yunits: "Power"
+    };
+    var layer_options = {
+        name: "Sample Data"
+    };
+    var plot = new sigplot.Plot(document.getElementById('plot'), plot_options);
+    plot.overlay_array(data, data_header, layer_options);
+
+    assert.equal(plot._Mx.stk[0].xmin, 100);
+    assert.equal(plot._Mx.stk[0].xmax, 500);
+    assert.equal(plot._Mx.stk[0].ymin, 0.92);
+    assert.equal(plot._Mx.stk[0].ymax, 5.08);
+    assert.equal(plot._Gx.panymin, 0.92);
+    assert.equal(plot._Gx.panymax, 5.08);
+
+    plot.change_settings({
+        cmode: 6
+    });
+    window.setTimeout(function() {
+
+        assert.equal(plot._Mx.stk[0].xmin, 100);
+        assert.equal(plot._Mx.stk[0].xmax, 500);
+        assert.equal(plot._Mx.stk[0].ymin, -0.13979400086720375);
+        assert.equal(plot._Mx.stk[0].ymax, 7.129494044227391);
+        assert.equal(plot._Gx.panymin, -0.13979400086720375);
+        assert.equal(plot._Gx.panymax, 7.129494044227391);
+
+        plot.change_settings({
+            cmode: 3
+        });
+
+        assert.equal(plot._Mx.stk[0].xmin, 100);
+        assert.equal(plot._Mx.stk[0].xmax, 500);
+        assert.equal(plot._Mx.stk[0].ymin, 0.92);
+        assert.equal(plot._Mx.stk[0].ymax, 5.08);
+        assert.equal(plot._Gx.panymin, 0.92);
+        assert.equal(plot._Gx.panymax, 5.08);
+
+        done();
+
+    }, 1000);
+});
