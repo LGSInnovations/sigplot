@@ -14,16 +14,19 @@ using your operating-systems package manager, or by using
 Once you have `npm` working, install [Grunt](http://gruntjs.com) with the
 command `npm install -g grunt-cli`.
 
-Using Make
--------------
-Although Grunt is the canonical build system, a basic Makefile is provided for
-environment where Grunt cannot be used.  You will need the following:
+```
+# Install NVM
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
 
-* GNU Make
-* Java version 1.7+
+# Install stable Node.js
+nvm install stable
 
-If you wish to build the SigPlot API documention, you will need
-[jsdoc](https://github.com/jsdoc3/jsdoc) installed.
+# Use stable Node.js
+nvm use stable
+
+# Install Grunt
+npm install -g grunt-cli grunt
+```
 
 ## Getting started
 
@@ -37,7 +40,7 @@ If you wish to build the SigPlot API documention, you will need
 
 All code for SigPlot is found within the `js` folder.  Coding style is enforced
 using jsbeautifier during the build process.  Prior to commiting your code you
-should cleanup your code using `jsbeautifier:cleanup`.  This will reformat your
+should cleanup your code using `grunt prep`.  This will reformat your
 code and make it consistent with the SigPlot coding standards.
 
 Please use semantic commit messages following this format:
@@ -75,6 +78,17 @@ prepare your branch:
 1. Fetch the latest code from the repository: `git fetch origin`
 2. Rebase your branch against master `git rebase origin/master`
 3. Run the build and test with `grunt test`.  This must pass without the use of --force.
+
+Using Make
+-------------
+Although Grunt is the canonical build system, a basic Makefile is provided for
+environment where Grunt cannot be used.  You will need the following:
+
+* GNU Make
+* Java version 1.7+
+
+If you wish to build the SigPlot API documention, you will need
+[jsdoc](https://github.com/jsdoc3/jsdoc) installed.
 
 ## Contributions
 
