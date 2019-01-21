@@ -322,6 +322,8 @@ module.exports = function (grunt) {
     // Check everything is good
     grunt.registerTask('test', ['build', 'qunit']);
     
+    grunt.registerTask('prep', ['jsbeautifier:cleanup']);
+
     // Build a distributable release
     grunt.registerTask('dist', ['clean', 'test', 'closure-compiler', 'jsdoc', 'compress']);
     
