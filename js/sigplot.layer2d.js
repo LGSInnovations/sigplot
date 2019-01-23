@@ -478,6 +478,52 @@
             }
         },
 
+        reload: function(data, hdrmod) {
+            if (this.hcb.pipe) {
+                throw "reload cannot be used with pipe, use push instead";
+            }
+            var axis_change = (this.hcb.dview.length !== data.length) || hdrmod;
+            if (hdrmod) {
+                for (var k in hdrmod) {
+                    this.hcb[k] = hdrmod[k];
+                    if (k === "xstart" || k === "xdelta" | k === "ystart" || k === "ydelta" || k === "subsize") {
+                        axis_change = true;
+                    }
+                }
+            }
+            if (Array.isArray(data) && Array.isArray(data[0])) {
+                this.hcb.type = 2000;
+                this.hcb["class"] = 2;
+                this.hcb.subsize = data[0].length;
+                this.hcb.size = data.length;
+                axis_change = true;
+            }
+            this.hcb.setData(data);
+
+            // Setting these causes refresh() to refetch
+            this.init(this.hcb);
+            this.img = null;
+            this.buf = null;
+
+            var xmin = this.xmin;
+            var xmax = this.xmax;
+
+            if (axis_change) {
+                var d = this.hcb.xstart + (this.hcb.xdelta * this.hcb.subsize);
+                this.xmin = Math.min(this.hcb.xstart, d);
+                this.xmax = Math.max(this.hcb.xstart, d);
+                this.xdelta = this.hcb.xdelta;
+                this.xstart = this.hcb.xstart;
+                xmin = undefined;
+                xmax = undefined;
+            }
+
+            return {
+                xmin: xmin,
+                xmax: xmax
+            };
+        },
+
         push: function(data, hdrmod, sync) {
             var Gx = this.plot._Gx;
             var rescale = false;

@@ -587,6 +587,7 @@
             //If this is a 2-D array automatically set subsize
             hcb.type = 2000;
             hcb.subsize = data[0].length;
+            hcb.size = data.length;
         }
         hcb["class"] = hcb.type / 1000;
         // If this is a type 2000 , subsize *must* be provided
