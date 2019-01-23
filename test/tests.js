@@ -1905,7 +1905,7 @@ interactiveTest('sigplot continuous mtag', 'Ensure continuous mtag updates', fun
         output.innerHTML = "X: " + evt.x.toFixed(8) + " Y: " + evt.y.toFixed(8);
     });
 });
-interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function(assert) {
+interactiveTest('sigplot 1d overlay', 'Do you see a ramp from 0 to 1023?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
@@ -1917,7 +1917,43 @@ interactiveTest('sigplot ramp', 'Do you see a ramp from 0 to 1023?', function(as
         file_name: "ramp"
     });
 });
-interactiveTest('sigplot ramp', 'Do you see a sin wave?', function(assert) {
+interactiveTest('sigplot 1d deoverlay', 'Do you see a ramp from 0 to 1023?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var lyr_n = plot.overlay_array([], {}, {
+        layerType: sigplot.Layer1D
+    });
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+
+    plot.deoverlay(lyr_n);
+
+    lyr_n = plot.overlay_array(ramp, {
+        file_name: "ramp"
+    });
+});
+interactiveTest('sigplot 1d reload', 'Do you see a ramp from 0 to 1023?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var lyr_n = plot.overlay_array([], {}, {
+        layerType: sigplot.Layer1D
+    });
+
+    var ramp = [];
+    for (var i = 0; i < 1024; i++) {
+        ramp.push(i);
+    }
+
+    plot.reload(lyr_n, ramp, {
+        file_name: "ramp"
+    });
+});
+interactiveTest('sigplot file overlay', 'Do you see a sin wave?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
@@ -2002,6 +2038,22 @@ interactiveTest('sigplot 2d overlay', 'Do you see a raster? Is alignment of x/y 
         [6, 7, 8, 9, 0]
     ];
     plot.overlay_array(data);
+});
+interactiveTest('sigplot 2d deoverlay', 'Do you see a raster? Is alignment of x/y axes correct?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var lyr_n = plot.overlay_array([], {}, {
+        layerType: sigplot.Layer2D
+    });
+    var data = [
+        [1, 2, 3, 4, 5],
+        [6, 7, 8, 9, 0],
+        [1, 2, 3, 4, 5],
+        [6, 7, 8, 9, 0]
+    ];
+    plot.deoverlay(lyr_n);
+    lyr_n = plot.overlay_array(data);
 });
 interactiveTest('sigplot 2d reload', 'Do you see a raster? Is alignment of x/y axes correct?', function(assert) {
     var container = document.getElementById('plot');
