@@ -322,6 +322,8 @@
         this._Gx = new GX();
         this._Gx.parent = element;
 
+        this._Settings = new PlotSettings(this);
+
         // Variable which stores state of mouse position relative to the canvas
         this.mouseOnCanvas = false;
 
@@ -329,7 +331,10 @@
             options = {};
         }
 
+        this._Settings.apply(options);
+
         plot_init(this, options);
+
 
         this.mimicListeners = {
             other: null,
@@ -1623,6 +1628,8 @@
                 Gx.lyr[i].change_settings(settings);
             }
 
+            this._Settings.apply(settings);
+
             if (settings.xyKeys !== undefined) {
                 if (settings.xyKeys === null) {
                     Gx.xyKeys = "automatic";
@@ -1631,6 +1638,7 @@
                 }
             }
 
+            /*
             if (settings.grid !== undefined) {
                 if (settings.grid === null) {
                     Gx.grid = !Gx.grid;
@@ -1638,6 +1646,7 @@
                     Gx.grid = settings.grid;
                 }
             }
+            */
 
             if (settings.gridBackground !== undefined) {
                 Gx.gridBackground = settings.gridBackground;
@@ -3864,6 +3873,97 @@
         this.xdata = false; // true if X data is data from file
 
         this.options = {};
+    }
+
+    /**
+     * The settings structure
+     *
+     * @constructor
+     * @memberOf sigplot
+     * @private
+     */
+    function PlotSettings(plot) {
+        var Gx = plot._Gx;
+        var Mx = plot._Mx;
+
+        /**
+         * @name PlotSettings#grid
+         * @property {Boolean}
+         *     Get/set grid visibility; null toggles.
+         */
+        Object.defineProperty(this, 'grid', {
+            enumerable: true,
+            get : function() { return Gx.grid; },
+            set : function(value) { Gx.grid = (value === null) ? !Gx.grid : value; }
+        });
+        fluentizeSetting(plot, this, 'grid', true);
+
+        /**
+         * @name PlotSettings#nogrid
+         * @deprecated use grid instead
+         * @property {Boolean}
+         *     Disable grid
+         */
+        Object.defineProperty(this, 'nogrid', {
+            get : function() { return !this.grid; },
+            set : function(value) { this.grid = !value; }
+        });
+
+        /**
+         * @name PlotSettings#invert
+         * @property {Boolean}
+         *     Get/set foreground/background inverstion; null toggles.
+         */
+        Object.defineProperty(this, 'invert', {
+            enumerable: true,
+            get : function() { return Mx.xi; },
+            set : function(value) { 
+                if (value === null) {
+                    mx.invertbgfg(Mx);
+                } else if (value === true) {
+                    mx.setbgfg(this, "white", "black", true);
+                } else if (value === false) {
+                    mx.setbgfg(this, "black", "white", false);
+                }
+            }
+        });
+        fluentizeSetting(plot, this, 'invert', true);
+
+        /**
+         * @name PlotSettings#xi
+         * @deprecated use invert instead
+         * @property {Boolean}
+         *     Get/set foreground/background inverstion; null toggles.
+         */
+        Object.defineProperty(this, 'xi', {
+            get : function() { return this.invert; },
+            set : function(value) { 
+                this.invert = value;
+            }
+        });
+    }
+
+    PlotSettings.prototype = {
+        apply: function(settings) {
+            for (var settingName in settings) {
+                if (this.hasOwnProperty(settingName)) {
+                    this[settingName] = settings[settingName];
+                }
+            }
+        }
+    }
+
+    function fluentizeSetting(plot, settings, propName, refreshRequired) {
+        plot[propName] = function() {
+            if (!arguments.length) {
+                return settings[propName];
+            }
+            settings[propName] = arguments[0];
+            if (refreshRequired) {
+                plot.refresh();
+            }
+            return plot;
+        };
     }
 
     /**
@@ -6925,7 +7025,6 @@
         Gx.default_rightclick_rubberbox_action = o.rightclick_rubberbox_action === undefined ? null : o.rightclick_rubberbox_action;
 
         Gx.cross = o.cross === undefined ? false : o.cross;
-        Gx.grid = o.nogrid === undefined ? true : !o.nogrid;
         Gx.fillStyle = o.fillStyle;
         Gx.gridBackground = o.gridBackground;
         Gx.gridStyle = o.gridStyle;
