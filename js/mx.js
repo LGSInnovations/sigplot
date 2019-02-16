@@ -265,6 +265,8 @@
 
         // Render Canvas
         this._renderCanvas = document.createElement("canvas");
+        // Syncronous render should only be used for testing
+        this._syncRender = false;
     }
 
     /* This is used as a helper function for defining highlight ranges/
@@ -550,11 +552,15 @@
 
         var active_canvas = Mx.active_canvas;
 
-        if (!active_canvas._animationFrameHandle) {
-            active_canvas._animationFrameHandle = requestAnimFrame(function() {
-                active_canvas._animationFrameHandle = undefined;
-                func();
-            });
+        if (Mx._syncRender === false) {
+            if (!active_canvas._animationFrameHandle) {
+                active_canvas._animationFrameHandle = requestAnimFrame(function() {
+                    active_canvas._animationFrameHandle = undefined;
+                    func();
+                });
+            }
+        } else {
+            func();
         }
     };
 

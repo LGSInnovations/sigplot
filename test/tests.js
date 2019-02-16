@@ -1068,6 +1068,57 @@ QUnit.test('sigplot construction', function(assert) {
     assert.equal(plot._Mx.wid_canvas.height, 400);
     assert.equal(plot._Mx.wid_canvas.style.position, "absolute");
 });
+QUnit.test('sigplot refresh_after', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    plot._Mx._syncRender = true;
+
+    var refreshCount = 0;
+    plot._refresh = function() {
+        refreshCount += 1;
+    };
+
+    // normal refresh calls increment the count
+    plot.refresh();
+    assert.equal(refreshCount, 1);
+
+    // during refresh_after, refresh calls are ignored and only
+    // one refresh is called at the end
+    plot.refresh_after(
+        function(thePlot) {
+            thePlot.refresh();
+            thePlot.refresh();
+        }
+    );
+    assert.equal(refreshCount, 2);
+
+    // refresh_after is safe for reentrant calls
+    plot.refresh_after(
+        function(thePlot) {
+            thePlot.refresh_after(function(thePlot2) {
+                thePlot2.refresh()
+            });
+            thePlot.refresh_after(function(thePlot2) {
+                thePlot2.refresh()
+            });
+        }
+    );
+    assert.equal(refreshCount, 3);
+
+    // refresh_after guarantees a refresh, even with an error, but does
+    // not swallow the error
+    assert.throws(
+        function() {
+            plot.refresh_after(
+                function(thePlot) {
+                    throw "An Error";
+                }
+            );
+        }
+    );
+    assert.equal(refreshCount, 4);
+
+});
 
 // Demonstrate that changing the ymin/ymax settings
 // will implicitly change the autoy settings

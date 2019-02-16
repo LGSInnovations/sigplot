@@ -3089,13 +3089,49 @@
          * @example plot.refresh();
          */
         refresh: function() {
-            if (!this._Gx.initialized) {
+            if (!this._Gx.initialized || this._Gx.refresh_after_ctr > 0) {
                 return;
             }
             var self = this;
             mx.render(this._Mx, function() {
                 self._refresh();
             });
+        },
+
+        /**
+         * Refresh the entire plot after a function has been called.
+         *
+         * The plot will be guaranteed to have refresh called after
+         * the provided function is executed; while the function is
+         * executed all plot refreshes will be disabled.
+         *
+         * In most cases, you should not need to use this function because
+         * SigPlot will do the right thing and refresh when necessary.  The
+         * primary reason for using this is to temporarily disable refreshes
+         * while many actions are occuring, but guarantee that the refresh
+         * occurs after all those actions have been applied.
+         *
+         * While calls to refresh() are disabled until after the callback has
+         * completed, any calls to _refresh() will continue to be processed.
+         *
+         * @param {refreshAfterCallback} cb
+         *     The function to execute
+         * @callback refreshAfterCallback
+         * @param {Plot} the plot
+         *
+         * @example plot.refresh_after((plot) => {plot.push(n, data)});
+         */
+        refresh_after: function(cb) {
+            this._Gx.refresh_after_ctr += 1;
+            try {
+                cb(this);
+            } finally {
+                this._Gx.refresh_after_ctr =
+                    Math.max(this._Gx.refresh_after_ctr - 1, 0);
+                if (this._Gx.refresh_after_ctr === 0) {
+                    this.refresh();
+                }
+            }
         },
 
         /**
@@ -4054,6 +4090,9 @@
         //the drawmode and autol before the x or y cut was showing
         this.old_drawmode = undefined;
         this.old_autol = undefined;
+
+        // refresh-reference-counter
+        this.refresh_after_ctr = 0;
     }
 
     /**
