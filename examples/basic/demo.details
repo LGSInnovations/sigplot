@@ -1,0 +1,9 @@
+---
+name: SigPlot Basic Example
+description: A simple example of using SigPlot to render an array.
+authors:
+  - LGS Innovations
+resources:
+  - https://cdn.jsdelivr.net/npm/sigplot/dist/sigplot-debug.js
+normalize_css: no
+...
