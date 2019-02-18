@@ -567,7 +567,8 @@
         hcb.yunits = 0;
         hcb.enabled_streaming_pcut = false;
 
-        if (!overrides) { /* if no overrides provided...set it to empty*/
+        if (!overrides) {
+            /* if no overrides provided...set it to empty*/
             overrides = {};
         }
 

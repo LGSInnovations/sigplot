@@ -809,7 +809,8 @@
         if (action < 10) {
             sb = sblocal; /* use local SB structure */
         }
-        if (action < 10 || sb.action === 0) { /* re-init the SB structure */
+        if (action < 10 || sb.action === 0) {
+            /* re-init the SB structure */
             mx.scroll(Mx, sb, mx.XW_INIT, undefined, scrollbarState);
             sb.flag = mode;
             /* Turn off repeated event handling in mx_scroll */
@@ -987,9 +988,11 @@
                         sv.srange = scrollbarState.srange = 0.0;
                     } else switch (btn) {
                         case 1:
-                            if (s > sv.a1 && s < sv.a2) { /* on scroll trough */
+                            if (s > sv.a1 && s < sv.a2) {
+                                /* on scroll trough */
                                 sv.action = (sv.soff > 0) ? mx.SB_PAGEINC : mx.SB_PAGEDEC;
-                            } else { /* on arrows */
+                            } else {
+                                /* on arrows */
                                 sv.action = (sv.soff > 0) ? mx.SB_STEPINC : mx.SB_STEPDEC;
                             }
                             break;

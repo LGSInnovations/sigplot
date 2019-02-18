@@ -61,7 +61,8 @@
 
     };
 
-    SliderPlugin.prototype = { /** @lends SliderPlugin */
+    SliderPlugin.prototype = {
+        /** @lends SliderPlugin */
         /**
          * Initialize the plugin
          */

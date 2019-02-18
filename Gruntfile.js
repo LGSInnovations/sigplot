@@ -221,7 +221,7 @@ module.exports = function (grunt) {
                 ],
                 options: {
                     mode: "VERIFY_ONLY",
-                    eol: "\n"
+                    config: ".jsbeautifyrc"
                 }
             },
             cleanup: {
@@ -242,10 +242,7 @@ module.exports = function (grunt) {
                         'test/tests.js'
                 ],
                 options: {
-                    indentSize: 4,
-                    indentWithTabs: false,
-                    wrapLineLength: 0,
-                    eol: "\n"
+                    config: ".jsbeautifyrc"
                 }
             }
         },

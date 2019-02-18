@@ -1395,7 +1395,8 @@
 
     // Public methods
 
-    Plot.prototype = { /** @lends Plot **/
+    Plot.prototype = {
+        /** @lends Plot **/
 
         /**
          * Add a plugin to the plot
