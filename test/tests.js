@@ -1096,10 +1096,10 @@ QUnit.test('sigplot refresh_after', function(assert) {
     plot.refresh_after(
         function(thePlot) {
             thePlot.refresh_after(function(thePlot2) {
-                thePlot2.refresh()
+                thePlot2.refresh();
             });
             thePlot.refresh_after(function(thePlot2) {
-                thePlot2.refresh()
+                thePlot2.refresh();
             });
         }
     );
