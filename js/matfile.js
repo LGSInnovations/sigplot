@@ -38,8 +38,17 @@
  *
  * @namespace matfile
  */
-(function(global) {
+
+/* global module */
+/* global require */
+
+(function() {
     'use strict';
+
+    var common = require("./common");
+
+    function matfile() {}
+
     /**
      * @memberOf matfile
      * @private
@@ -450,7 +459,7 @@
      * @memberof matfile
      * @param   {array}     buf         Data bffer
      */
-    function MatHeader(buf, options) {
+    matfile.MatHeader = function(buf, options) {
         this.file = null;
         this.file_name = null;
         this.buf = buf;
@@ -573,8 +582,9 @@
             // set the data field in the header
             this.setData(this.buf, dvhdr, currIndex, littleEndianData);
         }
-    }
-    MatHeader.prototype = {
+    };
+
+    matfile.MatHeader.prototype = {
         /**
          * @memberof bluefile
          * @param   buf
@@ -688,11 +698,11 @@
      * @memberof    matfile
      * @param   options
      */
-    function MatFileReader(options) {
+    matfile.MatFileReader = function(options) {
         this.options = options;
-    }
+    };
 
-    MatFileReader.prototype = {
+    matfile.MatFileReader.prototype = {
         /**
          * @memberof matfile
          * @param   theFile
@@ -711,7 +721,7 @@
                         return;
                     }
                     var rawhdr = reader.result;
-                    var hdr = new MatHeader(rawhdr, that.options);
+                    var hdr = new matfile.MatHeader(rawhdr, that.options);
                     hdr.file = theFile;
                     onload(hdr);
                 };
@@ -737,7 +747,7 @@
                         return;
                     }
                     var raw = reader.result;
-                    var hdr = new MatHeader(raw, that.options);
+                    var hdr = new matfile.MatHeader(raw, that.options);
                     hdr.file = theFile;
                     hdr.file_name = theFile.name;
                     onload(hdr);
@@ -765,14 +775,14 @@
                         var arrayBuffer = null; // Note: not oReq.responseText
                         if (oReq.response) {
                             arrayBuffer = oReq.response;
-                            var hdr = new MatHeader(arrayBuffer, that.options);
+                            var hdr = new matfile.MatHeader(arrayBuffer, that.options);
                             parseURL(href);
                             var fileUrl = parseURL(href);
                             hdr.file_name = fileUrl.file;
                             onload(hdr);
                         } else if (oReq.responseText) {
                             text2buffer(oReq.responseText, function(arrayBuffer) {
-                                var hdr = new MatHeader(arrayBuffer, that.options);
+                                var hdr = new matfile.MatHeader(arrayBuffer, that.options);
                                 parseURL(href);
                                 var fileUrl = parseURL(href);
                                 hdr.file_name = fileUrl.file;
@@ -790,6 +800,6 @@
             oReq.send(null);
         }
     };
-    global['MatHeader'] = global['MatHeader'] || MatHeader;
-    global['MatFileReader'] = global['MatFileReader'] || MatFileReader;
+
+    module.exports = matfile;
 }(this));
