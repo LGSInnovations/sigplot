@@ -6,58 +6,6 @@ module.exports = function (grunt) {
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
-        concat: {
-          bluefile: {
-            src: [
-                    'js/license.js',
-                    'js/typedarray.js',
-                    'js/common.js',
-                    'js/bluefile.js'
-            ],
-            dest: 'dist/bluefile.js'
-          },
-          matfile: {
-            src: [
-                    'js/license.js',
-                    'js/typedarray.js',
-                    'js/common.js',
-                    'js/matfile.js'
-            ],
-            dest: 'dist/matfile.js'
-          },
-          sigplot: {
-            src: [
-                    'js/license.js',
-                    'js/typedarray.js',
-                    'js/common.js',
-                    'js/bluefile.js',
-                    'js/matfile.js',
-                    'js/ColorMap.js',
-                    'js/tinycolor.js',
-                    'js/CanvasInput.js',
-                    'js/spin.js',
-                    'js/loglevel.js',
-                    'js/m.js',
-                    'js/mx.js',
-                    'js/sigplot.Utils.js',
-                    'js/sigplot.layer1d.js',
-                    'js/sigplot.layer2d.js',
-                    'js/sigplot.js'
-            ],
-            dest: 'dist/sigplot.js'
-          },
-          sigplot_plugins: {
-            src: [
-                    'js/license.js',
-                    'js/sigplot.annotations.js',
-                    'js/sigplot.slider.js',
-                    'js/sigplot.accordion.js',
-                    'js/sigplot.boxes.js',
-                    'js/sigplot.playback.js',
-            ],
-            dest: 'dist/sigplot.plugins.js'
-          }
-        },
         jshint: {
             options: {
                 jshintrc: '.jshintrc'
@@ -292,14 +240,20 @@ module.exports = function (grunt) {
                 options: {
                     browserifyOptions: {
                       standalone: 'sigplot_plugins'
-                    }
+                    },
+                    transform: [
+                        [
+                            'babelify', {
+                                "presets": ["@babel/preset-env"]
+                            }
+                        ]
+                    ]
                 }
             }
         }
     });
 
     // These plugins provide necessary tasks.
-    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-closure-compiler');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
