@@ -27,47 +27,52 @@
 (function() {
     var m = require("./m");
     var mx = require("./mx");
+    var plugin = require("./sigplot.plugin");
     /**
      * @constructor
      * @param options
      * @returns {AccordionPlugin}
      */
-    var AccordionPlugin = function(options) {
-        this.options = (options !== undefined) ? options : {};
-        if (this.options.display === undefined) {
-            this.options.display = true;
+    class AccordionPlugin extends plugin.Plugin {
+        constructor(options) {
+            super(options);
+
+            if (this.options.display === undefined) {
+                this.options.display = true;
+            }
+            if (this.options.center_line_style === undefined) {
+                this.options.center_line_style = {};
+            }
+            if (this.options.edge_line_style === undefined) {
+                this.options.edge_line_style = {};
+            }
+            if (this.options.fill_style === undefined) {
+                this.options.fill_style = {};
+            }
+            if (this.options.direction === undefined) {
+                this.options.direction = "vertical";
+            }
+
+            /**
+             * In absolute mode, center and width are expressed in
+             * real wold coordinates. In relative mode, center and width
+             * are expressed as percentages (0 to 1.0) of the width or
+             * height of the plot at the current zoom level
+             */
+            if (this.options.mode === undefined) {
+                this.options.mode = "absolute";
+            }
+            this.center = undefined; // In real units
+            this.width = undefined; // In real units
+            this.center_location = undefined; // In pixels
+            this.loc_1 = undefined; // In pixels
+            this.loc_2 = undefined;
+            this.visible = true;
         }
-        if (this.options.center_line_style === undefined) {
-            this.options.center_line_style = {};
-        }
-        if (this.options.edge_line_style === undefined) {
-            this.options.edge_line_style = {};
-        }
-        if (this.options.fill_style === undefined) {
-            this.options.fill_style = {};
-        }
-        if (this.options.direction === undefined) {
-            this.options.direction = "vertical";
-        }
-        /**
-         * In absolute mode, center and width are expressed in
-         * real wold coordinates. In relative mode, center and width
-         * are expressed as percentages (0 to 1.0) of the width or
-         * height of the plot at the current zoom level
-         */
-        if (this.options.mode === undefined) {
-            this.options.mode = "absolute";
-        }
-        this.center = undefined; // In real units
-        this.width = undefined; // In real units
-        this.center_location = undefined; // In pixels
-        this.loc_1 = undefined; // In pixels
-        this.loc_2 = undefined;
-        this.visible = true;
-    };
-    AccordionPlugin.prototype = {
-        init: function(plot) {
-            this.plot = plot;
+
+        init(plot) {
+            super.init(plot);
+
             var Mx = this.plot._Mx;
             var self = this;
             this.onmousemove = function(evt) {
@@ -236,93 +241,23 @@
                 });
             };
             document.addEventListener("mouseup", this.onmouseup, false);
-        },
-        addListener: function(what, callback) {
-            var Mx = this.plot._Mx;
-            mx.addEventListener(Mx, what, callback, false);
-        },
-        removeListener: function(what, callback) {
-            var Mx = this.plot._Mx;
-            mx.removeEventListener(Mx, what, callback, false);
-        },
-        on: function(type, fn, context) {
-            if (!this._events) {
-                this._events = {};
-            }
-            if (!this._events[type]) {
-                this._events[type] = [];
-            }
-            if (context === this) {
-                // Less memory footprint.
-                context = undefined;
-            }
-            this._events[type].push({
-                cb: fn,
-                ctx: context
-            });
-        },
-        emit: function(type, data) {
-            var event = Object.assign({}, data, {
-                type: type,
-                target: this
-            });
-            if (this._events) {
-                var listeners = this._events[type];
-                if (listeners) {
-                    for (var i = 0, len = listeners.length; i < len; i++) {
-                        var l = listeners[i];
-                        l.cb.call(l.ctx || this, event);
-                    }
-                }
-            }
-            return this;
-        },
-        off: function(type, fn, context) {
-            var listeners,
-                i,
-                len;
-            if (!type) {
-                // clear all listeners if called without arguments
-                delete this._events;
-            }
-            if (!this._events) {
-                return;
-            }
-            listeners = this._events[type];
-            if (!listeners) {
-                return;
-            }
-            if (context === this) {
-                context = undefined;
-            }
-            if (listeners) {
-                // find fn and remove it
-                for (i = 0, len = listeners.length; i < len; i++) {
-                    var l = listeners[i];
-                    if (l.ctx !== context) {
-                        continue;
-                    }
-                    if (l.fn === fn) {
-                        listeners.splice(i, 1);
-                        return;
-                    }
-                }
-            }
-            return this;
-        },
-        set_highlight: function(ishighlight) {
+        }
+
+        set_highlight(ishighlight) {
             if (ishighlight !== this.highlight) {
                 this.highlight = ishighlight;
                 this.plot.redraw();
             }
-        },
-        set_edge_highlight: function(ishighlight) {
+        }
+
+        set_edge_highlight(ishighlight) {
             if (ishighlight !== this.edge_highlight) {
                 this.edge_highlight = ishighlight;
                 this.plot.redraw();
             }
-        },
-        set_center: function(center) {
+        }
+
+        set_center(center) {
             var self = this;
             this.center = center;
             if (this.plot) {
@@ -339,8 +274,9 @@
                 mx.dispatchEvent(Mx, evt);
                 this.plot.redraw();
             }
-        },
-        mimic: function(acc) {
+        }
+
+        mimic(acc) {
             var self = this;
             if (acc instanceof AccordionPlugin) {
                 acc.on("change", function(evt) {
@@ -349,8 +285,9 @@
                     self.plot.redraw();
                 });
             }
-        },
-        set_width: function(width) {
+        }
+
+        set_width(width) {
             var self = this;
             this.width = width;
             if (this.plot) {
@@ -367,14 +304,17 @@
                 mx.dispatchEvent(Mx, evt);
                 this.plot.redraw();
             }
-        },
-        get_center: function() { // In real units
+        }
+
+        get_center() { // In real units
             return this.center;
-        },
-        get_width: function() { // Pixels
+        }
+
+        get_width() { // Pixels
             return this.width;
-        },
-        refresh: function(canvas) {
+        }
+
+        refresh(canvas) {
             if (!this.plot || !this.visible) {
                 return;
             }
@@ -481,20 +421,24 @@
                     ctx.stroke();
                 }
             }
-        },
-        set_visible: function(isVisible) {
+        }
+
+        set_visible(isVisible) {
             this.visible = isVisible;
             this.plot.redraw();
-        },
-        set_mode: function(mode) {
+        }
+
+        set_mode(mode) {
             this.options.mode = mode;
-        },
-        dispose: function() {
-            this.plot = undefined;
+        }
+
+        dispose() {
+            super.dispose();
             this.center = undefined;
             this.center_location = undefined;
             this.width = undefined;
         }
-    };
+    }
+
     module.exports = AccordionPlugin;
 }());
