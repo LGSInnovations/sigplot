@@ -45,6 +45,9 @@
     "travis": "^0.1.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.3.3",
+    "@babel/preset-env": "^7.3.1",
+    "babelify": "^10.0.0",
     "catharsis": "^0.8.9",
     "express": "^4.13.4",
     "grunt": "^1.0.3",

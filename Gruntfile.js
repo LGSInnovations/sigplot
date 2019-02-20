@@ -213,7 +213,14 @@ module.exports = function (grunt) {
                 options: {
                     browserifyOptions: {
                       standalone: 'bluefile'
-                    }
+                    },
+                    transform: [
+                        [
+                            'babelify', {
+                                "presets": ["@babel/preset-env"]
+                            }
+                        ]
+                    ]
                 }
             },
             matfile: {
@@ -222,7 +229,14 @@ module.exports = function (grunt) {
                 options: {
                     browserifyOptions: {
                       standalone: 'matfile'
-                    }
+                    },
+                    transform: [
+                        [
+                            'babelify', {
+                                "presets": ["@babel/preset-env"]
+                            }
+                        ]
+                    ]
                 }
             },
             sigplot: {
@@ -231,7 +245,14 @@ module.exports = function (grunt) {
                 options: {
                     browserifyOptions: {
                       standalone: 'sigplot'
-                    }
+                    },
+                    transform: [
+                        [
+                            'babelify', {
+                                "presets": ["@babel/preset-env"]
+                            }
+                        ]
+                    ]
                 }
             },
             plugins: {

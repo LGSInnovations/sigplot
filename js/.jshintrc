@@ -9,10 +9,10 @@
   "undef": true,
   "boss": true,
   "eqnull": true,
-  "es3": true,
   "browser": true,
   "shadow": true,
   "-W099": true,
+  "esversion": 6,
   "globals": {
     "UInt8Array": false,
     "BlueHeader": false,
