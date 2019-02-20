@@ -6625,7 +6625,7 @@
             mx.setbgfg(Mx, o.colors.bg, o.colors.fg, Mx.xi);
         }
 
-        if (o.xi !== undefined) {
+        if (o.xi) {
             mx.invertbgfg(Mx);
         }
 
