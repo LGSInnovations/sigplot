@@ -37,37 +37,37 @@
         constructor(options) {
             super(options);
 
-            if (this.options.display === undefined) {
-                this.options.display = true;
-            }
-            if (this.options.center_line_style === undefined) {
-                this.options.center_line_style = {};
-            }
-            if (this.options.edge_line_style === undefined) {
-                this.options.edge_line_style = {};
-            }
-            if (this.options.fill_style === undefined) {
-                this.options.fill_style = {};
-            }
-            if (this.options.direction === undefined) {
-                this.options.direction = "vertical";
-            }
-
-            /**
-             * In absolute mode, center and width are expressed in
-             * real wold coordinates. In relative mode, center and width
-             * are expressed as percentages (0 to 1.0) of the width or
-             * height of the plot at the current zoom level
-             */
-            if (this.options.mode === undefined) {
-                this.options.mode = "absolute";
-            }
             this.center = undefined; // In real units
             this.width = undefined; // In real units
             this.center_location = undefined; // In pixels
             this.loc_1 = undefined; // In pixels
             this.loc_2 = undefined;
             this.visible = true;
+        }
+
+        defineOptions() {
+            super.defineOptions();
+
+            this.defineOption("center_line_style", {
+                defaultValue: {},
+                refreshOnChange: true
+            });
+            this.defineOption("edge_line_style", {
+                defaultValue: {},
+                refreshOnChange: true
+            });
+            this.defineOption("fill_style", {
+                defaultValue: {},
+                refreshOnChange: true
+            });
+            this.defineOption("direction", {
+                defaultValue: "vertical",
+                refreshOnChange: true
+            });
+            this.defineOption("mode", {
+                defaultValue: "absolute",
+                refreshOnChange: true
+            });
         }
 
         init(plot) {

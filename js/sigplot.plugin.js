@@ -31,23 +31,119 @@
 (function() {
 
     var mx = require("./mx");
+    var common = require("./common");
 
     class Plugin {
         constructor(options) {
-            this.options = (options !== undefined) ? options : {};
+	    this.definedOptions = {};
+	    this.options = {};
+
+	    this.defineOptions();
+
+	    this.assignOptions(options);
 	}
 
+	defineOptions() {
+	    this.defineOption("display", {
+		defaultValue: true,
+		refreshOnChange: true
+	    });
+	}
+
+        /**
+	 * Called when the plugin is added to the plot.
+	 */
         init(plot) {
             this.plot = plot;
 	}
 
+        /**
+	 * Called when the plugin is removed from the plot.
+	 */
         dispose() {
             this.plot = undefined;
         }
-	    
+	   
+	/**
+	 * Refresh is called when the plugin needs to redraw itself.
+	 *
+	 * @param canvas
+	 *   The canvas the plugin should render to
+	 */
         refresh(canvas) {
 	}
 
+	/**
+	 * Provides the menu for the plugin
+	 *
+	 * @returns
+	 *    A mx.menu compatible object or a function that creates one
+	 */
+	menu() {
+	}
+
+	defineOption(optionName, definition) {
+	    if (this.definedOptions === undefined) {
+		this.definedOptions = {};
+	    }
+
+	    definition = definition || {};
+
+	    this.definedOptions[optionName] = definition;
+            this.options[optionName] = definition.defaultValue;
+
+	    // Fluentize the API
+	    this[optionName] =  function() {
+		if (!arguments.length) {
+		    return this.options[optionName];
+		}
+
+		if (this.options[optionName] !== arguments[0]) {
+		    this.options[optionName] = arguments[0];
+		    if (definition.refreshOnChange) {
+			this.refresh();
+		    }
+		    return this;
+		}
+	    };
+	}
+
+	assignOptions(options) {
+	    let refresh = false;
+	    for (let optName in options) {
+		// don't let the user define new options
+		if (!this.definedOptions.hasOwnProperty(optName)) {
+		    continue;
+		}
+
+		// if the values are the same nothing to do
+		if (this.options[optName] === options[optName]) {
+		    continue;
+		}
+
+		// set the option
+		this.options[optName] = options[optName];
+
+	        if (this.definedOptions[optName].refreshOnChange === true) {
+		    refresh = true;
+		}
+	    }
+	    // refresh if necessary
+	    if (refresh) {
+		this.refresh();
+	    }
+	}
+
+	/**
+	 * Register to receive a plugin specific event
+	 *
+	 * @param type
+	 *    The type of event
+	 * @param fn
+	 *    The function callback
+	 *  @param context
+	 *     Context that will be provided to the callback
+	 */
         on(type, fn, context) {
             if (!this._events) {
                 this._events = {};
@@ -65,6 +161,9 @@
             });
         }
 
+	/**
+	 * Emit a plugin event.
+	 */
         emit(type, data) {
             var event = Object.assign({}, data, {
                 type: type,
@@ -82,6 +181,16 @@
             return this;
         }
 
+	/**
+	 * Unregister callback for a plugin specific event
+	 *
+	 * @param type
+	 *    The type of event
+	 * @param fn
+	 *    The function callback
+	 *  @param context
+	 *     Context that will be provided to the callback
+	 */
         off(type, fn, context) {
             var listeners,
                 i,
@@ -116,11 +225,17 @@
             return this;
         }
 
+	/**
+	 * Add a listener to a Plot event
+	 */
         addListener(what, callback) {
             var Mx = this.plot._Mx;
             mx.addEventListener(Mx, what, callback, false);
         }
 
+	/**
+	 * Remove a listener from the Plot
+	 */
         removeListener(what, callback) {
             var Mx = this.plot._Mx;
             mx.removeEventListener(Mx, what, callback, false);
