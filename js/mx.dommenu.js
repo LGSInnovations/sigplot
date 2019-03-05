@@ -62,6 +62,10 @@
             });
             this._menu.append(list);
             this._container.append(this._menu);
+            this._menu.addEventListener("contextmenu", function(e) {
+                e.preventDefault();
+                self.finalize();
+            });
             Mx.menu = this;
             Mx.widget = {
                 type: "MENU",
