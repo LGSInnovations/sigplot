@@ -3244,7 +3244,7 @@
                     }
                     var start = row * width;
                     var finish = start + width;
-                    Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
+                    Gx.x_cut_data = Gx.lyr[0].buf.slice(start, finish);
                 }
 
                 //adjust for the values of the xcut
@@ -3320,7 +3320,6 @@
                     Mx.stk[h].ymax = ymax;
                     Mx.stk[h].yscl = (Mx.stk[h].ymax - Mx.stk[h].ymin) / (Mx.b - Mx.t);
                 }
-
                 this.rescale();
 
             } else if (Gx.x_cut_press_on) {
@@ -3363,7 +3362,7 @@
             var Gx = this._Gx;
             var Mx = this._Mx;
 
-            //display the x-cut of the raster
+            //display the y-cut of the raster
             if (xpos !== undefined) {
                 // Stash important values
                 Gx.cut_stash = {};
@@ -3385,7 +3384,7 @@
                     Gx.y_cut_data = [];
                     var col = Math.round((xpos - Gx.lyr[0].xstart) / Gx.lyr[0].xdelta);
                     for (i = col; i < (width * height); i += width) {
-                        Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
+                        Gx.y_cut_data.push(Gx.lyr[0].buf[i]);
                     }
                 }
 
