@@ -114,6 +114,36 @@ if (!String.prototype.endsWith) {
     };
 }
 
+if (!Uint8Array.prototype.slice) {
+    Object.defineProperty(Uint8Array.prototype, 'slice', {
+        value: Array.prototype.slice
+    });
+}
+
+if (!Int8Array.prototype.slice) {
+    Object.defineProperty(Int8Array.prototype, 'slice', {
+        value: Array.prototype.slice
+    });
+}
+
+if (!Int16Array.prototype.slice) {
+    Object.defineProperty(Int16Array.prototype, 'slice', {
+        value: Array.prototype.slice
+    });
+}
+
+if (!Int32Array.prototype.slice) {
+    Object.defineProperty(Int32Array.prototype, 'slice', {
+        value: Array.prototype.slice
+    });
+}
+
+if (!Float32Array.prototype.slice) {
+    Object.defineProperty(Float32Array.prototype, 'slice', {
+        value: Array.prototype.slice
+    });
+}
+
 if (!Float64Array.prototype.slice) {
     Object.defineProperty(Float64Array.prototype, 'slice', {
         value: Array.prototype.slice
