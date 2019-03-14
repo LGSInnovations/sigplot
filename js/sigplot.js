@@ -309,6 +309,16 @@
      *            is set to true, then the font width will be the minimum of font_width
      *            or plot width/64.
      *
+     * @param {Number}
+     *            options.panxpad
+     *            Pad the x-axis panning with this amount.  If a string in the form of
+     *            "XX%" the padding will be a percentage.
+     *
+     * @param {Number}
+     *            options.panypad
+     *            Pad the y-axis panning with this amount.  If a string in the form of
+     *            "XX%" the padding will be a percentage.
+     *
      * @returns {Plot}
      */
     var Plot = function(element, options) {
@@ -6913,10 +6923,22 @@
         Mx.stk[0].xmax = Gx.xmax;
         Mx.stk[0].ymin = Gx.ymin;
         Mx.stk[0].ymax = Gx.ymax;
+
         Gx.panxmin = Math.min(Gx.panxmin, Gx.xmin);
         Gx.panxmax = Math.max(Gx.panxmax, Gx.xmax);
         Gx.panymin = Math.min(Gx.panymin, Gx.ymin);
         Gx.panymax = Math.max(Gx.panymax, Gx.ymax);
+
+        Gx.panxpad = o.panxpad;
+        Gx.panypad = o.panypad;
+
+        var xran = (Gx.panxmax - Gx.panxmin);
+        var yran = (Gx.panymax - Gx.panymin);
+
+        Gx.panxmin -= m.pad(xran, Gx.panxpad);
+        Gx.panxmax += m.pad(xran, Gx.panxpad);
+        Gx.panymin -= m.pad(yran, Gx.panypad);
+        Gx.panymax += m.pad(yran, Gx.panypad);
 
         Gx.xmin = Mx.stk[0].xmin;
         Gx.ymin = Mx.stk[0].ymin;
@@ -8487,6 +8509,10 @@
             Gx.panxmin = Gx.panxmin - 1.0;
             Gx.panxmax = Gx.panxmax + 1.0;
         }
+        xran = Gx.panxmax - Gx.panxmin;
+
+        Gx.panxmin -= m.pad(xran, Gx.panxpad);
+        Gx.panxmax += m.pad(xran, Gx.panxpad);
 
         if (((Gx.autox & 1) !== 0) && noxmin) {
             Mx.stk[0].xmin = Gx.panxmin;
@@ -8510,6 +8536,11 @@
         if (((Gx.autoy & 2) !== 0)) {
             Mx.stk[0].ymax = Gx.panymax;
         }
+
+        var yran = (Gx.panymax - Gx.panymin);
+        Gx.panymin -= m.pad(yran, Gx.panypad);
+        Gx.panymax += m.pad(yran, Gx.panypad);
+
     }
 
     /**
