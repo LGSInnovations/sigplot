@@ -68,6 +68,8 @@
     "grunt-services": "^0.1.0",
     "grunt-shell-spawn": "^0.3.12",
     "grunt-text-replace": "^0.4.0",
+    "hammer-touchemulator": "0.0.2",
+    "hammerjs": "^2.0.8",
     "jasmine": "^3.1.0",
     "karma": "^2.0.2",
     "karma-chrome-launcher": "^2.0.2",

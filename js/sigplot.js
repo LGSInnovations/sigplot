@@ -734,7 +734,7 @@
             };
         }(this));
 
-        mx.addEventListener(Mx, "touchstart", this.ontouchstart, false);
+        //mx.addEventListener(Mx, "touchstart", this.ontouchstart, false);
 
         this.ontouchmove = (function(plot) {
             return function(event) {
@@ -839,7 +839,7 @@
             this._Gx.scroll_time_interval,
             this.ontouchmove);
 
-        mx.addEventListener(Mx, "touchmove", this.throttledOnTouchMove, false);
+        //mx.addEventListener(Mx, "touchmove", this.throttledOnTouchMove, false);
 
         this.ontouchend = (function(plot) {
             return function(event) {
@@ -865,7 +865,21 @@
             };
         }(this));
 
-        mx.addEventListener(Mx, "touchend", this.ontouchend, false);
+        //mx.addEventListener(Mx, "touchend", this.ontouchend, false);
+
+        this.onpress = (function(plot) {
+            return function(e) {
+                if (!plot._Gx.nomenu) {
+                    var rect = e.target.getBoundingClientRect();
+                    Mx.x = e.center.x;
+                    Mx.y = e.center.y;
+                    Mx.xpos = e.center.x - rect.left - window.scrollX;
+                    Mx.ypos = e.center.y - rect.top - window.scrollY;
+                    sigplot_mainmenu(plot);
+                }
+            };
+        }(this));
+        this._Mx.hammer.on('press', this.onpress);
 
         this.docMouseUp = (function(plot) {
             return function(event) {

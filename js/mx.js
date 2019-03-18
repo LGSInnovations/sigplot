@@ -47,6 +47,7 @@
     var common = require("./common");
     var CanvasInput = require("./CanvasInput");
     var m = require("./m");
+    var Hammer = require("hammerjs");
 
     function mx() {}
 
@@ -210,6 +211,8 @@
 
         this.parent.appendChild(this.wid_canvas);
 
+        this.hammer = new Hammer(this.wid_canvas);
+
         //if ((this.canvas.height <= 0) || (this.canvas.width <= 0)) {
         //	throw "Plot could not be instantiated correctly; did you specify a size for your placeholder?";
         //}
@@ -368,6 +371,19 @@
             };
         })(Mx);
 
+        Mx.ontap = (function(Mx) {
+            return function(e) {
+                var rect = e.target.getBoundingClientRect();
+                // Screen x/y of mouse
+                Mx.x = e.center.x;
+                Mx.y = e.center.y;
+                Mx.xpos = e.center.x - rect.left - window.scrollX;
+                Mx.ypos = e.center.y - rect.top - window.scrollY;
+                e.type = "tap"; // override so this is always tap
+                mx.widget_callback(Mx, e);
+            };
+        })(Mx);
+
         Mx.onmousedown = (function(Mx) {
             return function(event) {
                 event.preventDefault();
@@ -455,6 +471,7 @@
         //mx.addEventListener(Mx, "touchend", Mx.ontouchend);
         //mx.addEventListener(Mx, 'touchmove', Mx.ontouchmove, false);
 
+        Mx.hammer.on('tap', Mx.ontap);
     };
 
     /**
@@ -469,6 +486,8 @@
         window.removeEventListener("keyup", Mx.onkeyup, false);
         //mx.addEventListener(Mx, "touchend", Mx.ontouchend);
         //mx.addEventListener(Mx, 'touchmove', Mx.ontouchmove, false);
+
+        Mx.hammer.off('tap', Mx.ontap);
     };
 
     /**
@@ -3501,6 +3520,22 @@
         if (event === undefined) {
             // no event, just refresh the menu
             _menu_redraw(Mx, menu);
+        } else if (event.type === "tap") {
+            // All of these variables suck and are common in other places...refactoring is necessary
+            var xcc = menu.x + MENU_CONSTANTS.GBorder + Math.max(0, MENU_CONSTANTS.sidelab);
+            var xss = menu.w - 2 * MENU_CONSTANTS.GBorder - Math.abs(MENU_CONSTANTS.sidelab);
+            var yb = Mx.text_h * 1.5;
+            var ycc = menu.y + MENU_CONSTANTS.GBorder + MENU_CONSTANTS.toplab * (yb + MENU_CONSTANTS.GBorder);
+
+            for (var i = i_begin; i <= i_end; i++) {
+                var y = ycc + yb * i;
+                var item = menu.items[i];
+                item.selected = false;
+                if (mx.inrect(Mx.xpos, Mx.ypos, xcc, y, xss, yb)) {
+                    item.selected = true;
+                }
+            }
+            _menu_takeaction(Mx, menu);
         } else if (event.type === "mousemove") {
             // Update position
             if (menu.drag_x !== undefined && menu.drag_y !== undefined && Math.abs(Mx.xpos - menu.drag_x) > 2 && Math.abs(Mx.ypos - menu.drag_y) > 2) {
