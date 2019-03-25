@@ -40,6 +40,7 @@
     var mx = require("./mx");
     var Layer1D = require("./sigplot.layer1d");
     var Layer2D = require("./sigplot.layer2d");
+    var Hammer = require("hammerjs");
 
     function sigplot(element, options) {
         if (!(this instanceof sigplot)) {
@@ -867,6 +868,28 @@
 
         //mx.addEventListener(Mx, "touchend", this.ontouchend, false);
 
+        // Hammer Touch Handlers
+
+        var press = new Hammer.Press({
+            pointers: 2,
+            time: 500
+        });
+
+        var panRecog = new Hammer.Pan({});
+
+        var pinch = new Hammer.Pinch({
+            enable: true
+        });
+
+        this._Mx.hammer.add([pinch, panRecog, press]);
+
+        this.ondoubletap = (function(plot) {
+            return function(e) {
+                plot.unzoom(1);
+            };
+        }(this));
+        this._Mx.hammer.on('doubletap', this.ondoubletap);
+
         this.onpress = (function(plot) {
             return function(e) {
                 if (!plot._Gx.nomenu) {
@@ -880,6 +903,105 @@
             };
         }(this));
         this._Mx.hammer.on('press', this.onpress);
+
+        this.pinchHandler = (function(plot) {
+            var throttledZoom = m.throttle(100, function(e) {
+                var zoomperc = e.distance / 100;
+                if (e.additionalEvent === "pinchin") {
+                    zoomperc *= -1;
+                }
+                plot.percent_zoom(zoomperc, zoomperc, true);
+            });
+
+            return function(e) {
+                throttledZoom(e);
+            };
+        }(this));
+        this._Mx.hammer.on('pinch', this.pinchHandler);
+
+        this.panHandler = (function(plot) {
+            var touchPan = function(e) {
+                var Mx = plot._Mx;
+                var Gx = plot._Gx;
+
+                var xmin = Mx.stk[Mx.level].xmin;
+                var xmax = Mx.stk[Mx.level].xmax;
+                var xran = xmax - xmin;
+
+                var ymin = Mx.stk[Mx.level].ymin;
+                var ymax = Mx.stk[Mx.level].ymax;
+                var yran = ymax - ymin;
+
+                var inPan = inPanRegion(plot, e.center);
+                if (inPan.inPanRegion) {
+                    // TODO handle dragging the scroll bars
+                }
+
+                var inPlot = inPlotRegion(plot, e.center);
+                // Don't start touch pan if we aren't in the plot
+                if (Gx.panning === undefined && !inPlot) {
+                    return;
+                }
+
+                if (!Gx.panning) {
+                    Gx.panning = {
+                        xpos: e.center.x,
+                        ypos: e.center.y,
+                        xmin: Mx.stk[Mx.level].xmin,
+                        xmax: Mx.stk[Mx.level].xmax,
+                        ymin: Mx.stk[Mx.level].ymin,
+                        ymax: Mx.stk[Mx.level].ymax
+                    };
+                }
+
+                // TODO send 'ypan' 'xpan' events
+                if (e.additionalEvent === "panup" || e.additionalEvent === "pandown") {
+                    Gx.panning.axis = "Y";
+                    ymax = Gx.panning.ymax + (e.deltaY * Mx.stk[Mx.level].yscl);
+                    if (e.deltaY >= 0) {
+                        ymax = Math.min(Gx.panymax, ymax);
+                        ymin = ymax - yran;
+                    } else {
+                        ymin = Math.max(Gx.panymin, ymax - yran);
+                        ymax = ymin + yran;
+                    }
+
+                    updateViewbox(plot, ymin, ymax, "Y");
+
+                } else if (e.additionalEvent === "panleft" || e.additionalEvent === "panright") {
+                    Gx.panning.axis = "X";
+                    xmax = Gx.panning.xmax - (e.deltaX * Mx.stk[Mx.level].xscl);
+                    if (e.deltaX <= 0) {
+                        xmax = Math.min(Gx.panxmax, xmax);
+                        xmin = xmax - xran;
+                    } else {
+                        xmin = Math.max(Gx.panxmin, xmax - xran);
+                        xmax = xmin + xran;
+                    }
+
+                    updateViewbox(plot, xmin, xmax, "X");
+                }
+
+                if (e.isFinal) {
+                    Gx.panning = undefined;
+                }
+            };
+
+            var throttledPan = m.throttle(100, touchPan);
+
+            return function(e) {
+                console.log(e.isFirst, e.isFinal, e.additionalEvent, e.deltaX, e.deltaY, e.distance, e.center);
+                // TODO only touchPan if the finger is in the plot area
+                // if the finger is on the scrollbar do a scrollbar pan
+                if (e.isFirst || e.isFinal) {
+                    touchPan(e);
+                } else {
+                    throttledPan(e);
+                }
+            };
+        }(this));
+        this._Mx.hammer.on('pan', this.panHandler);
+
 
         this.docMouseUp = (function(plot) {
             return function(event) {
@@ -8612,6 +8734,35 @@
         */
 
         return (u >= 0 && v >= 0 && u + v < 1);
+
+    }
+
+    /**
+     * @memberOf sigplot
+     * @private
+     */
+    function inPlotRegion(plot, coord) {
+        var Mx = plot._Mx;
+
+        var x = 0;
+        var y = 0;
+        if (coord === undefined) {
+            x = Mx.xpos;
+            y = Mx.ypos;
+
+            if (!plot.mouseOnCanvas) {
+                return false;
+            }
+        } else {
+            x = coord.x;
+            y = coord.y;
+        }
+
+        if ((Mx.l <= x) && (x <= Mx.r) && (Mx.t <= y) && (y <= Mx.b)) {
+            return true;
+        }
+
+        return false;
 
     }
 

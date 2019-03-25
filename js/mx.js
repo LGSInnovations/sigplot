@@ -211,7 +211,18 @@
 
         this.parent.appendChild(this.wid_canvas);
 
-        this.hammer = new Hammer(this.wid_canvas);
+        this.hammer = new Hammer.Manager(this.wid_canvas);
+
+        var tap = new Hammer.Tap();
+
+        var doubletap = new Hammer.Tap({
+            event: 'doubletap',
+            taps: 2
+        });
+
+        this.hammer.add([doubletap, tap]);
+        doubletap.recognizeWith(tap);
+        tap.requireFailure(doubletap);
 
         //if ((this.canvas.height <= 0) || (this.canvas.width <= 0)) {
         //	throw "Plot could not be instantiated correctly; did you specify a size for your placeholder?";
