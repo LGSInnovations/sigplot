@@ -391,7 +391,12 @@
 
         change_settings: function(settings) {
             var Gx = this.plot._Gx;
-
+            if(settings.subsize){
+                this.hcb.subsize = settings.subsize;
+                this.hcb.ape = settings.subsize;
+                this.hcb.size = this.hcb.dview.length / (this.hcb.spa * this.hcb.ape);
+                this.lps = Math.ceil(this.hcb.size);
+            }
             if (settings.cmode !== undefined) {
                 this.img = undefined;
                 if (((Gx.autoz & 1) !== 0)) {
