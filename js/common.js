@@ -316,6 +316,7 @@ if (!window.Float64Array) {
     /* jshint +W030 */
 
 })(window, document);
+//Add Proxy poly fill https://github.com/GoogleChrome/proxy-polyfill
 if(!window.Proxy){
 /* jshint ignore:start */
 (function(){function l(){function n(a){return a?"object"===typeof a||"function"===typeof a:!1}var p=null;var g=function(a,b){function f(){}if(!n(a)||!n(b))throw new TypeError("Cannot create proxy with a non-object as target or handler");p=function(){f=function(a){throw new TypeError("Cannot perform '"+a+"' on a proxy that has been revoked");}};var e=b;b={get:null,set:null,apply:null,construct:null};for(var k in e){if(!(k in b))throw new TypeError("Proxy polyfill does not support trap '"+k+"'");b[k]=e[k]}"function"===
