@@ -5845,3 +5845,16 @@ interactiveTest('correct scale after cmode change', 'is the plot correctly scale
 
     }, 1000);
 });
+
+interactiveTest('SP format', 'Do you see a plot that looks like a checkerboard?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var bf = sigplot.m.initialize();
+    bf.format = "SP";
+    bf.setData(new Uint8Array([170, 85, 170, 85, 170, 85, 170, 85]).buffer);
+    plot.overlay_bluefile(bf, {
+        subsize: 8,
+        layerType: "2D"
+    });
+});
