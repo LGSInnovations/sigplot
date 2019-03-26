@@ -76,7 +76,7 @@
 
 /* global module */
 /* global require */
-/* global Symbol */
+/* global Proxy */
 
 (function() {
     'use strict';
