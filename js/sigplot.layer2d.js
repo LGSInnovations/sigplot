@@ -391,7 +391,7 @@
 
         change_settings: function(settings) {
             var Gx = this.plot._Gx;
-            if(settings.subsize){
+            if (settings.subsize) {
                 this.hcb.subsize = settings.subsize;
                 this.hcb.ape = settings.subsize;
                 this.hcb.size = this.hcb.dview.length / (this.hcb.spa * this.hcb.ape);
