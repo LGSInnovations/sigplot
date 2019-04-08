@@ -2100,6 +2100,12 @@ interactiveTest('sigplot file overlay', 'Do you see a sin wave?', function(asser
         name: "x"
     });
 });
+interactiveTest('sigplot multi-file overlay', 'Do you see a sin wave and a pulse train?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/sin.tmp|dat/pulse.tmp");
+});
 interactiveTest('empty t1000 array', 'Do you see a plot with two pulses?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
