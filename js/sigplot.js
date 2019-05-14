@@ -6578,6 +6578,9 @@
         if (!o.ylab) {
             o.ylab = 0;
         }
+        if (o.useDomMenu) {
+            Mx.useDomMenu = true;
+        }
 
         //Convert xunits and yunits to numbers if they are strings
         o.xlab = m.unit_lookup(o.xlab);

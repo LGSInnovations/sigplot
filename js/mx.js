@@ -50,7 +50,7 @@
 
     function mx() {}
 
-
+    mx.DomMenu = require("./mx.dommenu");
     mx.XW_INIT = -3;
     mx.XW_DRAW = 1;
     mx.XW_EVENT = 2;
@@ -1017,86 +1017,86 @@
                 }
                 /* FALL THROUGH!!! */
                 /* jshint -W086 */
-            case mx.XW_COMMAND:
-                /* jshint +W086 */
+                case mx.XW_COMMAND:
+                    /* jshint +W086 */
 
-                smin = sv.smin;
-                srange = sv.srange;
+                    smin = sv.smin;
+                    srange = sv.srange;
 
-                switch (sv.action) {
-                    case mx.SB_STEPINC:
-                        smin += sv.step;
-                        break;
-                    case mx.SB_STEPDEC:
-                        smin -= sv.step;
-                        break;
-                    case mx.SB_PAGEINC:
-                        smin += sv.page;
-                        break;
-                    case mx.SB_PAGEDEC:
-                        smin -= sv.page;
-                        break;
-                    case mx.SB_FULL:
-                        smin = sv.tmin;
-                        srange = sv.trange;
-                        break;
-                    case mx.SB_EXPAND:
-                        srange = srange * sv.scale;
-                        if (smin <= 0 && smin + sv.srange >= 0) {
-                            smin *= sv.scale;
-                        } else {
-                            smin -= (srange - sv.srange) / 2.0;
-                        }
-                        break;
-                    case mx.SB_SHRINK:
-                        srange = srange / sv.scale;
-                        if (smin < 0 && smin + sv.srange >= 0) {
-                            smin += srange / sv.scale; /* Plot crosses axis */
-                        } else if (smin === 0 && smin + sv.srange >= 0) {
-                            smin = srange / sv.scale; /* Plot touches axis */
-                        } else {
-                            smin += (sv.srange - srange) / 2.0; /* Plot is completely contained on positive side of axis */
-                        }
-                        break;
-                        /* The mouse wheel needs to scroll 1 page at a time, if you want an
+                    switch (sv.action) {
+                        case mx.SB_STEPINC:
+                            smin += sv.step;
+                            break;
+                        case mx.SB_STEPDEC:
+                            smin -= sv.step;
+                            break;
+                        case mx.SB_PAGEINC:
+                            smin += sv.page;
+                            break;
+                        case mx.SB_PAGEDEC:
+                            smin -= sv.page;
+                            break;
+                        case mx.SB_FULL:
+                            smin = sv.tmin;
+                            srange = sv.trange;
+                            break;
+                        case mx.SB_EXPAND:
+                            srange = srange * sv.scale;
+                            if (smin <= 0 && smin + sv.srange >= 0) {
+                                smin *= sv.scale;
+                            } else {
+                                smin -= (srange - sv.srange) / 2.0;
+                            }
+                            break;
+                        case mx.SB_SHRINK:
+                            srange = srange / sv.scale;
+                            if (smin < 0 && smin + sv.srange >= 0) {
+                                smin += srange / sv.scale; /* Plot crosses axis */
+                            } else if (smin === 0 && smin + sv.srange >= 0) {
+                                smin = srange / sv.scale; /* Plot touches axis */
+                            } else {
+                                smin += (sv.srange - srange) / 2.0; /* Plot is completely contained on positive side of axis */
+                            }
+                            break;
+                            /* The mouse wheel needs to scroll 1 page at a time, if you want an
 		           application to scroll differently, change sv.page with
 		           mx_scroll_vals in the application code */
-                    case mx.SB_WHEELUP:
-                        smin -= sv.page;
-                        break;
-                    case mx.SB_WHEELDOWN:
-                        smin += sv.page;
-                        break;
-                }
-
-                if (sv.trange > 0) {
-                    smin = Math.max(sv.tmin, Math.min(smin, sv.tmin + sv.trange - srange));
-                    srange = Math.min(srange, sv.trange);
-                } else {
-                    smin = Math.min(sv.tmin, Math.max(smin, sv.tmin + sv.trange - srange));
-                    srange = Math.max(srange, sv.trange);
-                }
-
-                if (sv.smin === smin && sv.srange === srange) {
-                    if (sv.action !== mx.SB_DRAG) {
-                        sv.action = sv.repeat_count = 0;
+                        case mx.SB_WHEELUP:
+                            smin -= sv.page;
+                            break;
+                        case mx.SB_WHEELDOWN:
+                            smin += sv.page;
+                            break;
                     }
-                } else {
-                    // UPDATE SCROLLBAR STATE as well
-                    sv.smin = scrollbarState.smin = smin;
-                    sv.srange = scrollbarState.srange = srange;
-                    sv.repeat_count++;
-                }
 
-                if (op === mx.XW_COMMAND) {
-                    mx.scroll(Mx, sv, mx.XW_UPDATE, undefined);
-                    sv.action = 0;
-                }
+                    if (sv.trange > 0) {
+                        smin = Math.max(sv.tmin, Math.min(smin, sv.tmin + sv.trange - srange));
+                        srange = Math.min(srange, sv.trange);
+                    } else {
+                        smin = Math.min(sv.tmin, Math.max(smin, sv.tmin + sv.trange - srange));
+                        srange = Math.max(srange, sv.trange);
+                    }
 
-                break;
-            case mx.XW_DRAW:
-            case mx.XW_UPDATE:
-                mx.redrawScrollbar(sv, Mx, op);
+                    if (sv.smin === smin && sv.srange === srange) {
+                        if (sv.action !== mx.SB_DRAG) {
+                            sv.action = sv.repeat_count = 0;
+                        }
+                    } else {
+                        // UPDATE SCROLLBAR STATE as well
+                        sv.smin = scrollbarState.smin = smin;
+                        sv.srange = scrollbarState.srange = srange;
+                        sv.repeat_count++;
+                    }
+
+                    if (op === mx.XW_COMMAND) {
+                        mx.scroll(Mx, sv, mx.XW_UPDATE, undefined);
+                        sv.action = 0;
+                    }
+
+                    break;
+                case mx.XW_DRAW:
+                case mx.XW_UPDATE:
+                    mx.redrawScrollbar(sv, Mx, op);
 
         } /* switch */
         return true;
@@ -3479,6 +3479,9 @@
         mx.onWidgetLayer(Mx, function() {
             mx.erase_window(Mx);
         });
+        if (Mx.useDomMenu) {
+            Mx.menu.remove();
+        }
         Mx.menu = undefined;
         Mx.widget = null;
 
@@ -3647,6 +3650,10 @@
      * @private
      */
     mx.menu = function(Mx, menu) {
+        if (Mx.useDomMenu) {
+            new mx.DomMenu(Mx, menu);
+            return;
+        }
         var yb = Mx.text_h * 1.5;
         //MENU_CONSTANTS.n_show = menu.items.length;
 
