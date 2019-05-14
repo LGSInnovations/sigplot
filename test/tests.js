@@ -5719,3 +5719,11 @@ interactiveTest('correct scale after cmode change', 'is the plot correctly scale
 
     }, 1000);
 });
+interactiveTest('dom menu', "move cursor to bottom right of plot. open menu by pressing 'm'. does the menu open and not appear to be bounded by the plot's grid", function(assert) {
+    var plot_options = {
+        useDomMenu: true
+    };
+    var data = [1, 2, 3, 4, 5, 4, 3, 2, 1]; // the series of y-values
+    var plot = new sigplot.Plot(document.getElementById('plot'), plot_options);
+    plot.overlay_array(data);
+});
