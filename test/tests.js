@@ -1379,6 +1379,90 @@ QUnit.test('sigplot layer1d autoscale negative', function(assert) {
         assert.equal(plot._Gx.panymax, expected_ymax);
     }
 });
+QUnit.test('sigplot layer1d autoscale xpad', function(assert) {
+    var container = document.getElementById('plot');
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        panxpad: 20
+    });
+    assert.notEqual(plot, null);
+    var pulse = [];
+    for (var i = 0; i <= 1000; i += 1) {
+        pulse.push(-60.0);
+    }
+    pulse[0] = -10.0;
+    plot.overlay_array(pulse);
+
+    assert.equal(plot._Gx.panxmin, -20);
+    assert.equal(plot._Gx.panxmax, 1020);
+
+    assert.equal(plot._Gx.panymin, -61);
+    assert.equal(plot._Gx.panymax, -9);
+});
+QUnit.test('sigplot layer1d autoscale xpad %', function(assert) {
+    var container = document.getElementById('plot');
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        panxpad: "20%"
+    });
+    assert.notEqual(plot, null);
+    var pulse = [];
+    for (var i = 0; i <= 1000; i += 1) {
+        pulse.push(-60.0);
+    }
+    pulse[0] = -10.0;
+    plot.overlay_array(pulse);
+
+    assert.equal(plot._Gx.panxmin, -200);
+    assert.equal(plot._Gx.panxmax, 1200);
+
+    assert.equal(plot._Gx.panymin, -61);
+    assert.equal(plot._Gx.panymax, -9);
+});
+QUnit.test('sigplot layer1d autoscaley pad', function(assert) {
+    var container = document.getElementById('plot');
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        panypad: 20
+    });
+    assert.notEqual(plot, null);
+    var pulse = [];
+    for (var i = 0; i <= 1000; i += 1) {
+        pulse.push(-60.0);
+    }
+    pulse[0] = -10.0;
+    plot.overlay_array(pulse);
+
+    assert.equal(plot._Gx.panxmin, 0);
+    assert.equal(plot._Gx.panxmax, 1000);
+
+    assert.equal(plot._Gx.panymin, -81);
+    assert.equal(plot._Gx.panymax, 11);
+});
+QUnit.test('sigplot layer1d autoscale ypad %', function(assert) {
+    var container = document.getElementById('plot');
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(fixture.childNodes.length, 1);
+    var plot = new sigplot.Plot(container, {
+        panypad: "20%"
+    });
+    assert.notEqual(plot, null);
+    var pulse = [];
+    for (var i = 0; i <= 1000; i += 1) {
+        pulse.push(-60.0);
+    }
+    pulse[0] = -10.0;
+    plot.overlay_array(pulse);
+
+    assert.equal(plot._Gx.panxmin, 0);
+    assert.equal(plot._Gx.panxmax, 1000);
+
+    assert.close(plot._Gx.panymin, -71.4, 0.0001);
+    assert.close(plot._Gx.panymax, 1.4, 0.0001);
+});
 QUnit.test('sigplot 0px height', function(assert) {
     var container = document.getElementById('plot');
     container.style.height = "0px";
@@ -2297,6 +2381,48 @@ interactiveTest('sigplot small xrange', 'Do you see a properly formatted axis fo
         xstart: 999996296.08025432,
         xdelta: 0.637054443359375,
         format: "SF"
+    });
+});
+interactiveTest('sigplot panxpad', 'Do you see spikes at 10 and 110 with an x-axis from 0 to 120?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        panxpad: 10
+    });
+    assert.notEqual(plot, null);
+    var ramp = [];
+    for (var i = 0; i < 101; i++) {
+        if ((i === 0) || (i === 100)) {
+            ramp.push(100);
+        } else {
+            ramp.push(0);
+        }
+    }
+    plot.overlay_array(ramp, {
+        xstart: 10
+    });
+});
+interactiveTest('sigplot panxpad layer2d', 'Do you see spikes at 10 and 110 with an x-axis from 0 to 120?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        panxpad: 10
+    });
+    assert.notEqual(plot, null);
+    var ramp = [];
+    for (var i = 0; i < 101; i++) {
+        if ((i === 0) || (i === 100)) {
+            ramp.push(100);
+        } else {
+            ramp.push(0);
+        }
+    }
+    var data = [];
+    for (var r = 0; r < 100; r++) {
+        data.push(ramp);
+    }
+
+    plot.overlay_array(data, {
+        xstart: 10,
+        layerType: sigplot.Layer2D,
     });
 });
 interactiveTest('sigplot xtimecode', 'Do you see a timecode xaxis 0 to 1h?', function(assert) {
@@ -5726,4 +5852,16 @@ interactiveTest('dom menu', "move cursor to bottom right of plot. open menu by p
     var data = [1, 2, 3, 4, 5, 4, 3, 2, 1]; // the series of y-values
     var plot = new sigplot.Plot(document.getElementById('plot'), plot_options);
     plot.overlay_array(data);
+});
+interactiveTest('SP format', 'Do you see a plot that looks like a checkerboard?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var bf = sigplot.m.initialize();
+    bf.format = "SP";
+    bf.setData(new Uint8Array([170, 85, 170, 85, 170, 85, 170, 85]).buffer);
+    plot.overlay_bluefile(bf, {
+        subsize: 8,
+        layerType: "2D"
+    });
 });

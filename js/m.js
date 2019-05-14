@@ -1468,6 +1468,21 @@
         };
     };
 
+    m.pad = function(value, padamt) {
+        if (!padamt) {
+            return 0;
+        }
+        if (typeof padamt === 'string') {
+            if (padamt.endsWith("%")) {
+                padamt = value * (parseFloat(padamt) / 100.0);
+            } else {
+                padamt = parseFloat(padamt);
+            }
+        }
+
+        return padamt;
+    };
+
     // Node: Export function
     module.exports = m;
 

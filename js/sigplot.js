@@ -309,6 +309,16 @@
      *            is set to true, then the font width will be the minimum of font_width
      *            or plot width/64.
      *
+     * @param {Number}
+     *            options.panxpad
+     *            Pad the x-axis panning with this amount.  If a string in the form of
+     *            "XX%" the padding will be a percentage.
+     *
+     * @param {Number}
+     *            options.panypad
+     *            Pad the y-axis panning with this amount.  If a string in the form of
+     *            "XX%" the padding will be a percentage.
+     *
      * @returns {Plot}
      */
     var Plot = function(element, options) {
@@ -3234,7 +3244,7 @@
                     }
                     var start = row * width;
                     var finish = start + width;
-                    Gx.x_cut_data = Gx.lyr[0].zbuf.slice(start, finish);
+                    Gx.x_cut_data = Gx.lyr[0].buf.slice(start, finish);
                 }
 
                 //adjust for the values of the xcut
@@ -3310,7 +3320,6 @@
                     Mx.stk[h].ymax = ymax;
                     Mx.stk[h].yscl = (Mx.stk[h].ymax - Mx.stk[h].ymin) / (Mx.b - Mx.t);
                 }
-
                 this.rescale();
 
             } else if (Gx.x_cut_press_on) {
@@ -3353,7 +3362,7 @@
             var Gx = this._Gx;
             var Mx = this._Mx;
 
-            //display the x-cut of the raster
+            //display the y-cut of the raster
             if (xpos !== undefined) {
                 // Stash important values
                 Gx.cut_stash = {};
@@ -3375,7 +3384,7 @@
                     Gx.y_cut_data = [];
                     var col = Math.round((xpos - Gx.lyr[0].xstart) / Gx.lyr[0].xdelta);
                     for (i = col; i < (width * height); i += width) {
-                        Gx.y_cut_data.push(Gx.lyr[0].zbuf[i]);
+                        Gx.y_cut_data.push(Gx.lyr[0].buf[i]);
                     }
                 }
 
@@ -6916,10 +6925,22 @@
         Mx.stk[0].xmax = Gx.xmax;
         Mx.stk[0].ymin = Gx.ymin;
         Mx.stk[0].ymax = Gx.ymax;
+
         Gx.panxmin = Math.min(Gx.panxmin, Gx.xmin);
         Gx.panxmax = Math.max(Gx.panxmax, Gx.xmax);
         Gx.panymin = Math.min(Gx.panymin, Gx.ymin);
         Gx.panymax = Math.max(Gx.panymax, Gx.ymax);
+
+        Gx.panxpad = o.panxpad;
+        Gx.panypad = o.panypad;
+
+        var xran = (Gx.panxmax - Gx.panxmin);
+        var yran = (Gx.panymax - Gx.panymin);
+
+        Gx.panxmin -= m.pad(xran, Gx.panxpad);
+        Gx.panxmax += m.pad(xran, Gx.panxpad);
+        Gx.panymin -= m.pad(yran, Gx.panypad);
+        Gx.panymax += m.pad(yran, Gx.panypad);
 
         Gx.xmin = Mx.stk[0].xmin;
         Gx.ymin = Mx.stk[0].ymin;
@@ -8490,6 +8511,10 @@
             Gx.panxmin = Gx.panxmin - 1.0;
             Gx.panxmax = Gx.panxmax + 1.0;
         }
+        xran = Gx.panxmax - Gx.panxmin;
+
+        Gx.panxmin -= m.pad(xran, Gx.panxpad);
+        Gx.panxmax += m.pad(xran, Gx.panxpad);
 
         if (((Gx.autox & 1) !== 0) && noxmin) {
             Mx.stk[0].xmin = Gx.panxmin;
@@ -8513,6 +8538,11 @@
         if (((Gx.autoy & 2) !== 0)) {
             Mx.stk[0].ymax = Gx.panymax;
         }
+
+        var yran = (Gx.panymax - Gx.panymin);
+        Gx.panymin -= m.pad(yran, Gx.panypad);
+        Gx.panymax += m.pad(yran, Gx.panypad);
+
     }
 
     /**
