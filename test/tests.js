@@ -5851,6 +5851,7 @@ interactiveTest('dom menu', "move cursor to bottom right of plot. open menu by p
     };
     var data = [1, 2, 3, 4, 5, 4, 3, 2, 1]; // the series of y-values
     var plot = new sigplot.Plot(document.getElementById('plot'), plot_options);
+    assert.notEqual(plot, null);
     plot.overlay_array(data);
 });
 interactiveTest('SP format', 'Do you see a plot that looks like a checkerboard?', function(assert) {
