@@ -2375,10 +2375,44 @@
             return layer_n;
         },
 
+
         /**
          * Create a plot layer from an HREF that points to a BLUEFILE or MATFILE
          *
          * @example plot.overlay_href(href, function() {}, {[layeroptions]});
+         *
+         * @param {String}
+         *            href or |-delimited hrefs the url to the bluefile or matfile
+         * @param [onload]
+         *            callback to be called when the file has been loaded
+         *
+         * @param [layerOptions]
+         *            Key-value pairs whose values are the settings for the plot
+         *
+         * @param {String}
+         *            layerOptions.name the name of the layer
+         *
+         * @param {Number}
+         *            layerOptions.framesize the framesize of the plot
+         *
+         * @param {Varies}
+         *            layerOptions.etc all of the parameters for the change_settings
+         *            function except for lg_colorbar and p_cuts
+         *
+         * @returns data_layer
+         *
+         */
+        overlay_href: function(href, onload, layerOptions) {
+            var self = this;
+            href.split('|').forEach(function(hr) {
+                self.overlay_href_single(hr.trim(), onload, layerOptions);
+            });
+        },
+
+        /**
+         * Create a plot layer from an HREF that points to a BLUEFILE or MATFILE
+         *
+         * @example plot.overlay_href_single(href, function() {}, {[layeroptions]});
          *
          * @param {String}
          *            href the url to the bluefile or matfile
@@ -2401,7 +2435,7 @@
          * @returns data_layer
          *
          */
-        overlay_href: function(href, onload, layerOptions) {
+        overlay_href_single: function(href, onload, layerOptions) {
             m.log.debug("Overlay href: " + href);
             try {
                 this.show_spinner();
