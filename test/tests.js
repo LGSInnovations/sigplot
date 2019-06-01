@@ -1997,6 +1997,58 @@ interactiveTest('sigplot bottom scrollbar', 'Is the x scrollbar on the bottom?',
         x_scrollbar_location: "bottom"
     });
 });
+interactiveTest('sigplot readout stays visible', 'Is the readout visible when the mouse hovers?', function(assert) {
+    var container = document.getElementById('plot');
+    assert.equal(container.childNodes.length, 0);
+    assert.equal(ifixture.childNodes.length, 2);
+
+    var rt_plot = new sigplot.Plot(document.getElementById('plot'), {
+        autohide_readout: true, // only show the readout when the mouse is over the plot
+        autohide_panbars: true, // only show panbars when necessary and the mouse is over the plot
+        no_legend_button: true,
+    });
+
+    update_rtplot();
+    var hdl = window.setInterval(update_rtplot, 500);
+
+    var cnt = 0;
+
+    function update_rtplot() {
+        var random = [];
+        var random2 = [];
+        for (var i = 0; i <= 1000; i += 1) {
+            random.push(Math.random());
+            random2.push(Math.random() + 1);
+        }
+
+        var data_layer = rt_plot.get_layer(0);
+        if (data_layer) {
+            /*     cnt += 1;
+                if (cnt === 10) {
+                  console.log("changing xstart")
+                  rt_plot.get_layer(0).hcb.xstart = -100;
+                  rt_plot.get_layer(0).xmin = -100;
+                  rt_plot.change_settings({
+                    xmin: -100,
+                    xmax: -100 + 1000
+                  })
+                } */
+            rt_plot.reload(0, random);
+            rt_plot.reload(1, random2);
+        } else {
+            rt_plot.change_settings({
+                cmode: 3,
+                autol: 1,
+            });
+            rt_plot.overlay_array(random, {
+                file_name: "random"
+            });
+            rt_plot.overlay_array(random2, {
+                file_name: "random2"
+            });
+        }
+    }
+});
 interactiveTest('sigplot minimal chrome', 'Is the plot devoid of chrome', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
