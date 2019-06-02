@@ -8486,10 +8486,14 @@
                 }
                 if (noxmin) {
                     xmin = Gx.lyr[n].xmin;
+                } else {
+                    xmin = xxmin;
                 }
 
                 if (noxmax) {
                     xmax = Gx.lyr[n].xmax;
+                } else {
+                    xmax = xxmax;
                 }
 
                 if (Gx.xlab !== Gx.lyr[n].xlab) {
