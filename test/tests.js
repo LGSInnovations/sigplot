@@ -616,6 +616,49 @@ QUnit.test('complex float data', function(assert) {
         done();
     });
 });
+QUnit.test('scalar packed', function(assert) {
+    var done = assert.async();
+
+    var bfr = new sigplot.bluefile.BlueFileReader();
+    bfr.read_http("dat/scalarpacked.tmp", function(hdr) {
+        //assert.equal( Object.prototype.toString.call(hdr.buf), "[object ArrayBuffer]", "buf created");
+        assert.equal(hdr.buf.byteLength, 1024, "buf correct size");
+        //assert.equal( Object.prototype.toString.call(hdr.dview), "[object Float64Array]", "dview created");
+        assert.equal(hdr.dview.length, 1024, "dview correct size");
+        assert.strictEqual(hdr.file_name, "scalarpacked.tmp", "correct file name");
+        assert.strictEqual(hdr.version, "BLUE", "correct version");
+        assert.strictEqual(hdr.headrep, "EEEI", "correct header rep");
+        assert.strictEqual(hdr.datarep, "EEEI", "correct data rep");
+        assert.strictEqual(hdr.timecode, 0, "correct timecode");
+        assert.strictEqual(hdr.type, 1000, "correct type");
+        assert.strictEqual(hdr["class"], 1, "correct class");
+        assert.strictEqual(hdr.format, "SP", "correct format");
+        assert.strictEqual(hdr.spa, 1, "correct spa");
+        assert.strictEqual(hdr.bps, 0.125, "correct bps");
+        assert.strictEqual(hdr.bpa, 0.125, "correct bpa");
+        assert.strictEqual(hdr.ape, 1, "correct ape");
+        assert.strictEqual(hdr.bpe, 0.125, "correct bpe");
+        assert.strictEqual(hdr.size, 1024, "correct size");
+        assert.strictEqual(hdr.xstart, 0.0, "correct xstart");
+        assert.strictEqual(hdr.xdelta, 1.0, "correct xdelta");
+        assert.strictEqual(hdr.xunits, 1, "correct xunits");
+        assert.strictEqual(hdr.subsize, 1, "correct subsize");
+        assert.equal(hdr.ystart, undefined);
+        assert.equal(hdr.yelta, undefined);
+        assert.equal(hdr.yunits, 0);
+        assert.strictEqual(hdr.data_start, 512.0, "correct data_start");
+        assert.strictEqual(hdr.data_size, 128, "correct data_size");
+        assert.equal(hdr.dview.getBit(0), 1);
+        assert.equal(hdr.dview.getBit(1), 1);
+        assert.equal(hdr.dview.getBit(2), 0);
+        assert.equal(hdr.dview.getBit(3), 0);
+        assert.equal(hdr.dview.getBit(4), 0);
+        assert.equal(hdr.dview.getBit(5), 1);
+        assert.equal(hdr.dview.getBit(6), 1);
+        assert.equal(hdr.dview.getBit(7), 1);
+        done();
+    });
+});
 QUnit.test('create type1000', function(assert) {
     //var hcb = sigplot.m.initialize([1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0], {file_name :"newFile"});
     var rdbuf = new ArrayBuffer(64);
@@ -5919,8 +5962,42 @@ interactiveTest('SP format', 'Do you see a plot that looks like a checkerboard?'
     var bf = sigplot.m.initialize();
     bf.format = "SP";
     bf.setData(new Uint8Array([170, 85, 170, 85, 170, 85, 170, 85]).buffer);
+
+    assert.equal(bf.dview.getBit(0), 1);
+    assert.equal(bf.dview.getBit(1), 0);
+    assert.equal(bf.dview.getBit(2), 1);
+    assert.equal(bf.dview.getBit(3), 0);
+    assert.equal(bf.dview.getBit(4), 1);
+    assert.equal(bf.dview.getBit(5), 0);
+    assert.equal(bf.dview.getBit(6), 1);
+    assert.equal(bf.dview.getBit(7), 0);
+
+    assert.equal(bf.dview.getBit(56), 0);
+    assert.equal(bf.dview.getBit(57), 1);
+    assert.equal(bf.dview.getBit(58), 0);
+    assert.equal(bf.dview.getBit(59), 1);
+    assert.equal(bf.dview.getBit(60), 0);
+    assert.equal(bf.dview.getBit(61), 1);
+    assert.equal(bf.dview.getBit(62), 0);
+    assert.equal(bf.dview.getBit(63), 1);
+
     plot.overlay_bluefile(bf, {
         subsize: 8,
+        layerType: "2D"
+    });
+});
+interactiveTest('SP file', 'Do you see a plot that looks like a checkerboard?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/scalarpacked.tmp");
+});
+interactiveTest('SP file raster', 'Do you see a plot that looks like a checkerboard?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/scalarpacked.tmp", null, {
+        subsize: 64,
         layerType: "2D"
     });
 });
