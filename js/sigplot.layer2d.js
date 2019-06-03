@@ -977,6 +977,12 @@
         var Mx = plot._Mx;
 
         hcb.buf_type = "D";
+        if (!hcb.ystart) {
+            hcb.ystart = 0.0;
+        }
+        if (!hcb.ydelta) {
+            hcb.ydelta = 1.0;
+        }
 
         var layer = new Layer2D(plot);
         layer.init(hcb);

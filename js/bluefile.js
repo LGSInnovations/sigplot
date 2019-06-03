@@ -80,13 +80,17 @@
 
 (function() {
     'use strict';
-    var BitArray = function(buf) {
+    var BitArray = function(buf, offset, length) {
         if (!(buf instanceof ArrayBuffer) && typeof buf === "number") {
             this.buffer = new ArrayBuffer(buf / 8);
             this.u8 = new Uint8Array(this.buffer);
         } else {
-            this.buffer = buf;
-            this.u8 = new Uint8Array(buf);
+            if (offset && length) {
+                this.buffer = buf.slice(offset, offset + (length / 8));
+            } else {
+                this.buffer = buf;
+            }
+            this.u8 = new Uint8Array(this.buffer);
         }
         return new Proxy(this, {
             get(obj, prop) {
@@ -543,7 +547,7 @@
          * @memberof bluefile
          * @param   buf
          * @param   offset
-         * @param   length
+         * @param   length (in elements, not bytes)
          * @returns -
          */
         createArray: function(buf, offset, length) {
