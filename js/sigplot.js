@@ -6999,7 +6999,7 @@
 
         Gx.ncolors = o.ncolors === undefined ? 500 : o.ncolors;
         Gx.cmap = null;
-        if (o.cmap) {
+        if (o.cmap !== undefined) {
             Gx.cmap = o.cmap;
         } else {
             Gx.cmap = o.xc === undefined ? -1 : o.xc;
