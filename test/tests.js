@@ -228,6 +228,24 @@ QUnit.test('colormap', function(assert) {
     assert.equal(color.hex, "#ff0000");
     assert.equal(color.color, -16776961);
 
+    // make sure the Greyscale works correctly
+    var map = new ColorMap(sigplot.m.Mc.colormap[0].colors);
+    map.setRange(0, 100);
+
+    color = map.getColor(0);
+    assert.equal(color.red, 0);
+    assert.equal(color.green, 0);
+    assert.equal(color.blue, 0);
+
+    color = map.getColor(60);
+    assert.equal(color.red, 128);
+    assert.equal(color.green, 128);
+    assert.equal(color.blue, 128);
+
+    color = map.getColor(100);
+    assert.equal(color.red, 255);
+    assert.equal(color.green, 255);
+    assert.equal(color.blue, 255);
 
 });
 //////////////////////////////////////////////////////////////////////////////
@@ -5997,6 +6015,21 @@ interactiveTest('SP format', 'Do you see a plot that looks like a checkerboard?'
     assert.equal(bf.dview.getBit(61), 1);
     assert.equal(bf.dview.getBit(62), 0);
     assert.equal(bf.dview.getBit(63), 1);
+
+    plot.overlay_bluefile(bf, {
+        subsize: 8,
+        layerType: "2D"
+    });
+});
+interactiveTest('B&W SP format', 'Do you see a plot that looks like a black and white checkerboard?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        cmap: 0
+    });
+    assert.notEqual(plot, null);
+    var bf = sigplot.m.initialize();
+    bf.format = "SP";
+    bf.setData(new Uint8Array([170, 85, 170, 85, 170, 85, 170, 85]).buffer);
 
     plot.overlay_bluefile(bf, {
         subsize: 8,
