@@ -3656,6 +3656,23 @@ interactiveTest('sigplot b&w penny 3', 'Do you see a b&w penny', function(assert
         cmap: "Greyscale"
     });
 });
+interactiveTest('sigplot b&w penny 4', 'Do you see a b&w penny', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        cmap: 0
+    });
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/penny.prm");
+});
+interactiveTest('sigplot b&w penny 5', 'Do you see a b&w penny', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/penny.prm");
+    plot.change_settings({
+        cmap: 0
+    });
+});
 interactiveTest('sigplot (custom cmap) penny', 'Do you see a red penny', function(assert) {
     var container = document.getElementById('plot');
     var colors = [{
