@@ -47,20 +47,27 @@
          this.colors = colors;
          var col1 = colors[0];
          var col2 = colors[1];
+         // pos is the percentage of scale (0-100), so
+         // colorStop is how many percentage is allocated
+         // to this band
          var colorStop = colors[1].pos - colors[0].pos;
+         // now many colors are allocated to this block
          var colorsInBlock = ncolors * (colorStop / 100);
-         this.colorsInBlock = colorsInBlock;
+         // the interpolation step per color number
          var factorStep = 1 / colorsInBlock;
          for (var n = 0; n < ncolors - 2; n++) {
              if (colorBlockIndex > colorsInBlock) {
                  col1 = colors[colorindex];
                  col2 = colors[colorindex + 1];
+                 // if we are at the end of the color list
                  if (col2 === undefined) {
                      break;
                  }
+                 if ((col1.pos >= 100) && (col2.pos >= 100)) {
+                    break;
+                }
                  var colorStop = col2.pos - col1.pos;
                  var colorsInBlock = ncolors * (colorStop / 100);
-                 this.colorsInBlock = colorsInBlock;
                  var factorStep = 1 / colorsInBlock;
                  var colorBlockIndex = 1;
                  colorindex += 1;
@@ -69,7 +76,7 @@
              colorBlockIndex += 1;
          }
          
-        this._addColor(colors[colors.length -1]);
+        this._addColor(colors[colorindex]);
         this._addColor(colors[0], true);
          
      };
