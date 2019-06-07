@@ -3322,6 +3322,46 @@ interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', functi
         plot.push(0, data);
     }, 100);
 });
+interactiveTest('layer2D (no compression)', 'you should see lines between 20-40, 60-90, and 90-100?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        xcmp: 1
+    });
+    assert.notEqual(plot, null);
+    var data = [];
+    for (var i = 0; i < 100; i++) {
+        if ((i > 20) && (i < 40)) {
+            if (i % 3 === 0) {
+                data.push(100);
+            } else if (i % 3 === 1) {
+                data.push(200);
+            } else {
+                data.push(0);
+            }
+        } else if ((i > 60) && (i < 80)) {
+            if (i % 3 === 0) {
+                data.push(50);
+            } else if (i % 3 === 1) {
+                data.push(250);
+            } else {
+                data.push(0);
+            }
+        } else if (i > 90) {
+            data.push(300);
+        } else {
+            data.push(0);
+        }
+    }
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 100
+    });
+    var cnt = 0;
+    ifixture.interval = window.setInterval(function() {
+        cnt = cnt + 1;
+        plot.push(0, data);
+    }, 100);
+});
 interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
