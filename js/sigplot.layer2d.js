@@ -624,7 +624,7 @@
 
             var xsize = this.hcb.subsize;
             if (this.xcompression > 0) {
-                xsize = Math.ceil(Mx.r - Mx.l);
+                xsize = Math.min(this.hcb.subsize, Math.ceil(Mx.r - Mx.l));
             }
 
             this.get_data(xmin, xmax);
