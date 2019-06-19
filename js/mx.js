@@ -2215,8 +2215,13 @@
         }
 
         if (Mx.widget) {
-            Mx.widget.callback(event);
+            if (event.type === "mouseup" && Mx.mouseUpLatch) {
+                Mx.mouseUpLatch = undefined;
+            } else {
+                Mx.widget.callback(event);
+            }
         }
+
     };
 
     /**
