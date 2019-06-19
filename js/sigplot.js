@@ -583,6 +583,23 @@
                                 Gx.legendBtnLocation.height);
                         }
 
+                        // a variable to hold the legend y positon of each layer
+                        if (Gx.legend) {
+                            var legendPos = get_legend_pos(plot);
+                            var layerheight = legendPos.height / Gx.lyr.length;
+
+                            for (var i = 0; i < Gx.lyr.length; i++) {
+                                if ((legendPos.x <= Mx.xpos) && ((legendPos.x + legendPos.width) >= Mx.xpos) &&
+                                    ((legendPos.y <= Mx.ypos)) && (legendPos.y + layerheight) >= Mx.ypos) {
+                                    //find a way to pull up the menu
+                                    Mx.mouseUpLatch = true;
+                                    sigplot_legend_menu(plot, i);
+                                    return false;
+                                }
+                                legendPos.y += layerheight;
+                            }
+                        }
+
                         // If we have a large colorbar, we also have buttons:
                         if (Gx.lg_colorbar && (Gx.lyr[0].hcb["class"] === 2)) {
                             if (event.which === 1 || event.which === 3) {
@@ -7187,6 +7204,26 @@
         }
     }
 
+    function get_legend_pos(plot) {
+        var Mx = plot._Mx;
+        var Gx = plot._Gx;
+
+        var tw = Mx.text_w;
+        var xs = tw * 23;
+        var ys = (Gx.lyr.length + 1) * Mx.text_h;
+        var xc = Mx.r - xs;
+        var yc = Mx.t;
+
+        var legendPos = {
+            x: xc + 2,
+            y: yc + 2,
+            width: xs - 5,
+            height: ys - 5
+        }; // default legend size
+
+        return legendPos;
+    }
+
     /**
      * @memberOf sigplot
      * @private
@@ -7216,12 +7253,7 @@
         xc = Mx.r - xs;
         yc = Mx.t;
 
-        var legendPos = {
-            x: xc + 2,
-            y: yc + 2,
-            width: xs - 5,
-            height: ys - 5
-        }; // default legend size
+        var legendPos = get_legend_pos(plot);
 
         // Determine legend position and label offset based on label sizes
         var defLabelWidth = 98; // a magic number - default width of pixels
@@ -7296,17 +7328,7 @@
             iy = iy + Mx.text_h * 0.3;
             mx.text(Mx, ix - labelOffset, iy, Gx.lyr[n].name);
         }
-        // a variable to hold the legend y positon of each layer
-        var layerheight = legendPos.height / Gx.lyr.length;
 
-        for (i = 0; i < Gx.lyr.length; i++) {
-            if ((legendPos.x <= Mx.xpos) && ((legendPos.x + legendPos.width) >= Mx.xpos) &&
-                ((legendPos.y <= Mx.ypos)) && (legendPos.y + layerheight) >= Mx.ypos) {
-                //find a way to pull up the menu
-                sigplot_legend_menu(plot, i);
-            }
-            legendPos.y += layerheight;
-        }
     }
 
     /**
