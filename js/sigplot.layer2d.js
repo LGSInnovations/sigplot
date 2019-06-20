@@ -484,6 +484,10 @@
                     this.xcompression = settings.xcmp;
                 }
             }
+
+            if (settings.name !== undefined) {
+                this.name = settings.name;
+            }
         },
 
         reload: function(data, hdrmod) {

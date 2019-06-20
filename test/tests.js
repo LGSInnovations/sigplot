@@ -3071,6 +3071,47 @@ interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis gro
         });
     }, 5000);
 });
+interactiveTest('pipe 1D name', 'Do you see a random data plot (0 to 1 ) properly named "Test" in the legend', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        legend: true
+    });
+    assert.notEqual(plot, null);
+    plot.overlay_pipe({
+        type: 1000
+    }, {
+        framesize: 100,
+        name: "Test"
+    });
+    ifixture.interval = window.setInterval(function() {
+        var random = [];
+        for (var i = 0; i < 100; i += 1) {
+            random.push(Math.random());
+        }
+        plot.push(0, random);
+    }, 100);
+});
+interactiveTest('pipe 2D name', 'Do you see a random data plot (0 to 1 ) properly named "Test" in the legend', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        legend: true
+    });
+    assert.notEqual(plot, null);
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 100
+    }, {
+        framesize: 100,
+        name: "Test"
+    });
+    ifixture.interval = window.setInterval(function() {
+        var random = [];
+        for (var i = 0; i < 100; i += 1) {
+            random.push(Math.random());
+        }
+        plot.push(0, random);
+    }, 100);
+});
 interactiveTest('scrolling line', 'Do you see a scrolling random data plot (0 to 1 ) that does not scale', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
