@@ -906,16 +906,36 @@
             if (this.hcb.pipe) {
                 var lps = this.hcb.lps || Math.ceil(Math.max(1, (Mx.b - Mx.t)));
                 if ((lps !== this.lps) && this.buf) {
+                    var lps_delta = (lps - this.lps);
                     this.lps = lps;
                     if (this.position >= this.lps) { // if lps got resized make sure we don't go out of bounds
                         this.position = 0;
                     }
-                    var d = HCB.ystart + (HCB.ydelta * this.lps);
-                    this.ymin = Math.min(HCB.ystart, d);
-                    this.ymax = Math.max(HCB.ystart, d);
+
+                    if (this.drawmode === "scrolling") {
+                        // in scrolling mode, ymin should never change
+                        var d = HCB.ystart + (HCB.ydelta * this.lps);
+                        this.ymin = Math.min(HCB.ystart, d);
+                        this.ymax = Math.max(HCB.ystart, d);
+                        this.img = mx.resize_image_height(Mx, this.img, this.lps);
+                    } else if (this.drawmode === "falling") {
+                        this.ymax = this.ymin + (HCB.ydelta * this.lps);
+                        this.img = mx.resize_image_height(Mx, this.img, this.lps);
+                    } else if (this.drawmode === "rising") {
+                        this.ymin = this.ymax - (HCB.ydelta * this.lps);
+                        // the img needs to be shifted
+                        if (lps_delta > 0) {
+                            this.img = mx.resize_image_height(Mx, this.img, this.lps);
+                            mx.shift_image_rows(Mx, this.img, lps_delta, true);
+                        } else {
+                            mx.shift_image_rows(Mx, this.img, lps_delta, true);
+                            this.img = mx.resize_image_height(Mx, this.img, this.lps);
+                        }
+                    }
+
+
                     // reset the image since we now have more lines to render
                     // TODO - can we preserve the image data rather than resetting?
-                    this.img = null;
                     this.plot.rescale();
                 }
             }

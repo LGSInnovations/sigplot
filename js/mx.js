@@ -5265,14 +5265,20 @@
      * @param shift
      * @private
      */
-    mx.shift_image_rows = function(Mx, buf, shift) {
+    mx.shift_image_rows = function(Mx, buf, shift, zerofill) {
         var imgd = new Uint32Array(buf);
         if (shift > 0) { // shift down
             shift = shift * buf.width;
             imgd.set(imgd.subarray(0, imgd.length - shift), shift);
+            if (zerofill) {
+                imgd.fill(0, 0, shift);
+            }
         } else if (shift < 0) { // shift up
             shift = Math.abs(shift) * buf.width;
             imgd.set(imgd.subarray(shift));
+            if (zerofill) {
+                imgd.fill(0, imgd.length - shift);
+            }
         }
 
         return buf;
@@ -5409,6 +5415,18 @@
 
         // Return the image in case the caller wishes to cache it
         return buf;
+    };
+
+    mx.resize_image_height = function(Mx, buf, h) {
+        if (buf.height === h) {
+            return buf;
+        }
+
+        var buf2 = ArrayBuffer.transfer(buf, (buf.width * h * 4));
+        Object.assign(buf2, buf);
+        buf2.height = h;
+
+        return buf2;
     };
 
     /**
