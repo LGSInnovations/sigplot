@@ -193,6 +193,22 @@ if (!window.Float64Array) {
     })();
 }
 
+// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer/transfer
+if (!ArrayBuffer.transfer) {
+    ArrayBuffer.transfer = function(source, length) {
+        if (!(source instanceof ArrayBuffer)) {
+            throw new TypeError('Source must be an instance of ArrayBuffer');
+        }
+        if (length <= source.byteLength) {
+            return source.slice(0, length);
+        }
+        var sourceView = new Uint8Array(source),
+            destView = new Uint8Array(new ArrayBuffer(length));
+        destView.set(sourceView);
+        return destView.buffer;
+    };
+}
+
 // Shims
 (function() {
     /* console shim*/
