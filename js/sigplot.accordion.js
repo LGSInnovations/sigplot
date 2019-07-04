@@ -75,7 +75,7 @@
                 if (self.center_location === undefined) {
                     return;
                 }
-                // Or if the user wants to prevent a drag operation
+                // Or if the user wants to prevent all drag operation
                 if (self.options.prevent_drag) {
                     return;
                 }
@@ -96,26 +96,34 @@
                         return;
                     } // Don't highlight if a warpbox is being drawn
                     if (self.options.direction === "vertical") {
-                        if (Math.abs(self.center_location - evt.xpos) < (lineWidth + 5)) {
-                            self.set_highlight(true);
-                        } else {
-                            self.set_highlight(false);
+                        if (!self.options.prevent_move) {
+                            if (Math.abs(self.center_location - evt.xpos) < (lineWidth + 5)) {
+                                self.set_highlight(true);
+                            } else {
+                                self.set_highlight(false);
+                            }
                         }
-                        if ((Math.abs(self.loc_1 - evt.xpos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.xpos) < (elineWidth + 5))) {
-                            self.set_edge_highlight(true);
-                        } else {
-                            self.set_edge_highlight(false);
+                        if (!self.options.prevent_resize) {
+                            if ((Math.abs(self.loc_1 - evt.xpos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.xpos) < (elineWidth + 5))) {
+                                self.set_edge_highlight(true);
+                            } else {
+                                self.set_edge_highlight(false);
+                            }
                         }
                     } else if (self.options.direction === "horizontal") {
-                        if (Math.abs(self.center_location - evt.ypos) < (lineWidth + 5)) {
-                            self.set_highlight(true);
-                        } else {
-                            self.set_highlight(false);
+                        if (!self.options.prevent_move) {
+                            if (Math.abs(self.center_location - evt.ypos) < (lineWidth + 5)) {
+                                self.set_highlight(true);
+                            } else {
+                                self.set_highlight(false);
+                            }
                         }
-                        if ((Math.abs(self.loc_1 - evt.ypos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.ypos) < (elineWidth + 5))) {
-                            self.set_edge_highlight(true);
-                        } else {
-                            self.set_edge_highlight(false);
+                        if (!self.options.prevent_resize) {
+                            if ((Math.abs(self.loc_1 - evt.ypos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.ypos) < (elineWidth + 5))) {
+                                self.set_edge_highlight(true);
+                            } else {
+                                self.set_edge_highlight(false);
+                            }
                         }
                     }
                     return;
@@ -192,6 +200,9 @@
                 if (self.center_location === undefined) {
                     return;
                 }
+                if (self.options.prevent_drag) {
+                    return;
+                }
                 if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) {
                     return;
                 }
@@ -203,18 +214,18 @@
                 if (self.options.direction === "vertical") {
                     // prefer edge drag over center drag
                     if ((Math.abs(self.loc_1 - evt.xpos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.xpos) < (elineWidth + 5))) {
-                        self.edge_dragging = true;
+                        self.edge_dragging = !self.options.prevent_resize;
                         evt.preventDefault();
                     } else if (Math.abs(self.center_location - evt.xpos) < (lineWidth + 5)) {
-                        self.dragging = true;
+                        self.dragging = !self.options.prevent_move;
                         evt.preventDefault();
                     }
                 } else if (self.options.direction === "horizontal") {
                     if ((Math.abs(self.loc_1 - evt.ypos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.ypos) < (elineWidth + 5))) {
-                        self.edge_dragging = true;
+                        self.edge_dragging = !self.options.prevent_resize;
                         evt.preventDefault();
                     } else if (Math.abs(self.center_location - evt.ypos) < (lineWidth + 5)) {
-                        self.dragging = true;
+                        self.dragging = !self.options.prevent_move;
                         evt.preventDefault();
                     }
                 }
