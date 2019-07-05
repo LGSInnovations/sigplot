@@ -5026,8 +5026,13 @@
      * @private
      */
     mx.legend_colorbar = function(Mx, x, y, w, h) {
+        if (!Mx.pixel) {
+            m.log.warn("COLORMAP not initialized, cannot draw colorbar");
+            return;
+        }
+        Mx.pixel.setRange(0, Mx.pixel.map.length);
         for (var j = 1; j < w; j++) {
-            var cidx = Math.floor(Mx.pixel.length * (j - 1) / w);
+            var cidx = Math.floor(Mx.pixel.map.length * (j - 1) / w);
             mx.draw_line(Mx, cidx, x + w - j, y, x + w - j, y + h);
         }
         mx.draw_box(Mx, Mx.fg, x + 0.5, y, w, h);

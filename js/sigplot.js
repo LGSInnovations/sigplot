@@ -7281,8 +7281,8 @@
             legendPos.height);
 
         for (n = 0; n < Gx.lyr.length; n++) {
-            ix = xc + 4 * tw;
-            iy = yc + n * Mx.text_h + Mx.text_h; // additional text_h to
+            ix = Math.floor(xc + 4 * tw);
+            iy = Math.floor(yc + n * Mx.text_h + Mx.text_h); // additional text_h to
             // account for 0-based
             // indexing
             if (n === Gx.modlayer) {
@@ -7290,38 +7290,43 @@
                 // offset
             }
             if (Gx.lyr[n].display) {
-                ic = Gx.lyr[n].color;
-                if (Gx.lyr[n].line > 0) {
-                    thk = m.sign(Math.min(tw, Math.abs(Gx.lyr[n].thick)),
-                        Gx.lyr[n].thick);
-                    // added magic -3 offset to y coordinates to center lines
-                    // with text
-                    if (thk < 0 || thk === mx.L_dashed) {
-                        mx.draw_line(Mx, ic, ix - labelOffset, iy - 3, (ix + tw * 2) - labelOffset, iy - 3, Math.abs(thk), {
-                            mode: "dashed",
-                            on: 4,
-                            off: 4
-                        });
-                    } else {
-                        mx.draw_line(Mx, ic, ix - labelOffset, iy - 3, (ix + tw * 2) - labelOffset, iy - 3, Math.abs(thk));
+                // TODO refactor this code so that each layer type is responsible
+                // for drawing it's own legend icon, providing flexibliity down the road
+                // for other layer types
+                if (Gx.lyr[n] instanceof Layer1D) {
+                    ic = Gx.lyr[n].color;
+                    if (Gx.lyr[n].line > 0) {
+                        thk = m.sign(Math.min(tw, Math.abs(Gx.lyr[n].thick)),
+                            Gx.lyr[n].thick);
+                        // added magic -3 offset to y coordinates to center lines
+                        // with text
+                        if (thk < 0 || thk === mx.L_dashed) {
+                            mx.draw_line(Mx, ic, ix - labelOffset, iy - 3, (ix + tw * 2) - labelOffset, iy - 3, Math.abs(thk), {
+                                mode: "dashed",
+                                on: 4,
+                                off: 4
+                            });
+                        } else {
+                            mx.draw_line(Mx, ic, ix - labelOffset, iy - 3, (ix + tw * 2) - labelOffset, iy - 3, Math.abs(thk));
+                        }
                     }
-                }
-                if (Gx.lyr[n].symbol > 0) {
-                    // New logic here with 0.6*tw to help with legend symbol
-                    // sizing
-                    if (Gx.lyr[n].radius < 0) {
-                        thk = -m.trunc(0.6 * tw);
-                    } else {
-                        thk = Math.min(Gx.lyr[n].radius, m.trunc(0.6 * tw));
-                    }
+                    if (Gx.lyr[n].symbol > 0) {
+                        // New logic here with 0.6*tw to help with legend symbol
+                        // sizing
+                        if (Gx.lyr[n].radius < 0) {
+                            thk = -m.trunc(0.6 * tw);
+                        } else {
+                            thk = Math.min(Gx.lyr[n].radius, m.trunc(0.6 * tw));
+                        }
 
-                    mx.draw_symbol(Mx, ic, ix + tw - labelOffset, iy - 3,
-                        Gx.lyr[n].symbol, thk);
-                }
-                if (Gx.lyr[n].hcb["class"] === 2) {
-                    //draw colormap
-                    mx.legend_colorbar(Mx, legendPos.x + 10, legendPos.y + (legendPos.height / 4),
-                        (legendPos.width / 4) - 10, legendPos.height / 2);
+                        mx.draw_symbol(Mx, ic, ix + tw - labelOffset, iy - 3,
+                            Gx.lyr[n].symbol, thk);
+                    }
+                } else if (Gx.lyr[n] instanceof Layer2D) {
+                    //draw colorbar for 2D layers.  The bar needs to leave space for the modlayer
+                    // icon which occupies the first text-width
+                    mx.legend_colorbar(Mx, xc + (2 * tw) - labelOffset, iy - (Mx.text_h / 2),
+                        (tw * 4), (Mx.text_h / 2));
                 }
             }
             ix = ix + tw * 3;
