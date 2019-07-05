@@ -8402,71 +8402,81 @@
             }
         }
 
-        // draw color bar - large
-        var x = 0;
-        var y = 0;
-        var w = 0;
-        var h = 0;
-        if (Gx.lg_colorbar && (Gx.lyr[0].hcb["class"] === 2)) {
-            var plot_height = Mx.b - Mx.t;
+        // If one of the layers is 2D we can draw a color-bar.
+        // Note that if two Layer2D are drawn it is possible to
+        // use a different color bar for each.
+        var needsColorBar = Gx.lyr.some(function(lyr) {
+            return (lyr instanceof Layer2D);
+        });
 
-            x = Mx.r + 35;
-            y = Mx.t + (1 / 8) * plot_height;
-            w = 5 * Mx.text_w;
-            h = (3 / 4) * plot_height;
+        if (needsColorBar) {
+            // draw color bar - large
+            var x = 0;
+            var y = 0;
+            var w = 0;
+            var h = 0;
+            if (Gx.lg_colorbar) {
+                var plot_height = Mx.b - Mx.t;
 
-            // If I have a large color bar, I probably also want to add buttons
-            var ctx = Mx.active_canvas.getContext("2d");
-            ctx.strokeStyle = "rgba(124, 123, 121, 0.8)";
-            ctx.fillStyle = " rgba(124, 123, 121, 0.8)";
+                x = Mx.r + 35;
+                y = Mx.t + (1 / 8) * plot_height;
+                w = 5 * Mx.text_w;
+                h = (3 / 4) * plot_height;
 
-            // For more precise referencing
-            var colorbar_x = x;
-            var colorbar_y = y;
-            var colorbar_width = w;
-            var colorbar_height = h;
-            var button_width = colorbar_width - 2;
-            var button_height = button_width / 2;
-            var button_x = colorbar_x + ((colorbar_width - button_width) / 2);
-            var button_y = colorbar_y - 10;
+                // If I have a large color bar, I probably also want to add buttons
+                var ctx = Mx.active_canvas.getContext("2d");
+                ctx.strokeStyle = "rgba(124, 123, 121, 0.8)";
+                ctx.fillStyle = " rgba(124, 123, 121, 0.8)";
 
-            // Draw the top button
-            ctx.beginPath();
-            ctx.moveTo(button_x, button_y);
-            ctx.lineTo(button_x + button_width, button_y);
-            ctx.lineTo(button_x + (1 / 2) * button_width, button_y - button_height);
-            ctx.lineTo(button_x, button_y);
-            ctx.stroke();
-            ctx.fill();
+                // For more precise referencing
+                var colorbar_x = x;
+                var colorbar_y = y;
+                var colorbar_width = w;
+                var colorbar_height = h;
+                var button_width = colorbar_width - 2;
+                var button_height = button_width / 2;
+                var button_x = colorbar_x + ((colorbar_width - button_width) / 2);
+                var button_y = colorbar_y - 10;
 
-            // Draw the bottom button
-            var button_y_2 = button_y + colorbar_height + 20;
+                // Draw the top button
+                ctx.beginPath();
+                ctx.moveTo(button_x, button_y);
+                ctx.lineTo(button_x + button_width, button_y);
+                ctx.lineTo(button_x + (1 / 2) * button_width, button_y - button_height);
+                ctx.lineTo(button_x, button_y);
+                ctx.stroke();
+                ctx.fill();
 
-            ctx.beginPath();
-            ctx.moveTo(button_x, button_y_2);
-            ctx.lineTo(button_x + button_width, button_y_2);
-            ctx.lineTo(button_x + (1 / 2) * button_width, button_y_2 + button_height);
-            ctx.lineTo(button_x, button_y_2);
-            ctx.stroke();
-            ctx.fill();
+                // Draw the bottom button
+                var button_y_2 = button_y + colorbar_height + 20;
 
-            // Store this info so we can access it later
+                ctx.beginPath();
+                ctx.moveTo(button_x, button_y_2);
+                ctx.lineTo(button_x + button_width, button_y_2);
+                ctx.lineTo(button_x + (1 / 2) * button_width, button_y_2 + button_height);
+                ctx.lineTo(button_x, button_y_2);
+                ctx.stroke();
+                ctx.fill();
 
-            Gx.cbb_top_x1 = button_x;
-            Gx.cbb_top_y1 = button_y;
-            Gx.cbb_bot_x1 = button_x;
-            Gx.cbb_bot_y1 = button_y_2;
-            Gx.cbb_width = button_width;
-            Gx.cbb_height = button_height;
+                // Store this info so we can access it later
 
-        } else { // draw a small colorbar
-            x = (49 * Mx.text_w) - 3;
-            y = Mx.height - Mx.text_h * 2.5;
-            w = Mx.text_w;
-            h = Mx.text_h * 2;
+                Gx.cbb_top_x1 = button_x;
+                Gx.cbb_top_y1 = button_y;
+                Gx.cbb_bot_x1 = button_x;
+                Gx.cbb_bot_y1 = button_y_2;
+                Gx.cbb_width = button_width;
+                Gx.cbb_height = button_height;
+
+            } else { // draw a small colorbar
+                x = (49 * Mx.text_w) - 3;
+                y = Mx.height - Mx.text_h * 2.5;
+                w = Mx.text_w;
+                h = Mx.text_h * 2;
+            }
+
+
+            mx.colorbar(Mx, x, y, w, h);
         }
-
-        mx.colorbar(Mx, x, y, w, h);
 
         //draw boxes for the p_cuts
         if (Gx.p_cuts && (Gx.lyr.length === 1) && (Gx.lyr[0].hcb["class"] === 2)) {
