@@ -58,6 +58,10 @@
             }
             return dst; // return dst to allow method chaining
         };
+        var F = function() {};
+        F.prototype = this.prototype;
+        var proto = new F();
+
         // extended class with the new prototype
         var NewClass = function() {
             // merge options
@@ -78,9 +82,6 @@
             }
         };
         // instantiate class without calling constructor
-        var F = function() {};
-        F.prototype = this.prototype;
-        var proto = new F();
         proto.constructor = NewClass;
         NewClass.prototype = proto;
         //inherit parent's statics
