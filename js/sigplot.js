@@ -3837,7 +3837,7 @@
 
                 var i = Gx.lbtn - 2;
 
-                if (Gx.show_readout && Gx.pan) {
+                if (Gx.show_readout) {
                     if (!Gx.no_legend_button) {
                         if (Gx.legend) {
                             Gx.legendBtnLocation = {
