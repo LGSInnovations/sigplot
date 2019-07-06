@@ -6748,7 +6748,7 @@
         }
 
         Gx.xdata = false;
-        Gx.note = "";
+        Gx.note = o.note ? o.note : "";
         Gx.hold = 0;
         Gx.always_show_marker = o.always_show_marker || false;
 
@@ -7342,6 +7342,9 @@
      */
     function form_plotnote(plot) {
         var Gx = plot._Gx;
+        if (Gx.note) {
+            return;
+        }
         if (Gx.HCB.length === 0) {
             Gx.note = "";
         } else if (Gx.HCB[0].plotnote === undefined) {
