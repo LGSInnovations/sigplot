@@ -5807,7 +5807,7 @@ interactiveTest('headermod', 'does the plot show a range 200-2200', function(ass
     assert.strictEqual(plot._Gx.lyr[0].xmin, 200);
     assert.strictEqual(plot._Gx.lyr[0].xmax, 2200);
 });
-interactiveTest('github-issue-3', 'TBD?', function(assert) {
+interactiveTest('rescaling after remove', 'do you seen a line in the upper left?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
