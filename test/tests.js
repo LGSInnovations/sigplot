@@ -6126,13 +6126,13 @@ interactiveTest('B&W SP format', 'Do you see a plot that looks like a black and 
         layerType: "2D"
     });
 });
-interactiveTest('SP file', 'Do you see a plot that looks like a checkerboard?', function(assert) {
+interactiveTest('SP file', 'Do you see a line plot of binary points 0 to 1?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
     plot.overlay_href("dat/scalarpacked.tmp");
 });
-interactiveTest('SP file raster', 'Do you see a plot that looks like a checkerboard?', function(assert) {
+interactiveTest('SP file raster', 'Do you see a binary plot of random data?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
