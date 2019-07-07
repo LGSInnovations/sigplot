@@ -1989,7 +1989,7 @@ interactiveTest('sigplot no legend', 'Is the legend button hidden?', function(as
         no_legend_button: true
     });
 });
-interactiveTest('sigplot no ylabel', 'Does the label say Unknown (U)?', function(assert) {
+interactiveTest('sigplot no ylabel', 'Does the label say None (U)?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
     assert.equal(ifixture.childNodes.length, 2);
