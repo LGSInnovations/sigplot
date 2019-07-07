@@ -1989,7 +1989,7 @@ interactiveTest('sigplot no legend', 'Is the legend button hidden?', function(as
         no_legend_button: true
     });
 });
-interactiveTest('sigplot no ylabel', 'Does the label say Unknown (U)?', function(assert) {
+interactiveTest('sigplot no ylabel', 'Does the label say None (U)?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
     assert.equal(ifixture.childNodes.length, 2);
@@ -2217,7 +2217,7 @@ interactiveTest('sigplot multi-file overlay', 'Do you see a sin wave and a pulse
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
-    plot.overlay_href("dat/sin.tmp|dat/pulse.tmp");
+    plot.overlay_href("dat/sin.tmp|dat/pulse_cx.tmp");
 });
 interactiveTest('empty t1000 array', 'Do you see a plot with two pulses?', function(assert) {
     var container = document.getElementById('plot');
@@ -2630,7 +2630,6 @@ interactiveTest('sigplot custom function xlabel/ylabel', 'Do you see custom xlab
     });
 });
 interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autox: 3,
@@ -2641,6 +2640,7 @@ interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', func
         ylab: 44,
         expand: true
     });
+    assert.notEqual(plot, null);
 
     function plot2(plot) {
         plot.overlay_array([1, 2, 2, 3, 3, 4, 4, 5], {
@@ -5447,51 +5447,57 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
     });
 });
 interactiveTest('p-cuts: side and bottom plots', 'Do you see updating data when the mouse is moved in the x and y plots', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         p_cuts: true
     });
 });
 interactiveTest('p-cuts: side and bottom plots turn on and off', 'Do the plots toggle on "p" key regardless of mouse postion?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         p_cuts: true
     });
 });
 interactiveTest('p-cuts: x-cut', 'Does the x-plot show on "x" key regardless of mouse position and update when clicked open in different spot?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         p_cuts: true
     });
 });
 interactiveTest('p-cuts: y-cut', 'Does the y-plot show on "y" key regardless of mouse position and update when clicked open in different spot?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         p_cuts: true
     });
 });
 interactiveTest('p-cuts: turn on and off', 'Does the feature toggle with "p" key? Does everything resize correctly?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
 });
 interactiveTest('p-cuts: x-cut and y-cut without p-cuts display', 'Do the x and y plot display when clicked without the smaller plots?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     //console.log(plot._Gx);
 });
@@ -5571,9 +5577,10 @@ interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster w
     }, 100);
 });
 interactiveTest('radius menu', 'Do you see a working radius option in the traces menu?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     var ramp = [];
     for (var i = 0; i < 25; i++) {
         ramp.push(i);
@@ -5586,9 +5593,10 @@ interactiveTest('radius menu', 'Do you see a working radius option in the traces
     });
 });
 interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vertical line on every point?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     var ramp = [];
     for (var i = 0; i < 20; i++) {
         ramp.push(i);
@@ -5600,9 +5608,10 @@ interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vert
     });
 });
 interactiveTest('colorbar in legend', 'does the colorbar show in the legend?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
 });
 interactiveTest('Legend', 'Are the correct functions modified from the legend??', function(assert) {
@@ -5798,7 +5807,7 @@ interactiveTest('headermod', 'does the plot show a range 200-2200', function(ass
     assert.strictEqual(plot._Gx.lyr[0].xmin, 200);
     assert.strictEqual(plot._Gx.lyr[0].xmax, 2200);
 });
-interactiveTest('github-issue-3', 'TBD?', function(assert) {
+interactiveTest('rescaling after remove', 'do you seen a line in the upper left?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
@@ -5889,19 +5898,20 @@ interactiveTest('Plot x-cut', 'Does x-cut render correctly with a valid y-axis?'
         plot.xCut(100);
     }, {});
 });
-interactiveTest('Plot x-cut zoom', 'Does x-cut render correctly with a valid y-axis?', function(assert) {
+interactiveTest('Plot x-cut zoom', 'Does x-cut render with a zoomed x-axis?', function(assert) {
+    // TODO this test doesn't work
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
     plot.overlay_href("dat/raster.tmp", function() {
         plot.zoom({
-            x: 100e6,
-            y: 100
+            x: 65e6,
+            y: 50
         }, {
-            x: 200e6,
-            y: 400
+            x: 70e6,
+            y: 110
         });
-        plot.xCut(300);
+        plot.xCut(100);
     }, {});
 });
 interactiveTest('Plot x-cut zoom 2', 'Does x-cut render a line at 30?', function(assert) {
@@ -6117,13 +6127,13 @@ interactiveTest('B&W SP format', 'Do you see a plot that looks like a black and 
         layerType: "2D"
     });
 });
-interactiveTest('SP file', 'Do you see a plot that looks like a checkerboard?', function(assert) {
+interactiveTest('SP file', 'Do you see a line plot of binary points 0 to 1?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
     plot.overlay_href("dat/scalarpacked.tmp");
 });
-interactiveTest('SP file raster', 'Do you see a plot that looks like a checkerboard?', function(assert) {
+interactiveTest('SP file raster', 'Do you see a binary plot of random data?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
