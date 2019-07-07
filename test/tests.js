@@ -2217,7 +2217,7 @@ interactiveTest('sigplot multi-file overlay', 'Do you see a sin wave and a pulse
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
-    plot.overlay_href("dat/sin.tmp|dat/pulse.tmp");
+    plot.overlay_href("dat/sin.tmp|dat/pulse_cx.tmp");
 });
 interactiveTest('empty t1000 array', 'Do you see a plot with two pulses?', function(assert) {
     var container = document.getElementById('plot');
