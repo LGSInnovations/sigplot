@@ -5898,19 +5898,20 @@ interactiveTest('Plot x-cut', 'Does x-cut render correctly with a valid y-axis?'
         plot.xCut(100);
     }, {});
 });
-interactiveTest('Plot x-cut zoom', 'Does x-cut render correctly with a valid y-axis?', function(assert) {
+interactiveTest('Plot x-cut zoom', 'Does x-cut render with a zoomed x-axis?', function(assert) {
+    // TODO this test doesn't work
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
     plot.overlay_href("dat/raster.tmp", function() {
         plot.zoom({
-            x: 100e6,
-            y: 100
+            x: 65e6,
+            y: 50
         }, {
-            x: 200e6,
-            y: 400
+            x: 70e6,
+            y: 110
         });
-        plot.xCut(300);
+        plot.xCut(100);
     }, {});
 });
 interactiveTest('Plot x-cut zoom 2', 'Does x-cut render a line at 30?', function(assert) {
