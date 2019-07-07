@@ -2630,7 +2630,6 @@ interactiveTest('sigplot custom function xlabel/ylabel', 'Do you see custom xlab
     });
 });
 interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {
         autox: 3,
@@ -2641,6 +2640,7 @@ interactiveTest('sigplot expand full', 'Do you see a fully expanded plot?', func
         ylab: 44,
         expand: true
     });
+    assert.notEqual(plot, null);
 
     function plot2(plot) {
         plot.overlay_array([1, 2, 2, 3, 3, 4, 4, 5], {
@@ -5447,51 +5447,57 @@ interactiveTest('overlapping_highlights', 'Do you see evenly spaced red/yellow h
     });
 });
 interactiveTest('p-cuts: side and bottom plots', 'Do you see updating data when the mouse is moved in the x and y plots', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         p_cuts: true
     });
 });
 interactiveTest('p-cuts: side and bottom plots turn on and off', 'Do the plots toggle on "p" key regardless of mouse postion?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         p_cuts: true
     });
 });
 interactiveTest('p-cuts: x-cut', 'Does the x-plot show on "x" key regardless of mouse position and update when clicked open in different spot?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         p_cuts: true
     });
 });
 interactiveTest('p-cuts: y-cut', 'Does the y-plot show on "y" key regardless of mouse position and update when clicked open in different spot?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     plot.change_settings({
         p_cuts: true
     });
 });
 interactiveTest('p-cuts: turn on and off', 'Does the feature toggle with "p" key? Does everything resize correctly?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
 });
 interactiveTest('p-cuts: x-cut and y-cut without p-cuts display', 'Do the x and y plot display when clicked without the smaller plots?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
     //console.log(plot._Gx);
 });
@@ -5571,9 +5577,10 @@ interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster w
     }, 100);
 });
 interactiveTest('radius menu', 'Do you see a working radius option in the traces menu?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     var ramp = [];
     for (var i = 0; i < 25; i++) {
         ramp.push(i);
@@ -5586,9 +5593,10 @@ interactiveTest('radius menu', 'Do you see a working radius option in the traces
     });
 });
 interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vertical line on every point?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     var ramp = [];
     for (var i = 0; i < 20; i++) {
         ramp.push(i);
@@ -5600,9 +5608,10 @@ interactiveTest('vertical and horizontal lines', 'Is there a horizontal and vert
     });
 });
 interactiveTest('colorbar in legend', 'does the colorbar show in the legend?', function(assert) {
-    assert.expect(0); // TODO add some assert checks
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
     plot.overlay_href("dat/penny.prm");
 });
 interactiveTest('Legend', 'Are the correct functions modified from the legend??', function(assert) {
