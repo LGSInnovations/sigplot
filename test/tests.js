@@ -6142,3 +6142,29 @@ interactiveTest('SP file raster', 'Do you see a binary plot of random data?', fu
         layerType: "2D"
     });
 });
+interactiveTest('Plot Note', 'Do you see the plot note saying "Test Note"?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        note: 'Test Note'
+    });
+    assert.notEqual(plot, null);
+});
+interactiveTest('Plot Note with data', 'Do you see the plot note saying "Test Note"?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {
+        note: 'Test Note'
+    });
+    assert.notEqual(plot, null);
+    plot.overlay_href("dat/scalarpacked.tmp", null, {
+        subsize: 64,
+        layerType: "2D"
+    });
+});
+interactiveTest('Plot Note Change Settings', 'Do you see the plot note saying "Test Note"?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    plot.change_settings({
+        note: 'Test Note'
+    });
+});
