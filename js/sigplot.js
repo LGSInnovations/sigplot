@@ -1443,12 +1443,11 @@
                 throw "Invalid plugin zorder";
             }
 
-
-            plugin.init(this);
-
             var canvas = document.createElement('canvas');
             canvas.width = this._Mx.canvas.width;
             canvas.height = this._Mx.canvas.height;
+
+            plugin.init(this, canvas);
 
             this._Gx.plugins.push({
                 impl: plugin,
