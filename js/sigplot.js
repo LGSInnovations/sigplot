@@ -6748,7 +6748,7 @@
         }
 
         Gx.xdata = false;
-        Gx.note = o.note ? o.note : "";
+        Gx.note = o.note || "";
         Gx.hold = 0;
         Gx.always_show_marker = o.always_show_marker || false;
 
