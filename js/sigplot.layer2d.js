@@ -66,6 +66,7 @@
         this.preferred_origin = 4;
         this.opacity = 1;
         this.xcompression = plot._Gx.xcompression; // default is Gx.xcompression
+        this.downscale = plot._Gx.rasterDownscale;
 
         // LPB is kinda odd right now, since we read the entire file into memory anyways...
         // given that often we are loading from an HREF so there is no downside to this...
@@ -488,6 +489,10 @@
             if (settings.name !== undefined) {
                 this.name = settings.name;
             }
+
+            if (settings.downscale !== undefined) {
+                this.downscale = settings.downscale;
+            }
         },
 
         reload: function(data, hdrmod) {
@@ -547,16 +552,17 @@
                     delete hdrmod["timestamp"];
                 }
 
-                // If the subsize changes, we need to invalidate the buffer
+                // If the subsize changes, we need to invalidate the buffer and image
                 if ((hdrmod.subsize) && (hdrmod.subsize !== this.hcb.subsize)) {
                     this.hcb.subsize = hdrmod.subsize;
                     if (this.hcb.pipe && !Gx.p_cuts) {
                         this.buf = this.hcb.createArray(null, 0, this.hcb.subsize * this.hcb.spa);
                         this.zbuf = new m.PointArray(this.hcb.subsize);
-
+                        this.img = undefined;
                     } else {
                         this.buf = this.hcb.createArray(null, 0, this.lps * this.hcb.subsize * this.hcb.spa);
                         this.zbuf = new m.PointArray(this.lps * this.hcb.subsize);
+                        this.img = undefined;
                     }
                     rescale = true;
                 }
@@ -978,7 +984,7 @@
 
             // if there is an image, render it
             if (this.img) {
-                mx.draw_image(Mx, this.img, this.xmin, this.ymin, this.xmax, this.ymax, this.opacity, Gx.rasterSmoothing);
+                mx.draw_image(Mx, this.img, this.xmin, this.ymin, this.xmax, this.ymax, this.opacity, Gx.rasterSmoothing, this.downscale);
             }
 
             // render the scrolling pipe line
