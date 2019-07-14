@@ -6168,3 +6168,197 @@ interactiveTest('Plot Note Change Settings', 'Do you see the plot note saying "T
         note: 'Test Note'
     });
 });
+interactiveTest('Raster downscale max', 'Do you see two red lines in the middle?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
+    plot.change_settings({
+        cmode: 'LO',
+        autol: 5
+    });
+
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 0,
+        file_name: "random",
+        xstart: null,
+        xdelta: null
+    }, {
+        downscale: "max"
+    });
+
+    var hdl = window.setInterval(function() {
+        var random = [];
+        var framesize = 32768;
+        for (var i = 0; i < framesize; i += 1) {
+            random.push(Math.random() + 100);
+        }
+        random[500] = 1;
+        random[15990] = 1000;
+        random[15991] = 100;
+        random[15992] = 100;
+        random[15993] = 100;
+        random[15995] = 100;
+        random[15996] = 100;
+        random[15997] = 100;
+        random[15998] = 100;
+        random[15999] = 1000;
+        random[16000] = 1000;
+        random[16001] = 1000;
+        random[16002] = 1000;
+        random[18000] = 1000;
+
+        plot.push(0, random, {
+            subsize: framesize,
+            xstart: 5e6,
+            xdelta: 10
+        });
+    }, 300);
+});
+interactiveTest('Raster downscale min', 'Do you see one black line on the left?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
+    plot.change_settings({
+        cmode: 'LO',
+        autol: 5
+    });
+
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 0,
+        file_name: "random",
+        xstart: null,
+        xdelta: null
+    }, {
+        downscale: "min"
+    });
+
+    var hdl = window.setInterval(function() {
+        var random = [];
+        var framesize = 32768;
+        for (var i = 0; i < framesize; i += 1) {
+            random.push(Math.random() + 50);
+        }
+        random[500] = 1;
+        random[15990] = 1000;
+        random[15991] = 100;
+        random[15992] = 100;
+        random[15993] = 100;
+        random[15995] = 100;
+        random[15996] = 100;
+        random[15997] = 100;
+        random[15998] = 100;
+        random[15999] = 1000;
+        random[16000] = 1000;
+        random[16001] = 1000;
+        random[16002] = 1000;
+        random[18000] = 1000;
+
+        plot.push(0, random, {
+            subsize: framesize,
+            xstart: 5e6,
+            xdelta: 10
+        });
+    }, 300);
+});
+interactiveTest('Raster downscale minmax', 'Do you see one black line on the left and two red lines in the middle?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
+    plot.change_settings({
+        cmode: 'LO',
+        autol: 5
+    });
+
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 0,
+        file_name: "random",
+        xstart: null,
+        xdelta: null
+    }, {
+        downscale: "minmax"
+    });
+
+    var hdl = window.setInterval(function() {
+        var random = [];
+        var framesize = 32768;
+        for (var i = 0; i < framesize; i += 1) {
+            random.push(Math.random() + 50);
+        }
+        random[500] = 1;
+        random[15990] = 1000;
+        random[15991] = 100;
+        random[15992] = 100;
+        random[15993] = 100;
+        random[15995] = 100;
+        random[15996] = 100;
+        random[15997] = 100;
+        random[15998] = 100;
+        random[15999] = 1000;
+        random[16000] = 1000;
+        random[16001] = 1000;
+        random[16002] = 1000;
+        random[18000] = 1000;
+
+        plot.push(0, random, {
+            subsize: framesize,
+            xstart: 5e6,
+            xdelta: 10
+        });
+
+    }, 300);
+});
+interactiveTest('Raster change settings after overlay', 'Do you see two red lines in the middle?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+
+    plot.overlay_pipe({
+        type: 2000,
+        subsize: 0,
+        file_name: "random",
+        xstart: null,
+        xdelta: null
+    }, {
+        downscale: "max"
+    });
+
+    plot.change_settings({
+        cmode: 'LO'
+        //autol: 5
+    });
+
+    var hdl = window.setInterval(function() {
+        var random = [];
+        var framesize = 32768;
+        for (var i = 0; i < framesize; i += 1) {
+            random.push(Math.random() + 100);
+        }
+        random[500] = 1;
+        random[15990] = 1000;
+        random[15991] = 100;
+        random[15992] = 100;
+        random[15993] = 100;
+        random[15995] = 100;
+        random[15996] = 100;
+        random[15997] = 100;
+        random[15998] = 100;
+        random[15999] = 1000;
+        random[16000] = 1000;
+        random[16001] = 1000;
+        random[16002] = 1000;
+        random[18000] = 1000;
+
+        plot.push(0, random, {
+            subsize: framesize,
+            xstart: 5e6,
+            xdelta: 10
+        });
+
+    }, 300);
+});

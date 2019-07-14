@@ -173,14 +173,24 @@
              } : null;
          },
          getColor: function(number) {
-             var n = (number - this._low) * this._fscale;
-             var colorindex = ~~n; //make int fastest method
-             if (colorindex > this.map.length - 1) {
-                 colorindex = this.map.length - 1;
-             } else if (colorindex < 0) {
-                 colorindex = 0;
-             }
+             var colorindex = this.getColorIndex(number);
              return this.map[colorindex];
+         },
+         getColorByIndex: function(colorindex) {
+            return this.map[colorindex];
+         },
+         getColorIndex: function(number) {
+            var n = (number - this._low) * this._fscale;
+            var colorindex = ~~n; //make int fastest method
+            if (colorindex > this.map.length - 1) {
+                colorindex = this.map.length - 1;
+            } else if (colorindex < 0) {
+                colorindex = 0;
+            }
+            return colorindex;
+         },
+         getNColors : function() {
+             return this.map.length;
          },
          setRange: function(low, high) {
              // only recalculate if a value has changed

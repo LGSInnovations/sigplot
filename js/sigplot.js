@@ -6719,6 +6719,7 @@
         Gx.ydiv = o.ydiv === undefined ? 5 : o.ydiv;
 
         Gx.xcompression = o.xcmp || 0;
+        Gx.rasterDownscale = o.downscale || 0;
         Gx.rasterSmoothing = o.smoothing || false;
 
         Mx.origin = 1;
