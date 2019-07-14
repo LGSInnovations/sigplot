@@ -415,9 +415,6 @@
                 (settings.autoz !== undefined)) {
                 this.img = undefined;
             }
-            if (settings.cmap !== undefined) {
-                this.img = undefined;
-            }
             if ((settings.drawmode !== undefined) || (settings.xmin !== undefined) ||
                 (settings.xmax !== undefined) || (settings.xdelta !== undefined) ||
                 (settings.xstart !== undefined)) {
@@ -978,7 +975,7 @@
             Gx.ye = Math.max(1, Math.round(ry));
 
             // we might need to prep in certian situations
-            if ((!this.img) || (!this.buf) || (Gx.cmode !== this.img.cmode) || (Gx.cmap !== this.img.cmap) || (Mx.origin !== this.img.origin)) {
+            if ((!this.img) || (!this.buf) || (Gx.cmode !== this.img.cmode) || (Mx.origin !== this.img.origin)) {
                 this.prep(xmin, xmax);
             }
 
