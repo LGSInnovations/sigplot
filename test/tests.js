@@ -2324,6 +2324,20 @@ interactiveTest('sigplot 2d reload', 'Do you see a raster? Is alignment of x/y a
     ];
     plot.reload(lyr_n, data);
 });
+interactiveTest('sigplot 2d overlay ArrayBuffer', 'Do you see a raster? Is alignment of x/y axes correct?', function(assert) {
+    var container = document.getElementById('plot');
+    var plot = new sigplot.Plot(container, {});
+    assert.notEqual(plot, null);
+    var data = [];
+
+    var data = [
+        new Float32Array([1, 2, 3, 4, 5]),
+        new Float32Array([6, 7, 8, 9, 0]),
+        new Float32Array([1, 2, 3, 4, 5]),
+        new Float32Array([6, 7, 8, 9, 0])
+    ];
+    plot.overlay_array(data);
+});
 interactiveTest('sigplot triangle symbol', 'Do you see triangle symbols?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});

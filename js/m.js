@@ -584,7 +584,7 @@
         // Force type 2000 is subsize is specified
         if (hcb["subsize"] > 1) {
             hcb.type = 2000;
-        } else if (Array.isArray(data) && Array.isArray(data[0])) {
+        } else if (Array.isArray(data) && (Array.isArray(data[0]) || ArrayBuffer.isView(data[0]))) {
             //If this is a 2-D array automatically set subsize
             hcb.type = 2000;
             hcb.subsize = data[0].length;
