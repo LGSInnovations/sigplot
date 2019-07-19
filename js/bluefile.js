@@ -563,15 +563,32 @@
             if (length === undefined) {
                 length = buf.length || (buf.byteLength / _BPS[this.format[1]]);
             }
+
+            var result;
+
             if (buf) {
-                // Flatten 2-D array into 1-D
                 if (Array.isArray(buf) && Array.isArray(buf[0])) {
+                    // Flatten 2-D array into 1-D
                     buf = [].concat.apply([], buf);
+                    length = (buf.length * buf[0].length);
+                    result = new TypedArray(buf, offset, length);
+                } else if (Array.isArray(buf) && ArrayBuffer.isView(buf[0])) {
+                    // Flatten 2-D array of TypedArrays
+                    length = (buf.length * buf[0].length);
+                    result = new TypedArray(length);
+                    for (var ii = 0; ii < buf.length; ++ii) {
+                        result.set(buf[ii], ii * buf[0].length);
+                    }
+                } else {
+                    // basic 1-D array
+                    result = new TypedArray(buf, offset, length);
                 }
-                return new TypedArray(buf, offset, length);
             } else {
-                return new TypedArray(length);
+                // no initial data
+                result = new TypedArray(length);
             }
+
+            return result;
         }
     };
 
