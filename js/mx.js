@@ -5256,8 +5256,8 @@
         var dest = new Uint32Array(Mx.scaledImgd.data.buffer);
 
         // Scaling factor
-        var width_scaling = Math.floor(sw / w);
-        var height_scaling = Math.floor(sh / h);
+        var width_scaling = (sw / w);
+        var height_scaling = (sh / h);
 
         // Perform the scaling
         var xx = 0;

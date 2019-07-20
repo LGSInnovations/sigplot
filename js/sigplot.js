@@ -7952,7 +7952,7 @@
                     Gx.ymax = Math.max(Gx.ymax, ymax);
                 }
 
-                this.inPan = true; // prevent recursive pans
+                plot.inPan = true; // prevent recursive pans
                 var evt = document.createEvent('Event');
                 evt.initEvent('ypan', true, true);
                 evt.level = Mx.level;
@@ -7961,7 +7961,7 @@
                 evt.xmax = Mx.stk[Mx.level].xmax;
                 evt.ymax = Mx.stk[Mx.level].ymax;
                 mx.dispatchEvent(Mx, evt); // TODO should we allow pan to be cancelled?
-                this.inPan = false;
+                plot.inPan = false;
 
                 plot.refresh();
                 // MSGDO(MSK_PANY, Mx.level); // just sets plotinfo.xmin and
@@ -8014,7 +8014,7 @@
                     Gx.xmax = Mx.stk[1].xmax;
                 }
 
-                this.inPan = true; // prevent recursive pans
+                plot.inPan = true; // prevent recursive pans
                 var evt = document.createEvent('Event');
                 evt.initEvent('xpan', true, true);
                 evt.level = Mx.level;
@@ -8023,7 +8023,7 @@
                 evt.xmax = Mx.stk[Mx.level].xmax;
                 evt.ymax = Mx.stk[Mx.level].ymax;
                 mx.dispatchEvent(Mx, evt); // TODO should we allow pan to be cancelled?
-                this.inPan = false;
+                plot.inPan = false;
 
                 plot.refresh();
                 // MSGDO (MSK_PANX, Mx.level); // just sets plotinfo.xmin and
@@ -8100,7 +8100,7 @@
         updateViewbox(plot, scrollbar.smin, scrollbar.smin + scrollbar.srange,
             scrollAction.slice(0, 1));
 
-        this.inPan = true; // prevent recursive pans
+        plot.inPan = true; // prevent recursive pans
         var evt = document.createEvent('Event');
         if (scrollAction === "XPAN") {
             evt.initEvent('xpan', true, true);
@@ -8113,7 +8113,7 @@
         evt.xmax = Mx.stk[Mx.level].xmax;
         evt.ymax = Mx.stk[Mx.level].ymax;
         mx.dispatchEvent(Mx, evt); // TODO should we allow pan to be cancelled?
-        this.inPan = false;
+        plot.inPan = false;
 
         scrollbar.action = 0; // TODO New step - reset action of the scrollbar
         // after drag is done...
@@ -8877,7 +8877,7 @@
         updateViewbox(plot, scrollbar.smin, scrollbar.smin + scrollbar.srange,
             direction.slice(0, 1));
 
-        this.inPan = true; // prevent recursive pans
+        plot.inPan = true; // prevent recursive pans
         var evt = document.createEvent('Event');
         if (direction === "XPAN") {
             evt.initEvent('xpan', true, true);
@@ -8890,7 +8890,7 @@
         evt.xmax = Mx.stk[Mx.level].xmax;
         evt.ymax = Mx.stk[Mx.level].ymax;
         mx.dispatchEvent(Mx, evt); // TODO should we allow pan to be cancelled?
-        this.inPan = false;
+        plot.inPan = false;
 
     }
 

@@ -6327,31 +6327,39 @@ interactiveTest('Raster downscale minmax', 'Do you see one black line on the lef
 
     }, 300);
 });
-interactiveTest('Raster change settings after overlay', 'Do you see two red lines in the middle?', function(assert) {
+interactiveTest('Raster downscale minmax zoom', 'Do you see a line at 16000 and 18000?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
 
+    plot.change_settings({
+        cmode: 'LO',
+        autol: 5
+    });
+
     plot.overlay_pipe({
         type: 2000,
         subsize: 0,
-        file_name: "random",
-        xstart: null,
-        xdelta: null
+        file_name: "random"
     }, {
-        downscale: "max"
+        downscale: "minmax"
     });
 
-    plot.change_settings({
-        cmode: 'LO'
-        //autol: 5
+    window.setTimeout(function() {
+        plot.zoom({
+            x: 15000,
+            y: 5
+        }, {
+            x: 19000,
+            y: 25
+        });
     });
 
     var hdl = window.setInterval(function() {
         var random = [];
         var framesize = 32768;
         for (var i = 0; i < framesize; i += 1) {
-            random.push(Math.random() + 100);
+            random.push(Math.random() + 50);
         }
         random[500] = 1;
         random[15990] = 1000;
@@ -6370,8 +6378,6 @@ interactiveTest('Raster change settings after overlay', 'Do you see two red line
 
         plot.push(0, random, {
             subsize: framesize,
-            xstart: 5e6,
-            xdelta: 10
         });
 
     }, 300);
