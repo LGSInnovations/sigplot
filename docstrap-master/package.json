@@ -36,6 +36,6 @@
   },
   "main": "./template/publish.js",
   "dependencies": {
-    "moment": "~2.6.0"
+    "moment": "~2.24.0"
   }
 }
