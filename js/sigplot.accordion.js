@@ -27,485 +27,519 @@
 (function() {
     var m = require("./m");
     var mx = require("./mx");
+    var plugin = require("./sigplot.plugin");
     /**
      * @constructor
      * @param options
      * @returns {AccordionPlugin}
      */
-    var AccordionPlugin = function(options) {
-        this.options = (options !== undefined) ? options : {};
-        if (this.options.display === undefined) {
-            this.options.display = true;
-        }
-        if (this.options.center_line_style === undefined) {
-            this.options.center_line_style = {};
-        }
-        if (this.options.edge_line_style === undefined) {
-            this.options.edge_line_style = {};
-        }
-        if (this.options.fill_style === undefined) {
-            this.options.fill_style = {};
-        }
-        if (this.options.direction === undefined) {
-            this.options.direction = "vertical";
-        }
-        /**
-         * In absolute mode, center and width are expressed in
-         * real wold coordinates. In relative mode, center and width
-         * are expressed as percentages (0 to 1.0) of the width or
-         * height of the plot at the current zoom level
-         */
-        if (this.options.mode === undefined) {
-            this.options.mode = "absolute";
-        }
-        this.center = undefined; // In real units
-        this.width = undefined; // In real units
-        this.center_location = undefined; // In pixels
-        this.loc_1 = undefined; // In pixels
-        this.loc_2 = undefined;
-        this.visible = true;
-    };
-    AccordionPlugin.prototype = {
-        init: function(plot) {
-            this.plot = plot;
-            var Mx = this.plot._Mx;
-            var self = this;
-            this.onmousemove = function(evt) {
-                // Ignore if the slider isn't even visible
-                if (self.center_location === undefined) {
-                    return;
-                }
-                // Or if the user wants to prevent all drag operation
-                if (self.options.prevent_drag) {
-                    return;
-                }
-                // Ignore if the mouse is outside of the plot area
-                if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) {
-                    self.set_highlight(false);
-                    return;
-                }
-                if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) {
-                    self.set_highlight(false);
-                    return;
-                }
-                // If the mouse is close, "highlight" the line
-                var lineWidth = (self.options.center_line_style.lineWidth !== undefined) ? self.options.center_line_style.lineWidth : 1;
-                var elineWidth = (self.options.edge_line_style.lineWidth !== undefined) ? self.options.edge_line_style.lineWidth : 1;
-                if (!self.dragging && !self.edge_dragging) {
-                    if (Mx.warpbox) {
-                        return;
-                    } // Don't highlight if a warpbox is being drawn
-                    if (self.options.direction === "vertical") {
-                        if (!self.options.prevent_move) {
-                            if (Math.abs(self.center_location - evt.xpos) < (lineWidth + 5)) {
-                                self.set_highlight(true);
-                            } else {
-                                self.set_highlight(false);
-                            }
-                        }
-                        if (!self.options.prevent_resize) {
-                            if ((Math.abs(self.loc_1 - evt.xpos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.xpos) < (elineWidth + 5))) {
-                                self.set_edge_highlight(true);
-                            } else {
-                                self.set_edge_highlight(false);
-                            }
-                        }
-                    } else if (self.options.direction === "horizontal") {
-                        if (!self.options.prevent_move) {
-                            if (Math.abs(self.center_location - evt.ypos) < (lineWidth + 5)) {
-                                self.set_highlight(true);
-                            } else {
-                                self.set_highlight(false);
-                            }
-                        }
-                        if (!self.options.prevent_resize) {
-                            if ((Math.abs(self.loc_1 - evt.ypos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.ypos) < (elineWidth + 5))) {
-                                self.set_edge_highlight(true);
-                            } else {
-                                self.set_edge_highlight(false);
-                            }
-                        }
-                    }
-                    return;
-                }
-                if (self.dragging) {
-                    // If we are dragging, update the slider location
-                    var pos = mx.pixel_to_real(Mx, evt.xpos, evt.ypos);
-                    if (self.options.direction === "vertical") {
-                        self.center_location = evt.xpos;
-                        if (self.options.mode === 'absolute') {
-                            self.center = pos.x;
-                        } else if (self.options.mode === 'relative') {
-                            self.center = (evt.xpos - Mx.l) / (Mx.r - Mx.l);
-                        }
-                    } else if (self.options.direction === "horizontal") {
-                        self.center_location = evt.ypos;
-                        if (self.options.mode === 'absolute') {
-                            self.center = pos.y;
-                        } else if (self.options.mode === 'relative') {
-                            self.center = (evt.ypos - Mx.t) / (Mx.b - Mx.t);
-                        }
-                    }
-                }
-                if (self.edge_dragging) {
-                    // If we are dragging, update the slider location
-                    var pos = mx.pixel_to_real(Mx, evt.xpos, evt.ypos);
-                    if (self.options.direction === "vertical") {
-                        if (self.options.mode === 'absolute') {
-                            self.width = 2 * Math.abs(self.center - pos.x);
-                        } else if (self.options.mode === 'relative') {
-                            self.width = (2 * Math.abs(self.center_location - evt.xpos)) / (Mx.r - Mx.l);
-                        }
-                    } else if (self.options.direction === "horizontal") {
-                        if (self.options.mode === 'absolute') {
-                            self.width = 2 * Math.abs(self.center - pos.y);
-                        } else if (self.options.mode === 'relative') {
-                            self.width = (2 * Math.abs(self.center_location - evt.ypos)) / (Mx.b - Mx.t);
-                        }
-                    }
-                    // See if the width needs to be constrained
-                    if (self.options.discrete_widths) {
-                        // If the user wants to restrict the accordion to a set of
-                        // discrete widths, find the closest match
-                        var nearestIdx = 0;
-                        var minDiff = Math.abs(self.width - self.options.discrete_widths[0]);
-                        var tmpDiff = 0;
-                        for (var idx = 1; idx < self.options.discrete_widths.length; idx++) {
-                            tmpDiff = Math.abs(self.width - self.options.discrete_widths[idx]);
-                            if (tmpDiff < minDiff) {
-                                nearestIdx = idx;
-                                minDiff = tmpDiff;
-                            }
-                        }
-                        self.width = self.options.discrete_widths[nearestIdx];
-                    } else {
-                        // Otherwise, apply min_width/max_width if defined
-                        if (self.options.min_width) {
-                            self.width = Math.max(self.width, self.options.min_width);
-                        }
-                        if (self.options.max_width) {
-                            self.width = Math.min(self.width, self.options.max_width);
-                        }
-                    }
-                }
-                // Refresh the plot
-                if (self.plot) {
-                    self.plot.refresh(); // rate limit?
-                }
-                // Prevent any other plot default action at this point
-                evt.preventDefault();
-            };
-            this.plot.addListener("mmove", this.onmousemove);
-            this.onmousedown = function(evt) {
-                if (self.center_location === undefined) {
-                    return;
-                }
-                if (self.options.prevent_drag) {
-                    return;
-                }
-                if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) {
-                    return;
-                }
-                if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) {
-                    return;
-                }
-                var lineWidth = (self.options.center_line_style.lineWidth !== undefined) ? self.options.center_line_style.lineWidth : 1;
-                var elineWidth = (self.options.edge_line_style.lineWidth !== undefined) ? self.options.edge_line_style.lineWidth : 1;
-                if (self.options.direction === "vertical") {
-                    // prefer edge drag over center drag
-                    if ((Math.abs(self.loc_1 - evt.xpos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.xpos) < (elineWidth + 5))) {
-                        self.edge_dragging = !self.options.prevent_resize;
-                        evt.preventDefault();
-                    } else if (Math.abs(self.center_location - evt.xpos) < (lineWidth + 5)) {
-                        self.dragging = !self.options.prevent_move;
-                        evt.preventDefault();
-                    }
-                } else if (self.options.direction === "horizontal") {
-                    if ((Math.abs(self.loc_1 - evt.ypos) < (elineWidth + 5)) || (Math.abs(self.loc_2 - evt.ypos) < (elineWidth + 5))) {
-                        self.edge_dragging = !self.options.prevent_resize;
-                        evt.preventDefault();
-                    } else if (Math.abs(self.center_location - evt.ypos) < (lineWidth + 5)) {
-                        self.dragging = !self.options.prevent_move;
-                        evt.preventDefault();
-                    }
-                }
-            };
-            this.plot.addListener("mdown", this.onmousedown);
-            this.onmouseup = function(evt) {
-                // We are no longer dragging
-                self.dragging = false;
-                self.edge_dragging = false;
-                // Issue a slider tag event
-                var evt = document.createEvent('Event');
-                evt.initEvent('accordiontag', true, true);
-                evt.center = self.center;
-                evt.width = self.width;
-                mx.dispatchEvent(Mx, evt);
-                self.emit('change', {
-                    center: self.center,
-                    width: self.width
-                });
-            };
-            document.addEventListener("mouseup", this.onmouseup, false);
-        },
-        addListener: function(what, callback) {
-            var Mx = this.plot._Mx;
-            mx.addEventListener(Mx, what, callback, false);
-        },
-        removeListener: function(what, callback) {
-            var Mx = this.plot._Mx;
-            mx.removeEventListener(Mx, what, callback, false);
-        },
-        on: function(type, fn, context) {
-            if (!this._events) {
-                this._events = {};
-            }
-            if (!this._events[type]) {
-                this._events[type] = [];
-            }
-            if (context === this) {
-                // Less memory footprint.
-                context = undefined;
-            }
-            this._events[type].push({
-                cb: fn,
-                ctx: context
+    class AccordionPlugin extends plugin.Plugin {
+        pluginSetup() {
+            this.defineProperty("center_line_style", {
+                defaultValue: {},
+                refreshOnChange: true
             });
-        },
-        emit: function(type, data) {
-            var event = Object.assign({}, data, {
-                type: type,
-                target: this
+            this.defineProperty("edge_line_style", {
+                defaultValue: {},
+                refreshOnChange: true
             });
-            if (this._events) {
-                var listeners = this._events[type];
-                if (listeners) {
-                    for (var i = 0, len = listeners.length; i < len; i++) {
-                        var l = listeners[i];
-                        l.cb.call(l.ctx || this, event);
-                    }
-                }
-            }
-            return this;
-        },
-        off: function(type, fn, context) {
-            var listeners,
-                i,
-                len;
-            if (!type) {
-                // clear all listeners if called without arguments
-                delete this._events;
-            }
-            if (!this._events) {
+            this.defineProperty("fill_style", {
+                defaultValue: {},
+                refreshOnChange: true
+            });
+            this.defineProperty("direction", {
+                defaultValue: "vertical",
+                refreshOnChange: true
+            });
+            this.defineProperty("mode", {
+                defaultValue: "absolute",
+                refreshOnChange: true
+            });
+            this.defineProperty("draw_center_line", {
+                defaultValue: true,
+                refreshOnChange: true
+            });
+            this.defineProperty("prevent_drag", {
+                defaultValue: false,
+                refreshOnChange: true
+            });
+            this.defineProperty("prevent_move", {
+                defaultValue: false,
+                refreshOnChange: true
+            });
+            this.defineProperty("prevent_resize", {
+                defaultValue: false,
+                refreshOnChange: true
+            });
+            this.defineProperty("discrete_widths", {
+                defaultValue: undefined,
+                refreshOnChange: true
+            });
+            this.defineProperty("min_width", {
+                defaultValue: undefined,
+                refreshOnChange: true
+            });
+            this.defineProperty("max_width", {
+                defaultValue: undefined,
+                refreshOnChange: true
+            });
+            this.defineProperty("shade_area", {
+                defaultValue: undefined,
+                refreshOnChange: true
+            });
+            this.defineProperty("draw_edge_lines", {
+                defaultValue: true,
+                refreshOnChange: true
+            });
+            this.defineProperty("draw_center_line", {
+                defaultValue: true,
+                refreshOnChange: true
+            });
+            this.defineProperty("center", {
+                refreshOnChange: true,
+                callback: (value) => {
+                    this._onCenterChange(value);
+                },
+                help: "center of the accordion in plot units (not pixels)"
+            });
+            this.defineProperty("highlight", {
+                refreshOnChange: true,
+                help: "highlight the center of the accordion"
+            });
+            this.defineProperty("edge_highlight", {
+                refreshOnChange: true,
+                help: "highlight the edges of the accordion"
+            });
+            this.defineProperty("width", {
+                refreshOnChange: true,
+                callback: (value) => {
+                    this._onWidthChange(value);
+                },
+                help: "width of the accordion in plot units (not pixels)"
+            });
+            this.defineProperty("center_location", {
+                refreshOnChange: true,
+                help: "center of the accordion in pixels"
+            });
+            this.defineProperty("loc_1", {
+                refreshOnChange: true,
+                help: "location of one of the accordion bars in pixels"
+            });
+            this.defineProperty("loc_2", {
+                refreshOnChange: true,
+                help: "location of one of the accordion bars in pixels"
+            });
+        }
+
+        pluginInit() {
+            this.addListener("mmove", (evt) => {
+                this._onMouseMove(evt);
+            });
+            this.addListener("mdown", (evt) => {
+                this._onMouseDown(evt);
+            });
+            document.addEventListener("mouseup", () => {
+                this._onDocMouseUp();
+            }, false);
+        }
+
+        pluginDispose() {}
+
+        pluginRefresh() {
+            if ((this.properties.center === undefined) || (this.properties.width === undefined)) {
                 return;
             }
-            listeners = this._events[type];
-            if (!listeners) {
-                return;
-            }
-            if (context === this) {
-                context = undefined;
-            }
-            if (listeners) {
-                // find fn and remove it
-                for (i = 0, len = listeners.length; i < len; i++) {
-                    var l = listeners[i];
-                    if (l.ctx !== context) {
-                        continue;
-                    }
-                    if (l.fn === fn) {
-                        listeners.splice(i, 1);
-                        return;
-                    }
-                }
-            }
-            return this;
-        },
-        set_highlight: function(ishighlight) {
-            if (ishighlight !== this.highlight) {
-                this.highlight = ishighlight;
-                this.plot.redraw();
-            }
-        },
-        set_edge_highlight: function(ishighlight) {
-            if (ishighlight !== this.edge_highlight) {
-                this.edge_highlight = ishighlight;
-                this.plot.redraw();
-            }
-        },
-        set_center: function(center) {
-            var self = this;
-            this.center = center;
-            if (this.plot) {
-                var Mx = this.plot._Mx;
-                // Issue a slider tag event
-                var evt = document.createEvent('Event');
-                evt.initEvent('accordiontag', true, true);
-                this.emit('change', {
-                    center: self.center,
-                    width: self.width
-                });
-                evt.center = this.center;
-                evt.width = this.width;
-                mx.dispatchEvent(Mx, evt);
-                this.plot.redraw();
-            }
-        },
-        mimic: function(acc) {
-            var self = this;
-            if (acc instanceof AccordionPlugin) {
-                acc.on("change", function(evt) {
-                    self.width = evt.width;
-                    self.center = evt.center;
-                    self.plot.redraw();
-                });
-            }
-        },
-        set_width: function(width) {
-            var self = this;
-            this.width = width;
-            if (this.plot) {
-                var Mx = this.plot._Mx;
-                // Issue a slider tag event
-                var evt = document.createEvent('Event');
-                evt.initEvent('accordiontag', true, true);
-                this.emit('change', {
-                    center: self.center,
-                    width: self.width
-                });
-                evt.center = this.center;
-                evt.width = this.width;
-                mx.dispatchEvent(Mx, evt);
-                this.plot.redraw();
-            }
-        },
-        get_center: function() { // In real units
-            return this.center;
-        },
-        get_width: function() { // Pixels
-            return this.width;
-        },
-        refresh: function(canvas) {
-            if (!this.plot || !this.visible) {
-                return;
-            }
-            if (!this.options.display) {
-                return;
-            }
-            if ((this.center === undefined) || (this.width === undefined)) {
-                return;
-            }
-            var Mx = this.plot._Mx;
-            var ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            var center_pxl;
-            if (this.options.mode === "absolute") {
-                center_pxl = mx.real_to_pixel(Mx, this.center, this.center);
-            } else if (this.options.mode === "relative") {
-                if (this.options.direction === "vertical") {
-                    var c = Mx.stk[0].x1 + (Mx.stk[0].x2 - Mx.stk[0].x1) * this.center;
+            let Mx = this.Mx;
+            let ctx = this.Context;
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            let center_pxl;
+            if (this.properties.mode === "absolute") {
+                center_pxl = mx.real_to_pixel(Mx, this.properties.center, this.properties.center);
+            } else if (this.properties.mode === "relative") {
+                if (this.properties.direction === "vertical") {
+                    let c = Mx.stk[0].x1 + (Mx.stk[0].x2 - Mx.stk[0].x1) * this.properties.center;
                     center_pxl = mx.real_to_pixel(Mx, mx.pixel_to_real(Mx, c, c).x, mx.pixel_to_real(Mx, c, c).y);
-                } else if (this.options.direction === "horizontal") {
-                    var c = Mx.stk[0].y1 + (Mx.stk[0].y2 - Mx.stk[0].y1) * this.center;
+                } else if (this.properties.direction === "horizontal") {
+                    let c = Mx.stk[0].y1 + (Mx.stk[0].y2 - Mx.stk[0].y1) * this.properties.center;
                     center_pxl = mx.real_to_pixel(Mx, mx.pixel_to_real(Mx, c, c).x, mx.pixel_to_real(Mx, c, c).y);
                 }
             }
-            var pxl_1, pxl_2;
-            if (this.options.mode === "absolute") {
-                pxl_1 = mx.real_to_pixel(Mx, this.center - (this.width / 2), this.center - (this.width / 2));
-                pxl_2 = mx.real_to_pixel(Mx, this.center + (this.width / 2), this.center + (this.width / 2));
-            } else if (this.options.mode === 'relative') {
-                var w = Mx.stk[0].x2 - Mx.stk[0].x1;
-                var h = Mx.stk[0].y2 - Mx.stk[0].y1;
+
+            let pxl_1, pxl_2;
+            if (this.properties.mode === "absolute") {
+                pxl_1 = mx.real_to_pixel(Mx, this.properties.center - (this.properties.width / 2), this.properties.center - (this.properties.width / 2));
+                pxl_2 = mx.real_to_pixel(Mx, this.properties.center + (this.properties.width / 2), this.properties.center + (this.properties.width / 2));
+            } else if (this.properties.mode === 'relative') {
+                let w = Mx.stk[0].x2 - Mx.stk[0].x1;
+                let h = Mx.stk[0].y2 - Mx.stk[0].y1;
                 pxl_1 = {
-                    x: center_pxl.x - (this.width * w / 2),
-                    y: center_pxl.y - (this.width * h / 2)
+                    x: center_pxl.x - (this.properties.width * w / 2),
+                    y: center_pxl.y - (this.properties.width * h / 2)
                 };
                 pxl_2 = {
-                    x: center_pxl.x + (this.width * w / 2),
-                    y: center_pxl.y + (this.width * h / 2)
+                    x: center_pxl.x + (this.properties.width * w / 2),
+                    y: center_pxl.y + (this.properties.width * h / 2)
                 };
             }
-            if (this.options.direction === "vertical") {
-                this.center_location = center_pxl.x;
-                this.loc_1 = Math.max(Mx.l, pxl_1.x);
-                this.loc_2 = Math.min(Mx.r, pxl_2.x);
-            } else if (this.options.direction === "horizontal") {
-                this.center_location = center_pxl.y;
-                this.loc_1 = Math.max(Mx.t, pxl_2.y);
-                this.loc_2 = Math.min(Mx.b, pxl_1.y);
+            if (this.properties.direction === "vertical") {
+                this.properties.center_location = center_pxl.x;
+                this.properties.loc_1 = Math.max(Mx.l, pxl_1.x);
+                this.properties.loc_2 = Math.min(Mx.r, pxl_2.x);
+            } else if (this.properties.direction === "horizontal") {
+                this.properties.center_location = center_pxl.y;
+                this.properties.loc_1 = Math.max(Mx.t, pxl_2.y);
+                this.properties.loc_2 = Math.min(Mx.b, pxl_1.y);
             }
-            if (this.options.shade_area && (Math.abs(this.loc_2 - this.loc_1) > 0)) {
-                var oldAlpha = ctx.globalAlpha;
-                ctx.globalAlpha = (this.options.fill_style.opacity !== undefined) ? this.options.fill_style.opacity : 0.4;
-                ctx.fillStyle = (this.options.fill_style.fillStyle !== undefined) ? this.options.fill_style.fillStyle : Mx.hi;
-                if (this.options.direction === "vertical") {
-                    ctx.fillRect(this.loc_1, Mx.t, this.loc_2 - this.loc_1, Mx.b - Mx.t);
-                } else if (this.options.direction === "horizontal") {
-                    ctx.fillRect(Mx.l, this.loc_1, Mx.r - Mx.l, this.loc_2 - this.loc_1);
+
+            if (this.properties.shade_area && (Math.abs(this.properties.loc_2 - this.properties.loc_1) > 0)) {
+                let oldAlpha = ctx.globalAlpha;
+                ctx.globalAlpha = (this.properties.fill_style.opacity !== undefined) ? this.properties.fill_style.opacity : 0.4;
+                ctx.fillStyle = (this.properties.fill_style.fillStyle !== undefined) ? this.properties.fill_style.fillStyle : Mx.hi;
+                if (this.properties.direction === "vertical") {
+                    ctx.fillRect(this.properties.loc_1, Mx.t, this.properties.loc_2 - this.properties.loc_1, Mx.b - Mx.t);
+                } else if (this.properties.direction === "horizontal") {
+                    ctx.fillRect(Mx.l, this.properties.loc_1, Mx.r - Mx.l, this.properties.loc_2 - this.properties.loc_1);
                 }
                 ctx.globalAlpha = oldAlpha;
             }
-            if (this.options.draw_edge_lines || this.edge_highlight || this.edge_dragging) {
-                ctx.lineWidth = (this.options.edge_line_style.lineWidth !== undefined) ? this.options.edge_line_style.lineWidth : 1;
-                ctx.lineCap = (this.options.edge_line_style.lineCap !== undefined) ? this.options.edge_line_style.lineCap : "square";
-                ctx.strokeStyle = (this.options.edge_line_style.strokeStyle !== undefined) ? this.options.edge_line_style.strokeStyle : Mx.fg;
-                if (this.edge_dragging || this.edge_highlight) {
+
+            if (this.properties.draw_edge_lines || this.properties.edge_highlight || this.edge_dragging) {
+                ctx.lineWidth = (this.properties.edge_line_style.lineWidth !== undefined) ? this.properties.edge_line_style.lineWidth : 1;
+                ctx.lineCap = (this.properties.edge_line_style.lineCap !== undefined) ? this.properties.edge_line_style.lineCap : "square";
+                ctx.strokeStyle = (this.properties.edge_line_style.strokeStyle !== undefined) ? this.properties.edge_line_style.strokeStyle : Mx.fg;
+                if (this.edge_dragging || this.properties.edge_highlight) {
                     ctx.lineWidth = Math.ceil(ctx.lineWidth * 1.2);
                 }
-                if (this.options.direction === "vertical") {
+                if (this.properties.direction === "vertical") {
                     ctx.beginPath();
-                    ctx.moveTo(this.loc_1 + 0.5, Mx.t);
-                    ctx.lineTo(this.loc_1 + 0.5, Mx.b);
+                    ctx.moveTo(this.properties.loc_1 + 0.5, Mx.t);
+                    ctx.lineTo(this.properties.loc_1 + 0.5, Mx.b);
                     ctx.stroke();
                     ctx.beginPath();
-                    ctx.moveTo(this.loc_2 + 0.5, Mx.t);
-                    ctx.lineTo(this.loc_2 + 0.5, Mx.b);
+                    ctx.moveTo(this.properties.loc_2 + 0.5, Mx.t);
+                    ctx.lineTo(this.properties.loc_2 + 0.5, Mx.b);
                     ctx.stroke();
-                } else if (this.options.direction === "horizontal") {
+                } else if (this.properties.direction === "horizontal") {
                     ctx.beginPath();
-                    ctx.moveTo(Mx.l, this.loc_1 + 0.5);
-                    ctx.lineTo(Mx.r, this.loc_1 + 0.5);
+                    ctx.moveTo(Mx.l, this.properties.loc_1 + 0.5);
+                    ctx.lineTo(Mx.r, this.properties.loc_1 + 0.5);
                     ctx.stroke();
                     ctx.beginPath();
-                    ctx.moveTo(Mx.l, this.loc_2 + 0.5);
-                    ctx.lineTo(Mx.r, this.loc_2 + 0.5);
+                    ctx.moveTo(Mx.l, this.properties.loc_2 + 0.5);
+                    ctx.lineTo(Mx.r, this.properties.loc_2 + 0.5);
                     ctx.stroke();
                 }
             }
-            if (this.options.draw_center_line) {
-                ctx.lineWidth = (this.options.center_line_style.lineWidth !== undefined) ? this.options.center_line_style.lineWidth : 1;
-                ctx.lineCap = (this.options.center_line_style.lineCap !== undefined) ? this.options.center_line_style.lineCap : "square";
-                ctx.strokeStyle = (this.options.center_line_style.strokeStyle !== undefined) ? this.options.center_line_style.strokeStyle : Mx.fg;
-                if (this.dragging || this.highlight) {
+
+            if (this.properties.draw_center_line) {
+                ctx.lineWidth = (this.properties.center_line_style.lineWidth !== undefined) ? this.properties.center_line_style.lineWidth : 1;
+                ctx.lineCap = (this.properties.center_line_style.lineCap !== undefined) ? this.properties.center_line_style.lineCap : "square";
+                ctx.strokeStyle = (this.properties.center_line_style.strokeStyle !== undefined) ? this.properties.center_line_style.strokeStyle : Mx.fg;
+                if (this.dragging || this.properties.highlight) {
                     ctx.lineWidth = Math.ceil(ctx.lineWidth * 1.2);
                 }
-                if (this.options.direction === "vertical") {
+                if (this.properties.direction === "vertical") {
                     ctx.beginPath();
-                    ctx.moveTo(this.center_location + 0.5, Mx.t);
-                    ctx.lineTo(this.center_location + 0.5, Mx.b);
+                    ctx.moveTo(this.properties.center_location + 0.5, Mx.t);
+                    ctx.lineTo(this.properties.center_location + 0.5, Mx.b);
                     ctx.stroke();
-                } else if (this.options.direction === "horizontal") {
+                } else if (this.properties.direction === "horizontal") {
                     ctx.beginPath();
-                    ctx.moveTo(Mx.l, this.center_location + 0.5);
-                    ctx.lineTo(Mx.r, this.center_location + 0.5);
+                    ctx.moveTo(Mx.l, this.properties.center_location + 0.5);
+                    ctx.lineTo(Mx.r, this.properties.center_location + 0.5);
                     ctx.stroke();
                 }
             }
-        },
-        set_visible: function(isVisible) {
-            this.visible = isVisible;
-            this.plot.redraw();
-        },
-        set_mode: function(mode) {
-            this.options.mode = mode;
-        },
-        dispose: function() {
-            this.plot = undefined;
-            this.center = undefined;
-            this.center_location = undefined;
-            this.width = undefined;
         }
-    };
+
+        mimic(acc) {
+            if (acc instanceof AccordionPlugin) {
+                acc.on("change", (evt) => {
+                    this.properties.width = evt.width;
+                    this.properties.center = evt.center;
+                    this.plot.redraw();
+                });
+            }
+        }
+
+        _onMouseMove(evt) {
+            const Mx = this.Mx;
+
+            // Ignore if the slider isn't even visible
+            if (this.properties.center_location === undefined) {
+                return;
+            }
+            // Or if the user wants to prevent a drag operation
+            if (this.properties.prevent_drag) {
+                return;
+            }
+            // Ignore if the mouse is outside of the plot area
+            if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) {
+                this.properties.highlight = false;
+                return;
+            }
+            if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) {
+                this.properties.highlight = false;
+                return;
+            }
+            // If the mouse is close, "highlight" the line
+            let lineWidth = (this.properties.center_line_style.lineWidth !== undefined) ? this.properties.center_line_style.lineWidth : 1;
+            let elineWidth = (this.properties.edge_line_style.lineWidth !== undefined) ? this.properties.edge_line_style.lineWidth : 1;
+            if (!this.dragging && !this.edge_dragging) {
+                if (Mx.warpbox) {
+                    return;
+                } // Don't highlight if a warpbox is being drawn
+                if (this.properties.direction === "vertical") {
+                    if (!this.properties.prevent_move) {
+                        if (Math.abs(this.properties.center_location - evt.xpos) < (lineWidth + 5)) {
+                            this.properties.highlight = true;
+                        } else {
+                            this.properties.highlight = false;
+                        }
+                    }
+                    if (!this.properties.prevent_resize) {
+                        if ((Math.abs(this.properties.loc_1 - evt.xpos) < (elineWidth + 5)) || (Math.abs(this.properties.loc_2 - evt.xpos) < (elineWidth + 5))) {
+                            this.properties.edge_highlight = true;
+                        } else {
+                            this.properties.edge_highlight = false;
+                        }
+                    }
+                } else if (this.properties.direction === "horizontal") {
+                    if (!this.properties.prevent_move) {
+                        if (Math.abs(this.properties.center_location - evt.ypos) < (lineWidth + 5)) {
+                            this.properties.highlight = true;
+                        } else {
+                            this.properties.highlight = false;
+                        }
+                    }
+                    if (!this.properties.prevent_resize) {
+                        if ((Math.abs(this.properties.loc_1 - evt.ypos) < (elineWidth + 5)) || (Math.abs(this.properties.loc_2 - evt.ypos) < (elineWidth + 5))) {
+                            this.properties.edge_highlight = true;
+                        } else {
+                            this.properties.edge_highlight = false;
+                        }
+                    }
+                }
+                return;
+            }
+            if (this.dragging) {
+                // If we are dragging, update the slider location
+                var pos = mx.pixel_to_real(Mx, evt.xpos, evt.ypos);
+                if (this.properties.direction === "vertical") {
+                    this.properties.center_location = evt.xpos;
+                    if (this.properties.mode === 'absolute') {
+                        this.properties.center = pos.x;
+                    } else if (this.properties.mode === 'relative') {
+                        this.properties.center = (evt.xpos - Mx.l) / (Mx.r - Mx.l);
+                    }
+                } else if (this.properties.direction === "horizontal") {
+                    this.properties.center_location = evt.ypos;
+                    if (this.properties.mode === 'absolute') {
+                        this.properties.center = pos.y;
+                    } else if (this.properties.mode === 'relative') {
+                        this.properties.center = (evt.ypos - Mx.t) / (Mx.b - Mx.t);
+                    }
+                }
+            }
+            if (this.edge_dragging) {
+                // If we are dragging, update the slider location
+                var pos = mx.pixel_to_real(Mx, evt.xpos, evt.ypos);
+                if (this.properties.direction === "vertical") {
+                    if (this.properties.mode === 'absolute') {
+                        this.properties.width = 2 * Math.abs(this.properties.center - pos.x);
+                    } else if (this.properties.mode === 'relative') {
+                        this.properties.width = (2 * Math.abs(this.properties.center_location - evt.xpos)) / (Mx.r - Mx.l);
+                    }
+                } else if (this.properties.direction === "horizontal") {
+                    if (this.properties.mode === 'absolute') {
+                        this.properties.width = 2 * Math.abs(this.properties.center - pos.y);
+                    } else if (this.properties.mode === 'relative') {
+                        this.properties.width = (2 * Math.abs(this.properties.center_location - evt.ypos)) / (Mx.b - Mx.t);
+                    }
+                }
+                // See if the width needs to be constrained
+                if (this.properties.discrete_widths) {
+                    // If the user wants to restrict the accordion to a set of
+                    // discrete widths, find the closest match
+                    let nearestIdx = 0;
+                    let minDiff = Math.abs(this.properties.width - this.properties.discrete_widths[0]);
+                    let tmpDiff = 0;
+                    for (let idx = 1; idx < this.properties.discrete_widths.length; idx++) {
+                        tmpDiff = Math.abs(this.properties.width - this.properties.discrete_widths[idx]);
+                        if (tmpDiff < minDiff) {
+                            nearestIdx = idx;
+                            minDiff = tmpDiff;
+                        }
+                    }
+                    // Otherwise, apply min_width/max_width if defined
+                    if (this.properties.min_width) {
+                        this.properties.width = Math.max(this.properties.width, this.properties.min_width);
+                    }
+                    if (this.properties.max_width) {
+                        this.properties.width = Math.min(this.properties.width, this.properties.max_width);
+                    }
+                }
+            }
+            // Refresh the plot
+            if (this.plot) {
+                this.plot.refresh(); // rate limit?
+            }
+            // Prevent any other plot default action at this point
+            evt.preventDefault();
+        }
+
+        _onMouseDown(evt) {
+            const Mx = this.Mx;
+
+            if (this.properties.center_location === undefined) {
+                return;
+            }
+            if ((evt.xpos < Mx.l) || (evt.xpos > Mx.r)) {
+                return;
+            }
+            if ((evt.ypos > Mx.b) || (evt.ypos < Mx.t)) {
+                return;
+            }
+            if (this.properties.prevent_drag) {
+                return;
+            }
+            let lineWidth = (this.properties.center_line_style.lineWidth !== undefined) ? this.properties.center_line_style.lineWidth : 1;
+            let elineWidth = (this.properties.edge_line_style.lineWidth !== undefined) ? this.properties.edge_line_style.lineWidth : 1;
+            if (this.properties.direction === "vertical") {
+                // prefer edge drag over center drag
+                if ((Math.abs(this.properties.loc_1 - evt.xpos) < (elineWidth + 5)) || (Math.abs(this.properties.loc_2 - evt.xpos) < (elineWidth + 5))) {
+                    this.edge_dragging = !this.properties.prevent_resize;
+                    evt.preventDefault();
+                } else if (Math.abs(this.properties.center_location - evt.xpos) < (lineWidth + 5)) {
+                    this.dragging = !this.properties.prevent_move;
+                    evt.preventDefault();
+                }
+            } else if (this.properties.direction === "horizontal") {
+                if ((Math.abs(this.properties.loc_1 - evt.ypos) < (elineWidth + 5)) || (Math.abs(this.properties.loc_2 - evt.ypos) < (elineWidth + 5))) {
+                    this.edge_dragging = !this.properties.prevent_resize;
+                    evt.preventDefault();
+                } else if (Math.abs(this.properties.center_location - evt.ypos) < (lineWidth + 5)) {
+                    this.dragging = !this.properties.prevent_move;
+                    evt.preventDefault();
+                }
+            }
+        }
+
+        _onDocMouseUp() {
+            const Mx = this.Mx;
+
+            // We are no longer dragging
+            this.dragging = false;
+            this.edge_dragging = false;
+
+            // only emit an event if we are actually dragging
+            if (!this.dragging || !this.edge_dragging) {
+                return;
+            }
+
+            // Issue a slider tag event
+            let evt = document.createEvent('Event');
+            evt.initEvent('accordiontag', true, true);
+            evt.center = this.properties.center;
+            evt.width = this.properties.width;
+            mx.dispatchEvent(Mx, evt);
+            this.emit('change', {
+                center: this.properties.center,
+                width: this.properties.width
+            });
+        }
+
+        _onCenterChange(center) {
+            if (this.plot) {
+                var Mx = this.Mx;
+                // Issue a slider tag event
+                var evt = document.createEvent('Event');
+                evt.initEvent('accordiontag', true, true);
+                this.emit('change', {
+                    center: this.properties.center,
+                    width: this.properties.width
+                });
+                evt.center = this.properties.center;
+                evt.width = this.properties.width;
+                mx.dispatchEvent(Mx, evt);
+                this.plot.redraw();
+            }
+        }
+
+        _onWidthChange(width) {
+            if (this.plot) {
+                var Mx = this.Mx;
+                // Issue a slider tag event
+                var evt = document.createEvent('Event');
+                evt.initEvent('accordiontag', true, true);
+                this.emit('change', {
+                    center: this.properties.center,
+                    width: this.properties.width
+                });
+                evt.center = this.properties.center;
+                evt.width = this.properties.width;
+                mx.dispatchEvent(Mx, evt);
+                this.plot.redraw();
+            }
+        }
+
+        /**
+         * @deprecated use .center(value)
+         */
+        set_center(width) {
+            this.center(width);
+        }
+
+        /**
+         * @deprecated use .width(value)
+         */
+        set_width(width) {
+            this.width(width);
+        }
+
+        /**
+         * @deprecated use .highlight(value) instead
+         */
+        set_highlight(ishighlight) {
+            this.highlight(ishighlight);
+        }
+
+        /**
+         * @deprecated use .edge_highlight(value) instead
+         */
+        set_edge_highlight(ishighlight) {
+            this.edge_highlight(ishighlight);
+        }
+
+        /**
+         * @deprecated use .display(value)
+         */
+        set_visible(isVisible) {
+            this.display(false);
+        }
+
+        /**
+         * @deprecated use .mode(value)
+         */
+        set_mode(mode) {
+            this.mode(mode);
+        }
+
+        /**
+         * @deprecated use .center()
+         */
+        get_center() { // In real units
+            return this.properties.center();
+        }
+
+        /**
+         * @deprecated use .width()
+         */
+        get_width() { // Pixels
+            return this.properties.width();
+        }
+    }
+
     module.exports = AccordionPlugin;
 }());

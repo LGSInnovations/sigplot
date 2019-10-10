@@ -165,6 +165,7 @@ module.exports = function (grunt) {
                         'js/sigplot.accordion.js',
                         'js/sigplot.boxes.js',
                         'js/sigplot.playback.js',
+                        'js/sigplot.plugin.js',
                         'test/tests.js'
                 ],
                 options: {
@@ -187,6 +188,7 @@ module.exports = function (grunt) {
                         'js/sigplot.accordion.js',
                         'js/sigplot.boxes.js',
                         'js/sigplot.playback.js',
+                        'js/sigplot.plugin.js',
                         'test/tests.js'
                 ],
                 options: {
