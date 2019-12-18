@@ -12,7 +12,7 @@
     var data2 = null;
     var render;
 
-    var init = function (workbench, width, height) {
+    var init = function (workbench, width, height, numContainers=0) {
         
         // Getting container and context
         container = document.createElement('div');
@@ -29,26 +29,28 @@
         container.style.position = "absolute";
         container.style.left = (workbench.clientWidth - width) / 2 + "px";
         container.style.top = (workbench.clientHeight - height) / 2 + "px";
+        if (numContainers > 1) {
 
-        container2 = document.createElement('div');
-        workbench.appendChild(container2);
+            container2 = document.createElement('div');
+            workbench.appendChild(container2);
 
 
-        // Setting hardware scaling
-        container2.width = width;
-        container2.style.width = width+'px';
-        container2.height = height;
-        container2.style.height = height+'px';
+            // Setting hardware scaling
+            container2.width = width;
+            container2.style.width = width+'px';
+            container2.height = height;
+            container2.style.height = height+'px';
 
-        // Position
-        container2.style.position = "relative";
-        container2.style.left = (workbench.clientWidth - width) / 2 + "px";
-        container2.style.top = (workbench.clientHeight - height) / 2 + "px";
+            // Position
+            container2.style.position = "relative";
+            container2.style.left = (workbench.clientWidth - width) / 2 + "px";
+            container2.style.top = (workbench.clientHeight - height) / 2 + "px";
+        }
     };
 
     var refreshLoop = function() {
         plot._refresh();
-        plot2.refresh()
+        plot2 && plot2.refresh()
         if (render) { // Run again
             POTATOES.Tools.queueNewFrame(refreshLoop);
         } else { // Cleanup
@@ -241,8 +243,8 @@
     POTATOES.GamingBench.registerBench(Layer2DMediumPushBench);
     
     var Layer2DLargePushBench = new POTATOES.GamingBench.Bench("Streaming 2D 2 plots (256k points)", "http://sigplot.lgsinnovations.com/sigplot",
-        function (workbench) { // Init
-            init(workbench, 600, 200);
+        function (workbench,) { // Init
+            init(workbench, 600, 200, 2);
             plot = new sigplot.Plot(container, {all: true, expand: true});
             //If you uncomment this line, plot will not show any data
             // plot2 = new sigplot.Plot(container2, {all: true, expand: true});
