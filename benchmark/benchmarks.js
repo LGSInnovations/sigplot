@@ -41,7 +41,7 @@
         container2.style.height = height+'px';
 
         // Position
-        container2.style.position = "absolute";
+        container2.style.position = "relative";
         container2.style.left = (workbench.clientWidth - width) / 2 + "px";
         container2.style.top = (workbench.clientHeight - height) / 2 + "px";
     };
@@ -53,6 +53,8 @@
         } else { // Cleanup
             plot = null;
             data = null;
+            plot2 = null;
+            data2 = null;
         }
     };
     
@@ -62,7 +64,9 @@
             POTATOES.Tools.queueNewFrame(reloadLoop);
         } else { // Cleanup
             plot = null;
+            plot2 = null
             data = null;
+            data2 = null;
         }
     };
 
@@ -73,6 +77,8 @@
         } else { // Cleanup
             plot = null;
             data = null;
+            plot2 = null;
+            data2 = null;
         }
     };
 
