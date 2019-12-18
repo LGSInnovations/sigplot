@@ -48,6 +48,7 @@
 
     var refreshLoop = function() {
         plot._refresh();
+        plot2.refresh()
         if (render) { // Run again
             POTATOES.Tools.queueNewFrame(refreshLoop);
         } else { // Cleanup
