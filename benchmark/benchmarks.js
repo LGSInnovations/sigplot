@@ -12,7 +12,7 @@
     var data2 = null;
     var render;
 
-    var init = function (workbench, width, height, numContainers=0) {
+    var init = function (workbench, width, height, numContainers=1) {
         
         // Getting container and context
         container = document.createElement('div');
@@ -50,7 +50,7 @@
 
     var refreshLoop = function() {
         plot._refresh();
-        plot2 && plot2.refresh()
+        plot2 && plot2._refresh()
         if (render) { // Run again
             POTATOES.Tools.queueNewFrame(refreshLoop);
         } else { // Cleanup
