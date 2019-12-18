@@ -5,11 +5,15 @@
     /* global sigplot */
 
     var plot = null;
+    var plot2 = null;
     var container = null;
+    var container2 = null;
     var data = null;
+    var data2 = null;
     var render;
 
     var init = function (workbench, width, height) {
+        
         // Getting container and context
         container = document.createElement('div');
         workbench.appendChild(container);
@@ -25,6 +29,21 @@
         container.style.position = "absolute";
         container.style.left = (workbench.clientWidth - width) / 2 + "px";
         container.style.top = (workbench.clientHeight - height) / 2 + "px";
+
+        container2 = document.createElement('div');
+        workbench.appendChild(container2);
+
+
+        // Setting hardware scaling
+        container2.width = width;
+        container2.style.width = width+'px';
+        container2.height = height;
+        container2.style.height = height+'px';
+
+        // Position
+        container2.style.position = "absolute";
+        container2.style.left = (workbench.clientWidth - width) / 2 + "px";
+        container2.style.top = (workbench.clientHeight - height) / 2 + "px";
     };
 
     var refreshLoop = function() {
@@ -214,26 +233,41 @@
 
     POTATOES.GamingBench.registerBench(Layer2DMediumPushBench);
     
-    var Layer2DLargePushBench = new POTATOES.GamingBench.Bench("Streaming 2D (256k points)", "http://sigplot.lgsinnovations.com/sigplot",
+    var Layer2DLargePushBench = new POTATOES.GamingBench.Bench("Streaming 2D 2 plots (256k points)", "http://sigplot.lgsinnovations.com/sigplot",
         function (workbench) { // Init
-            init(workbench, 600, 400);
+            init(workbench, 600, 200);
             plot = new sigplot.Plot(container, {all: true, expand: true});
+            //If you uncomment this line, plot will not show any data
+            // plot2 = new sigplot.Plot(container2, {all: true, expand: true});
             plot._refresh(); // refresh now so that it displays while we wait for the initial data to be created
+            // plot2._refresh()
 
             plot.change_settings({
                 autol: 5,
             });
+            // plot2.change_settings({
+            //     autol: 5,
+            // });
     
             var framesize = 256*1024;
             data = [];
             for (var i = 0; i < framesize; i += 1) {
                 data.push(i + 1);
             }
+            // data2 = [];
+            // for (var i = 0; i < framesize; i += 1) {
+            //     data2.push(i + 1);
+            // }
             plot.overlay_pipe({
                 type: 2000,
                 subsize: framesize,
                 file_name: "data"
             });
+            // plot2.overlay_pipe({
+            //     type: 2000,
+            //     subsize: framesize,
+            //     file_name: "data2"
+            // });
             this.onInitCompleted();
         }, function () { // Run
             render = true;
