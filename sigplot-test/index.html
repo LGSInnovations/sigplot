@@ -1,0 +1,85 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sigplot/dist/sigplot-debug.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <title>SigPlot Test</title>
+    <style>
+        .container {
+            width: 600px;
+            height: 400px;
+        }
+    </style>  
+  </head>
+  <body>
+    <div class="row mt-2 mr-3 text-center horizontal-center">
+        <div class="col-md">
+            <h2><div class="text-center text-primary label label-default">Sigplot: Test Simultaneous Raster Rendering</div></h2>
+        </div>
+    </div>
+    <div class="row mt-2 mr-3 mx-auto">
+        <div class="col-md-2 offset-md-2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="inputGroupSelect01">Number of Plots</label>
+                </div>
+                <select class="custom-select" id="inputGroupSelect01" onchange="startPlots(this.value)">
+                    <option selected>Choose...</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                    <option value="4">Four</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Data Updates/Sec</span>
+            </div>
+            <input type="text" class="form-control" placeholder="0 (unthrottled)" aria-describedby="basic-addon1"
+                onChange="setDataUpdateRate(this.value)" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Pipe Size (MiB)</span>
+            </div>
+            <input type="text" class="form-control"  aria-describedby="basic-addon1"
+                id="pipeSizeText" value="5" size="5" onchange="setPipeSize(this.value)"/>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Pipe Full Count</span>
+            </div>
+            <input readonly type="text" class="form-control"  aria-describedby="basic-addon1"
+                id="pipeFullText" value="0" size="5"/>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="plotcontainer1" class="col-md-6">
+            <div class="container" id="plot1"></div>
+        </div>
+        <div  id="plotcontainer2" class="col-md-6">
+            <div class="container" id="plot2"></div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div  id="plotcontainer3" class="col-md-6">
+            <div class="container" id="plot3"></div>
+        </div>
+        <div  id="plotcontainer4" class="col-md-6">
+            <div class="container" id="plot4"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="bundle.js" charset="utf-8"></script> 
+    <script type="text/javascript">setupPlots()</script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+Usage:
+
+npm install
+browserify demo.js -o bundle.js
+Point your web browser to the file index.html
