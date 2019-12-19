@@ -20,7 +20,7 @@
         </div>
     </div>
     <div class="row mt-2 mr-3">
-        <div class="col-md-2 offset-md-2">
+        <div class="col-md-2 offset-md-1">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <label class="input-group-text" for="plotCountSelect">Number of Plots</label>
@@ -56,6 +56,7 @@
                     <label class="input-group-text" for="fftSelect">FFT Size</label>
                 </div>
                 <select class="custom-select" id="fftSelect">
+                    <option value="1k">1K</option>
                     <option value="8k">8K</option>
                     <option value="32k">32K</option>
                     <option value="64k">64K</option>
@@ -63,6 +64,15 @@
                     <option value="1m">1M</option>
                     <option value="8m">8M</option>
                 </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Buffer Length</span>
+            </div>
+            <input type="text" class="form-control" aria-describedby="basic-addon1"
+                id="bufferLengthText" value="160" size="5" />
             </div>
         </div>
     </div>
@@ -79,6 +89,7 @@
             <input readonly type="text" class="form-control"  aria-describedby="basic-addon1"
                 id="pipeFullText" value="0" size="5"/>
             </div>
+            <label id="generatingDataLabel"></label>
         </div>
         <div  id="plotcontainer2" class="col-md-5">
             <div class="container" id="plot2"></div>
