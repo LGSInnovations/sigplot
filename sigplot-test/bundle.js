@@ -2,13 +2,11 @@
 let options = {all: true, expand: true}
 let plots = []
 numPlots = 4
-const UPDATE_INTERVAL = 10;
-let framesize = 256*1024;
 let updateIntId = null;
-updateRate = 10;
-pipeFullCount = 0
-pipeSize = 5 * 1024 * 1024;
-numPlotsRunning = 0;
+let pipeFullCount = 0
+let pipeSize = 5 * 1024 * 1024;
+let framesize = 256 * 1024;
+
 
 data = [];
 for (var j = 0; j < framesize; j += 1) {
@@ -29,8 +27,45 @@ updatePipeFullCount = function(count) {
 }
     
 
-startPlots = function(num) {
-    numPlotsRunning = num;
+startPlots = function() {
+    let fftOpt = document.getElementById("fftSelect").value;
+    switch(fftOpt){
+        case "8k":
+            framesize = 8 * 1024;
+            break;
+        case "32k":
+            framesize = 32 * 1024;
+            break;
+        case "64k":
+            framesize = 64 * 1024;
+            break;
+        case "256k":
+            framesize = 256 * 1024;
+            break;
+        case "1m":
+            framesize = 1024 * 1024;
+            break;
+        case "8m":
+            framesize = 8 * 1024 * 1024;
+            break;
+        default:
+            console.log(`Unrecognized fft size ${fftOpt}`);
+    }
+    num = document.getElementById("plotCountSelect").value;
+    let pipeSizeTxt = document.getElementById("pipeSizeText").value;
+    pipeSize = Number(pipeSizeTxt) * 1024 * 1024;
+    let updateRate = 10;
+    try {
+        let updateRate = Number(document.getElementById('updateRateInp').value)
+        if (updateRate = 0) {
+            updateRate = 10
+        } else {
+            updateRate = (1/updateRate) * 1000;
+        }
+    } catch(e) {
+        updateRate = 10;
+    }
+        
     if (updateIntId) {
         clearInterval(updateIntId);
         setupPlots();
@@ -61,6 +96,7 @@ startPlots = function(num) {
             
         })
     }, updateRate);
+    document.getElementById('startPlotsBtn').textContent = 'Restart';
 }
 
 setDataUpdateRate = function(val) {
@@ -80,11 +116,6 @@ setDataUpdateRate = function(val) {
             plot.refresh();
         })
     }, updateRate);
-}
-
-setPipeSize = function(val) {
-    pipeSize = val * 1024 * 1024;
-    startPlots(numPlots);
 }
 
 },{}]},{},[1]);

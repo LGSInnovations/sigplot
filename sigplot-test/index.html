@@ -19,18 +19,17 @@
             <h2><div class="text-center text-primary label label-default">Sigplot: Test Simultaneous Raster Rendering</div></h2>
         </div>
     </div>
-    <div class="row mt-2 mr-3 mx-auto">
+    <div class="row mt-2 mr-3">
         <div class="col-md-2 offset-md-2">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
-                    <label class="input-group-text" for="inputGroupSelect01">Number of Plots</label>
+                    <label class="input-group-text" for="plotCountSelect">Number of Plots</label>
                 </div>
-                <select class="custom-select" id="inputGroupSelect01" onchange="startPlots(this.value)">
-                    <option selected>Choose...</option>
+                <select class="custom-select" id="plotCountSelect">
                     <option value="1">One</option>
                     <option value="2">Two</option>
                     <option value="3">Three</option>
-                    <option value="4">Four</option>
+                    <option selected value="4" selected>Four</option>
                 </select>
             </div>
         </div>
@@ -39,8 +38,7 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">Data Updates/Sec</span>
             </div>
-            <input type="text" class="form-control" placeholder="0 (unthrottled)" aria-describedby="basic-addon1"
-                onChange="setDataUpdateRate(this.value)" />
+            <input type="text" id="updateRateInp" class="form-control" placeholder="Unthrottled" aria-describedby="basic-addon1" />
             </div>
         </div>
         <div class="col-md-2">
@@ -48,34 +46,50 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">Pipe Size (MiB)</span>
             </div>
-            <input type="text" class="form-control"  aria-describedby="basic-addon1"
-                id="pipeSizeText" value="5" size="5" onchange="setPipeSize(this.value)"/>
+            <input type="text" class="form-control" aria-describedby="basic-addon1"
+                id="pipeSizeText" value="5" size="5" />
             </div>
         </div>
         <div class="col-md-2">
-            <div class="input-group mb-2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="fftSelect">FFT Size</label>
+                </div>
+                <select class="custom-select" id="fftSelect">
+                    <option value="8k">8K</option>
+                    <option value="32k">32K</option>
+                    <option value="64k">64K</option>
+                    <option selected value="256k">256K</option>
+                    <option value="1m">1M</option>
+                    <option value="8m">8M</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="plotcontainer1" class="col-md-5">
+            <div class="container" id="plot1"></div>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary" id="startPlotsBtn" onclick="startPlots()">Start</button>
+            <div class="input-group mb-2 mt-2">
             <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">Pipe Full Count</span>
+                <span class="input-group-text" id="basic-addon1">Dropped Frames</span>
             </div>
             <input readonly type="text" class="form-control"  aria-describedby="basic-addon1"
                 id="pipeFullText" value="0" size="5"/>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div id="plotcontainer1" class="col-md-6">
-            <div class="container" id="plot1"></div>
-        </div>
-        <div  id="plotcontainer2" class="col-md-6">
+        <div  id="plotcontainer2" class="col-md-5">
             <div class="container" id="plot2"></div>
         </div>
     </div>
     <hr />
     <div class="row">
-        <div  id="plotcontainer3" class="col-md-6">
+        <div  id="plotcontainer3" class="col-md-5">
             <div class="container" id="plot3"></div>
         </div>
-        <div  id="plotcontainer4" class="col-md-6">
+        <div  id="plotcontainer4" class="col-md-5 offset-md-2">
             <div class="container" id="plot4"></div>
         </div>
     </div>
