@@ -1963,6 +1963,31 @@ QUnit.module('sigplot-interactive', {
         }
     }
 });
+interactiveTest('xcomp:6 (rdp)', 'This is our rdp xcmp 6 test', function(assert) {
+
+    var bfr = new sigplot.bluefile.BlueFileReader();
+    bfr.read_http("dat/sin.tmp", function(hdr) {
+        console.log('here is hdr ', hdr);
+        let dataPoints = hdr.dview;
+        console.log('here are the values: ', dataPoints);
+
+        var container = document.getElementById('plot');
+        var plot = new sigplot.Plot(container, {
+            xcmp: 6
+        });
+
+        plot.overlay_pipe({
+            type: 2000,
+            subsize: 16384
+        });
+        var cnt = 0;
+        ifixture.interval = window.setInterval(function() {
+            cnt = cnt + 1;
+            plot.push(0, dataPoints);
+        }, 100);
+    });
+});
+
 interactiveTest('sigplot empty', 'Do you see an empty plot scaled from -1 to 1 on both axis?', function(assert) {
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);

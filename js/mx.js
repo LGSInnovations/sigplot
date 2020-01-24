@@ -5352,6 +5352,40 @@
     mx.update_image_row = function(Mx, buf, data, row, zmin, zmax, xcompression) {
         var imgd = new Uint32Array(buf, row * buf.width * 4, buf.width);
 
+        
+        // special case xcompression type 6 should run outside of for loop
+        if (data && xcompression === 6) {
+            console.log('INSIDE OUR SPECIAL CASE!');
+            
+            let formattedData = [];
+            let simplifiedData = [];
+            let reformattedData = [];
+
+            console.log('data before simplify: ', data);
+
+            // format data with x and y properties
+            for (var index = 0; index < data.length; index++) {
+                value = data[index];
+                formattedData.push({ ['x']: index, ['y']: value });
+            }
+
+            console.log('our formatted data! ', formattedData);
+
+            // run formatted data through simplify js
+            simplifiedData = simplify(formattedData, 1, false);
+
+            // reformat array back to original
+            reformattedData = simplifiedData.map((item) => {
+                return item.y
+            });
+            
+            // set data equal to reformatted, simplified data
+            data = reformattedData;
+
+            console.log('data after simplify: ', data);
+        }
+
+
         Mx.pixel.setRange(zmin, zmax);
 
         var xc = Math.max(1, data.length / buf.width);
@@ -5360,25 +5394,33 @@
             var value = data[didx];
             if (xc > 1) {
                 if (xcompression === 1) { // average
+                    console.log('WENT INTO XCOMPRESSION 1!!!!!!!!!!!!!!!!!!!!!!!');
                     for (var j = 1; j < xc; j++) {
                         value += data[didx + j];
                     }
                     value = (value / xc);
                 } else if (xcompression === 2) { // min
+                    console.log('WENT INTO XCOMPRESSION 2!!!!!!!!!!!!!!!!!!!!!!!');
                     for (var j = 1; j < xc; j++) {
                         value = Math.min(value, data[didx + j]);
                     }
                 } else if (xcompression === 3) { // max
+                    console.log('WENT INTO XCOMPRESSION 3!!!!!!!!!!!!!!!!!!!!!!!');
                     for (var j = 1; j < xc; j++) {
                         value = Math.max(value, data[didx + j]);
                     }
                 } else if (xcompression === 4) { // first
+                    console.log('WENT INTO XCOMPRESSION 4!!!!!!!!!!!!!!!!!!!!!!!');
                     value = data[i];
                 } else if (xcompression === 5) { // max abs
+                    console.log('WENT INTO XCOMPRESSION 5!!!!!!!!!!!!!!!!!!!!!!!');
                     for (var j = 1; j < xc; j++) {
                         value = Math.max(Math.abs(value), Math.abs(data[didx + j]));
                     }
+                } else if (xcompression === 6) { // RDP Compression / Decimation
+                    console.log('WENT INTO XCOMPRESSION 6!!!!!!!!!!!!!!!!!!!!!!!');
                 }
+
             }
             var colorIdx = Mx.pixel.getColorIndex(value);
             imgd[i] = colorIdx;
