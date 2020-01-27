@@ -5001,7 +5001,6 @@
                     text: "XLABel...",
                     handler: function() {
                         var validator = function(value) {
-                            console.log("The value is " + value);
                             var isValid = mx.intValidator(value);
                             return isValid;
                         };
