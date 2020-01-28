@@ -35,7 +35,7 @@
     }
   ],
   "scripts": {
-    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
+    "generate-docs": "rm -rf ./doc/; node_modules/.bin/jsdoc --configure .jsdoc.json --verbose; cp ./fft-white.png doc/sigplot/$npm_package_version/",
     "test": "grunt test",
     "prepublish": "grunt dist"
   },
