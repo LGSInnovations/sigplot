@@ -114,7 +114,7 @@ module.exports = function (grunt) {
         },
         clean: {
             build: ["dist/**/*", "!dist/*.zip"],
-            doc: ["doc/**/*", "!doc/*.png", "!doc/Sigplot_Setup.md"]
+            doc: ["doc/**/*"]
         },
         compress: {
             main: {
