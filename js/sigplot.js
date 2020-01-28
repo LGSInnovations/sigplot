@@ -375,6 +375,7 @@
 
                 var evt = document.createEvent('Event');
                 evt.initEvent('mmove', true, true);
+                evt.originalEvent = e;
                 evt.xpos = xpos;
                 evt.ypos = ypos;
                 evt.x = Gx.retx;
@@ -419,6 +420,7 @@
                 if (Gx.cntrls === 2) {
                     var evt = document.createEvent('Event');
                     evt.initEvent('mtag', true, true);
+                    evt.originalEvent = e;
                     evt.x = Gx.retx;
                     evt.y = Gx.rety;
                     evt.xpos = xpos;
@@ -486,6 +488,7 @@
 
                 var evt = document.createEvent('Event');
                 evt.initEvent('mdown', true, true);
+                evt.originalEvent = event;
                 evt.xpos = Mx.xpos;
                 evt.ypos = Mx.ypos;
                 evt.x = Gx.retx;
@@ -926,6 +929,7 @@
 
                 var evt = document.createEvent('Event');
                 evt.initEvent('mup', true, true);
+                evt.originalEvent = event;
                 evt.xpos = Mx.xpos;
                 evt.ypos = Mx.ypos;
                 evt.x = Gx.retx;
@@ -958,6 +962,7 @@
 
                             var mtagevt = document.createEvent('Event');
                             mtagevt.initEvent('mtag', true, true);
+                            mtagevt.originalEvent = event;
                             mtagevt.x = Gx.xmrk;
                             mtagevt.y = Gx.ymrk;
                             mtagevt.xpos = event.x || event.clientX;
@@ -978,6 +983,7 @@
                             // if desired
                             var evt = document.createEvent('Event');
                             evt.initEvent('showmenu', true, true);
+                            evt.originalEvent = event;
                             evt.x = event.x || event.clientX;
                             evt.y = event.y || event.clientY;
                             var executeDefault = mx.dispatchEvent(Mx, evt);
@@ -1030,6 +1036,7 @@
 
                 var evt = document.createEvent('Event');
                 evt.initEvent('mclick', true, true);
+                evt.originalEvent = event;
                 evt.xpos = Mx.xpos;
                 evt.ypos = Mx.ypos;
                 evt.x = Gx.retx;
@@ -1055,6 +1062,7 @@
 
                 var evt = document.createEvent('Event');
                 evt.initEvent('mdblclick', true, true);
+                evt.originalEvent = event;
                 evt.xpos = Mx.xpos;
                 evt.ypos = Mx.ypos;
                 evt.x = Gx.retx;
@@ -1268,6 +1276,7 @@
                         // Since the mouse is in the plot area, send a keypress event
                         var evt = document.createEvent('Event');
                         evt.initEvent('plotkeypress', true, true);
+                        evt.originalEvent = event;
                         evt.keyCode = keyCode;
                         evt.shiftKey = event.shiftKey;
                         evt.ctrlKey = event.ctrlKey;
@@ -1389,6 +1398,7 @@
                             if (!Gx.nomenu) {
                                 var evt = document.createEvent('Event');
                                 evt.initEvent('showmenu', true, true);
+                                evt.originalEvent = event;
                                 evt.x = Mx.x;
                                 evt.y = Mx.y;
                                 var executeDefault = mx.dispatchEvent(Mx, evt);
@@ -6599,6 +6609,7 @@
                 } else if (action === "select") {
                     var evt = document.createEvent('Event');
                     evt.initEvent('mtag', true, true);
+                    evt.originalEvent = event;
                     var re = pixel_to_real(plot, x, y);
                     var rwh = pixel_to_real(plot, x + w, y + h);
                     evt.x = re.x;
