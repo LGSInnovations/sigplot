@@ -35,6 +35,7 @@
     }
   ],
   "scripts": {
+    "generate-docs": "rm -rf ./doc/; node_modules/.bin/jsdoc --configure .jsdoc.json --verbose; cp ./fft-white.png doc/sigplot/$npm_package_version/",
     "test": "grunt test",
     "prepublish": "grunt dist"
   },
@@ -75,6 +76,7 @@
     "karma-jasmine": "^1.1.2",
     "karma-qunit": "^2.1.0",
     "marked": "^0.3.6",
+    "minami": "^1.2.3",
     "qunit-assert-close": "^2.1.2",
     "qunitjs": "^2.4.1",
     "taffydb": "^2.7.3",

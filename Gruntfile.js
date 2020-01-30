@@ -107,14 +107,14 @@ module.exports = function (grunt) {
                 src: ['js/*.js'],
                 options: {
                     destination: 'doc',
-                    template: 'docstrap-master/template',
-                    configure: 'docstrap-master/conf.json'
+                    template: './node_modules/minami/',
+                    configure: '.jsdoc.json'
                 }
             }
         },
         clean: {
             build: ["dist/**/*", "!dist/*.zip"],
-            doc: ["doc/**/*", "!doc/*.png", "!doc/Sigplot_Setup.md"]
+            doc: ["doc/**/*"]
         },
         compress: {
             main: {
@@ -296,7 +296,11 @@ module.exports = function (grunt) {
     // Check everything is good
     grunt.registerTask('test', ['build', 'qunit']);
     
+    // Beautify the code
     grunt.registerTask('prep', ['jsbeautifier:cleanup']);
+
+    // Generate documentation
+    grunt.registerTask('generate-docs', ['jsdoc']);
 
     // Build a distributable release
     grunt.registerTask('dist', ['clean', 'test', 'closure-compiler', 'jsdoc', 'compress']);

@@ -6,7 +6,7 @@
 SigPlot provides fast, interactive plotting for software defined radio
 applications using HTML5.
 
-![SigPlot plotting the FFT of a signal](doc/fft-white.png)
+![SigPlot plotting the FFT of a signal](./fft-white.png)
 
 Getting Started
 =================
