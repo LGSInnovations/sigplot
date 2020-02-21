@@ -2224,10 +2224,10 @@
                 // if it's a header-only push, the data should
                 // be an empty array
                 if (data.length === 0) {
-                    hdrmod_clone.xmin = Mx.stk[n].xmin;
-                    hdrmod_clone.xmax = Mx.stk[n].xmax;
-                    hdrmod_clone.ymin = Mx.stk[n].ymin;
-                    hdrmod_clone.ymax = Mx.stk[n].ymax;
+                    hdrmod_clone.xmin = Mx.stk[0].xmin;
+                    hdrmod_clone.xmax = Mx.stk[0].xmax;
+                    hdrmod_clone.ymin = Mx.stk[0].ymin;
+                    hdrmod_clone.ymax = Mx.stk[0].ymax;
                 }
             }
 
