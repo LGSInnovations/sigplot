@@ -2523,14 +2523,18 @@
                 }(this, onload));
 
                 var reader;
+                var oReq;
                 if (href.endsWith(".mat")) {
                     reader = new matfile.MatFileReader();
+                    oReq = reader.read_http(href, handleHeader);
                 } else {
                     reader = new bluefile.BlueFileReader();
+                    oReq = reader.read_http(href, handleHeader);
                 }
-                reader.read_http(href, handleHeader);
+                if (oReq) {
+                    this._Gx.HCB_RDR[lyr_uuid] = oReq;
+                }
             } catch (error) {
-                console.error(error);
                 this.hide_spinner();
             }
 
@@ -2658,6 +2662,8 @@
                 }
                 // Update the HCB
                 Gx.HCB_UUID[lyr_uuid] = hcb;
+                // Remove the req
+                delete Gx.HCB_RDR[lyr_uuid];
             } else {
                 lyr_uuid = this.reg_hcb(hcb);
             }
@@ -2833,6 +2839,10 @@
 
             var HCB = Gx.HCB_UUID[lyr_uuid];
             delete Gx.HCB_UUID[lyr_uuid];
+            if (_.has(Gx.HCB_RDR, lyr_uuid)) {
+                Gx.HCB_RDR[lyr_uuid].abort();
+            }
+            delete Gx.HCB_RDR[lyr_uuid];
 
             var fileName = "";
             if (HCB) {
@@ -4193,6 +4203,7 @@
         this.lyr = [];
         this.HCB = [];
         this.HCB_UUID = {};
+        this.HCB_RDR = {};
         this.plugins = [];
 
         this.plotData = document.createElement("canvas");
