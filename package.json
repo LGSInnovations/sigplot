@@ -80,6 +80,6 @@
     "qunit-assert-close": "^2.1.2",
     "qunitjs": "^2.4.1",
     "taffydb": "^2.7.3",
-    "underscore": "^1.8.3"
+    "underscore": "^1.9.2"
   }
 }

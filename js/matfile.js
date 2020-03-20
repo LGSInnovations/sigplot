@@ -798,6 +798,8 @@
                 onload(null);
             };
             oReq.send(null);
+
+            return oReq;
         }
     };
 

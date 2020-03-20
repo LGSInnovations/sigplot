@@ -1369,11 +1369,11 @@ QUnit.test('sigplot layer1d noautoscale', function(assert) {
     for (var i = 0; i <= 1000; i += 1) {
         pulse.push(0.0);
     }
-    plot.overlay_array(pulse);
+    var lyr_uuid = plot.overlay_array(pulse);
     assert.equal(plot._Gx.panymin, -1.0);
     assert.equal(plot._Gx.panymax, 1.0);
     pulse[0] = 1.0;
-    plot.reload(0, pulse);
+    plot.reload(lyr_uuid, pulse);
     assert.equal(plot._Gx.panymin, -0.02);
     assert.equal(plot._Gx.panymax, 1.02);
     for (var i = 1; i <= 1000; i += 1) {
@@ -1384,6 +1384,9 @@ QUnit.test('sigplot layer1d noautoscale', function(assert) {
     }
 });
 QUnit.test('sigplot layer1d autoscale', function(assert) {
+    // TODO revisit this test.  The autol actually gets called
+    // multiple times when it should only be called twice.
+    // this is evident if you do a sync refresh
     var container = document.getElementById('plot');
     assert.equal(container.childNodes.length, 0);
     assert.equal(fixture.childNodes.length, 1);
@@ -1391,20 +1394,23 @@ QUnit.test('sigplot layer1d autoscale', function(assert) {
         autol: 2
     });
     assert.notEqual(plot, null);
+    assert.equal(plot._Gx.autol, 2);
     var pulse = [];
     for (var i = 0; i <= 1000; i += 1) {
         pulse.push(0.0);
     }
-    plot.overlay_array(pulse);
+    var lyr_uuid = plot.overlay_array(pulse);
+    assert.equal(plot._Gx.autol, 2);
     assert.equal(plot._Gx.panymin, -1.0);
     assert.equal(plot._Gx.panymax, 1.0);
     pulse[0] = 1.0;
-    plot.reload(0, pulse);
+    plot.reload(lyr_uuid, pulse, null, false);
     var expected_ymin = (-0.02 * 0.5) + (-1 * 0.5);
     var expected_ymax = (1.02 * 0.5) + (1 * 0.5);
     assert.equal(plot._Gx.panymin, expected_ymin);
     assert.equal(plot._Gx.panymax, expected_ymax);
     for (var i = 1; i <= 1000; i += 1) {
+        // this code seems to be pointless
         pulse[i - 1] = 0;
         pulse[i] = 1;
         expected_ymin = (expected_ymin * 0.5) + (expected_ymin * 0.5);
@@ -1426,7 +1432,7 @@ QUnit.test('sigplot layer1d autoscale negative', function(assert) {
         pulse.push(-60.0);
     }
     pulse[0] = -10.0;
-    plot.overlay_array(pulse);
+    var lyr_uuid = plot.overlay_array(pulse);
     var expected_ymin = (-61.0 * 0.5) + (-1 * 0.5);
     var expected_ymax = (-9.0 * 0.5) + (1 * 0.5);
     assert.equal(plot._Gx.panymin, expected_ymin);
@@ -1536,28 +1542,28 @@ QUnit.test('sigplot 0px height', function(assert) {
     for (var i = 0; i <= 1000; i += 1) {
         zeros.push(0.0);
     }
-    plot.overlay_array(zeros);
+    var lyr_uuid = plot.overlay_array(zeros);
     assert.notEqual(plot.get_layer(0), null);
     plot.deoverlay();
     assert.equal(plot.get_layer(0), null);
-    plot.overlay_array(zeros, {
+    lyr_uuid = plot.overlay_array(zeros, {
         type: 2000,
         subsize: zeros.length
     });
     assert.notEqual(plot.get_layer(0), null);
     plot.deoverlay();
     assert.equal(plot.get_layer(0), null);
-    plot.overlay_pipe({
+    lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: 128
     });
     assert.notEqual(plot.get_layer(0), null);
     assert.equal(plot.get_layer(0).drawmode, "scrolling");
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 0);
     assert.equal(plot.get_layer(0).lps, 1);
     plot.deoverlay();
-    plot.overlay_pipe({
+    lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: 128
     }, {
@@ -1565,11 +1571,11 @@ QUnit.test('sigplot 0px height', function(assert) {
     });
     assert.notEqual(plot.get_layer(0), null);
     assert.equal(plot.get_layer(0).drawmode, "rising");
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 0);
     assert.equal(plot.get_layer(0).lps, 1);
     plot.deoverlay();
-    plot.overlay_pipe({
+    lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: 128
     }, {
@@ -1577,7 +1583,7 @@ QUnit.test('sigplot 0px height', function(assert) {
     });
     assert.notEqual(plot.get_layer(0), null);
     assert.equal(plot.get_layer(0).drawmode, "falling");
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 0);
     assert.equal(plot.get_layer(0).position, 0);
     assert.equal(plot.get_layer(0).lps, 1);
@@ -1594,16 +1600,16 @@ QUnit.test('sigplot resize raster 0px height', function(assert) {
     for (var i = 0; i <= 128; i += 1) {
         zeros.push(0.0);
     }
-    plot.overlay_pipe({
+    var lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: 128
     });
     assert.notEqual(plot.get_layer(0), null);
     assert.equal(plot.get_layer(0).drawmode, "scrolling");
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 1);
     assert.ok(plot.get_layer(0).lps > 1);
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 2);
     assert.ok(plot.get_layer(0).lps > 1);
     container.style.height = "0px";
@@ -1612,7 +1618,7 @@ QUnit.test('sigplot resize raster 0px height', function(assert) {
     plot.checkresize();
     assert.equal(plot._Mx.canvas.height, 0);
     assert.equal(plot.get_layer(0).lps, 1);
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 0);
 });
 QUnit.test('sigplot resize raster larger height', function(assert) {
@@ -1626,7 +1632,7 @@ QUnit.test('sigplot resize raster larger height', function(assert) {
     for (var i = 0; i <= 128; i += 1) {
         zeros.push(0.0);
     }
-    plot.overlay_pipe({
+    var lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: 128
     }, {
@@ -1634,10 +1640,10 @@ QUnit.test('sigplot resize raster larger height', function(assert) {
     });
     assert.notEqual(plot.get_layer(0), null);
     assert.equal(plot.get_layer(0).drawmode, "scrolling");
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 1);
     assert.ok(plot.get_layer(0).lps > 1);
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 2);
     assert.ok(plot.get_layer(0).lps > 1);
     var orig_lps = plot.get_layer(0).lps;
@@ -1647,10 +1653,10 @@ QUnit.test('sigplot resize raster larger height', function(assert) {
     plot.checkresize();
     assert.equal(plot._Mx.canvas.height, 600);
     assert.ok(plot.get_layer(0).lps > orig_lps);
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(plot.get_layer(0).position, 3);
     for (var i = 0; i <= plot.get_layer(0).lps; i += 1) {
-        plot.push(0, zeros, null, true);
+        plot.push(lyr_uuid, zeros, null, true);
     }
 });
 QUnit.test('sigplot change raster LPS', function(assert) {
@@ -1663,7 +1669,7 @@ QUnit.test('sigplot change raster LPS', function(assert) {
     for (var i = 0; i <= 128; i += 1) {
         zeros.push(0.0);
     }
-    plot.overlay_pipe({
+    var lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: 128,
         lps: 100,
@@ -1671,7 +1677,7 @@ QUnit.test('sigplot change raster LPS', function(assert) {
     });
     assert.notEqual(plot.get_layer(0), null);
     assert.strictEqual(plot.get_layer(0).lps, 100);
-    plot.push(0, zeros, {
+    plot.push(lyr_uuid, zeros, {
         lps: 200
     }, true);
     plot._refresh();
@@ -1761,7 +1767,7 @@ QUnit.test('unit strings test: x -> Power and y -> Angle rad', function(assert) 
     for (var i = 0; i < 20; i++) {
         ramp.push(i);
     }
-    plot.overlay_array(ramp, {
+    var lyr_uuid = plot.overlay_array(ramp, {
         xunits: "Power",
         yunits: "Angle rad"
     }, {
@@ -1770,8 +1776,8 @@ QUnit.test('unit strings test: x -> Power and y -> Angle rad', function(assert) 
         line: 0
     });
 
-    assert.equal(plot._Gx.HCB[0].xunits, 12);
-    assert.equal(plot._Gx.HCB[0].yunits, 33);
+    assert.equal(plot._Gx.HCB_UUID[lyr_uuid].xunits, 12);
+    assert.equal(plot._Gx.HCB_UUID[lyr_uuid].yunits, 33);
     assert.equal(plot._Gx.xlab, 12);
     assert.equal(plot._Gx.ylab, 33);
 });
@@ -1785,7 +1791,7 @@ QUnit.test('unit strings test: x -> Hz and y -> Time_sec', function(assert) {
     for (var i = 0; i < 20; i++) {
         ramp.push(i);
     }
-    plot.overlay_array(ramp, {
+    var lyr_uuid = plot.overlay_array(ramp, {
         xunits: "Hz",
         yunits: "Time_sec"
     }, {
@@ -1794,8 +1800,8 @@ QUnit.test('unit strings test: x -> Hz and y -> Time_sec', function(assert) {
         line: 0
     });
 
-    assert.equal(plot._Gx.HCB[0].xunits, 3);
-    assert.equal(plot._Gx.HCB[0].yunits, 1);
+    assert.equal(plot._Gx.HCB_UUID[lyr_uuid].xunits, 3);
+    assert.equal(plot._Gx.HCB_UUID[lyr_uuid].yunits, 1);
     assert.equal(plot._Gx.xlab, 3);
     assert.equal(plot._Gx.ylab, 1);
 });
@@ -1811,7 +1817,7 @@ QUnit.test('sigplot line push smaller than framesize', function(assert) {
     for (var i = 0; i < 128; i += 1) {
         zeros.push(0.0);
     }
-    plot.overlay_pipe({
+    var lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: 64
     }, {
@@ -1826,19 +1832,19 @@ QUnit.test('sigplot line push smaller than framesize', function(assert) {
     // pushing twice the subsize should allow
     // two frames to be written, leaving nothing
     // in the pipe
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // if we push 63 elements they should remain in the pipe
-    plot.push(0, zeros.slice(0, 63), null, true);
+    plot.push(lyr_uuid, zeros.slice(0, 63), null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // pushing two should leave one item in the pipe
-    plot.push(0, zeros.slice(0, 2), null, true);
+    plot.push(lyr_uuid, zeros.slice(0, 2), null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // as does pushing another 128
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 0);
 });
 
@@ -1853,7 +1859,7 @@ QUnit.test('sigplot raster push smaller than framesize', function(assert) {
     for (var i = 0; i < 128; i += 1) {
         zeros.push(0.0);
     }
-    plot.overlay_pipe({
+    var lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: 64
     });
@@ -1866,19 +1872,19 @@ QUnit.test('sigplot raster push smaller than framesize', function(assert) {
     // pushing twice the subsize should allow
     // two frames to be written, leaving nothing
     // in the pipe
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 0);
 
     // if we push 63 elements they should remain in the pipe
-    plot.push(0, zeros.slice(0, 63), null, true);
+    plot.push(lyr_uuid, zeros.slice(0, 63), null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 63);
 
     // pushing two should leave one item in the pipe
-    plot.push(0, zeros.slice(0, 2), null, true);
+    plot.push(lyr_uuid, zeros.slice(0, 2), null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 1);
 
     // as does pushing another 128
-    plot.push(0, zeros, null, true);
+    plot.push(lyr_uuid, zeros, null, true);
     assert.equal(hcb.dview.length - hcb.data_free, 1);
 });
 QUnit.test('sigplot layer user_data', function(assert) {
@@ -2069,10 +2075,13 @@ interactiveTest('sigplot readout stays visible', 'Is the readout visible when th
         no_legend_button: true,
     });
 
+    var cnt = 0;
+
+    var lyr0 = null;
+    var lyr1 = null;
+
     update_rtplot();
     var hdl = window.setInterval(update_rtplot, 500);
-
-    var cnt = 0;
 
     function update_rtplot() {
         var random = [];
@@ -2082,7 +2091,7 @@ interactiveTest('sigplot readout stays visible', 'Is the readout visible when th
             random2.push(Math.random() + 1);
         }
 
-        var data_layer = rt_plot.get_layer(0);
+        var data_layer = rt_plot.get_layer(lyr0);
         if (data_layer) {
             /*     cnt += 1;
                 if (cnt === 10) {
@@ -2094,17 +2103,17 @@ interactiveTest('sigplot readout stays visible', 'Is the readout visible when th
                     xmax: -100 + 1000
                   })
                 } */
-            rt_plot.reload(0, random);
-            rt_plot.reload(1, random2);
+            rt_plot.reload(lyr0, random);
+            rt_plot.reload(lyr1, random2);
         } else {
             rt_plot.change_settings({
                 cmode: 3,
                 autol: 1,
             });
-            rt_plot.overlay_array(random, {
+            lyr0 = rt_plot.overlay_array(random, {
                 file_name: "random"
             });
-            rt_plot.overlay_array(random2, {
+            lyr1 = rt_plot.overlay_array(random2, {
                 file_name: "random2"
             });
         }
@@ -2223,10 +2232,10 @@ interactiveTest('empty t1000 array', 'Do you see a plot with two pulses?', funct
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
-    plot.overlay_array([], {
+    var lyr0 = plot.overlay_array([], {
         file_name: "data1"
     });
-    plot.overlay_array(null, {
+    var lyr1 = plot.overlay_array(null, {
         file_name: "data2"
     });
     var pulse1 = [];
@@ -2243,21 +2252,21 @@ interactiveTest('empty t1000 array', 'Do you see a plot with two pulses?', funct
             pulse2.push(10.0);
         }
     }
-    plot.reload(0, pulse1);
-    plot.reload(1, pulse2);
+    plot.reload(lyr0, pulse1);
+    plot.reload(lyr1, pulse2);
 });
 interactiveTest('empty t2000 array', 'Do you see a plot with two pulses?', function(assert) {
     var container = document.getElementById('plot');
     var plot = new sigplot.Plot(container, {});
     assert.notEqual(plot, null);
-    plot.overlay_array([], {
+    var lyr0 = plot.overlay_array([], {
         type: 2000,
         subsize: 1000,
         file_name: "data1"
     }, {
         layerType: sigplot.Layer1D
     });
-    plot.overlay_array([], {
+    var lyr1 = plot.overlay_array([], {
         type: 2000,
         subsize: 1000,
         file_name: "data2"
@@ -2278,8 +2287,8 @@ interactiveTest('empty t2000 array', 'Do you see a plot with two pulses?', funct
             pulse2.push(10.0);
         }
     }
-    plot.reload(0, pulse1);
-    plot.reload(1, pulse2);
+    plot.reload(lyr0, pulse1);
+    plot.reload(lyr1, pulse2);
 });
 interactiveTest('sigplot 2d overlay', 'Do you see a raster? Is alignment of x/y axes correct?', function(assert) {
     var container = document.getElementById('plot');
@@ -2730,11 +2739,11 @@ interactiveTest('check-xaxis-creep-reload', 'Do you see a pulse staying stationa
             pulse.push(-10.0);
         }
     }
-    plot.overlay_array(pulse, {
+    var lyr0 = plot.overlay_array(pulse, {
         type: 1000
     });
     ifixture.interval = window.setInterval(function() {
-        plot.reload(0, pulse);
+        plot.reload(lyr0, pulse);
     }, 100);
 });
 interactiveTest('check-xaxis-creep-reload-oddsize', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
@@ -2751,11 +2760,11 @@ interactiveTest('check-xaxis-creep-reload-oddsize', 'Do you see a pulse staying 
             pulse.push(-10.0);
         }
     }
-    plot.overlay_array(pulse, {
+    var lyr0 = plot.overlay_array(pulse, {
         type: 1000
     });
     ifixture.interval = window.setInterval(function() {
-        plot.reload(0, pulse);
+        plot.reload(lyr0, pulse);
     }, 100);
 });
 interactiveTest('check-xaxis-creep-push', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
@@ -2772,14 +2781,14 @@ interactiveTest('check-xaxis-creep-push', 'Do you see a pulse staying stationary
             pulse.push(-10.0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 100
     }, {
         layerType: "1D"
     });
     ifixture.interval = window.setInterval(function() {
-        plot.push(0, pulse);
+        plot.push(lyr0, pulse);
     }, 100);
 });
 interactiveTest('check-xaxis-creep-push-oddsize', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
@@ -2796,14 +2805,14 @@ interactiveTest('check-xaxis-creep-push-oddsize', 'Do you see a pulse staying st
             pulse.push(-10.0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 99
     }, {
         layerType: "1D"
     });
     ifixture.interval = window.setInterval(function() {
-        plot.push(0, pulse);
+        plot.push(lyr0, pulse);
     }, 100);
 });
 interactiveTest('check-xaxis-creep-push-partial', 'Do you see a pulse staying stationary on the x-axis?', function(assert) {
@@ -2820,15 +2829,15 @@ interactiveTest('check-xaxis-creep-push-partial', 'Do you see a pulse staying st
             pulse.push(-10.0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 100
     }, {
         layerType: "1D"
     });
     ifixture.interval = window.setInterval(function() {
-        plot.push(0, pulse.slice(0, 50));
-        plot.push(0, pulse.slice(50, 100));
+        plot.push(lyr0, pulse.slice(0, 50));
+        plot.push(lyr0, pulse.slice(50, 100));
     }, 100);
 });
 interactiveTest('reload', 'Do you see a pulse scrolling right?', function(assert) {
@@ -2845,7 +2854,7 @@ interactiveTest('reload', 'Do you see a pulse scrolling right?', function(assert
             pulse.push(-10.0);
         }
     }
-    plot.overlay_array(pulse, {
+    var lyr0 = plot.overlay_array(pulse, {
         type: 1000
     });
     ifixture.interval = window.setInterval(function() {
@@ -2857,7 +2866,7 @@ interactiveTest('reload', 'Do you see a pulse scrolling right?', function(assert
                 pulse[i] = -10.0;
             }
         }
-        plot.reload(0, pulse);
+        plot.reload(lyr0, pulse);
     }, 100);
 });
 interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimecode axis?', function(assert) {
@@ -2876,7 +2885,7 @@ interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimeco
             pulse.push(-10.0);
         }
     }
-    plot.overlay_array(pulse, {
+    var lyr0 = plot.overlay_array(pulse, {
         type: 1000,
         xstart: currentTime,
         xunits: 4
@@ -2891,7 +2900,7 @@ interactiveTest('xtimecode', 'Do you see a pulse scrolling right with an xtimeco
             }
         }
         currentTime = (new Date().getTime() + epochDelta) / 1000;
-        plot.reload(0, pulse, {
+        plot.reload(lyr0, pulse, {
             xstart: currentTime + 1
         });
     }, 100);
@@ -2910,7 +2919,7 @@ interactiveTest('t2000 odd-size layer1D (reload)', 'Do you see a stationary puls
             pulse.push(-10.0);
         }
     }
-    plot.overlay_array(null, {
+    var lyr0 = plot.overlay_array(null, {
         type: 2000,
         subsize: 16385
     }, {
@@ -2925,7 +2934,7 @@ interactiveTest('t2000 odd-size layer1D (reload)', 'Do you see a stationary puls
                 pulse.push(-10.0);
             }
         }
-        plot.reload(0, pulse);
+        plot.reload(lyr0, pulse);
     }, 100);
 });
 interactiveTest('t2000 odd-size layer1D (push)', 'Do you see a stationary pulse?', function(assert) {
@@ -2942,7 +2951,7 @@ interactiveTest('t2000 odd-size layer1D (push)', 'Do you see a stationary pulse?
             pulse.push(-10.0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16385
     }, {
@@ -2957,7 +2966,7 @@ interactiveTest('t2000 odd-size layer1D (push)', 'Do you see a stationary pulse?
                 pulse.push(-10.0);
             }
         }
-        plot.push(0, pulse);
+        plot.push(lyr0, pulse);
     }, 100);
 });
 interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)?', function(assert) {
@@ -2974,7 +2983,7 @@ interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)
             pulse.push(-10.0);
         }
     }
-    plot.overlay_array(null, {
+    var lyr0 = plot.overlay_array(null, {
         type: 2000,
         subsize: 1000
     }, {
@@ -2989,7 +2998,7 @@ interactiveTest('t2000 layer1D', 'Do you see a pulse scrolling right (type 2000)
                 pulse[i] = -10.0;
             }
         }
-        plot.reload(0, pulse);
+        plot.reload(lyr0, pulse);
     }, 100);
 });
 interactiveTest('zoom-xdelta', 'Is the plot fully scaled displaying a ramp?', function(assert) {
@@ -3000,7 +3009,7 @@ interactiveTest('zoom-xdelta', 'Is the plot fully scaled displaying a ramp?', fu
     for (var i = 0; i < 1000; i++) {
         ramp.push(i);
     }
-    plot.overlay_array(ramp, {
+    var lyr0 = plot.overlay_array(ramp, {
         type: 1000,
         xstart: -500
     });
@@ -3011,7 +3020,7 @@ interactiveTest('zoom-xdelta', 'Is the plot fully scaled displaying a ramp?', fu
         x: 250,
         y: -5
     });
-    plot.reload(0, ramp, {
+    plot.reload(lyr0, ramp, {
         xstart: 0,
         xdelta: 50
     });
@@ -3033,7 +3042,7 @@ interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis shi
             pulse.push(-10.0);
         }
     }
-    plot.overlay_array(pulse, {
+    var lyr0 = plot.overlay_array(pulse, {
         type: 1000,
         xstart: xstart
     });
@@ -3050,7 +3059,7 @@ interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis shi
                 pulse[i] = -10.0;
             }
         }
-        plot.reload(0, pulse, {
+        plot.reload(lyr0, pulse, {
             xstart: xstart
         });
     }, 1000);
@@ -3071,7 +3080,7 @@ interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis gro
             pulse.push(-10.0);
         }
     }
-    plot.overlay_array(pulse, {
+    var lyr0 = plot.overlay_array(pulse, {
         type: 1000,
         xstart: -500,
         xdelta: xdelta
@@ -3079,7 +3088,7 @@ interactiveTest('reload', 'Do you see a pulse stationary at 0 while the axis gro
     ifixture.interval = window.setInterval(function() {
         xdelta = xdelta * 2;
         xstart = -500 * xdelta;
-        plot.reload(0, pulse, {
+        plot.reload(lyr0, pulse, {
             xstart: xstart,
             xdelta: xdelta
         });
@@ -3091,7 +3100,7 @@ interactiveTest('pipe 1D name', 'Do you see a random data plot (0 to 1 ) properl
         legend: true
     });
     assert.notEqual(plot, null);
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 1000
     }, {
         framesize: 100,
@@ -3102,7 +3111,7 @@ interactiveTest('pipe 1D name', 'Do you see a random data plot (0 to 1 ) properl
         for (var i = 0; i < 100; i += 1) {
             random.push(Math.random());
         }
-        plot.push(0, random);
+        plot.push(lyr0, random);
     }, 100);
 });
 interactiveTest('pipe 2D name', 'Do you see a random data plot (0 to 1 ) properly named "Test" in the legend', function(assert) {
@@ -3111,7 +3120,7 @@ interactiveTest('pipe 2D name', 'Do you see a random data plot (0 to 1 ) properl
         legend: true
     });
     assert.notEqual(plot, null);
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 100
     }, {
@@ -3123,7 +3132,7 @@ interactiveTest('pipe 2D name', 'Do you see a random data plot (0 to 1 ) properl
         for (var i = 0; i < 100; i += 1) {
             random.push(Math.random());
         }
-        plot.push(0, random);
+        plot.push(lyr0, random);
     }, 100);
 });
 interactiveTest('scrolling line', 'Do you see a scrolling random data plot (0 to 1 ) that does not scale', function(assert) {
@@ -3134,7 +3143,7 @@ interactiveTest('scrolling line', 'Do you see a scrolling random data plot (0 to
         ymin: -2,
         ymax: 2
     });
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 1000
     }, {
         framesize: 32768,
@@ -3145,7 +3154,7 @@ interactiveTest('scrolling line', 'Do you see a scrolling random data plot (0 to
         for (var i = 0; i < 100; i += 1) {
             random.push(Math.random());
         }
-        plot.push(0, random);
+        plot.push(lyr0, random);
     }, 100);
 });
 interactiveTest('complex scrolling line', 'Do you see a scrolling random data (0 to 1) plot that auto-scales', function(assert) {
@@ -3156,7 +3165,7 @@ interactiveTest('complex scrolling line', 'Do you see a scrolling random data (0
         cmode: 3,
         autol: 5
     });
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 1000,
         format: "CF"
     }, {
@@ -3168,7 +3177,7 @@ interactiveTest('complex scrolling line', 'Do you see a scrolling random data (0
         for (var i = 0; i < 100; i += 1) {
             random.push(Math.random());
         }
-        plot.push(0, random);
+        plot.push(lyr0, random);
     }, 100);
 });
 interactiveTest('autoy with all zeros', 'Does the autoscaling properly work and keep both magenta and blue lines fully visible?', function(assert) {
@@ -3333,7 +3342,7 @@ interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autosc
     for (var i = 0; i < 16384; i++) {
         data.push(0);
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16384
     });
@@ -3346,7 +3355,7 @@ interactiveTest('t2000 layer2D (default autol)', 'Does the plot correctly autosc
                 data.push(i);
             }
         }
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', function(assert) {
@@ -3365,7 +3374,7 @@ interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', functi
             data.push(0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16384
     }, null, {
@@ -3374,7 +3383,7 @@ interactiveTest('layer2D (smoothing)', 'Do you see evenly spaced lines?', functi
     var cnt = 0;
     ifixture.interval = window.setInterval(function() {
         cnt = cnt + 1;
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('layer2D (no compression)', 'you should see lines between 20-40, 60-90, and 90-100?', function(assert) {
@@ -3407,14 +3416,14 @@ interactiveTest('layer2D (no compression)', 'you should see lines between 20-40,
             data.push(0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 100
     });
     var cnt = 0;
     ifixture.interval = window.setInterval(function() {
         cnt = cnt + 1;
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines of the same color?', function(assert) {
@@ -3445,14 +3454,14 @@ interactiveTest('layer2D (average compression)', 'Do you see evenly spaced lines
             data.push(0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16384
     });
     var cnt = 0;
     ifixture.interval = window.setInterval(function() {
         cnt = cnt + 1;
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('layer2D (min compression)', 'Do you see two lines of the same color?', function(assert) {
@@ -3483,14 +3492,14 @@ interactiveTest('layer2D (min compression)', 'Do you see two lines of the same c
             data.push(0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16384
     });
     var cnt = 0;
     ifixture.interval = window.setInterval(function() {
         cnt = cnt + 1;
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('layer2D (max compression)', 'Do you see two lines of the same color?', function(assert) {
@@ -3521,14 +3530,14 @@ interactiveTest('layer2D (max compression)', 'Do you see two lines of the same c
             data.push(0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16384
     });
     var cnt = 0;
     ifixture.interval = window.setInterval(function() {
         cnt = cnt + 1;
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('layer2D (abs-max compression)', 'Do you see two lines of the same color?', function(assert) {
@@ -3559,14 +3568,14 @@ interactiveTest('layer2D (abs-max compression)', 'Do you see two lines of the sa
             data.push(0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16384
     });
     var cnt = 0;
     ifixture.interval = window.setInterval(function() {
         cnt = cnt + 1;
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('layer2D (change compression layerAvg)', 'Do you see two lines of the same color?', function(assert) {
@@ -3597,7 +3606,7 @@ interactiveTest('layer2D (change compression layerAvg)', 'Do you see two lines o
             data.push(0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16384
     }, {
@@ -3606,7 +3615,7 @@ interactiveTest('layer2D (change compression layerAvg)', 'Do you see two lines o
     var cnt = 0;
     ifixture.interval = window.setInterval(function() {
         cnt = cnt + 1;
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('layer2D (change compression settings)', 'Do you see two lines of the same color after 100 lines?', function(assert) {
@@ -3637,14 +3646,14 @@ interactiveTest('layer2D (change compression settings)', 'Do you see two lines o
             data.push(0);
         }
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 16384
     });
     var cnt = 0;
     ifixture.interval = window.setInterval(function() {
         cnt = cnt + 1;
-        plot.push(0, data);
+        plot.push(lyr0, data);
 
         if (cnt === 100) {
             plot.change_settings({
@@ -3861,7 +3870,7 @@ interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function(a
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -3872,7 +3881,7 @@ interactiveTest('scrolling raster', 'Do you see a scrolling raster?', function(a
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(-1 * (i + 1));
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster with two pipes?', function(assert) {
@@ -3893,7 +3902,7 @@ interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster wit
         file_name: "layer0",
         ydelta: 0.25
     });
-    assert.equal(layer_0, 0);
+    assert.equal(plot.get_lyrn(layer_0), 0);
     var layer_1 = plot.overlay_pipe({
         type: 2000,
         subsize: Math.floor(framesize / 3),
@@ -3902,7 +3911,7 @@ interactiveTest('scrolling raster two pipes', 'Do you see a scrolling raster wit
     }, {
         opacity: 0.5
     });
-    assert.equal(layer_1, 1);
+    assert.equal(plot.get_lyrn(layer_1), 1);
 
     ifixture.interval = window.setInterval(function() {
         var ramp = [];
@@ -3929,7 +3938,7 @@ interactiveTest('scrolling raster fixed scale', 'Do you see a scrolling raster?'
     });
     assert.notEqual(plot, null);
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -3940,7 +3949,7 @@ interactiveTest('scrolling raster fixed scale', 'Do you see a scrolling raster?'
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('scrolling raster (scaled)', 'Do you see the scaling change correctly?', function(assert) {
@@ -3951,7 +3960,7 @@ interactiveTest('scrolling raster (scaled)', 'Do you see the scaling change corr
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -3964,7 +3973,7 @@ interactiveTest('scrolling raster (scaled)', 'Do you see the scaling change corr
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
         cnt = cnt + 1;
         if (cnt === 40) {
             // After 40 lines, change the scaling changes
@@ -3983,7 +3992,7 @@ interactiveTest('raster (small xdelta)', 'Do you see the expected raster?', func
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -3995,7 +4004,7 @@ interactiveTest('raster (small xdelta)', 'Do you see the expected raster?', func
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('zoomed scrolling raster', 'Do you see a scrolling raster with no render errors?', function(assert) {
@@ -4006,7 +4015,7 @@ interactiveTest('zoomed scrolling raster', 'Do you see a scrolling raster with n
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4024,7 +4033,7 @@ interactiveTest('zoomed scrolling raster', 'Do you see a scrolling raster with n
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('falling raster', 'Do you see a falling raster?', function(assert) {
@@ -4035,7 +4044,7 @@ interactiveTest('falling raster', 'Do you see a falling raster?', function(asser
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4048,7 +4057,7 @@ interactiveTest('falling raster', 'Do you see a falling raster?', function(asser
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('xcmp raster align check', 'Do you see a line centered at 6000?', function(assert) {
@@ -4058,7 +4067,7 @@ interactiveTest('xcmp raster align check', 'Do you see a line centered at 6000?'
     });
     assert.notEqual(plot, null);
     var framesize = 9000;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "test"
@@ -4072,7 +4081,7 @@ interactiveTest('xcmp raster align check', 'Do you see a line centered at 6000?'
                 ramp.push(0);
             }
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('falling raster (timecode)', 'Do you see a falling raster that starts at 2014 July 4th?', function(assert) {
@@ -4083,7 +4092,7 @@ interactiveTest('falling raster (timecode)', 'Do you see a falling raster that s
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4098,7 +4107,7 @@ interactiveTest('falling raster (timecode)', 'Do you see a falling raster that s
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 500);
 });
 interactiveTest('falling raster (timestamp)', 'Do you see a falling raster that starts at 2014 July 4th?', function(assert) {
@@ -4110,7 +4119,7 @@ interactiveTest('falling raster (timestamp)', 'Do you see a falling raster that 
     });
     var framesize = 128;
     var now = new Date("2014-07-04T00:00:00Z");
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4124,7 +4133,7 @@ interactiveTest('falling raster (timestamp)', 'Do you see a falling raster that 
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp, {
+        plot.push(lyr0, ramp, {
             timestamp: now
         });
         now.setSeconds(now.getSeconds() + 0.5);
@@ -4138,7 +4147,7 @@ interactiveTest('rising raster', 'Do you see a rising raster?', function(assert)
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4151,7 +4160,7 @@ interactiveTest('rising raster', 'Do you see a rising raster?', function(assert)
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('rising raster (timecode)', 'Do you see a rising raster that starts at 2014 July 4th?', function(assert) {
@@ -4162,7 +4171,7 @@ interactiveTest('rising raster (timecode)', 'Do you see a rising raster that sta
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4177,7 +4186,7 @@ interactiveTest('rising raster (timecode)', 'Do you see a rising raster that sta
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 500);
 });
 interactiveTest('rising raster (timestamp)', 'Do you see a rising raster that starts at 2014 July 4th?', function(assert) {
@@ -4189,7 +4198,7 @@ interactiveTest('rising raster (timestamp)', 'Do you see a rising raster that st
     });
     var framesize = 128;
     var now = new Date("2014-07-04T00:00:00Z");
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4203,7 +4212,7 @@ interactiveTest('rising raster (timestamp)', 'Do you see a rising raster that st
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp, {
+        plot.push(lyr0, ramp, {
             timestamp: now
         });
         now.setSeconds(now.getSeconds() + 0.5);
@@ -4217,7 +4226,7 @@ interactiveTest('raster changing xstart', 'Do you see a falling raster that stay
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4235,7 +4244,7 @@ interactiveTest('raster changing xstart', 'Do you see a falling raster that stay
             xstart_chng = xstart_chng * -1;
         }
         xstart += xstart_chng;
-        plot.push(0, ramp, {
+        plot.push(lyr0, ramp, {
             xstart: xstart
         });
     }, 500);
@@ -4252,7 +4261,7 @@ interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr_uuid = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4266,7 +4275,7 @@ interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with
         } else {
             currentLps = lpsVals[0];
         }
-        plot.deoverlay(0);
+        plot.deoverlay(lyr_uuid);
         plot.overlay_pipe({
             type: 2000,
             subsize: framesize,
@@ -4286,7 +4295,7 @@ interactiveTest('raster changing LPS', 'Do you see a falling raster redrawn with
         if (count % 20 === 0) {
             toggleLps();
         }
-        plot.push(0, ramp, {
+        plot.push(lyr_uuid, ramp, {
             lps: currentLps
         });
     }, 500);
@@ -4299,7 +4308,7 @@ interactiveTest('raster changing xdelta', 'Do you see a falling raster that stay
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4312,7 +4321,7 @@ interactiveTest('raster changing xdelta', 'Do you see a falling raster that stay
             ramp.push(i + 1);
         }
         xdelta *= 2;
-        plot.push(0, ramp, {
+        plot.push(lyr0, ramp, {
             xdelta: xdelta
         });
     }, 500);
@@ -4326,7 +4335,7 @@ interactiveTest('large framesize falling raster', 'Do you see a falling raster?'
         all: true
     });
     var framesize = 128000;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4337,7 +4346,7 @@ interactiveTest('large framesize falling raster', 'Do you see a falling raster?'
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('complex data falling raster', 'Do you see a falling raster?', function(assert) {
@@ -4348,7 +4357,7 @@ interactiveTest('complex data falling raster', 'Do you see a falling raster?', f
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4361,7 +4370,7 @@ interactiveTest('complex data falling raster', 'Do you see a falling raster?', f
             ramp.push(i + 1);
             ramp.push(-1 * (i + 1));
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?', function(assert) {
@@ -4372,7 +4381,7 @@ interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?', functi
         cmode: 5
     });
     var framesize = 1024;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         file_name: "constellation",
         format: "CF"
     }, {
@@ -4394,7 +4403,7 @@ interactiveTest('complex dots', 'Do you see a cluster of dots near 0,0?', functi
             data.push((Math.random() * 2) - 1);
             data.push((Math.random() * 2) - 1);
         }
-        plot.push(0, data);
+        plot.push(lyr0, data);
     }, 100);
 });
 interactiveTest('rescale', 'Do you see a plot that scales -2 to 2?', function(assert) {
@@ -4527,7 +4536,7 @@ interactiveTest('sigplot layer1d framesize change',
         assert.notEqual(plot, null);
 
         var current_framesize = 100;
-        plot.overlay_pipe({
+        var lyr0 = plot.overlay_pipe({
             type: 1000
         }, {
             framesize: current_framesize
@@ -4547,7 +4556,7 @@ interactiveTest('sigplot layer1d framesize change',
                 framesize: current_framesize
             });
             // push the data
-            plot.push(0, data);
+            plot.push(lyr0, data);
             // increate the framesize for the next pass
             current_framesize = current_framesize + 100;
         }, 2000);
@@ -4743,7 +4752,7 @@ interactiveTest('annotations shift', 'Do you see a text annotation that remains 
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4761,7 +4770,7 @@ interactiveTest('annotations shift', 'Do you see a text annotation that remains 
             xstart_chng = xstart_chng * -1;
         }
         xstart += xstart_chng;
-        plot.push(0, ramp, {
+        plot.push(lyr0, ramp, {
             xstart: xstart
         });
     }, 500);
@@ -4778,7 +4787,7 @@ interactiveTest('annotation falling raster', 'Do you see annotations that scroll
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4810,7 +4819,7 @@ interactiveTest('annotation falling raster', 'Do you see annotations that scroll
                 popup: "32," + y
             });
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('annotation rising raster', 'Do you see annotations that scroll with the data?', function(assert) {
@@ -4825,7 +4834,7 @@ interactiveTest('annotation rising raster', 'Do you see annotations that scroll 
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4857,7 +4866,7 @@ interactiveTest('annotation rising raster', 'Do you see annotations that scroll 
                 popup: "32," + y
             });
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('x-fixed annotation rising raster', 'Do you see annotations that do not scroll with the data?', function(assert) {
@@ -4872,7 +4881,7 @@ interactiveTest('x-fixed annotation rising raster', 'Do you see annotations that
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4898,7 +4907,7 @@ interactiveTest('x-fixed annotation rising raster', 'Do you see annotations that
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('lots of annotations', 'Does the plot still seem smooth?', function(assert) {
@@ -4913,7 +4922,7 @@ interactiveTest('lots of annotations', 'Does the plot still seem smooth?', funct
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -4937,7 +4946,7 @@ interactiveTest('lots of annotations', 'Does the plot still seem smooth?', funct
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('vertical accordion', 'Do you see a vertical accordion that stays centered at zero as the axis shifts', function(assert) {
@@ -4958,7 +4967,7 @@ interactiveTest('vertical accordion', 'Do you see a vertical accordion that stay
             strokeStyle: "#FF2400"
         }
     });
-    plot.overlay_array(zeros, {
+    var lyr0 = plot.overlay_array(zeros, {
         type: 2000,
         subsize: framesize,
         file_name: "zeros",
@@ -4977,7 +4986,7 @@ interactiveTest('vertical accordion', 'Do you see a vertical accordion that stay
             xstart_chng = xstart_chng * -1;
         }
         xstart += xstart_chng;
-        plot.reload(0, zeros, {
+        plot.reload(lyr0, zeros, {
             xstart: xstart
         });
     }, 500);
@@ -4992,7 +5001,7 @@ interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at ze
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -5029,7 +5038,7 @@ interactiveTest('horizontal accordion', 'Do you see a horizontal accordion at ze
             plot.deoverlay(1);
             plot.add_plugin(accordion(y), 1);
         }
-        plot.push(0, zeros);
+        plot.push(lyr0, zeros);
     }, 100);
 });
 interactiveTest('vertical accordion relative placement', "Do you see a vertical accordion that doesn't move as the axis shifts?", function(assert) {
@@ -5040,7 +5049,7 @@ interactiveTest('vertical accordion relative placement', "Do you see a vertical 
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_array(null, {
+    var lyr0 = plot.overlay_array(null, {
         type: 2000,
         subsize: framesize,
         file_name: "zeros",
@@ -5072,7 +5081,7 @@ interactiveTest('vertical accordion relative placement', "Do you see a vertical 
             xstart_chng = xstart_chng * -1;
         }
         xstart += xstart_chng;
-        plot.reload(0, zeros, {
+        plot.reload(lyr0, zeros, {
             xstart: xstart
         });
     }, 500);
@@ -5091,7 +5100,7 @@ interactiveTest('horizontal accordion relative placement', "Do you see a horizon
     for (var i = 0; i < framesize; i += 1) {
         zeros.push(0);
     }
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "zeros"
@@ -5113,7 +5122,7 @@ interactiveTest('horizontal accordion relative placement', "Do you see a horizon
     accordion.set_width(0.1);
     var count = 0;
     ifixture.interval = window.setInterval(function() {
-        plot.push(0, zeros);
+        plot.push(lyr0, zeros);
     }, 100);
 });
 interactiveTest('horizontal and vertical accordions absolute placement zoom', 'Do the accordions stay at the same Real World Coordinates when you zoom?', function(assert) {
@@ -5524,7 +5533,7 @@ interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with 
         enabled_streaming_pcut: true
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -5537,7 +5546,7 @@ interactiveTest('falling raster with p-cuts', 'Do you see a falling raster with 
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with p-cut functionality?', function(assert) {
@@ -5549,7 +5558,7 @@ interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with p-
         enabled_streaming_pcut: true
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -5562,7 +5571,7 @@ interactiveTest('rising raster with p-cuts', 'Do you see a rising raster with p-
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster with p-cut functionality?', function(assert) {
@@ -5574,7 +5583,7 @@ interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster w
         enabled_streaming_pcut: true
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -5587,7 +5596,7 @@ interactiveTest('scrolling raster with p-cuts', 'Do you see a scrolling raster w
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(i + 1);
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
 });
 interactiveTest('radius menu', 'Do you see a working radius option in the traces menu?', function(assert) {
@@ -5658,7 +5667,7 @@ interactiveTest('raster drawmode change (scrolling -> rising -> scrolling)', 'Do
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -5669,7 +5678,7 @@ interactiveTest('raster drawmode change (scrolling -> rising -> scrolling)', 'Do
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(-1 * (i + 1));
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
     setTimeout(function() {
         plot.change_settings({
@@ -5690,7 +5699,7 @@ interactiveTest('raster drawmode change (scrolling -> falling -> scrolling)', 'D
         autol: 5
     });
     var framesize = 128;
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: framesize,
         file_name: "ramp",
@@ -5701,7 +5710,7 @@ interactiveTest('raster drawmode change (scrolling -> falling -> scrolling)', 'D
         for (var i = 0; i < framesize; i += 1) {
             ramp.push(-1 * (i + 1));
         }
-        plot.push(0, ramp);
+        plot.push(lyr0, ramp);
     }, 100);
     setTimeout(function() {
         plot.change_settings({
@@ -5733,14 +5742,14 @@ interactiveTest('change_settings', 'does the plot show a range 200-2200', functi
         framesize: 1024
     };
 
-    plot.overlay_pipe(hcb, layerOptions);
+    var lyr_uuid = plot.overlay_pipe(hcb, layerOptions);
 
     var ramp = [];
     for (var i = 0; i < 1024; i += 1) {
         ramp.push(i + 1);
     }
     // do a syncronous push so we can make some assertions
-    plot.push(0, ramp, null, true);
+    plot.push(lyr_uuid, ramp, null, true);
     assert.strictEqual(plot._Mx.stk[0].xmin, 0);
     assert.strictEqual(plot._Mx.stk[0].xmax, 20460);
 
@@ -5760,7 +5769,7 @@ interactiveTest('change_settings', 'does the plot show a range 200-2200', functi
     assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
     // and another push
-    plot.push(0, ramp, null, true);
+    plot.push(lyr_uuid, ramp, null, true);
     assert.strictEqual(plot._Mx.stk[0].xmin, 200);
     assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
@@ -5784,21 +5793,21 @@ interactiveTest('headermod', 'does the plot show a range 200-2200', function(ass
         framesize: 1024
     };
 
-    plot.overlay_pipe(hcb, layerOptions);
+    var lyr_uuid = plot.overlay_pipe(hcb, layerOptions);
 
     var ramp = [];
     for (var i = 0; i < 1024; i += 1) {
         ramp.push(i + 1);
     }
     // do a syncronous push so we can make some assertions
-    plot.push(0, ramp, null, true);
+    plot.push(lyr_uuid, ramp, null, true);
     assert.strictEqual(plot._Mx.stk[0].xmin, 0);
     assert.strictEqual(plot._Mx.stk[0].xmax, 20460);
 
     assert.strictEqual(plot._Gx.lyr[0].xmin, 0);
     assert.strictEqual(plot._Gx.lyr[0].xmax, 20460);
 
-    plot.headermod(0, {
+    plot.headermod(lyr_uuid, {
         xmin: 200,
         xmax: 2200
     });
@@ -5814,7 +5823,7 @@ interactiveTest('headermod', 'does the plot show a range 200-2200', function(ass
     assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
     // and another push
-    plot.push(0, ramp, null, true);
+    plot.push(lyr_uuid, ramp, null, true);
     assert.strictEqual(plot._Mx.stk[0].xmin, 200);
     assert.strictEqual(plot._Mx.stk[0].xmax, 2200);
 
@@ -6192,7 +6201,7 @@ interactiveTest('Raster downscale max', 'Do you see two red lines in the middle?
         autol: 5
     });
 
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 0,
         file_name: "random",
@@ -6223,7 +6232,7 @@ interactiveTest('Raster downscale max', 'Do you see two red lines in the middle?
         random[16002] = 1000;
         random[18000] = 1000;
 
-        plot.push(0, random, {
+        plot.push(lyr0, random, {
             subsize: framesize,
             xstart: 5e6,
             xdelta: 10
@@ -6240,7 +6249,7 @@ interactiveTest('Raster downscale min', 'Do you see one black line on the left?'
         autol: 5
     });
 
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 0,
         file_name: "random",
@@ -6271,7 +6280,7 @@ interactiveTest('Raster downscale min', 'Do you see one black line on the left?'
         random[16002] = 1000;
         random[18000] = 1000;
 
-        plot.push(0, random, {
+        plot.push(lyr0, random, {
             subsize: framesize,
             xstart: 5e6,
             xdelta: 10
@@ -6288,7 +6297,7 @@ interactiveTest('Raster downscale minmax', 'Do you see one black line on the lef
         autol: 5
     });
 
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 0,
         file_name: "random",
@@ -6319,7 +6328,7 @@ interactiveTest('Raster downscale minmax', 'Do you see one black line on the lef
         random[16002] = 1000;
         random[18000] = 1000;
 
-        plot.push(0, random, {
+        plot.push(lyr0, random, {
             subsize: framesize,
             xstart: 5e6,
             xdelta: 10
@@ -6337,7 +6346,7 @@ interactiveTest('Raster downscale minmax zoom', 'Do you see a line at 16000 and 
         autol: 5
     });
 
-    plot.overlay_pipe({
+    var lyr0 = plot.overlay_pipe({
         type: 2000,
         subsize: 0,
         file_name: "random"
@@ -6376,7 +6385,7 @@ interactiveTest('Raster downscale minmax zoom', 'Do you see a line at 16000 and 
         random[16002] = 1000;
         random[18000] = 1000;
 
-        plot.push(0, random, {
+        plot.push(lyr0, random, {
             subsize: framesize,
         });
 

@@ -1297,8 +1297,6 @@
         var tod = "";
         var j1950 = Date.UTC(1950, 0, 1); //From 1950 to 1970
         var j1950Date = new Date(j1950); //debug var
-        var j1949 = Date.UTC(1949, 11, 31);
-        var j1949Date = new Date(j1949); //debug var
         var d = new Date();
         var midnightToday = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
         var diffDaySecs = 86400; //    86400 secs = 24*60*60
@@ -1317,8 +1315,14 @@
                 // ddd:hh:mm:ss
                 var days = sec / diffDaySecs;
                 days = [days > 0 ? Math.floor(days) : Math.ceil(days)];
-                var d = new Date((sec * 1000) + midnightToday.getTime());
-                tod = days.toString() + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+
+                // Break down integral seconds in the day into hours, minutes and seconds.
+                var seconds = Math.floor(sec % diffDaySecs);
+                var hours = Math.floor(seconds / 3600);
+                var minutes = Math.floor((seconds / 60) % 60);
+                seconds %= 60;
+
+                tod = days.toString() + "::" + pad2(hours) + ":" + pad2(minutes) + ":" + pad2(seconds);
             } else {
                 // convert to j1950
                 var secMilli = Math.floor(sec * 1000) + j1950;
@@ -1331,13 +1335,19 @@
                 // -ddd:hh:mm:ss
                 var days = sec / diffDaySecs;
                 days = (days <= 0) ? Math.ceil(days) : Math.floor(days);
-                var d = new Date(Math.abs(sec * 1000) + midnightToday.getTime());
+
+                // Break down integral seconds in the day into hours, minutes and seconds.
+                var seconds = Math.floor(Math.abs(sec) % diffDaySecs);
+                var hours = Math.floor(seconds / 3600);
+                var minutes = Math.floor((seconds / 60) % 60);
+                seconds %= 60;
+
                 if (days === 0) {
                     days = "-0";
                 } else {
                     days = days.toString();
                 }
-                tod = days + "::" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+                tod = days + "::" + pad2(hours) + ":" + pad2(minutes) + ":" + pad2(seconds);
             } else {
                 // convert to j1950
                 var secMilli = Math.floor(sec * 1000) + j1950;
