@@ -94,7 +94,7 @@ Then open index.html in your webbrowser.
 
 Help
 =============
-Join the discussion on [Slack](https://join.slack.com/t/sigplot/shared_invite/enQtMjQ0NzkwMjc2NzcxLWEzZTQwMzdiYTBkMGM3N2QwZDc0OGU5MTY5MDMyN2U5NjNmNjc3MDhmZDMxMTY1MmQzNmIzZWQ2OGEzMDYzZDE).
+Join the discussion on [Slack](https://join.slack.com/t/sigplot/shared_invite/zt-34gdt6eb-c1vAwXR48B9YvDZvT7i1DQ).
 
 Contributing
 =====================
