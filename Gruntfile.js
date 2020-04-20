@@ -25,26 +25,6 @@ module.exports = function (grunt) {
             all: ['test/test.html']
         },
         'closure-compiler': {
-            bluefile_debug: {
-                closurePath: 'support/google-closure-compiler',
-                js: 'dist/bluefile.js',
-                maxBuffer: 500,
-                jsOutputFile: 'dist/bluefile-debug.js',
-                options: {
-                    formatting: 'PRETTY_PRINT',
-                    compilation_level: 'WHITESPACE_ONLY'
-                }
-            },
-            matfile_debug: {
-                closurePath: 'support/google-closure-compiler',
-                js: 'dist/matfile.js',
-                maxBuffer: 500,
-                jsOutputFile: 'dist/matfile-debug.js',
-                options: {
-                    formatting: 'PRETTY_PRINT',
-                    compilation_level: 'WHITESPACE_ONLY'
-                }
-            },
             sigplot_debug: {
                 closurePath: 'support/google-closure-compiler',
                 js: 'dist/sigplot.js',
@@ -63,24 +43,6 @@ module.exports = function (grunt) {
                 options: {
                     formatting: 'PRETTY_PRINT',
                     compilation_level: 'WHITESPACE_ONLY'
-                }
-            },
-            bluefile_minimized: {
-                closurePath: 'support/google-closure-compiler',
-                js: 'dist/bluefile.js',
-                maxBuffer: 500,
-                jsOutputFile: 'dist/bluefile-minimized.js',
-                options: {
-                    compilation_level: 'SIMPLE_OPTIMIZATIONS'
-                }
-            },
-            matfile_minimized: {
-                closurePath: 'support/google-closure-compiler',
-                js: 'dist/matfile.js',
-                maxBuffer: 500,
-                jsOutputFile: 'dist/matfile-minimized.js',
-                options: {
-                    compilation_level: 'SIMPLE_OPTIMIZATIONS'
                 }
             },
             sigplot_minimized: {
@@ -153,8 +115,6 @@ module.exports = function (grunt) {
             check: {
                 // Only check a subset of the files
                 src: [
-                        'js/bluefile.js',
-                        'js/matfile.js',
                         'js/m.js',
                         'js/mx.js',
                         'js/sigplot.layer1d.js',
@@ -176,8 +136,6 @@ module.exports = function (grunt) {
             cleanup: {
                 // Only cleanup a subset of the files
                 src: [
-                        'js/bluefile.js',
-                        'js/matfile.js',
                         'js/m.js',
                         'js/mx.js',
                         'js/sigplot.layer1d.js',
@@ -209,38 +167,6 @@ module.exports = function (grunt) {
             }
         },
         browserify: {
-            bluefile: {
-                src: 'js/bluefile.js',
-                dest: 'dist/bluefile.js',
-                options: {
-                    browserifyOptions: {
-                      standalone: 'bluefile'
-                    },
-                    transform: [
-                        [
-                            'babelify', {
-                                "presets": ["@babel/preset-env"]
-                            }
-                        ]
-                    ]
-                }
-            },
-            matfile: {
-                src: 'js/matfile.js',
-                dest: 'dist/matfile.js',
-                options: {
-                    browserifyOptions: {
-                      standalone: 'matfile'
-                    },
-                    transform: [
-                        [
-                            'babelify', {
-                                "presets": ["@babel/preset-env"]
-                            }
-                        ]
-                    ]
-                }
-            },
             sigplot: {
                 src: 'js/sigplot.js',
                 dest: 'dist/sigplot.js',

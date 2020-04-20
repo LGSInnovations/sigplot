@@ -34,7 +34,7 @@
 (function() {
     'use strict';
 
-    var bluefile = require("./bluefile");
+    var bluefile = require("sigfile").bluefile;
     var loglevel = require("loglevel");
 
     function m() {}
