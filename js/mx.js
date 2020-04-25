@@ -5352,6 +5352,32 @@
     mx.update_image_row = function(Mx, buf, data, row, zmin, zmax, xcompression) {
         var imgd = new Uint32Array(buf, row * buf.width * 4, buf.width);
 
+        // special case xcompression type 6 should run outside of for loop
+        if (data && xcompression === 6) {
+            
+            let formattedData = [];
+            let simplifiedData = [];
+            let reformattedData = [];
+
+            // format data with x and y properties
+            for (var index = 0; index < data.length; index++) {
+                value = data[index];
+                formattedData.push({ ['x']: index, ['y']: value });
+            }
+
+            // run formatted data through simplify js
+            simplifiedData = simplify(formattedData, 1, false);
+
+            // reformat array back to original
+            reformattedData = simplifiedData.map((item) => {
+                return item.y
+            });
+            
+            // set data equal to reformatted, simplified data
+            data = reformattedData;
+        }
+
+
         Mx.pixel.setRange(zmin, zmax);
 
         var xc = Math.max(1, data.length / buf.width);
@@ -5379,6 +5405,7 @@
                         value = Math.max(Math.abs(value), Math.abs(data[didx + j]));
                     }
                 }
+
             }
             var colorIdx = Mx.pixel.getColorIndex(value);
             imgd[i] = colorIdx;
