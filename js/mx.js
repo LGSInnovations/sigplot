@@ -5272,8 +5272,8 @@
         // where downscaling isn't used
         if (!downscaling) {
             for (var ii = 0; ii < dest.length; ii++) {
-                xx = Math.round(Math.floor(ii % w) * width_scaling) + sx;
-                yy = Math.round(Math.floor(ii / w) * height_scaling) + sy;
+                xx = Math.floor(ii % w * width_scaling) + sx;
+                yy = Math.floor(ii / w * height_scaling) + sy;
                 jj = Math.floor((yy * buf.width) + xx);
 
                 value = src[jj];
@@ -5281,8 +5281,8 @@
             }
         } else {
             for (var ii = 0; ii < dest.length; ii++) {
-                xx = Math.round(Math.floor(ii % w) * width_scaling) + sx;
-                yy = Math.round(Math.floor(ii / w) * height_scaling) + sy;
+                xx = Math.floor(ii % w * width_scaling) + sx;
+                yy = Math.floor(ii / w * height_scaling) + sy;
                 jj = Math.floor((yy * buf.width) + xx);
 
                 value = src[jj];
