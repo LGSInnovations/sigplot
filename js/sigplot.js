@@ -1359,7 +1359,7 @@
                                     Gx.x_pop_now = false;
                                 }
                             } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
-                                // show xCut if xyKeys aren't disabled and the first layer is 
+                                // show xCut if xyKeys aren't disabled and the first layer is
                                 // type 2000 and y-cut isn't currently enabled (we already checked
                                 // that x_cut above)
                                 if (!Gx.y_cut_press_on) {
@@ -1384,7 +1384,7 @@
                                     Gx.y_pop_now = false;
                                 }
                             } else if ((Gx.xyKeys !== "disable") && (Gx.lyr[0].hcb["class"] === 2)) {
-                                // show xCut if xyKeys aren't disabled and the first layer is 
+                                // show xCut if xyKeys aren't disabled and the first layer is
                                 // type 2000 and y-cut isn't currently enabled (we already checked
                                 // that y_cut above)
                                 if (!Gx.x_cut_press_on) {
@@ -1652,7 +1652,6 @@
          * @param {Boolean}
          *            settings.p_cuts true displays p_cuts on a 2D plot
          */
-
         change_settings: function(settings) {
             var Gx = this._Gx;
             var Mx = this._Mx;
