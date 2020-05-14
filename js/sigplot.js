@@ -4738,14 +4738,15 @@
                                 "Z Axis Max:",
                                 mx.floatValidator,
                                 function(finalValue) {
-                                    if (parseFloat(finalValue) !== Gx.zmax) {
+                                    var floatFinalValue = parseFloat(finalValue);
+                                    if (floatFinalValue !== Gx.zmax) {
                                         // Only update if different
                                         // value
                                         if (finalValue === "") {
-                                            finalValue = 0;
+                                            floatFinalValue = 0;
                                         }
                                         plot.change_settings({
-                                            zmax: finalValue
+                                            zmax: floatFinalValue
                                         });
                                     }
                                 }, Gx.zmax,
@@ -4757,12 +4758,13 @@
                             "Z Axis Min:",
                             mx.floatValidator,
                             function(finalValue) {
-                                if (parseFloat(finalValue) !== Gx.zmin) {
+                                var floatFinalValue = parseFloat(finalValue);
+                                if (floatFinalValue !== Gx.zmin) {
                                     if (finalValue === "") {
-                                        finalValue = 0;
+                                        floatFinalValue = 0;
                                     }
                                     plot.change_settings({
-                                        zmin: finalValue
+                                        zmin: floatFinalValue
                                     });
                                 }
                             }, Gx.zmin, undefined,
