@@ -35,8 +35,9 @@
     var _ = require("underscore");
     var Spinner = require("spin");
     var common = require("./common");
-    var bluefile = require("./bluefile");
-    var matfile = require("./matfile");
+    var sigfile = require("sigfile");
+    var bluefile = sigfile.bluefile;
+    var matfile = sigfile.matfile;
     var m = require("./m");
     var mx = require("./mx");
     var Layer1D = require("./sigplot.layer1d");
