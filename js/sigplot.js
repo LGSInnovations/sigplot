@@ -2464,7 +2464,6 @@
             let wpipe = {
                 hcb: null,
                 layer_n: null,
-                arrayFormat: null,
                 plotLayerOptions: null,
                 ws: null,
             };
@@ -2473,7 +2472,6 @@
 
             m.log.debug("Overlay websocket: " + wsurl);
 
-            console.log(wpipe.ws);
             wpipe.ws.onopen = function (evt) {
                 wpipe.ws.send(
                     JSON.stringify({
@@ -2519,11 +2517,14 @@
                             }
 
                             wpipe.hcb.pipe = true;
-                            wpipe.hcb = m.initialize(null, wpipe.hcb);
-
-                            wpipe.layer_n = plot.overlay_bluefile(wpipe.hcb, wpipe.plotLayerOptions);
+                            try {
+                                wpipe.hcb = m.initialize(null, wpipe.hcb);
+                                wpipe.layer_n = plot.overlay_bluefile(wpipe.hcb, wpipe.plotLayerOptions);
+                            } catch {
+                                wpipe.ws.close();   
+                            }
                         } else if (msg.event === "error") {
-                            console.error(msg);
+                            m.log.error(msg);
                         } else if (msg.event === "eof") {
                             wpipe.ws.close();
                             return;
@@ -2534,7 +2535,7 @@
                                 wpipe.hcb.ystart += msg.payload.skip_count * wpipe.hcb.ydelta;
                             }
                         } else {
-                            console.error('received unexpected pipe-data event "' + msg.event + '"');
+                            m.log.error('Received unexpected pipe-data event "' + msg.event + '"');
                             wpipe.ws.close();
                         }
                     } else {
@@ -2544,8 +2545,9 @@
                         } else if (wpipe.plotLayerOptions.layerType === Layer2D) {
                             var numFrames = evt.data.byteLength / wpipe.hcb.bpe;
                             for (var i = 0; i < numFrames; ++i) {
-                                var z = new wpipe.arrayFormat(evt.data, i * wpipe.hcb.bpe, wpipe.hcb.subsize * wpipe.hcb.spa);
-                                m.log.debug(wpipe.hcb.ystart);
+                                var offset = i * wpipe.hcb.bpe;
+                                var len = wpipe.hcb.subsize * wpipe.hcb.spa;
+                                var z = wpipe.hcb.createArray(evt.data, offset, len);
                                 plot.push(wpipe.layer_n, z);
                             }
                         }
