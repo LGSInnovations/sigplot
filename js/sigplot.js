@@ -2422,6 +2422,142 @@
             return layer_n;
         },
 
+        /**
+         * Create a plot layer from a Midas web pipe
+         *
+         * @example plot.overlay_wpipe({wsurl, {[overrides]}, {[layerOptions]},fps});
+         * @param {url:port_destination}
+         *            wsurl the url and port destination for the websocket being used
+         * @param [overrides]
+         *            Key-value pairs whose values alter plot settings
+         *
+         * @param {Number}
+         *            overrides.type 1000 = one dimensional, 2000 = two dimensional.
+         *            this is a convention of X-midas
+         *
+         * @param {Number}
+         *            overrides.subsize the subsize for data being read in by the plot
+         *
+         * @param [layerOptions]
+         *            Key-value pairs whose values are the settings for the plot
+         *
+         * @param {String}
+         *            layerOptions.name the name of the layer
+         *
+         * @param {Number}
+         *            layerOptions.framesize the framsize of the plot
+         *
+         * @param {Varies}
+         *            layerOptions.etc all of the parameters for the change_settings
+         *            function except for lg_colorbar and p_cuts
+         *
+         * @param {Number} fps
+         *            throttles the data flow to the client by the specified
+         *            frames-per-second
+         *
+         * @returns data_layer
+         *
+         */
+
+        overlay_wpipe: function (wsurl, overrides, layerOptions, fps) {
+            let plot = this;
+            let wpipe = {
+                hcb: null,
+                layer_n: null,
+                plotLayerOptions: null,
+                ws: null,
+            };
+            wpipe.ws = new WebSocket(wsurl, "pipe-data");
+            wpipe.ws.binaryType = "arraybuffer";
+
+            m.log.debug("Overlay websocket: " + wsurl);
+
+            wpipe.ws.onopen = function (evt) {
+                wpipe.ws.send(
+                    JSON.stringify({
+                        event: "open",
+                        payload: {
+                            set_buffer: {
+                                fps: fps,
+                            },
+                        },
+                    })
+                );
+            };
+
+            wpipe.ws.onmessage = (function (theSocket) {
+                return function (evt) {
+                    if (typeof evt.data === "string") {
+                        var msg = JSON.parse(evt.data);
+
+                        if (msg.event === "version") {
+                            m.log.debug("server: " + msg.payload.server + "\nxm-ver: " + msg.payload["xm-ver"]);
+                        } else if (msg.event === "header") {
+                            wpipe.hcb = msg.payload;
+                            wpipe.hcb.ws = wpipe.ws;
+                            wpipe.hcb.ystart = 0;
+                            wpipe.hcb.class = Math.floor(wpipe.hcb.type / 1000);
+                        } else if (msg.event === "out_buffer") {
+                            if (wpipe.layer_n !== null) {
+                                plot.remove_layer(wpipe.layer_n);
+                                wpipe.layer_n = null;
+                            }
+
+                            var bufferLayerOptions = {
+                                framesize: msg.payload.framesize,
+                                cmode: msg.payload.mode,
+                                xcmp: msg.payload.xcmp,
+                                ycmp: msg.payload.ycmp,
+                                fps: msg.payload.fps,
+                            };
+
+                            wpipe.plotLayerOptions = layerOptions != null ? Object.assign(bufferLayerOptions, layerOptions) : bufferLayerOptions;
+                            if (overrides != null) {
+                                wpipe.hcb = Object.assign(wpipe.hcb, overrides);
+                            }
+
+                            wpipe.hcb.pipe = true;
+                            try {
+                                wpipe.hcb = m.initialize(null, wpipe.hcb);
+                                wpipe.layer_n = plot.overlay_bluefile(wpipe.hcb, wpipe.plotLayerOptions);
+                            } catch {
+                                wpipe.ws.close();   
+                            }
+                        } else if (msg.event === "error") {
+                            m.log.error(msg);
+                        } else if (msg.event === "eof") {
+                            wpipe.ws.close();
+                            return;
+                        } else if (msg.event === "abscissa_update") {
+                            if (wpipe.plotLayerOptions.layerType === Layer1D) {
+                                wpipe.hcb.xstart += msg.payload.skip_count * wpipe.hcb.xdelta;
+                            } else if (wpipe.plotLayerOptions.layerType === Layer2D) {
+                                wpipe.hcb.ystart += msg.payload.skip_count * wpipe.hcb.ydelta;
+                            }
+                        } else {
+                            m.log.error('Received unexpected pipe-data event "' + msg.event + '"');
+                            wpipe.ws.close();
+                        }
+                    } else {
+                        if (wpipe.plotLayerOptions.layerType === Layer1D) {
+                            var array = wpipe.hcb.createArray(evt.data);
+                            plot.push(wpipe.layer_n, array);
+                        } else if (wpipe.plotLayerOptions.layerType === Layer2D) {
+                            var numFrames = evt.data.byteLength / wpipe.hcb.bpe;
+                            for (var i = 0; i < numFrames; ++i) {
+                                var offset = i * wpipe.hcb.bpe;
+                                var len = wpipe.hcb.subsize * wpipe.hcb.spa;
+                                var z = wpipe.hcb.createArray(evt.data, offset, len);
+                                plot.push(wpipe.layer_n, z);
+                            }
+                        }
+                    }
+                };
+            })(wpipe.ws);
+
+            return wpipe.layer_n;
+        },
+
 
         /**
          * Create a plot layer from an HREF that points to a BLUEFILE or MATFILE
