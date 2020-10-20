@@ -2459,7 +2459,7 @@
          *
          */
 
-        overlay_wpipe: function (wsurl, overrides, layerOptions, fps) {
+        overlay_wpipe: function(wsurl, overrides, layerOptions, fps) {
             let plot = this;
             let wpipe = {
                 hcb: null,
@@ -2472,7 +2472,7 @@
 
             m.log.debug("Overlay websocket: " + wsurl);
 
-            wpipe.ws.onopen = function (evt) {
+            wpipe.ws.onopen = function(evt) {
                 wpipe.ws.send(
                     JSON.stringify({
                         event: "open",
@@ -2485,8 +2485,8 @@
                 );
             };
 
-            wpipe.ws.onmessage = (function (theSocket) {
-                return function (evt) {
+            wpipe.ws.onmessage = (function(theSocket) {
+                return function(evt) {
                     if (typeof evt.data === "string") {
                         var msg = JSON.parse(evt.data);
 
@@ -2520,8 +2520,8 @@
                             try {
                                 wpipe.hcb = m.initialize(null, wpipe.hcb);
                                 wpipe.layer_n = plot.overlay_bluefile(wpipe.hcb, wpipe.plotLayerOptions);
-                            } catch {
-                                wpipe.ws.close();   
+                            } catch (e) {
+                                wpipe.ws.close();
                             }
                         } else if (msg.event === "error") {
                             m.log.error(msg);
