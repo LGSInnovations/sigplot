@@ -2461,18 +2461,9 @@
 
         overlay_wpipe: function (wsurl, overrides, layerOptions, fps) {
             let plot = this;
-            let dfmap = {
-                B: Int8Array,
-                I: Int16Array,
-                F: Float32Array,
-                L: Int32Array,
-                D: Float64Array,
-            };
-
             let wpipe = {
                 hcb: null,
                 layer_n: null,
-                arrayFormat: null,
                 plotLayerOptions: null,
                 ws: null,
             };
@@ -2481,7 +2472,6 @@
 
             m.log.debug("Overlay websocket: " + wsurl);
 
-            console.log(wpipe.ws);
             wpipe.ws.onopen = function (evt) {
                 wpipe.ws.send(
                     JSON.stringify({
@@ -2498,24 +2488,16 @@
             wpipe.ws.onmessage = (function (theSocket) {
                 return function (evt) {
                     if (typeof evt.data === "string") {
-                        var msg = JSON.parse(event.data);
+                        var msg = JSON.parse(evt.data);
 
                         if (msg.event === "version") {
-                            console.log("server: " + msg.payload.server + "\nxm-ver: " + msg.payload["xm-ver"]);
+                            m.log.debug("server: " + msg.payload.server + "\nxm-ver: " + msg.payload["xm-ver"]);
                         } else if (msg.event === "header") {
                             wpipe.hcb = msg.payload;
                             wpipe.hcb.ws = wpipe.ws;
                             wpipe.hcb.ystart = 0;
                             wpipe.hcb.class = Math.floor(wpipe.hcb.type / 1000);
                         } else if (msg.event === "out_buffer") {
-                            try {
-                                wpipe.arrayFormat = dfmap[msg.payload.format[1]];
-                            } catch (err) {
-                                console.error("unsupported data type");
-                                wpipe.ws.close();
-                                return;
-                            }
-
                             if (wpipe.layer_n !== null) {
                                 plot.remove_layer(wpipe.layer_n);
                                 wpipe.layer_n = null;
@@ -2534,14 +2516,15 @@
                                 wpipe.hcb = Object.assign(wpipe.hcb, overrides);
                             }
 
-                            if (wpipe.hcb.class === 2) {
-                                wpipe.hcb.pipe = true;
+                            wpipe.hcb.pipe = true;
+                            try {
+                                wpipe.hcb = m.initialize(null, wpipe.hcb);
+                                wpipe.layer_n = plot.overlay_bluefile(wpipe.hcb, wpipe.plotLayerOptions);
+                            } catch {
+                                wpipe.ws.close();   
                             }
-                            wpipe.hcb = m.initialize(null, wpipe.hcb);
-
-                            wpipe.layer_n = plot.overlay_bluefile(wpipe.hcb, wpipe.plotLayerOptions);
                         } else if (msg.event === "error") {
-                            console.error(msg);
+                            m.log.error(msg);
                         } else if (msg.event === "eof") {
                             wpipe.ws.close();
                             return;
@@ -2552,18 +2535,19 @@
                                 wpipe.hcb.ystart += msg.payload.skip_count * wpipe.hcb.ydelta;
                             }
                         } else {
-                            console.error('received unexpected pipe-data event "' + msg.event + '"');
+                            m.log.error('Received unexpected pipe-data event "' + msg.event + '"');
                             wpipe.ws.close();
                         }
                     } else {
                         if (wpipe.plotLayerOptions.layerType === Layer1D) {
-                            plot.push(wpipe.layer_n, new wpipe.arrayFormat(evt.data));
+                            var array = wpipe.hcb.createArray(evt.data);
+                            plot.push(wpipe.layer_n, array);
                         } else if (wpipe.plotLayerOptions.layerType === Layer2D) {
                             var numFrames = evt.data.byteLength / wpipe.hcb.bpe;
                             for (var i = 0; i < numFrames; ++i) {
-                                var z = new wpipe.arrayFormat(evt.data, i * wpipe.hcb.bpe, wpipe.hcb.subsize * wpipe.hcb.spa);
-                                console.log(wpipe.hcb.ystart);
-
+                                var offset = i * wpipe.hcb.bpe;
+                                var len = wpipe.hcb.subsize * wpipe.hcb.spa;
+                                var z = wpipe.hcb.createArray(evt.data, offset, len);
                                 plot.push(wpipe.layer_n, z);
                             }
                         }
