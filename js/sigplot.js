@@ -2408,7 +2408,7 @@
                         plot.push(layer_n, data);
                     } else if (typeof evt.data === "string") {
                         var Gx = plot._Gx;
-                        var hdr = Gx.lyr[layer_n].hcb;
+                        var hdr = Gx.lyr[plot.get_lyrn(layer_n)].hcb;
                         if (!hdr) {
                             m.log.warning("Couldn't find header for layer " + layer_n);
                         }
